@@ -19,13 +19,19 @@ public abstract class GZSubsystem extends Subsystem {
 	private boolean mTalonTestingHasFail = false;
 
 	protected Map<Integer, GZSRX> mTalons = new HashMap<Integer, GZSRX>();
-	protected Map<Integer, GZSpark> mSparks = new HashMap<Integer, GZSpark>();
+	protected Map<Integer, GZSpeedController> mDumbControllers = new HashMap<Integer, GZSpeedController>();
 
 	public abstract boolean hasMotors();
 
 	public void clearMotorTestingFails()
 	{
 		mTalonTestingHasFail = false;
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.getClass().getSimpleName();
 	}
 
 	public void setMotorTestingFail()
@@ -39,8 +45,6 @@ public abstract class GZSubsystem extends Subsystem {
 	}
 
 	public abstract void addMotorTestingGroups();
-	public abstract void addPDPTestingMotors();
-	
 
 	/**
 	 * Disabling each subsystem
@@ -59,20 +63,7 @@ public abstract class GZSubsystem extends Subsystem {
 		return mIsDisabled;
 	}
 
-	/**
-	 * Looping
-	 */
-	private Notifier loopNotifier = new Notifier(new Runnable() {
-		public void run() {
-			loop();
-		}
-	});
-
 	public abstract void loop();
-
-	public void startLooping() {
-		loopNotifier.startPeriodic(kLoop.LOOP_SPEED);
-	}
 
 	// Each subsystem is able to report its current state as a string
 	public abstract String getStateString();

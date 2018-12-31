@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import java.util.List;
 
+import edu.wpi.first.wpilibj.Notifier;
+
 //thx 254
 public class GZSubsystemManager {
 
@@ -11,23 +13,26 @@ public class GZSubsystemManager {
 		mAllSystems = allSubsystems;
 	}
 
-	public void startLooping()
-	{
-		mAllSystems.forEach((s) -> s.startLooping());
+	private GZNotifier looper_ = new GZNotifier(new Runnable() {
+		@Override
+		public void run() {
+			loop();
+		}
+	});
+
+	public void startLooping() {
+		looper_.startPeriodic(.02);
 	}
 
-	public void addLoggingValues()
-	{
+	public void addLoggingValues() {
 		mAllSystems.forEach((s) -> s.addLoggingValues());
 	}
 
-	public void loop()
-	{
+	public void loop() {
 		mAllSystems.forEach((s) -> s.loop());
 	}
-	
-	public List<GZSubsystem> getSubsystems()
-	{
+
+	public List<GZSubsystem> getSubsystems() {
 		return mAllSystems;
 	}
 

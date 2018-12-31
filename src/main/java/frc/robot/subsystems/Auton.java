@@ -9,15 +9,11 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
-import frc.robot.commands.auton.DefaultAutonomous;
-import frc.robot.commands.auton.LeftAuton;
-import frc.robot.commands.auton.MiddleAuton;
-import frc.robot.commands.auton.NoCommand;
-import frc.robot.commands.auton.RightAuton;
 import frc.robot.commands.drive.EncoderFrom;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZJoystick.Buttons;
 import frc.robot.util.GZTimer;
+import frc.robot.commands.NoCommand;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -141,40 +137,7 @@ public class Auton {
 			Arrays.fill(commandArray, noCommand);
 		}
 
-		defaultCommand = new GZCommand("DEFAULT", new DefaultAutonomous());
-
-		// commandArray[1] = new GZCommand("TEST", new EncoderFrom(3, 3, .5, .5, .6));
-		commandArray[1] = new GZCommand("Middle - Switch", new MiddleAuton(AO.SWITCH, AV.SEASON));
-		commandArray[2] = new GZCommand("Left - Switch", new LeftAuton(AO.SWITCH, AV.SEASON, AV.SEASON));
-		commandArray[3] = new GZCommand("Left - Scale", new LeftAuton(AO.SCALE, AV.SEASON, AV.SEASON));
-		commandArray[4] = new GZCommand("Right - Switch", new RightAuton(AO.SWITCH, AV.SEASON, AV.SEASON));
-		commandArray[5] = new GZCommand("Right - Scale", new RightAuton(AO.SCALE, AV.SEASON, AV.SEASON));
-
-		// commandArray[6] = new GZCommand("Parse Motion Profile", new
-		// RunMotionProfile(kFiles.NAME, kFiles.FOLDER, kFiles.USB));
-		commandArray[6] = new GZCommand("DRIVE FORWARD 10", new EncoderFrom(10, 10, .3, .3, 1));
-		// commandArray[7] = new GZCommand("Parse Motion Profile",
-		// 		new RunMotionProfile(kFiles.MP_NAME, kFiles.MP_FOLDER, kFiles.MP_USB));
-
-		commandArray[11] = new GZCommand("Left Only - Switch Priority",
-				new LeftAuton(AO.SWITCH_PRIORITY_NO_CROSS, AV.SEASON, AV.SEASON));
-		commandArray[12] = new GZCommand("Left Only - Scale Priority",
-				new LeftAuton(AO.SCALE_PRIORITY_NO_CROSS, AV.SEASON, AV.SEASON));
-		commandArray[13] = new GZCommand("Left Only - Switch Only",
-				new LeftAuton(AO.SWITCH_ONLY, AV.SEASON, AV.SEASON));
-		commandArray[14] = new GZCommand("Left Only - Scale Only", new LeftAuton(AO.SCALE_ONLY, AV.SEASON, AV.SEASON));
-
-		commandArray[15] = new GZCommand("Right Only - Switch Priority",
-				new RightAuton(AO.SWITCH_PRIORITY_NO_CROSS, AV.SEASON, AV.SEASON));
-		commandArray[16] = new GZCommand("Right Only - Scale Priority",
-				new RightAuton(AO.SCALE_PRIORITY_NO_CROSS, AV.SEASON, AV.SEASON));
-		commandArray[17] = new GZCommand("Right Only - Switch Only",
-				new RightAuton(AO.SWITCH_ONLY, AV.SEASON, AV.SEASON));
-		commandArray[18] = new GZCommand("Right Only - Scale Only",
-				new RightAuton(AO.SCALE_ONLY, AV.SEASON, AV.SEASON));
-
-		commandArray[19] = new GZCommand("Left - Default", new LeftAuton(AO.DEFAULT, AV.SEASON, AV.SEASON));
-		commandArray[20] = new GZCommand("Right - Default", new RightAuton(AO.DEFAULT, AV.SEASON, AV.SEASON));
+		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 
 		autonChooser();
 	}

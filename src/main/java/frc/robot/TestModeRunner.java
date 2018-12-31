@@ -27,9 +27,8 @@ public class TestModeRunner {
     private int posInMenu = 0;
     private int prevPosInMenu = posInMenu - 1;
 
-    private boolean selectPressed = false;
-
     private boolean isEnabled = false;
+    private boolean wasEnabled = false;
 
     private TestModeRunner() {
         clearMenu();
@@ -45,7 +44,7 @@ public class TestModeRunner {
         ArrayList<Option> motorTestingOptions = new ArrayList<>();
         for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
             if (s.hasMotors()) {
-                motorTestingOptions.add(new Option("Amperage Test " + s.getClass().getSimpleName()) {
+                motorTestingOptions.add(new Option("Amperage Test " + s.toString()) {
                     public void run() {
                         s.addMotorTestingGroups();
                     }
@@ -61,27 +60,48 @@ public class TestModeRunner {
 
                 AmperageChecker.getInstance().checkMotors();
                 AmperageChecker.getInstance().clearValues();
+                Robot.allSubsystems.enableFollower();
             }
         });
 
-        ArrayList<Option> pdpTestingOptions = new ArrayList<>();
-        for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
-            if (s.hasMotors()) {
-                pdpTestingOptions.add(new Option("PDP Test " + s.getClass().getSimpleName()) {
-                    public void run() {
-                        s.addPDPTestingMotors();
-                    }
-                });
-            }
-        }
+        // ArrayList<Option> pdpTestingOptions = new ArrayList<>();
+        // for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
+        //     if (s.hasMotors()) {
+        //         pdpTestingOptions.add(new Option("PDP Test " + s.toString()) {
+        //             public void run() {
+        //                 s.addPDPTestingMotors();
+        //             }
+        //         });
+        //     }
+        // }
 
-        optionsList.add(new OptionList("PDP Testing", pdpTestingOptions) {
+        // optionsList.add(new OptionList("PDP Testing", pdpTestingOptions) {
+        //     public void run() {
+        //         for (Option o : this.getOptions())
+        //             o.run();
+
+        //         PDPChannelChecker.getInstance().runCheck(kFiles.PDPChannelCheckerWaitTime);
+        //         PDPChannelChecker.getInstance().clearValues();
+        //         Robot.allSubsystems.enableFollower();
+        //     }
+        // });
+
+        //STATS
+        ArrayList<Option> statsOptions = new ArrayList<Option>();
+        statsOptions.add(new Option("Reset Stats") {
+            public void run() {
+                PersistentInfoManager.getInstance().reset();
+            }
+        });
+        statsOptions.add(new Option("Reread Stats from new file") {
+            public void run() {
+                PersistentInfoManager.getInstance().replaceAndReRead();
+            }
+        });
+        optionsList.add(new OptionList("Stats", statsOptions) {
             public void run() {
                 for (Option o : this.getOptions())
                     o.run();
-
-                PDPChannelChecker.getInstance().runCheck(kFiles.PDPChannelCheckerWaitTime);
-                PDPChannelChecker.getInstance().clearValues();
             }
         });
     }
@@ -90,80 +110,8 @@ public class TestModeRunner {
         return posInMenu;
     }
 
-    private void handleJoystickInput() {
-        // Moving between different menus
-        if (GZOI.driverJoy.isXPressed())
-            inMenu = -1;
-        else if (inMenu == -1 && GZOI.driverJoy.isBPressed())
-            inMenu = posInMenu;
-        if (GZOI.driverJoy.isAPressed())
-            posInMenu++;
-        else if (GZOI.driverJoy.isYPressed())
-            posInMenu--;
-    }
-
-    private void sanityCheckJoystickInputs() {
-        // Check position
-        if (inMenu == -1) {
-            if (posInMenu > optionsList.size() - 1)
-                posInMenu = optionsList.size() - 1;
-            else if (posInMenu < 0)
-                posInMenu = 0;
-        } else {
-            int size = optionsList.get(inMenu).getOptions().size() - 1;
-            if (posInMenu > size) {
-                posInMenu = size;
-            } else if (posInMenu < 0) {
-                posInMenu = 0;
-            }
-        }
-    }
-
-    private void highlight() {
-        // Highlighting
-        // Main menu
-        if (inMenu == -1) {
-            for (OptionList o : optionsList)
-                o.hover(false);
-            optionsList.get(posInMenu).hover(true);
-        } else { // In another menu
-            for (Option o : optionsList.get(inMenu).getOptions())
-                o.hover(false);
-            optionsList.get(inMenu).getOptions().get(posInMenu).hover(true);
-        }
-    }
-
-    private void onlyAllowOneMenuSelected() {
-        int optionListsSelected = 0;
-        for (OptionList o : optionsList)
-            if (o.isSelected())
-                optionListsSelected++;
-        if (optionListsSelected > 1)
-            for (OptionList o : optionsList)
-                o.deselectAllOptions();
-    }
-
-    private void handleJoystickSelect() {
-        // Select
-        if (inMenu != -1 && GZOI.driverJoy.isLBPressed()) {
-            optionsList.get(inMenu).getOptions().get(posInMenu).toggleSelected();
-            selectPressed = true;
-        }
-    }
-
-    private void conditionallyPrint(boolean force) {
-        // Print
-        if (prevInMenu != inMenu || prevPosInMenu != posInMenu || selectPressed || force) {
-            String message;
-            message = "Use DPad to navigate";
-            if (inMenu != -1)
-                message += ", A to select, Y to start";
-            print(message);
-        }
-    }
-
     public void handleJoystickRun() {
-        if (GZOI.driverJoy.isRBPressed()) {
+        if (GZOI.driverJoy.isYPressed()) {
             for (OptionList o : optionsList)
                 if (o.isSelected())
                     o.run();
@@ -178,24 +126,78 @@ public class TestModeRunner {
             isEnabled = true;
         } else if (GZOI.driverJoy.isLClickPressed()) {
             isEnabled = false;
-            System.out.println("Test menu disabled.");
         }
+
+        if (isEnabled != wasEnabled)
+            System.out.println("Test mode " + (isEnabled ? "enabled" : "disabled"));
+
+        wasEnabled = isEnabled;
+
         if (!isEnabled)
             return;
 
-        selectPressed = false;
+        // HANDLE JOYSTICK INPUT
+        if (GZOI.driverJoy.isDLeftPressed())
+            inMenu = -1;
+        else if (inMenu == -1 && GZOI.driverJoy.isDRightPressed())
+            inMenu = posInMenu;
+        if (GZOI.driverJoy.isDDownPressed())
+            posInMenu++;
+        else if (GZOI.driverJoy.isDUpPressed())
+            posInMenu--;
 
-        handleJoystickInput();
+        // KEEP MENU AND POSITION IN MENU WITHIN BOUNDS
+        if (inMenu == -1) {
+            if (posInMenu > optionsList.size() - 1)
+                posInMenu = optionsList.size() - 1;
+            else if (posInMenu < 0)
+                posInMenu = 0;
+        } else {
+            int size = optionsList.get(inMenu).getOptions().size() - 1;
+            if (posInMenu > size) {
+                posInMenu = size;
+            } else if (posInMenu < 0) {
+                posInMenu = 0;
+            }
+        }
 
-        sanityCheckJoystickInputs();
+        // HIGHLIGHTING
+        if (inMenu == -1) { // Main menu
+            for (OptionList o : optionsList)
+                o.hover(false);
+            optionsList.get(posInMenu).hover(true);
+        } else { // In another menu
+            for (Option o : optionsList.get(inMenu).getOptions())
+                o.hover(false);
+            optionsList.get(inMenu).getOptions().get(posInMenu).hover(true);
+        }
 
-        highlight();
+        // ONLY ALLOW ONE MENU TO BE SELECTED
+        {
+            int optionListsSelected = 0;
+            for (OptionList o : optionsList)
+                if (o.isSelected())
+                    optionListsSelected++;
+            if (optionListsSelected > 1)
+                for (OptionList o : optionsList)
+                    o.deselectAllOptions();
+        }
 
-        onlyAllowOneMenuSelected();
+        // SELECT PRESSED
+        boolean selectPressed = false;
+        if (inMenu != -1 && GZOI.driverJoy.isAPressed()) {
+            optionsList.get(inMenu).getOptions().get(posInMenu).toggleSelected();
+            selectPressed = true;
+        }
 
-        handleJoystickSelect();
-
-        conditionallyPrint(false);
+        // PRINT ON CHANGE
+        if (prevInMenu != inMenu || prevPosInMenu != posInMenu || selectPressed) {
+            String message;
+            message = "Use DPad to navigate";
+            if (inMenu != -1)
+                message += ", A to select, Y to start";
+            print(message);
+        }
 
         handleJoystickRun();
 
@@ -204,6 +206,7 @@ public class TestModeRunner {
     }
 
     private void print(String message) {
+        System.out.println("\n\n");
         if (inMenu == -1) {
             System.out.println("~~~" + "Testing Menu" + "~~~");
             for (OptionList o : optionsList) {

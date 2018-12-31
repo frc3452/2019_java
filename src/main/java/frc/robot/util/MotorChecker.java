@@ -1,13 +1,18 @@
 package frc.robot.util;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
-import frc.robot.util.GZFileMaker.ValidFileExtensions;
+import frc.robot.Constants.kFiles;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
 
@@ -47,9 +52,9 @@ public class MotorChecker {
 
             private CheckerConfig mCheckerConfig;
 
-            public MotorTestingGroup(GZSubsystem subsystem, String name, List<GZSpeedController> talons,
+            public MotorTestingGroup(GZSubsystem subsystem, String name, List<GZSpeedController> controllers,
                     CheckerConfig config) {
-                this.controllers = talons;
+                this.controllers = controllers;
                 this.mName = name;
                 this.mSubsystem = subsystem;
                 this.mCheckerConfig = config;
@@ -97,10 +102,6 @@ public class MotorChecker {
                 return this.mSubsystem;
             }
 
-            public String getSubsystemName() {
-                return getSubsystem().getClass().getSimpleName();
-            }
-
             public List<GZSpeedController> getControllers() {
                 return controllers;
             }
@@ -121,6 +122,61 @@ public class MotorChecker {
         }
 
         public static class CheckerConfig {
+
+            public static List<MotorTestingGroup> getFromFile(GZSubsystem subsystem) {
+                File file = kFiles.MOTOR_TESTING_CONFIG.getFile();
+
+                List<MotorTestingGroup> ret = new ArrayList<MotorTestingGroup>();
+                try {
+
+                    Scanner scnr = new Scanner(new FileReader(file));
+
+                    // Skip first line of headers
+                    scnr.nextLine();
+
+                    while (scnr.hasNext()) {
+                        String t = scnr.nextLine();
+                        String split[] = t.split(",");
+
+                        if (split[0].equals(subsystem.toString())) {
+                            List<GZSpeedController> controllers = new ArrayList<GZSpeedController>();
+
+                            double currentFloor = Double.valueOf(split[2]);
+                            double currentEpsilon = Double.valueOf(split[3]);
+                            double runTimeSec = Double.valueOf(split[4]);
+                            double waitTimeSec = Double.valueOf(split[5]);
+                            double outputPercentage = Double.valueOf(split[6]);
+                            boolean reverseAfterGroup = Boolean.valueOf(split[7]);
+
+                            CheckerConfig config = new CheckerConfig(currentFloor, currentEpsilon, runTimeSec,
+                                    waitTimeSec, outputPercentage, reverseAfterGroup);
+
+                            for (int i = 8; i < split.length; i++) {
+                                for (GZSpeedController controller : subsystem.mTalons.values())
+                                    if (controller.getGZName().equals(split[i]))
+                                        controllers.add(controller);
+
+                                for (GZSpeedController controller : subsystem.mDumbControllers.values())
+                                    if (controller.getGZName().equals(split[i]))
+                                        controllers.add(controller);
+                            }
+                            ret.add(new MotorTestingGroup(subsystem, split[1], controllers, config));
+                        }
+                    }
+                    scnr.close();
+
+                    if (ret.isEmpty())
+                        return null;
+                    return ret;
+                } catch (Exception e) {
+                    // on error
+                    System.out.println("ERROR Could not load MotorTestingConfig for " + subsystem.toString() + " at "
+                            + file.toPath());
+                            // e.printStackTrace();
+                    return null;
+                }
+            }
+
             public double mCurrentFloor = 0;
             public double mCurrentEpsilon = 0;
 
@@ -179,10 +235,24 @@ public class MotorChecker {
         }
 
         public void addTalonGroup(MotorTestingGroup group) {
+            if (group.getConfig() == null || group == null) {
+                return;
+            }
+
             if (!subsystemMap.containsKey(group.getSubsystem()))
                 subsystemMap.put(group.getSubsystem(), new ArrayList<MotorTestingGroup>());
 
             subsystemMap.get(group.getSubsystem()).add(group);
+        }
+
+        public void addTalonGroups(List<MotorTestingGroup> multipleGroups)
+        {
+            if (multipleGroups == null)
+                return;
+
+            for (MotorTestingGroup g : multipleGroups)
+                if (g != null)
+                    addTalonGroup(g);
         }
 
         public void checkMotors() {
@@ -218,9 +288,9 @@ public class MotorChecker {
                     // Controllers
                     List<GZSpeedController> controllersToCheck = group.getControllers();
 
-                    System.out.println("Checking subsystem " + group.getSubsystemName() + " group " + group.getName()
-                            + " for " + controllersToCheck.size() + " controllers. Estimated total time left: "
-                            + mTimeNeeded + " seconds");
+                    System.out.println("Checking subsystem " + group.getSubsystem().toString() + " group "
+                            + group.getName() + " for " + controllersToCheck.size()
+                            + " controllers. Estimated total time left: " + mTimeNeeded + " seconds");
 
                     // Dont allow other methods to control these controllers
                     for (GZSpeedController t : controllersToCheck)
@@ -437,31 +507,28 @@ public class MotorChecker {
                 // if the subsystem doesn't have any fails, wrap in a button so we can hide it
                 // easily
                 if (!subsystem.hasMotorTestingFail())
-                    subsystemContent = HTML.button("Open " + subsystem.getClass().getSimpleName(), subsystemContent);
+                    subsystemContent = HTML.button("Open " + subsystem.toString(), subsystemContent);
 
                 body += subsystemContent;
             } // end of all subsystems
 
             boolean htmlWriteFail = false;
+            GZFile file = null;
             try {
-                // if on rio, folder will be MotorReports/MotorReport-2018.12.20.09.06
-                // if on usb, folder will be 3452/MotorReports/MotorReport-2018.12.20.09.06
-                Folder srxReportFolder = new Folder("MotorReports");
-
                 // write to rio
-                GZFile file = GZFileMaker.getFile("MotorReport-" + GZUtil.dateTime(false), srxReportFolder,
-                        ValidFileExtensions.HTML, true, true);
-
+                file = GZFileMaker.getFile("MotorReport-" + GZUtil.dateTime(false), new Folder("MotorReports"),
+                        ValidFileExtension.HTML, false, true);
                 HTML.createHTMLFile(file, body);
 
-                try {
-                    GZFiles.copyFile(file.getFile(), GZFileMaker.getFile(file, true).getFile());
-                } catch (Exception copyFile) {
-                    System.out.println("Could not copy MotorReport to USB!");
-                    htmlWriteFail = true;
-                }
-            } catch (Exception writingSRXReport) {
+            } catch (Exception e) {
                 System.out.println("Could not write MotorReport!");
+                htmlWriteFail = true;
+            }
+
+            try {
+                GZFiles.copyFile(file, GZFileMaker.getFile(file, true));
+            } catch (Exception copyFile) {
+                System.out.println("Could not copy MotorReport to USB!");
                 htmlWriteFail = true;
             }
 
@@ -483,17 +550,16 @@ public class MotorChecker {
             private final GZSubsystem mSubsystem;
 
             public CheckerConfig(GZSubsystem subsystem, double runtimeSec, double runSpeed) {
-                this.mRunTimeSec = runtimeSec;
                 this.mSubsystem = subsystem;
                 this.mRunSpeed = runSpeed;
+
+                if (runtimeSec < .1)
+                    this.mRunTimeSec = .1;
+                else
+                    this.mRunTimeSec = runtimeSec;
             }
 
-            public String getSubsystemName() {
-                return this.mSubsystem.getClass().getSimpleName();
-            }
-
-            public GZSubsystem getSubsystem()
-            {
+            public GZSubsystem getSubsystem() {
                 return this.mSubsystem;
             }
 
@@ -507,12 +573,18 @@ public class MotorChecker {
         }
 
         public static class CheckerMotorGroup {
-            private List<GZSpeedController> mController;
-            private CheckerConfig mConfig;
+            private final List<GZSpeedController> mController;
+            private final CheckerConfig mConfig;
+            private final String mName;
 
-            public CheckerMotorGroup(List<GZSpeedController> c, CheckerConfig config) {
+            public CheckerMotorGroup(String name, List<GZSpeedController> c, CheckerConfig config) {
                 this.mController = c;
                 this.mConfig = config;
+                this.mName = name;
+            }
+
+            public String getName() {
+                return this.mName;
             }
 
             public List<GZSpeedController> getControllers() {
@@ -527,6 +599,8 @@ public class MotorChecker {
         private ArrayList<CheckerMotorGroup> groupsToTest;
 
         private static PDPChannelChecker mInstance = null;
+
+        private GZPDP pdp = GZPDP.getInstance();
 
         public static PDPChannelChecker getInstance() {
             if (mInstance == null)
@@ -546,11 +620,9 @@ public class MotorChecker {
             groupsToTest.add(group);
         }
 
-        public List<GZSubsystem> getSubsystemsBeingTested()
-        {
+        public List<GZSubsystem> getSubsystemsBeingTested() {
             List<GZSubsystem> ret = new ArrayList<GZSubsystem>();
-            for (CheckerMotorGroup c : groupsToTest)
-            {
+            for (CheckerMotorGroup c : groupsToTest) {
                 if (!ret.contains(c.getConfig().getSubsystem()))
                     ret.add(c.getConfig().getSubsystem());
             }
@@ -559,55 +631,147 @@ public class MotorChecker {
         }
 
         public void runCheck(double waitTime) {
+            String body = HTML.paragraph("File created on: " + GZUtil.dateTime(false));
+
             System.out.println("RUNNING PDP CHANNEL CHECK");
             {
                 String print = "Subsystems being checked: ";
                 for (GZSubsystem s : getSubsystemsBeingTested())
-                    print += s.getClass().getSimpleName() + ",";
+                    print += s.toString() + ",";
 
                 System.out.println(print);
             }
 
             for (CheckerMotorGroup c : groupsToTest) {
+                String group = HTML.header(c.getConfig().getSubsystem().toString(), 1);
 
                 for (GZSpeedController speed_Controller : c.getControllers()) {
+                    CheckControllerReturn result = checkController(speed_Controller, c.getConfig());
 
-                    ArrayList<Integer> result = checkController(speed_Controller, c.getConfig());
-                    String name = c.getConfig().getSubsystemName() + " - " + speed_Controller.getGZName();
-                    if (result.size() == 0)
-                        System.out.println("WARNING " + name
-                                + " PDP channels could not be determined");
-                    else {
-                        String out = name + " PDP Channels could be: ";
-                        for (Integer i : result)
-                            out += "[" + i + "] ";
+                    String controller = "";
 
-                        System.out.println(out);
+                    controller += HTML.header(speed_Controller.getGZName());
+
+                    // Potential channels
+                    {
+                        String potentialChannels = "Potential Channels: ";
+                        for (int i = 0; i <= 15; i++)
+                            if (result.pdpVals.get(i).trip)
+                                potentialChannels += "[" + i + "]" + "\t";
+
+                        controller += HTML.paragraph(potentialChannels, "red");
                     }
 
+                    String hidden = "";
+                    // AVERAGE
+                    {
+                        String average = "Average current: " + GZUtil.roundTo(result.average, 2);
+                        hidden += HTML.paragraph(average);
+                    }
+
+                    // TABLE
+                    String table = "";
+                    {
+                        String nextRow = "";
+                        nextRow += HTML.tableHeader("PDP Channel");
+                        for (int i = 0; i <= 15; i++)
+                            nextRow += HTML.tableCell(String.valueOf(i));
+
+                        nextRow = HTML.tableRow(nextRow);
+                        table += nextRow;
+                    }
+                    {
+                        String nextRow = "";
+                        nextRow += HTML.tableHeader("Current");
+                        for (int i = 0; i <= 15; i++) {
+                            nextRow += HTML.tableCell(GZUtil.roundTo(result.pdpVals.get(i).val, 2).toString(),
+                                    result.pdpVals.get(i).trip ? "red" : "white", false);
+                        }
+                        nextRow = HTML.tableRow(nextRow);
+
+                        table += nextRow;
+                    }
+
+                    table = HTML.table(table);
+                    hidden += table;
+                    hidden = HTML.button("Values", hidden);
+
+                    controller += hidden;
+
+                    group += controller;
+
                     Timer.delay(waitTime);
+                } // end of all controllers in group
+
+                body += group;
+            } // end of all groups
+
+            boolean fail = false;
+            try {
+                GZFile file = GZFileMaker.getFile("PDPCheck", new Folder(""), ValidFileExtension.HTML, false, true);
+                HTML.createHTMLFile(file, body);
+                try {
+                    GZFiles.copyFile(file, GZFileMaker.getFile(file, true));
+                } catch (Exception e) {
+                    System.out.println("Could not copy PDP check to USB!");
                 }
+            } catch (Exception e) {
+                System.out.println("Could not write PDP check!");
+                fail = true;
             }
+            System.out.println(fail ? "WARNING " : "" + "PDP check written " + (fail ? "un" : "") + "successfully");
 
             clearValues();
         }
 
-        private ArrayList<Integer> checkController(GZSpeedController c, PDPChannelChecker.CheckerConfig config) {
-            ArrayList<Integer> retval = new ArrayList<Integer>();
-            try {
-                System.out.println("Checking " + config.getSubsystemName() + " - " + c.getGZName());
+        public static class AmperageValue {
+            final Double val;
+            boolean trip = false;
 
-                ArrayList<Double> pdpVals = new ArrayList<Double>();
+            public AmperageValue(double val) {
+                this.val = val;
+            }
+
+            public void trip() {
+                trip = true;
+            }
+        }
+
+        private static class CheckControllerReturn {
+            ArrayList<AmperageValue> pdpVals;
+            double average;
+
+            public CheckControllerReturn(ArrayList<AmperageValue> pdpVals, double average) {
+                this.pdpVals = pdpVals;
+                this.average = average;
+            }
+        }
+
+        private CheckControllerReturn checkController(GZSpeedController c, final PDPChannelChecker.CheckerConfig config) {
+            ArrayList<AmperageValue> pdpVals = new ArrayList<AmperageValue>();
+            double currentAverage = 0;
+            try {
+                System.out.println("Checking " + config.getSubsystem().toString() + " - " + c.getGZName());
+
                 c.lockOutController(true);
 
                 c.set(config.getRunSpeed(), true);
                 Timer.delay(config.getRunTime());
 
-                double currentAverage = 0;
+                List<Integer> channelsToFake = null;
+                if (pdp.isFake())
+                    channelsToFake = Arrays.asList(GZUtil.getRandInt(0, 15), GZUtil.getRandInt(0, 15));
 
                 for (int i = 0; i <= 15; i++) {
-                    double current = GZPDP.getInstance().getPDP().getCurrent(i);
-                    pdpVals.add(current);
+
+                    // In case we're simulating, we can still test this function
+                    double fakeCurrent = 0;
+                    if (channelsToFake != null)
+                        if (channelsToFake.contains(i))
+                            fakeCurrent = GZUtil.getRandDouble(0, 4);
+
+                    double current = pdp.getCurrent(i, fakeCurrent);
+                    pdpVals.add(new AmperageValue(current));
                     currentAverage += current;
                 }
 
@@ -616,9 +780,8 @@ public class MotorChecker {
                 currentAverage /= 16;
 
                 for (int i = 0; i <= 15; i++) {
-                    if (pdpVals.get(i) > currentAverage) {
-                        retval.add(i);
-                    }
+                    if (pdpVals.get(i).val > currentAverage)
+                        pdpVals.get(i).trip();
                 }
 
             } catch (Exception e) {
@@ -627,7 +790,7 @@ public class MotorChecker {
                 c.lockOutController(false);
             }
 
-            return retval;
+            return new CheckControllerReturn(pdpVals, currentAverage);
         }
 
     }

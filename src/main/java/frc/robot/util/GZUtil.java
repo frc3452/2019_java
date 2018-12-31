@@ -25,20 +25,39 @@ public class GZUtil {
 		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
 	}
 
-	public static Double readTemperatureFromAnalogInput(AnalogInput a)
-	{
+	public static Double getRandDouble(double min, double max) {
+		double x = min + (Math.random() * (max - min));
+		return x;
+	}
+
+	public static Double roundTo(double value, int place) {
+		try {
+			double ret = (double) Math.round(value * Math.pow(10, place)) / Math.pow(10, place);
+			return ret;
+		} catch (Exception e) {
+			return Double.NaN; //just incase some dumb divided by 0 on accident kinda thing
+		}
+	}
+
+	public static Integer getRandInt(int min, int max) {
+		int x = min + (int) (Math.random() * ((max - min + 1)));
+		return x;
+	}
+
+	public static Double readTemperatureFromAnalogInput(AnalogInput a) {
 		double retval = -3452;
 
 		if (a != null) {
-			retval = GZUtil.scaleBetween(a.getVoltage(), kTempSensor.LOW_TEMP_C,
-					kTempSensor.HIGH_TEMP_C, kTempSensor.LOW_VOLT, kTempSensor.HIGH_VOLT);
+			retval = GZUtil.scaleBetween(a.getVoltage(), kTempSensor.LOW_TEMP_C, kTempSensor.HIGH_TEMP_C,
+					kTempSensor.LOW_VOLT, kTempSensor.HIGH_VOLT);
 			retval = GZUtil.celsiusToFahrenheit(retval);
 		}
 
 		return retval;
 	}
 
-	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min, double max) {
+	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
+			double max) {
 		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
 	}
 
@@ -157,7 +176,6 @@ public class GZUtil {
 		double celsius = (9.0 / 5) * fahrenheit - 32;
 		return celsius;
 	}
-
 
 	public static class Parse implements Path {
 

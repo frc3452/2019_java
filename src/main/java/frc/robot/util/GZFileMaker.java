@@ -13,30 +13,41 @@ public class GZFileMaker {
 
     private static String placeForInvalidFilesToGo = "InvalidFileName";
 
-    public static enum ValidFileExtensions {
+    public static enum ValidFileExtension {
         CSV(".csv"), HTML(".html");
 
         private String val;
 
-        private ValidFileExtensions(String val) {
+        private ValidFileExtension(String val) {
             this.val = val;
         }
     }
 
-    public static GZFile getFile(GZFile g, boolean usb) throws Exception {
-        GZFile f;
-        f = getFile(g.getName(), g.getFolder(), g.getFileExtension(), usb);
-        return f;
+    public static GZFile getFile(GZFile file, boolean usb) throws Exception {
+        return getFile(file, usb, file.isWrite());
     }
 
-    public static GZFile getFile(String name, Folder folder, ValidFileExtensions fileExtension, boolean usb,
+    public static GZFile getFile(GZFile file, boolean usb, boolean write) throws Exception {
+        GZFile ret;
+        ret = getFile(file.getName(), file.getFolder(), file.getFileExtension(), write, usb);
+        return ret;
+    }
+
+    public static GZFile getSafeFile(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
+            boolean write) {
+        try {
+            return getFile(name, folder, fileExtension, usb, write);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static GZFile getFile(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
             boolean write) throws Exception {
 
         String path = getFileLocation(name, folder, fileExtension, usb, true);
         File f = new File(path);
 
-
-        
         if (write) {
 
             if (!f.getParentFile().exists())
@@ -56,24 +67,24 @@ public class GZFileMaker {
             throw new IOException("ERROR File cannot be found at path {" + path + "}");
         }
 
-        GZFile ret = new GZFile(name, folder, fileExtension, usb, f);
+        GZFile ret = new GZFile(name, folder, fileExtension, usb, write, f);
         return ret;
     }
 
-    public static GZFile getFile(String name, Folder folder, ValidFileExtensions fileExtension, boolean write)
+    public static GZFile getFile(String name, Folder folder, ValidFileExtension fileExtension, boolean write)
             throws Exception {
         return getFile(name, folder, fileExtension, false, write);
     }
 
     public static GZFile getFile(String name, Folder folder, boolean usb, boolean write) throws Exception {
-        return getFile(name, folder, ValidFileExtensions.CSV, usb, write);
+        return getFile(name, folder, ValidFileExtension.CSV, usb, write);
     }
 
     public static GZFile getFile(String name, Folder folder, boolean write) throws Exception {
         return getFile(name, folder, false, write);
     }
 
-    public static String getFileLocation(String name, Folder folder, ValidFileExtensions fileExtension, boolean usb,
+    public static String getFileLocation(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
             boolean withFile) {
         String folderText = folder.get(usb);
         String retval;
@@ -87,17 +98,17 @@ public class GZFileMaker {
         if (sim) {
             retval = Filesystem.getLaunchDirectory().getAbsolutePath() + "\\" + realFolderText;
         } else {
-            retval = ((usb ? "/u/" : "/home/lvuser/") + realFolderText + (folderText == "" ? "" : "\\"));
+            retval = ((usb ? "/u/" : "/home/lvuser/") + realFolderText + (folderText.equals("") ? "" : "/"));
         }
 
         if (withFile)
-            retval += (folderText == "" ? "" : "\\") + name + fileExtension.val;
+            retval += (folderText.equals("") ? "" : (sim ? "\\" : "/")) + name + fileExtension.val;
 
         if (pathValid(retval))
             return retval;
         else {
             String newRetval = (sim ? Filesystem.getLaunchDirectory().getAbsolutePath() + "\\" : "/home/lvuser/")
-                    + placeForInvalidFilesToGo + "\\" + GZUtil.dateTime(true) + fileExtension.val;
+                    + placeForInvalidFilesToGo + "/" + GZUtil.dateTime(true) + fileExtension.val;
 
             System.out.println("Invalid file location: " + retval + "\nFile will be written at: " + newRetval);
             return newRetval;

@@ -339,7 +339,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 */
 	@Override
 	public boolean hasMotors() {
-		return false;
+		return true;
 	}
 
 	public void addPDPTestingMotors(){}

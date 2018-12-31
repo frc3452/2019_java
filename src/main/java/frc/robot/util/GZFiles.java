@@ -6,13 +6,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
+import frc.robot.subsystems.Drive;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.
@@ -53,6 +60,11 @@ public class GZFiles {
 	 * @author max
 	 */
 	private GZFiles() {
+		try {
+			GZFiles.copyFolder(new Folder("RIOSHORTCUTS"), false, new Folder("", "RIOSHORTCUTS"), true);
+		} catch (Exception e) {
+			System.out.println("ERROR Could not copy installation material to flash drive!");
+		}
 	}
 
 	private void parseMotionProfileCSV() {
@@ -336,9 +348,115 @@ public class GZFiles {
 		}
 	}
 
+	public void writeCurrentHardwareConfigurationFile() {
+		String body = HTML.paragraph("Created on: " + GZUtil.dateTime(false));
+
+		for (GZSubsystem s : Robot.allSubsystems.getSubsystems())
+			if (s.hasMotors()) {
+				String subsystem = HTML.header(s.toString(), 2);
+
+				// if has tallons
+				if (s.mTalons.values().size() != 0) {
+					subsystem += HTML.paragraph("Talons");
+					String talonTable = "";
+					{
+						String header = "";
+						header += HTML.tableRow(HTML.tableHeader("Talon Name") + HTML.tableHeader("Device ID")
+								+ HTML.tableHeader("Encoder Connected") + HTML.tableHeader("PDP Channel")
+								+ HTML.tableHeader("Calculated breaker") + HTML.tableHeader("Breaker treated as")
+								+ HTML.tableHeader("Firmware version") + HTML.tableHeader("Temperature Sensor Port")
+								+ HTML.tableHeader("Master/Follower"));
+
+						talonTable += header;
+					}
+
+					{
+						String tableBody = "";
+						for (GZSRX talon : s.mTalons.values()) {
+							String talonRow = "";
+
+							final String encoderCellColor;
+							if (talon.isEncoderValid() && talon.usingRemoteSensor())
+								encoderCellColor = "yellow";
+							else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
+								encoderCellColor = "green";
+							else
+								encoderCellColor = "white";
+
+							talonRow += HTML.tableRow(HTML.tableCell(talon.getGZName())
+									+ HTML.tableCell(String.valueOf(talon.getDeviceID()))
+									+ HTML.tableCell("", encoderCellColor, true)
+									+ HTML.tableCell("" + talon.getPDPChannel())
+									+ HTML.tableCell("" + talon.getCalculatedBreaker())
+									+ HTML.tableCell("" + talon.getBreaker()) + HTML.tableCell("" + talon.getFirmware())
+									+ HTML.tableCell("" + talon.getTemperatureSensorPort(),
+											talon.hasTemperatureSensor() ? "white" : "red",
+											!talon.hasTemperatureSensor())
+									+ HTML.tableCell("" + talon.getMaster()));
+							tableBody += talonRow;
+						}
+						talonTable += tableBody;
+					}
+
+					talonTable = HTML.table(talonTable);
+					subsystem += talonTable;
+				}
+
+				if (s.mDumbControllers.size() != 0) {
+					subsystem += HTML.paragraph("PWM Controllers");
+
+					String pwmTable = "";
+					{
+						String header = "";
+						header += HTML.tableRow(HTML.tableHeader("Name") + HTML.tableHeader("PWM Port")
+								+ HTML.tableHeader("PDP Channel") + HTML.tableHeader("Calculated breaker")
+								+ HTML.tableHeader("Temperature Sensor Port"));
+						pwmTable += header;
+					}
+
+					{
+						String tableBody = "";
+						for (GZSpeedController controller : s.mDumbControllers.values()) {
+							String pwmRow = "";
+							pwmRow += HTML.tableRow(HTML.tableCell(controller.getGZName())
+									+ HTML.tableCell(String.valueOf(controller.getPort()))
+									+ HTML.tableCell("" + controller.getPDPChannel())
+									+ HTML.tableCell("" + controller.getCalculatedBreaker())
+									+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
+											controller.hasTemperatureSensor() ? "white" : "red",
+											!controller.hasTemperatureSensor()));
+							tableBody += pwmRow;
+						}
+						pwmTable += tableBody;
+					}
+					pwmTable = HTML.table(pwmTable);
+					subsystem += pwmTable;
+				}
+
+				body += subsystem;
+			}
+
+		try {
+			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
+			HTML.createHTMLFile(file, body);
+
+			try {
+				GZFiles.copyFile(file, GZFileMaker.getFile(file, true));
+			} catch (Exception e) {
+				System.out.println("WARNING Could not could HardwareReport to USB!");
+			}
+		} catch (Exception g) {
+			System.out.println("WARNING Could not write HardwareReport!");
+		}
+	}
+
 	public static class Folder {
 		private String mFolderOnRIO;
 		private String mFolderOnUSB;
+
+		public Folder() {
+			this("");
+		}
 
 		public Folder(String rio, String usb) {
 			this.mFolderOnRIO = rio;
@@ -367,14 +485,39 @@ public class GZFiles {
 		}
 	}
 
-	public static void copyFile(File source, File dest) throws IOException {
+	public static void replaceFile(GZFile old, GZFile theNew) throws Exception {
+		GZFile _old = GZFileMaker.getFile(old, old.isOnUsb(), false);
+		GZFile _new = GZFileMaker.getFile(theNew, theNew.isOnUsb(), false);
+
+		Files.deleteIfExists(_old.getFile().toPath());
+		Files.copy(_new.getFile().toPath(), _old.getFile().toPath());
+		Files.deleteIfExists(_new.getFile().toPath());
+	}
+
+	public static void copyFolder(Folder source, boolean sourceOnUsb, Folder dest, boolean destOnUsb)
+			throws IOException {
+		Path sourcePath = Paths.get(GZFileMaker.getFileLocation("", source, null, sourceOnUsb, false));
+		Path destPath = Paths.get(GZFileMaker.getFileLocation("", dest, null, destOnUsb, false));
+
+		CustomFileVisitor fileVisitor = new CustomFileVisitor(sourcePath, destPath);
+
+		Files.walkFileTree(sourcePath, fileVisitor);
+	}
+
+	public static void copyFile(GZFile source, GZFile dest) throws Exception {
+		GZFile toSrc = GZFileMaker.getFile(source, source.isOnUsb(), false);
+		GZFile toDest = GZFileMaker.getFile(source, source.isOnUsb(), true);
+		copyFile(toSrc.getFile(), toDest.getFile());
+	}
+
+	public static void copyFile(File source, File dest) throws Exception {
 		Files.deleteIfExists(dest.toPath());
 		Files.copy(source.toPath(), dest.toPath());
 	}
 
 	private String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (DriverStation.getInstance().isFMSAttached() ? "FIELD_" : "") + GZUtil.dateTime(false);
+			String retval = (DriverStation.getInstance().isFMSAttached() ? "FIELD_" : "") + GZUtil.dateTime(true);
 			prevLog = retval;
 			return retval;
 		} else {
@@ -389,21 +532,29 @@ public class GZFiles {
 					"<h" + headernumber + " style=\"color:" + color + "\"" + ">" + f + "</h" + headernumber + ">");
 		}
 
-		public static String button(String buttonTitle, String content) {
-			return newLine("<button class=\"collapsible\">" + buttonTitle + "</button> <div class=\"content\">"
-					+ content + "</div>");
+		public static String header(String f, int headernumber) {
+			return header(f, headernumber, "black");
 		}
 
 		public static String header(String f) {
 			return header(f, 1, "black");
 		}
 
+		public static String button(String buttonTitle, String content) {
+			return newLine("<button class=\"collapsible\">" + buttonTitle + "</button> <div class=\"content\">"
+					+ content + "</div>");
+		}
+
 		public static String table(String f) {
-			return newLine("<table>" + "<tbody>" + f + "</tbody>"+  "</table>");
+			return newLine("<table>" + "<tbody>" + f + "</tbody>" + "</table>");
 		}
 
 		public static String paragraph(String f) {
-			return newLine("<p>" + f + "</p>");
+			return paragraph(f, "black");
+		}
+
+		public static String paragraph(String f, String color) {
+			return newLine("<p style=\"color:" + color + ";\">" + f + "</p>");
 		}
 
 		public static String tableHeader(String f) {
@@ -462,16 +613,17 @@ public class GZFiles {
 				+ "    padding: 5px;\r\n" + "    text-align: center;\r\n" + "}\r\n" + "  \r\n" + "</style>\r\n"
 				+ "</head>\r\n" + "<body>\r\n" + "\r\n" + "$BODY\r\n" + "\r\n" + "</body>\r\n" + "</html>";
 
-		public static void createHTMLFile(GZFile g, String body) {
-			createHTMLFile(g.getFile(), body);
+		public static void createHTMLFile(GZFile f, String body) {
+			createHTMLFile(f.getFile(), body);
 		}
 
 		public static void createHTMLFile(File f, String body) {
 			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+				FileWriter fw = new FileWriter(f);
 				String html = BASE_HTML_FILE.replace("$BODY", body);
-				bw.write(html);
-				bw.close();
+
+				fw.write(html);
+				fw.close();
 			} catch (Exception e) {
 				System.out.println("Could not make HTML File at " + f.getPath());
 			}

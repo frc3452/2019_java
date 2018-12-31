@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 import frc.robot.Constants.kFiles;
+import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtensions;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFlag;
@@ -73,15 +74,6 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mElevatorRotations = new PersistentInfo() {
-        public void update() {
-            // this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
-        }
-
-        public void readSetting() {
-        }
-    };
-
     private PersistentInfo mDisabled = new PersistentInfo() {
         public void update() {
             this.setValue(GZOI.getInstance().isSafetyDisabled() ? 1.0 : 0.0);
@@ -91,6 +83,16 @@ public class PersistentInfoManager {
             GZOI.getInstance().setSafetyDisable(this.getValue() == 1.0);
         }
     };
+
+    private void resetMap() {
+        mSettingsMap = new HashMap<String, PersistentInfo>();
+
+        mSettingsMap.put("EnabledTime", mEnabledTime);
+        mSettingsMap.put("OnTime", mOnTime);
+        mSettingsMap.put("LeftEncoderRot", mLeftEncoderRotations);
+        mSettingsMap.put("RightEncoderRot", mRightEncoderRotations);
+        mSettingsMap.put("Disabled", mDisabled);
+    }
 
     private static PersistentInfoManager mInstance = null;
 
@@ -103,16 +105,8 @@ public class PersistentInfoManager {
 
     // On startup put values in map and start timer
     private PersistentInfoManager() {
-        resetCheckForResetVariable();
-
-        mSettingsMap.put("EnabledTime", mEnabledTime);
-        mSettingsMap.put("OnTime", mOnTime);
-        mSettingsMap.put("LeftEncoderRot", mLeftEncoderRotations);
-        mSettingsMap.put("RightEncoderRot", mRightEncoderRotations);
-        mSettingsMap.put("ElevatorEncoderRot", mElevatorRotations);
-        mSettingsMap.put("Disabled", mDisabled);
-
-        mOnTimeTimer.oneTimeStartTimer();
+        resetMap();
+        mOnTimeTimer.startTimer();
     }
 
     // Read from file and folder on RIO
@@ -120,22 +114,16 @@ public class PersistentInfoManager {
         readOnStartup(fileName, folder, false);
     }
 
-    public void initialize(String fileName, Folder folder, boolean usb) {
-        backupFile();
-        readOnStartup(fileName, folder, usb);
-        updateFile(fileName, folder, usb);
-    }
-
     private boolean backupFile() {
         boolean fail = false;
 
         try {
             GZFiles.copyFile(
-                    GZFileMaker.getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER, kFiles.STATS_FILE_ON_USB,
-                            false).getFile(),
-                    GZFileMaker.getFile("StatsBackup-" + GZUtil.dateTime(true), kFiles.STATS_FILE_FOLDER,
-                            true, true).getFile());
-
+                    GZFileMaker
+                            .getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER, kFiles.STATS_FILE_ON_USB, false)
+                            .getFile(),
+                    GZFileMaker.getFile("StatsBackup-" + GZUtil.dateTime(true), kFiles.STATS_FILE_FOLDER, true, true)
+                            .getFile());
         } catch (Exception e) {
             // e.printStackTrace();
             fail = true;
@@ -164,6 +152,9 @@ public class PersistentInfoManager {
      * setting, which (if defined) could update a robot variable with setting
      */
     public void readOnStartup(String fileName, Folder folder, boolean usb) {
+        mReadFailed = new GZFlag();
+        resetMap();
+
         try {
             // Set up fille reading
             File f = GZFileMaker.getFile(fileName, folder, usb, false).getFile();
@@ -202,7 +193,7 @@ public class PersistentInfoManager {
             // Couldn't read persistent settings
             mReadFailed.tripFlag();
             System.out.println("WARNING ERROR Could not read persistent settings at file location "
-                    + GZFileMaker.getFileLocation(fileName, folder, ValidFileExtensions.CSV, usb, true));
+                    + GZFileMaker.getFileLocation(fileName, folder, ValidFileExtension.CSV, usb, true));
         }
 
         if (!mReadFailed.isFlagTripped())
@@ -225,63 +216,39 @@ public class PersistentInfoManager {
             System.out.println(s + "\t\t\t" + mSettingsMap.get(s).getValue());
     }
 
+    public void replaceAndReRead() {
+        try {
+            GZFile theOld = GZFileMaker.getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER,
+                    ValidFileExtension.CSV, kFiles.STATS_FILE_ON_USB, false);
+            GZFile theNew = GZFileMaker.getFile("StatsToReplace", kFiles.STATS_FILE_FOLDER, ValidFileExtension.CSV,
+                    false, false);
+            GZFiles.replaceFile(theOld, theNew);
+
+            initialize();
+        } catch (Exception e) {
+        }
+    }
+
     // Update file every __ seconds @ file and folder on RIO
     public void updateFile(final String fileName, final Folder folder) {
         updateFile(fileName, folder, false);
     }
 
-    private void resetCheckForResetVariable() {
-        mResetFlag = new GZFlagMultiple(2);
-    }
+    public void reset() {
+        // If backup worked
+        if (backupFile()) {
+            // reset values
+            for (PersistentInfo p : mSettingsMap.values())
+                p.setValueToDefault();
 
-    public void checkForReset() {
-        // Only try to do this while disabled
-        if (GZOI.getInstance().isEnabled())
-            return;
+            mOnTimeTimer.startTimer();
+            mEnabledTimer.stop();
+            mEnabledTimer.clearTotalTimeRunning();
 
-        // First time that back and start are pressed together
-        if (!mResetFlag.isFlagTripped(1) && mResetFlagLatchedBoolean
-                .update(GZOI.driverJoy.areButtonsHeld(Arrays.asList(Buttons.BACK, Buttons.START)))) {
-            mResetFlag.tripFlag(1);
-            System.out.println(
-                    "WARNING Are you sure you want to reset the stats file? Press LClick and then A to confirm, any other button to cancel");
+            System.out.println("GZStats reset");
+        } else {
+            System.out.println("WARNING GZStats could not be reset because the backup failed");
         }
-
-        // Cancel if any button pressed besides left click and a
-        if (mResetFlag.isFlagTripped(1) && GZOI.driverJoy.isAnyButtonPressedThatIsnt(
-                Arrays.asList(Buttons.LEFT_CLICK, Buttons.A, Buttons.BACK, Buttons.START))) {
-            System.out.println("WARNING Stats file reset cancelled");
-            resetCheckForResetVariable();
-        }
-
-        // L Click pressed
-        if (!mResetFlag.isFlagTripped(2) && mResetFlag.isFlagTripped(1) && GZOI.driverJoy.isLClickPressed()) {
-            System.out.println("WARNING Click A to confirm reset of GZStats");
-            mResetFlag.tripFlag(2);
-        }
-
-        // If A pressed
-        if (mResetFlag.isFlagTripped(2) && GZOI.driverJoy.isAPressed()) {
-
-            // If backup worked
-            if (backupFile()) {
-                // reset values
-                for (PersistentInfo p : mSettingsMap.values())
-                    p.setValueToDefault();
-
-                mOnTimeTimer.startTimer();
-                mEnabledTimer.clearTotalTimeRunning();
-
-                System.out.println("GZStats reset");
-            } else {
-                System.out.println("WARNING GZStats could not be reset because the backup failed");
-            }
-
-            // Reset flag; even if it didn't work, we want to reset the reset procedure
-            resetCheckForResetVariable();
-            // printPersistentSettings();
-        }
-
     }
 
     public void updateFile(String fileName, Folder folder, final boolean usb) {
@@ -296,8 +263,8 @@ public class PersistentInfoManager {
             mFileName = GZUtil.dateTime(false);
             mFolder = Constants.kFiles.STATS_FILE_FOLDER;
             mUsb = Constants.kFiles.STATS_FILE_ON_USB;
-            System.out.println("ERROR Could not read startup file! Writing new file to " + mFolder.get(mUsb) + "/" + mFileName
-                    + ".csv" + " on RIO");
+            System.out.println("ERROR Could not read startup file! Writing new file to " + mFolder.get(mUsb) + "/"
+                    + mFileName + ".csv" + " on RIO");
 
         } else {
             mFileName = fileName;
@@ -308,8 +275,6 @@ public class PersistentInfoManager {
         // Define notifier and runnable
         mUpdateNotifier = new GZNotifier(new Runnable() {
             public void run() {
-
-                checkForReset();
 
                 // get new values
                 updateValues();

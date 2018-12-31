@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Spark;
+import frc.robot.util.GZSRX.Breaker;
 
 public class GZSpark extends Spark implements GZSpeedController {
 
@@ -37,21 +38,36 @@ public class GZSpark extends Spark implements GZSpeedController {
     private int mPWMPort;
     private int mPDPChannel;
     private String mName;
+    private Breaker mBreaker;
 
     private boolean mLockedOut = false;
 
     private AnalogInput mTemperatureSensor = null;
+    private int mTemperatureSensorPort;
 
     private GZSpark(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
         super(pwmPort);
         this.mPWMPort = pwmPort;
         this.mName = name;
         this.mPDPChannel = PDPChannel;
+        this.mTemperatureSensorPort = tempSensorPort;
 
-        if (tempSensorPort != -1)
-            mTemperatureSensor = new AnalogInput(tempSensorPort);
+        this.mBreaker = GZSpeedController.setBreaker(this.mPDPChannel, this);
+        
+        if (this.mTemperatureSensorPort != -1)
+            this.mTemperatureSensor = new AnalogInput(this.mTemperatureSensorPort);
 
-        subsystem.mSparks.put(this.mPWMPort, this);
+        subsystem.mDumbControllers.put(this.mPWMPort, this);
+    }
+
+    public Breaker getCalculatedBreaker()
+    {
+        return this.mBreaker;
+    }
+
+    public int getTemperatureSensorPort()
+    {
+        return this.mTemperatureSensorPort;
     }
 
     /**
@@ -74,7 +90,7 @@ public class GZSpark extends Spark implements GZSpeedController {
     }
 
     public Double getAmperage() {
-        return GZPDP.getInstance().getPDP().getCurrent(this.mPDPChannel);
+        return GZPDP.getInstance().getCurrent(this.mPDPChannel);
     }
 
     public Double getTemperatureSensor() {
@@ -87,6 +103,15 @@ public class GZSpark extends Spark implements GZSpeedController {
 
     public boolean hasTemperatureSensor() {
         return this.mTemperatureSensor != null;
+    }
+
+    public int getPort() {
+        return this.mPWMPort;
+    }
+
+    public int getPDPChannel()
+    {
+        return this.mPDPChannel;
     }
 
 }

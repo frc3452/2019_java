@@ -1,13 +1,14 @@
 package frc.robot.subsystems;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtensions;
+import frc.robot.util.GZFiles;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
 import frc.robot.util.GZSubsystem;
@@ -87,7 +88,7 @@ public class Health {
 
 			// Write table
 			for (GZSubsystem s : mSubsystems)
-				table += HTML.tableRow(HTML.tableCell(s.getClass().getSimpleName())
+				table += HTML.tableRow(HTML.tableCell(s.toString())
 						+ HTML.tableCell("", s.getHighestAlert().stringValue, true));
 
 			// Put table tags around values
@@ -105,7 +106,7 @@ public class Health {
 				if (s.getHighestAlert() != AlertLevel.NONE) {
 
 					// Print subsystem name
-					body += HTML.header(s.getClass().getSimpleName(), 3, "black");
+					body += HTML.header(s.toString(), 3, "black");
 
 					// Loop through errors twice, once for errors and once for warnings
 					// This prints errors first, then warnings
@@ -131,15 +132,15 @@ public class Health {
 			}
 
 			try {
-				File htmlFile = GZFileMaker.getFile("Health", new Folder("",""), ValidFileExtensions.HTML, false, true).getFile();
+				GZFile htmlFile = GZFileMaker.getFile("Health", new Folder(""), ValidFileExtension.HTML, false, true);
 				HTML.createHTMLFile(htmlFile, body);
 			} catch (Exception e) {
-				System.out.println("Could not write health file!");
+				System.out.println("WARNING Could not write health file!");
 				// e.printStackTrace();
 			}
 
 		} catch (Exception e) {
-			System.out.println("Could not generate health file!");
+			System.out.println("WARNING Could not generate health file!");
 			e.printStackTrace();
 		}
 	}

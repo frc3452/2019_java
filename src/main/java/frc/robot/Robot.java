@@ -1,22 +1,17 @@
 package frc.robot;
 
 import java.util.Arrays;
-import java.util.concurrent.locks.ReentrantLock;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
-import frc.robot.util.MotorChecker;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -25,8 +20,7 @@ public class Robot extends TimedRobot {
 	// This order is crucial! it determines what order logging is added, what order
 	// health is generated in, etc
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(
-			Arrays.asList(Drive.getInstance(), Elevator.getInstance(), Intake.getInstance(), Climber.getInstance(),
-					Lights.getInstance(), GZOI.getInstance()));
+			Arrays.asList(Drive.getInstance(), RobotStateEstimator.getInstance(),GZOI.getInstance()));
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -35,27 +29,28 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder("Logging/DrivePractice121618");
+	private final Folder loggingLocation = new Folder("Logging/Offseason");
 
 	@Override
 	public void robotInit() {
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
-		// BufferedWriter a = new BufferedWriter(new
-		// FileWriter(GZFileMaker.getFile("MyName", "MyNewFolder", true, true)));
 
 		// Gen health file
 		health.generateHealth();
 
 		allSubsystems.addLoggingValues();
-		// allSubsystems.startLooping();
+
+		allSubsystems.startLooping();
+
+		files.writeCurrentHardwareConfigurationFile();
 	}
 
 	@Override
 	public void robotPeriodic() {
-		if (!GZOI.getInstance().isTest())
-			allSubsystems.loop();
+		// System.out.println(Drive.getInstance().getLeftRotations() + "\t" + Drive.getInstance().getRightRotations());
+		Drive.getInstance().printOdometry();
 	}
 
 	@Override
@@ -109,15 +104,11 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testInit() {
 		enabledInits();
-		
-		Drive.getInstance().addMotorTestingGroups();
-		Intake.getInstance().addMotorTestingGroups();
-		MotorChecker.AmperageChecker.getInstance().checkMotors();
 	}
 
 	@Override
 	public void testPeriodic() {
-		// Scheduler.getInstance().run();
+		TestModeRunner.getInstance().update();
 	}
 
 	private void log(boolean startup) {

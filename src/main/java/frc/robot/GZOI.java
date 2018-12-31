@@ -3,38 +3,32 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kFiles;
-import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kOI;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZJoystick;
-import frc.robot.util.GZJoystick.Buttons;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.DriveState;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0);
-	public static GZJoystick opJoy = new GZJoystick(1);
+	// public static GZJoystick opJoy = new GZJoystick(1);
 
 	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
 	private boolean mSafetyDisable = false;
 
-	private PowerDistributionPanel pdp = GZPDP.getInstance().getPDP();
-
-	private Climber climber = Climber.getInstance();
-	private Intake intake = Intake.getInstance();
+	private Drive drive = Drive.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -47,7 +41,7 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		driverJoy = new GZJoystick(0);
-		opJoy = new GZJoystick(1);
+		// opJoy = new GZJoystick(1);
 	}
 
 	boolean recording = false;
@@ -60,9 +54,9 @@ public class GZOI extends GZSubsystem {
 		// FLAGS
 		if (isTele())
 			mWasTele = true;
-		if (isAuto())
+		else if (isAuto())
 			mWasAuto = true;
-		if (isTest())
+		else if (isTest())
 			mWasTest = true;
 
 		// SAFETY DISABLE WITH USERBUTTON
@@ -81,52 +75,17 @@ public class GZOI extends GZSubsystem {
 		// recordingUpdates();
 
 		if (isTele()) {
+			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 
-			// CLIMBER
-			if (driverJoy.isDUpPressed())
-				climber.addClimberCounter();
-			if (driverJoy.getDUp())
-				climber.runClimber(1, 5);
-			else
-				climber.stop();
-
-			// INTAKE OPERATOR
-			if (opJoy.getRawButton(Buttons.X))
-				intake.manual(kIntake.Speeds.INTAKE);
-			else if (opJoy.getRawButton(Buttons.Y))
-				intake.manual(kIntake.Speeds.SLOW);
-			else if (opJoy.getRawButton(Buttons.B))
-				intake.manual(kIntake.Speeds.SHOOT);
-			else if (opJoy.getRawButton(Buttons.A))
-				intake.manual(kIntake.Speeds.PLACE);
-			else if (opJoy.getRawButton(Buttons.BACK))
-				intake.spin(false);
-			else if (opJoy.getRawButton(Buttons.START))
-				intake.spin(true);
-			// INTAKE DRIVER
-			else if (driverJoy.getRawButton(Buttons.X))
-				intake.manual(kIntake.Speeds.INTAKE);
-			else if (driverJoy.getRawButton(Buttons.Y))
-				intake.manual(kIntake.Speeds.PLACE);
-			else if (driverJoy.getRawButton(Buttons.B))
-				intake.manual(kIntake.Speeds.SHOOT);
-			else if (driverJoy.getRawButton(Buttons.RIGHT_CLICK))
-				intake.spin(true);
-			else
-				intake.stop();
-		} else if (isTest())
-		{
-			
-		}
+			if (driverJoy.isAPressed())
+				drive.toggleSlowSpeed();
+		} 
 
 		// CONTROLLER RUMBLE
 
 		if (GZUtil.between(getMatchTime(), 29.1, 30))
 			// ENDGAME
 			rumble(kOI.Rumble.ENDGAME);
-
-		else if (intake.stateNot(IntakeState.NEUTRAL) && !isAuto())
-			rumble(kOI.Rumble.INTAKE);
 		else
 			rumble(0);
 
@@ -158,7 +117,7 @@ public class GZOI extends GZSubsystem {
 		new LogItem("PDP-TEMP") {
 			@Override
 			public String val() {
-				return String.valueOf(pdp.getTemperature());
+				return String.valueOf(GZPDP.getInstance().getTemperature());
 			}
 		};
 
@@ -172,7 +131,7 @@ public class GZOI extends GZSubsystem {
 		new LogItem("PDP-AMP") {
 			@Override
 			public String val() {
-				return String.valueOf(pdp.getTotalCurrent());
+				return String.valueOf(GZPDP.getInstance().getTotalCurrent());
 			}
 		};
 
@@ -187,7 +146,7 @@ public class GZOI extends GZSubsystem {
 
 			@Override
 			public String val() {
-				return String.valueOf(pdp.getVoltage());
+				return String.valueOf(GZPDP.getInstance().getVoltage());
 			}
 		};
 
@@ -195,20 +154,6 @@ public class GZOI extends GZSubsystem {
 			@Override
 			public String val() {
 				return LogItem.Average_Left_Formula;
-			}
-		};
-
-		new LogItem("INTAKE-STATE") {
-			@Override
-			public String val() {
-				return Intake.getInstance().getStateString() + "-" + Intake.getInstance().isSafetyDisabled();
-			}
-		};
-
-		new LogItem("CLIMB-STATE") {
-			@Override
-			public String val() {
-				return Climber.getInstance().getStateString() + "-" + Climber.getInstance().isSafetyDisabled();
 			}
 		};
 	}
@@ -232,7 +177,7 @@ public class GZOI extends GZSubsystem {
 
 	private static void rumble(double intensity) {
 		driverJoy.rumble(intensity);
-		opJoy.rumble(intensity);
+		// opJoy.rumble(intensity);
 	}
 
 	public boolean isFMS() {
@@ -251,7 +196,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	public boolean isAuto() {
-		return DriverStation.getInstance().isAutonomous() && DriverStation.getInstance().isEnabled();
+		return DriverStation.getInstance().isAutonomous() && isEnabled();
 	}
 
 	public boolean isDisabled() {
@@ -263,7 +208,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	public boolean isTele() {
-		return DriverStation.getInstance().isEnabled() && !isAuto() && !isTest();
+		return isEnabled() && !isAuto() && !isTest();
 	}
 
 	public boolean isTest() {

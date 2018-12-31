@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -17,6 +19,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 	public enum Master {
 		MASTER, FOLLOWER, NO_INFO;
 	}
+
 	public enum Breaker {
 		AMP_20, AMP_30, AMP_40, NO_INFO
 	}
@@ -77,27 +80,29 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 
 	}
 
+	public final static int TIMEOUT = 10;
+	public final static int FIRMWARE = 1024; // 778 //1025
+	private final static AlertLevel mFirmwareLevel = AlertLevel.WARNING;
+
 	private Breaker mBreaker;
 	private Breaker mActualBreaker;
 	private Side mSide;
 	private Master mMaster;
 	private String mName;
 	private int mPDPChannel;
+	private int mFirmware = -1;
 
 	private GZSubsystem mSubsystem;
-
-	public final static int TIMEOUT = 10;
-	public final static int FIRMWARE = 778;
-	private final static AlertLevel mFirmwareLevel = AlertLevel.WARNING;
 
 	private double mTotalEncoderRotations = 0;
 	private double mPrevEncoderRotations = 0;
 
 	private AnalogInput mTemperatureSensor = null;
+	private int mTemperatureSensorPort;
 
-	private double mLastSet = Double.NaN;
-	private ControlMode mLastControlMode = null;
 	private boolean mLockedOut = false;
+
+	private GZSRX mRemoteSensorTalon = null;
 
 	// Constructor for builder
 	private GZSRX(int deviceNumber, GZSubsystem subsystem, String name, int PDPChannel, Breaker breaker, Side side,
@@ -110,14 +115,18 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		this.mMaster = master;
 		this.mSubsystem = subsystem;
 		this.mName = name;
+		this.mTemperatureSensorPort = temperatureSensorPort;
 
-		if (breaker == Breaker.NO_INFO)
-			this.setBreaker(this.mPDPChannel);
-		else
+		this.mActualBreaker = GZSpeedController.setBreaker(this.mPDPChannel, this);
+
+		// Overriden
+		if (breaker != Breaker.NO_INFO)
 			this.mBreaker = breaker;
+		else // not overriden
+			this.mBreaker = this.mActualBreaker;
 
-		if (temperatureSensorPort != -1)
-			this.mTemperatureSensor = new AnalogInput(temperatureSensorPort);
+		if (this.mTemperatureSensorPort != -1)
+			this.mTemperatureSensor = new AnalogInput(this.mTemperatureSensorPort);
 
 		if (this.mBreaker != this.mActualBreaker)
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
@@ -130,13 +139,9 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 	 * TO ONLY BE USED FOR TESTING
 	 */
 	public void set(ControlMode mode, double value, boolean overrideLockout) {
-		// if being checked, only allow if overriden
+		// if locked out, only allow if overriden
 		if (!mLockedOut || (mLockedOut && overrideLockout)) {
-			if (value != mLastSet || mode != mLastControlMode) {
-				mLastSet = value;
-				mLastControlMode = mode;
-				super.set(mode, value);
-			}
+			super.set(mode, value);
 		}
 	}
 
@@ -144,26 +149,17 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 	public void set(ControlMode mode, double value) {
 		set(mode, value, false);
 	}
-	
+
 	public void set(double speed, boolean overrideLockout) {
 		set(ControlMode.PercentOutput, speed, overrideLockout);
 	}
 
 	public void set(double speed) {
-		set(ControlMode.PercentOutput, speed);
+		set(ControlMode.PercentOutput, speed, false);
 	}
-	
 
 	public void lockOutController(boolean lockedOut) {
 		mLockedOut = lockedOut;
-	}
-
-	public double getLastSetValue() {
-		return mLastSet;
-	}
-
-	public ControlMode getLastControlMode() {
-		return mLastControlMode;
 	}
 
 	/**
@@ -180,6 +176,10 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return this.mTemperatureSensor != null;
 	}
 
+	public int getTemperatureSensorPort() {
+		return this.mTemperatureSensorPort;
+	}
+
 	public Double getTemperatureSensor() {
 		return GZUtil.readTemperatureFromAnalogInput(this.mTemperatureSensor);
 	}
@@ -188,27 +188,16 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return mName;
 	}
 
-	private void setBreaker(int pdpchannel) {
-		if (pdpchannel > 15 || pdpchannel < 0) {
-			this.mBreaker = Breaker.NO_INFO;
-			System.out.println("PDP CHANNEL " + pdpchannel + " on Talon " + this.getGZName() + " invalid!");
-			return;
-		}
-
-		if (pdpchannel >= 4 && pdpchannel <= 11)
-			this.mBreaker = Breaker.AMP_30;
-		else
-			this.mBreaker = Breaker.AMP_40;
-
-		this.mActualBreaker = this.mBreaker;
-	}
-
-	public Breaker getBreakerFromPDPChannelSize() {
+	public Breaker getCalculatedBreaker() {
 		return mActualBreaker;
 	}
 
-	public Breaker getBreakerSize() {
+	public Breaker getBreaker() {
 		return mBreaker;
+	}
+
+	public int getPDPChannel() {
+		return this.mPDPChannel;
 	}
 
 	public Double getAmperage() {
@@ -219,11 +208,49 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return this.getMotorOutputVoltage();
 	}
 
-	public boolean isEncoderValid() {
+	private boolean encoderPresent() {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
 
-	public int getID() {
+	public void setUsingRemoteSensorOnTalon(GZSubsystem sub, GZSRX t) {
+		setUsingRemoteSensorOnTalon(sub, t, 0);
+	}
+
+	public void setUsingRemoteSensorOnTalon(GZSubsystem sub, GZSRX t, int pidSlot) {
+		mRemoteSensorTalon = t;
+		logError(
+				this.configRemoteFeedbackFilter(mRemoteSensorTalon.getDeviceID(),
+						RemoteSensorSource.TalonSRX_SelectedSensor, 0, TIMEOUT),
+				sub, AlertLevel.ERROR, "Could not configure " + this.getGZName() + "'s remote sensor feedback filter!");
+		logError(this.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, pidSlot, TIMEOUT), sub,
+				AlertLevel.ERROR, "Could not select " + this.getGZName() + "'s remote sensor!");
+	}
+
+	public boolean usingRemoteSensor() {
+		return mRemoteSensorTalon != null;
+	}
+
+	public boolean isEncoderValid() {
+		if (usingRemoteSensor())
+			return mRemoteSensorTalon.encoderPresent();
+
+		return this.encoderPresent();
+	}
+
+	private void zeroSensor()
+	{
+		this.setSelectedSensorPosition(0);
+	}
+
+	public void zero()
+	{
+		if (usingRemoteSensor())
+			mRemoteSensorTalon.zeroSensor();
+		else
+			this.zeroSensor();
+	}
+
+	public int getPort() {
 		return this.getDeviceID();
 	}
 
@@ -232,23 +259,31 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 			Health.getInstance().addAlert(subsystem, level, message);
 	}
 
+	public int getFirmware() {
+		// once we get the firmware version
+
+		// Give it 6 trys to pull the firmware, and once we get it, store it
+		// (firmware be funky)
+		int counter = 0;
+		do {
+			int firm = this.getFirmwareVersion();
+			if (firm != -1)
+				mFirmware = firm;
+
+			if (counter > 0)
+				System.out.println("Trying to get firmware for Talon " + this.getGZName() + ": try " + counter);
+			counter++;
+		} while (counter < 6 && mFirmware == -1);
+
+		return mFirmware;
+	}
+
 	public void checkFirmware() {
-		int firm = this.getFirmwareVersion();
+		int firm = this.getFirmware();
 
 		if (firm != FIRMWARE) {
 			Health.getInstance().addAlert(this.mSubsystem, mFirmwareLevel,
 					"Talon " + this.getGZName() + " firmware is " + firm + ", should be " + FIRMWARE);
-			// if (mSide != Side.NO_INFO)
-			// Health.getInstance().addAlert(sub, mFirmwareLevel,
-			// "Talon " + id + " (" + mSide + ")" + " firmware is " + firm + ", should be "
-			// + FIRMWARE);
-			// else if (mMaster != Master.NO_INFO)
-			// Health.getInstance().addAlert(sub, mFirmwareLevel,
-			// "Talon " + id + " (" + mMaster + ")" + " firmware is " + firm + ", should be
-			// " + FIRMWARE);
-			// else
-			// Health.getInstance().addAlert(sub, mFirmwareLevel,
-			// "Talon " + id + " firmware is " + firm + ", should be " + FIRMWARE);
 		}
 	}
 
