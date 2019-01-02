@@ -19,8 +19,8 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// health is generated in, etc
-	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(
-			Arrays.asList(Drive.getInstance(), RobotStateEstimator.getInstance(),GZOI.getInstance()));
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 	}
-	
+
 	@Override
 	public void disabledInit() {
 		drive.printOdometry();
@@ -60,12 +60,12 @@ public class Robot extends TimedRobot {
 		allSubsystems.stop();
 		log(false);
 	}
-	
+
 	@Override
 	public void disabledPeriodic() {
 		auton.autonChooser();
 	}
-	
+
 	private void enabledInits() {
 		infoManager.robotEnabled();
 		allSubsystems.enableFollower();

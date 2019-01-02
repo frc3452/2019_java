@@ -415,7 +415,7 @@ public class MotorChecker {
 
                 // header (write subsystem color in red if has error)
                 String subsystemColor = subsystem.hasMotorTestingFail() ? "red" : "black";
-                body += HTML.header(subsystem.getClass().getSimpleName(), 1, subsystemColor);
+                body += HTML.header(subsystem.toString(), 1, subsystemColor);
 
                 // Content of entire subsystem
                 String subsystemContent = "";

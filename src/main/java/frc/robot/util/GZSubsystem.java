@@ -22,6 +22,12 @@ public abstract class GZSubsystem extends Subsystem {
 		System.out.println(getStateString());
 	}
 
+
+	public String toString()
+	{
+		return this.getClass().getSimpleName();
+	}
+
 	// Motors testing
 	public abstract boolean hasMotors();
 

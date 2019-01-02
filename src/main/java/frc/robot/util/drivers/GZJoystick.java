@@ -1,6 +1,7 @@
 package frc.robot.util.drivers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -33,31 +34,22 @@ public class GZJoystick extends Joystick {
 		mRight = new DPad(this, 90);
 	}
 
-	public boolean areButtonsHeld(int ...buttons) {
-		boolean retval = true;
+	public boolean isAnyButtonPressedThatIsnt(Buttons... buttons) {
 
-		for (Integer b : buttons)
-			retval &= this.getRawButton(b);
+		List<Buttons> temp = allButtons;
 
-		return retval;
+		for (Buttons b : buttons)
+			temp.remove(b);
+
+		// array to list
+		return getButtons(temp.toArray(new Buttons[temp.size()]));
 	}
 
-	public boolean isAnyButtonPressedThatIsnt(List <Integer> buttons)
-	{
-		List<Integer> temp = new ArrayList<Integer>();
-
-		for (int i = Buttons.LOWEST_BUTTON; i <= Buttons.HIGHEST_BUTTON; i++)
-			if (!buttons.contains(i))
-				temp.add(i);
-
-		return isAnyButtonPressed(temp);
-	}
-
-	public boolean isAnyButtonPressed(List<Integer> buttons) {
+	public boolean getButtons(Buttons... buttons) {
 		boolean retval = false;
 
-		for (Integer b : buttons) {
-			retval |= this.getRawButton(b);
+		for (Buttons b : buttons) {
+			retval |= this.getRawButton(b.val);
 			if (retval)
 				return retval;
 		}
@@ -66,83 +58,71 @@ public class GZJoystick extends Joystick {
 	}
 
 	public Double getLeftAnalogY() {
-		return GZUtil.applyDeadband(-this.getRawAxis(Axises.LEFT_ANALOG_Y), mDeadband);
+		return GZUtil.applyDeadband(-this.getRawAxis(Axises.LEFT_ANALOG_Y.val), mDeadband);
 	}
 
 	public Double getLeftAnalogX() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_ANALOG_X), mDeadband);
+		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_ANALOG_X.val), mDeadband);
 	}
 
 	public Double getRightAnalogY() {
-		return GZUtil.applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y), mDeadband);
+		return GZUtil.applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y.val), mDeadband);
 	}
 
 	public Double getRightAnalogX() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X), mDeadband);
+		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X.val), mDeadband);
 	}
 
 	public Double getLeftTrigger() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_TRIGGER), mDeadband);
+		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_TRIGGER.val), mDeadband);
 	}
 
 	public Double getRightTrigger() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER), mDeadband);
+		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
 	}
 
-	public Boolean getDUp() {
-		return this.mUp.get();
-	}
-
-	public Boolean getDDown() {
-		return this.mDown.get();
-	}
-
-	public Boolean getDLeft() {
-		return this.mLeft.get();
-	}
-
-	public Boolean getDRight() {
-		return this.mRight.get();
+	public Boolean getButton(Buttons b) {
+		return this.getRawButton(b.val);
 	}
 
 	public Boolean isAPressed() {
-		return a.update(this.getRawButton(Buttons.A));
+		return a.update(this.getButton(Buttons.A));
 	}
 
 	public Boolean isBPressed() {
-		return b.update(this.getRawButton(Buttons.B));
+		return b.update(this.getButton(Buttons.B));
 	}
 
 	public Boolean isXPressed() {
-		return x.update(this.getRawButton(Buttons.X));
+		return x.update(this.getButton(Buttons.X));
 	}
 
 	public Boolean isYPressed() {
-		return y.update(this.getRawButton(Buttons.Y));
+		return y.update(this.getButton(Buttons.Y));
 	}
 
 	public Boolean isLBPressed() {
-		return lb.update(this.getRawButton(Buttons.LB));
+		return lb.update(this.getButton(Buttons.LB));
 	}
 
 	public Boolean isRBPressed() {
-		return rb.update(this.getRawButton(Buttons.RB));
+		return rb.update(this.getButton(Buttons.RB));
 	}
 
 	public Boolean isBackPressed() {
-		return back.update(this.getRawButton(Buttons.BACK));
+		return back.update(this.getButton(Buttons.BACK));
 	}
 
 	public Boolean isStartPressed() {
-		return start.update(this.getRawButton(Buttons.START));
+		return start.update(this.getButton(Buttons.START));
 	}
 
 	public Boolean isLClickPressed() {
-		return lclick.update(this.getRawButton(Buttons.LEFT_CLICK));
+		return lclick.update(this.getButton(Buttons.LEFT_CLICK));
 	}
 
 	public Boolean isRClickPressed() {
-		return rclick.update(this.getRawButton(Buttons.RIGHT_CLICK));
+		return rclick.update(this.getButton(Buttons.RIGHT_CLICK));
 	}
 
 	public Boolean isDUpPressed() {
@@ -161,29 +141,43 @@ public class GZJoystick extends Joystick {
 		return dRight.update(mRight.get());
 	}
 
-	public static class Axises {
-		public static int LEFT_ANALOG_X = 0;
-		public static int LEFT_ANALOG_Y = 1;
-		public static int RIGHT_ANALOG_X = 4;
-		public static int RIGHT_ANALOG_Y = 5;
-		public static int LEFT_TRIGGER = 2;
-		public static int RIGHT_TRIGGER = 3;
+	public Boolean getDUp() {
+		return this.mUp.get();
 	}
 
-	public static class Buttons {
-		public static int A = 1;
-		public static int B = 2;
-		public static int X = 3;
-		public static int Y = 4;
-		public static int LB = 5;
-		public static int RB = 6;
-		public static int BACK = 7;
-		public static int START = 8;
-		public static int LEFT_CLICK = 9;
-		public static int RIGHT_CLICK = 10;
+	public Boolean getDDown() {
+		return this.mDown.get();
+	}
 
-		private static int LOWEST_BUTTON = A;
-		private static int HIGHEST_BUTTON = RIGHT_CLICK;
+	public Boolean getDLeft() {
+		return this.mLeft.get();
+	}
+
+	public Boolean getDRight() {
+		return this.mRight.get();
+	}
+
+	public static enum Axises {
+		LEFT_ANALOG_X(0), LEFT_ANALOG_Y(1), RIGHT_ANALOG_X(4), RIGHT_ANALOG_Y(5), LEFT_TRIGGER(2), RIGHT_TRIGGER(3);
+
+		public final int val;
+
+		private Axises(int val) {
+			this.val = val;
+		}
+	}
+
+	private static final List<Buttons> allButtons = Arrays.asList(Buttons.A, Buttons.B, Buttons.X, Buttons.Y,
+			Buttons.LB, Buttons.RB, Buttons.BACK, Buttons.START, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK);
+
+	public static enum Buttons {
+		A(1), B(2), X(3), Y(4), LB(5), RB(6), BACK(7), START(8), LEFT_CLICK(9), RIGHT_CLICK(10);
+
+		public final int val;
+
+		private Buttons(int val) {
+			this.val = val;
+		}
 	}
 
 	public void rumble(Double intensity) {

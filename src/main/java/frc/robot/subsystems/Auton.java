@@ -108,7 +108,7 @@ public class Auton {
 	 * override
 	 */
 	private void controllerChooser() {
-		if (GZOI.driverJoy.getRawButton(Buttons.LB) && GZOI.driverJoy.getRawButton(Buttons.RB)) {
+		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
 
 			if (GZOI.driverJoy.isAPressed()) {
 				overrideValue++;
@@ -116,7 +116,7 @@ public class Auton {
 			} else if (GZOI.driverJoy.isBPressed()) {
 				overrideValue--;
 				controllerOverride = true;
-			} else if (GZOI.driverJoy.getRawButton(Buttons.RIGHT_CLICK)) {
+			} else if (GZOI.driverJoy.getButton(Buttons.RIGHT_CLICK)) {
 				controllerOverride = false;
 				System.out.println(autonString);
 			}

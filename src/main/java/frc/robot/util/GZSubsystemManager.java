@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Notifier;
@@ -9,8 +10,8 @@ public class GZSubsystemManager {
 
 	private final List<GZSubsystem> mAllSystems;
 
-	public GZSubsystemManager(List<GZSubsystem> allSubsystems) {
-		mAllSystems = allSubsystems;
+	public GZSubsystemManager(GZSubsystem ...allSubsystems) {
+		mAllSystems = Arrays.asList(allSubsystems);
 	}
 
 	private GZNotifier looper_ = new GZNotifier(new Runnable() {

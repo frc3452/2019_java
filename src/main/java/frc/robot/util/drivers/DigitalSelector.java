@@ -62,6 +62,7 @@ public class DigitalSelector {
         if (areAnyNull())
             return -1;
 
+        //Datasheet found at http://www.ia.omron.com/data_pdf/cat/a7bs_a7bl_ds_e_6_2_csm25.pdf
         if (none())
             return 0;
         else if (are(1))
@@ -112,15 +113,16 @@ public class DigitalSelector {
         return ret;
     }
 
-    private boolean areAnyNull(List<DigitalInput> list) {
+    private boolean areAnyNull(DigitalInput ...list) {
         boolean ret = false;
         for (DigitalInput i : list)
             ret |= i == null;
         return ret;
+
     }
 
     private boolean areAnyNull() {
-        return areAnyNull(Arrays.asList(m1, m2, m3, m4));
+        return areAnyNull(m1,m2,m3,m4);
     }
 
     @Override
