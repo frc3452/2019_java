@@ -15,6 +15,7 @@ import frc.robot.commands.poofs.DriveTrajectoryCommand;
 import frc.robot.commands.poofs.TrajectoryGenerator;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
+import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
@@ -48,6 +49,8 @@ public class Auton {
 
 	private static Auton mInstance = null;
 
+	private DigitalSelector mSelector1, mSelector2;
+
 	public synchronized static Auton getInstance() {
 		if (mInstance == null)
 			mInstance = new Auton();
@@ -63,9 +66,16 @@ public class Auton {
 		as_A.setName("Selector A");
 		as_B.setName("Selector B");
 
+		mSelector1 = new DigitalSelector("AutonSelector (Tens)", 0, 1, 2, 3);
+		mSelector2 = new DigitalSelector("AutonSelector (Ones", 4, 5, 6, 7);
+
 		commandArray = null;
 
 		// fillAutonArray();
+	}
+
+	private int getSelector() {
+		return DigitalSelector.get(mSelector1, mSelector2);
 	}
 
 	public String getAutonString() {
