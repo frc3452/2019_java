@@ -8,19 +8,22 @@ import frc.robot.poofs.geometry.Twist2d;
 import frc.robot.util.GZSubsystem;
 
 public class RobotStateEstimator extends GZSubsystem {
-    static RobotStateEstimator instance_ = new RobotStateEstimator();
+    static RobotStateEstimator mInstance = null;
+    
     private RobotState robot_state_ = RobotState.getInstance();
     private Drive drive_ = Drive.getInstance();
     private double left_encoder_prev_distance_ = 0.0;
     private double right_encoder_prev_distance_ = 0.0;
 
-    RobotStateEstimator() {
+    private RobotStateEstimator() {
         left_encoder_prev_distance_ = drive_.getLeftEncoderDistance();
         right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
     }
 
     public static RobotStateEstimator getInstance() {
-        return instance_;
+        if (mInstance == null)
+            mInstance = new RobotStateEstimator();
+        return mInstance;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class RobotStateEstimator extends GZSubsystem {
     }
 
     @Override
-    public void addMotorTestingGroups() {
+    public void addMotorsForTesting() {
     }
 
     @Override
@@ -54,7 +57,6 @@ public class RobotStateEstimator extends GZSubsystem {
         robot_state_.addObservations(timestamp, odometry_velocity, predicted_velocity);
         left_encoder_prev_distance_ = left_distance;
         right_encoder_prev_distance_ = right_distance;
-
     }
 
     @Override
@@ -63,24 +65,6 @@ public class RobotStateEstimator extends GZSubsystem {
     }
 
     @Override
-    protected void in() {
-    }
-
-    @Override
-    protected void out() {
-    }
-
-    @Override
     protected void initDefaultCommand() {
     }
-
-    // public synchronized void onStart(double timestamp) {
-    // left_encoder_prev_distance_ = drive_.getLeftEncoderDistance();
-    // right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
-    // }
-
-    // @Override
-    // public synchronized void onLoop(double timestamp) {
-    // }
-
 }

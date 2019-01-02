@@ -24,11 +24,12 @@ public class Robot extends TimedRobot {
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
+	private Drive drive = Drive.getInstance();
 
 	private PersistentInfoManager infoManager = PersistentInfoManager.getInstance();
 
 	// LOGGING CONTROL
-	private final boolean logging = true, logToUsb = true;
+	private final boolean logging = true, logToUsb = false;
 	private final Folder loggingLocation = new Folder("Logging/Offseason");
 
 	@Override
@@ -49,23 +50,22 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		// System.out.println(Drive.getInstance().getLeftRotations() + "\t" + Drive.getInstance().getRightRotations());
-		Drive.getInstance().printOdometry();
 	}
-
+	
 	@Override
 	public void disabledInit() {
-		infoManager.printPersistentSettings();
+		drive.printOdometry();
+		// infoManager.printPersistentSettings();
 		infoManager.robotDisabled();
 		allSubsystems.stop();
 		log(false);
 	}
-
+	
 	@Override
 	public void disabledPeriodic() {
 		auton.autonChooser();
 	}
-
+	
 	private void enabledInits() {
 		infoManager.robotEnabled();
 		allSubsystems.enableFollower();
@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		auton.cancelAuton();
 		enabledInits();
 	}
 

@@ -5,7 +5,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.util.GZLog.LogItem;
-import frc.robot.util.GZSRX.Breaker;
+import frc.robot.util.drivers.GZJoystick;
+import frc.robot.util.drivers.GZSRX;
 
 public class ExampleGZSubsystem extends GZSubsystem {
 	/**
@@ -177,8 +178,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 * here, we update the IO class information with input from our sensors. read
 	 * into the IO class as to why we do this.
 	 */
-	@Override
-	protected void in() {
+	private void in() {
 		mIO.encoders_valid = example_motor.isEncoderValid();
 
 		if (mIO.encoders_valid) {
@@ -191,8 +191,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	}
 
 	/** Set our motor values to what they should be */
-	@Override
-	protected void out() {
+	private void out() {
 
 		switch (mState) {
 		case MANUAL:
@@ -347,5 +346,5 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	/**
 	 * Add testing groups to MotorCheckers
 	 */
-	public void addMotorTestingGroups(){}
+	public void addMotorsForTesting(){}
 }

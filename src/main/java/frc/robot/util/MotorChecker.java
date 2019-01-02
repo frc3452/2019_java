@@ -10,11 +10,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
+import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
+import frc.robot.util.drivers.GZSpeedController;
 
 public class MotorChecker {
     public static class AmperageChecker {

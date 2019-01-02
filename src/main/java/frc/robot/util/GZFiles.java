@@ -8,18 +8,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
-import frc.robot.subsystems.Drive;
+import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.GZSpeedController;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.
@@ -443,7 +442,7 @@ public class GZFiles {
 			try {
 				GZFiles.copyFile(file, GZFileMaker.getFile(file, true));
 			} catch (Exception e) {
-				System.out.println("WARNING Could not could HardwareReport to USB!");
+				System.out.println("WARNING Could not could copy HardwareReport to USB!");
 			}
 		} catch (Exception g) {
 			System.out.println("WARNING Could not write HardwareReport!");

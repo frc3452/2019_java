@@ -1,9 +1,12 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.util.DPad;
+import frc.robot.util.GZUtil;
+import frc.robot.util.LatchedBoolean;
 
 public class GZJoystick extends Joystick {
 
@@ -30,7 +33,7 @@ public class GZJoystick extends Joystick {
 		mRight = new DPad(this, 90);
 	}
 
-	public boolean areButtonsHeld(List<Integer> buttons) {
+	public boolean areButtonsHeld(int ...buttons) {
 		boolean retval = true;
 
 		for (Integer b : buttons)

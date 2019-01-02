@@ -3,11 +3,9 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import frc.robot.Constants.kFiles;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZJoystick.Buttons;
 import frc.robot.util.MotorChecker.AmperageChecker;
-import frc.robot.util.MotorChecker.PDPChannelChecker;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class TestModeRunner {
     private static TestModeRunner mInstance = null;
@@ -46,7 +44,7 @@ public class TestModeRunner {
             if (s.hasMotors()) {
                 motorTestingOptions.add(new Option("Amperage Test " + s.toString()) {
                     public void run() {
-                        s.addMotorTestingGroups();
+                        s.addMotorsForTesting();
                     }
                 });
             }
@@ -66,28 +64,34 @@ public class TestModeRunner {
 
         // ArrayList<Option> pdpTestingOptions = new ArrayList<>();
         // for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
-        //     if (s.hasMotors()) {
-        //         pdpTestingOptions.add(new Option("PDP Test " + s.toString()) {
-        //             public void run() {
-        //                 s.addPDPTestingMotors();
-        //             }
-        //         });
-        //     }
+        // if (s.hasMotors()) {
+        // pdpTestingOptions.add(new Option("PDP Test " + s.toString()) {
+        // public void run() {
+        // s.addPDPTestingMotors();
+        // }
+        // });
+        // }
         // }
 
         // optionsList.add(new OptionList("PDP Testing", pdpTestingOptions) {
-        //     public void run() {
-        //         for (Option o : this.getOptions())
-        //             o.run();
+        // public void run() {
+        // for (Option o : this.getOptions())
+        // o.run();
 
-        //         PDPChannelChecker.getInstance().runCheck(kFiles.PDPChannelCheckerWaitTime);
-        //         PDPChannelChecker.getInstance().clearValues();
-        //         Robot.allSubsystems.enableFollower();
-        //     }
+        // PDPChannelChecker.getInstance().runCheck(kFiles.PDPChannelCheckerWaitTime);
+        // PDPChannelChecker.getInstance().clearValues();
+        // Robot.allSubsystems.enableFollower();
+        // }
         // });
 
-        //STATS
+        // STATS
         ArrayList<Option> statsOptions = new ArrayList<Option>();
+
+        statsOptions.add(new Option("Print") {
+            public void run() {
+                PersistentInfoManager.getInstance().printPersistentSettings();
+            }
+        });
         statsOptions.add(new Option("Reset Stats") {
             public void run() {
                 PersistentInfoManager.getInstance().reset();
@@ -98,6 +102,7 @@ public class TestModeRunner {
                 PersistentInfoManager.getInstance().replaceAndReRead();
             }
         });
+
         optionsList.add(new OptionList("Stats", statsOptions) {
             public void run() {
                 for (Option o : this.getOptions())
@@ -122,7 +127,7 @@ public class TestModeRunner {
     }
 
     public void update() {
-        if (GZOI.driverJoy.areButtonsHeld(Arrays.asList(Buttons.BACK, Buttons.START))) {
+        if (GZOI.driverJoy.areButtonsHeld(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
         } else if (GZOI.driverJoy.isLClickPressed()) {
             isEnabled = false;

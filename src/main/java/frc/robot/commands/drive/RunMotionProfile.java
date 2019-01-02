@@ -8,7 +8,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
-import frc.robot.util.GZSRX.Side;
+import frc.robot.util.drivers.GZSRX.Side;
 
 /**
  * @author max
@@ -65,8 +65,8 @@ public class RunMotionProfile extends Command {
 		else
 			drive.stop();
 
-		drive.getMotionProfileStatus(Side.LEFT, lStat);
-		drive.getMotionProfileStatus(Side.RIGHT, rStat);
+		drive.getMotionProfileStatus(true, lStat);
+		drive.getMotionProfileStatus(false, rStat);
 	}
 
 	@Override

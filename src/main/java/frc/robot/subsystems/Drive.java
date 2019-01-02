@@ -1,19 +1,20 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,25 +23,33 @@ import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
+import frc.robot.poofs.DriveMotionPlanner;
 import frc.robot.poofs.RobotState;
 import frc.robot.poofs.geometry.Pose2d;
+import frc.robot.poofs.geometry.Pose2dWithCurvature;
 import frc.robot.poofs.geometry.Rotation2d;
+import frc.robot.poofs.trajectory.TrajectoryIterator;
+import frc.robot.poofs.trajectory.timing.TimedState;
+import frc.robot.poofs.util.DriveSignal;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZFile;
+import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles;
-import frc.robot.util.GZJoystick;
+import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
-import frc.robot.util.GZSRX;
-import frc.robot.util.GZSRX.Breaker;
-import frc.robot.util.GZSRX.Master;
-import frc.robot.util.GZSRX.Side;
-import frc.robot.util.GZSpeedController;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.MotorChecker.AmperageChecker;
 import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
-import frc.robot.util.MotorChecker.PDPChannelChecker;
 import frc.robot.util.Units;
+import frc.robot.util.drivers.GZAHRS;
+import frc.robot.util.drivers.GZJoystick;
+import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.GZSRX.Breaker;
+import frc.robot.util.drivers.GZSRX.Master;
+import frc.robot.util.drivers.GZSRX.Side;
 
 public class Drive extends GZSubsystem {
 
@@ -53,7 +62,7 @@ public class Drive extends GZSubsystem {
 	private GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
 
 	// GYRO
-	private AHRS mGyro;
+	private GZAHRS mNavX;
 
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
@@ -61,7 +70,9 @@ public class Drive extends GZSubsystem {
 	private double mLeft_target = 0, mRight_target = 0;
 
 	// POOFS
-	private Rotation2d mGyroOffset = Rotation2d.identity();
+	private DriveMotionPlanner mMotionPlanner;
+	private boolean mOverrideTrajectory = false;
+	private Rotation2d mGyroOffset = Rotation2d.fromDegrees(0);
 	// ~POOFS
 
 	private static Drive mInstance = null;
@@ -91,12 +102,13 @@ public class Drive extends GZSubsystem {
 		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT)
 				.overrideBreaker(Breaker.AMP_30).build();
 
-		mGyro = new AHRS(SPI.Port.kMXP);
+		mNavX = new GZAHRS(SPI.Port.kMXP);
 
-		brake(NeutralMode.Coast);
+		brake(false);
 
 		talonInit();
-		// handleRemoteSensor(); //im gonna kill the electrical team if they ever make me do remote sensors again
+		// handleRemoteSensor(); //im gonna kill the electrical team if they ever make
+		// me do remote sensors again
 		L1.setUsingRemoteSensorOnTalon(this, R3);
 		zeroEncoders();
 
@@ -111,15 +123,108 @@ public class Drive extends GZSubsystem {
 		R3.setName("R3");
 		R4.setName("R4");
 
-		mGyro.reset();
+		mNavX.reset();
 
 		checkFirmware();
+
+		mMotionPlanner = new DriveMotionPlanner();
 	}
 
 	// POOFS
+	/**
+	 * Configures talons for velocity control
+	 */
+	public synchronized void setVelocity(DriveSignal signal, DriveSignal feedforward) {
+		if (setWantedState(DriveState.PATH_FOLLOWING)) {
+			mIO.left_desired_output = signal.getLeft();
+			mIO.right_desired_output = signal.getRight();
+			mIO.left_feedforward = feedforward.getLeft();
+			mIO.right_feedforward = feedforward.getRight();
+		}
+	}
+
+	public synchronized void setVelocity(double left, double right) {
+		if (setWantedState(DriveState.VELOCITY)) {
+			mIO.left_desired_output = left;
+			mIO.right_desired_output = right;
+		}
+	}
+
+	public void overrideTrajectory(boolean value) {
+		mOverrideTrajectory = value;
+	}
+
+	private static double radiansPerSecondToTicksPer100ms(double rad_s) {
+		return rad_s / (Math.PI * 2.0) * 4096.0 / 10.0;
+	}
+
+	private void updatePathFollower() {
+		if (mState == DriveState.PATH_FOLLOWING) {
+			final double now = Timer.getFPGATimestamp();
+
+			DriveMotionPlanner.Output output = mMotionPlanner.update(now,
+					RobotState.getInstance().getFieldToVehicle(now));
+
+			// DriveSignal signal = new DriveSignal(demand.left_feedforward_voltage / 12.0,
+			// demand.right_feedforward_voltage / 12.0);
+
+			mIO.error = mMotionPlanner.error();
+			mIO.path_setpoint = mMotionPlanner.setpoint();
+
+			if (!mOverrideTrajectory) {
+				setVelocity(
+						new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
+								radiansPerSecondToTicksPer100ms(output.right_velocity)),
+						new DriveSignal(output.left_feedforward_voltage / 12.0,
+								output.right_feedforward_voltage / 12.0));
+
+				mIO.left_accel = radiansPerSecondToTicksPer100ms(output.left_accel) / 1000.0;
+				mIO.right_accel = radiansPerSecondToTicksPer100ms(output.right_accel) / 1000.0;
+			} else {
+				setVelocity(DriveSignal.BRAKE, DriveSignal.BRAKE);
+				mIO.left_accel = mIO.right_accel = 0.0;
+			}
+		} else {
+			DriverStation.reportError("Drive is not in path following state", false);
+		}
+	}
+
+	public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory) {
+		if (mMotionPlanner != null) {
+			mOverrideTrajectory = false;
+			mMotionPlanner.reset();
+			mMotionPlanner.setTrajectory(trajectory);
+			setWantedState(DriveState.PATH_FOLLOWING);
+			handleStates(); // run this a little bit out of loop just to get us into path following state as
+							// quickly as possible
+		}
+	}
+
+	public boolean isDoneWithTrajectory() {
+		if (mMotionPlanner == null || mState != DriveState.PATH_FOLLOWING) {
+			return false;
+		}
+		return mMotionPlanner.isDone() || mOverrideTrajectory;
+	}
+
 	public void printOdometry() {
-		Pose2d odometry = RobotState.getInstance().getOdometry();
-		System.out.println(odometry.getTranslation().toString());
+		System.out.println(getOdometry().toString() + "\t\t" + mNavX.getYaw());
+	}
+
+	private Pose2d getOdometry() {
+		return RobotState.getInstance().getOdometry();
+	}
+
+	public double getOdometryX() {
+		return getOdometry().getTranslation().x();
+	}
+
+	public double getOdometryY() {
+		return getOdometry().getTranslation().y();
+	}
+
+	public double getOdometryAngle() {
+		return getOdometry().getRotation().getDegrees();
 	}
 
 	public double getLeftLinearVelocity() {
@@ -155,14 +260,15 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void setHeading(Rotation2d heading) {
-		mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mGyro.getFusedHeading()).inverse());
+		mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mNavX.getYaw()));
 
 		mIO.gyro_heading = heading;
+		GZUtil.trace(GZUtil.currentThread());
 	}
 
 	// ~POOFS
 
-	public void addMotorTestingGroups() {
+	public void addMotorsForTesting() {
 		AmperageChecker.getInstance().addTalonGroups(CheckerConfig.getFromFile(this));
 	}
 
@@ -171,60 +277,73 @@ public class Drive extends GZSubsystem {
 	}
 
 	public void addPDPTestingMotors() {
-		PDPChannelChecker.CheckerConfig config = new PDPChannelChecker.CheckerConfig(this, 1.2, 1);
-		ArrayList<GZSpeedController> controllers = new ArrayList<GZSpeedController>();
-		controllers.addAll(Arrays.asList(L1, L2, L3, L4, R1, R2, R3, R4));
+		// PDPChannelChecker.CheckerConfig config = new
+		// PDPChannelChecker.CheckerConfig(this, 1.2, 1);
+		// ArrayList<GZSpeedController> controllers = new
+		// ArrayList<GZSpeedController>();
+		// controllers.addAll(Arrays.asList(L1, L2, L3, L4, R1, R2, R3, R4));
 
-		PDPChannelChecker.getInstance().addGroup(new PDPChannelChecker.CheckerMotorGroup("Drive", controllers, config));
+		// PDPChannelChecker.getInstance().addGroup(new
+		// PDPChannelChecker.CheckerMotorGroup("Drive", controllers, config));
 	}
 
-	@Override
-	protected synchronized void out() {
+	private void outputIsDesired() {
+		mIO.left_output = mIO.left_desired_output;
+		mIO.right_output = mIO.right_desired_output;
+	}
+
+	private synchronized void out() {
+		ControlMode mode = ControlMode.Disabled;
+
 		switch (mState) {
+		case VELOCITY:
+			mode = ControlMode.Velocity;
+			outputIsDesired();
+			break;
+		case PATH_FOLLOWING:
+			updatePathFollower();
+			break;
 		case MOTION_MAGIC:
 
-			mIO.control_mode = ControlMode.MotionMagic;
-			mIO.left_output = mIO.left_desired_output;
-			mIO.right_output = mIO.right_desired_output;
+			mode = ControlMode.MotionMagic;
+
+			outputIsDesired();
 
 			break;
 		case MOTION_PROFILE:
 
-			mIO.control_mode = ControlMode.MotionProfile;
+			mode = ControlMode.MotionProfile;
 			mIO.left_desired_output = mIO.right_desired_output = SetValueMotionProfile.Enable.value;
 
-			mIO.left_output = mIO.left_desired_output;
-			mIO.right_output = mIO.right_desired_output;
+			outputIsDesired();
 
 			break;
 		case NEUTRAL:
 
-			mIO.control_mode = ControlMode.Disabled;
+			mode = ControlMode.Disabled;
 			mIO.left_output = 0;
 			mIO.right_output = 0;
 
 			break;
 		case OPEN_LOOP:
 
-			mIO.control_mode = ControlMode.PercentOutput;
-			mIO.left_output = mIO.left_desired_output;
-			mIO.right_output = mIO.right_desired_output;
+			mode = ControlMode.PercentOutput;
+
+			outputIsDesired();
 
 			break;
 		case OPEN_LOOP_DRIVER:
 
 			arcade(GZOI.driverJoy);
-			mIO.control_mode = ControlMode.PercentOutput;
-			mIO.left_output = mIO.left_desired_output;
-			mIO.right_output = mIO.right_desired_output;
+			mode = ControlMode.PercentOutput;
+			outputIsDesired();
 
 			break;
 		case DEMO:
 
 			alternateArcade(GZOI.driverJoy);
-			mIO.control_mode = ControlMode.PercentOutput;
-			mIO.left_output = mIO.left_desired_output * kDrivetrain.DEMO_DRIVE_MODIFIER;
-			mIO.right_output = mIO.right_desired_output * kDrivetrain.DEMO_DRIVE_MODIFIER;
+			mode = ControlMode.PercentOutput;
+			outputIsDesired();
 
 			break;
 
@@ -233,8 +352,51 @@ public class Drive extends GZSubsystem {
 			break;
 		}
 
-		L1.set(mIO.control_mode, mIO.left_output);
-		R1.set(mIO.control_mode, mIO.right_output);
+		if (mState == DriveState.PATH_FOLLOWING) {
+			L1.set(ControlMode.Velocity, mIO.left_output, DemandType.ArbitraryFeedForward,
+					mIO.left_feedforward + kDrivetrain.PID.Left.D * mIO.left_accel / 1023.0);
+			R1.set(ControlMode.Velocity, mIO.right_output, DemandType.ArbitraryFeedForward,
+					mIO.right_feedforward + kDrivetrain.PID.Left.D * mIO.right_accel / 1023.0);
+		} else {
+			L1.set(mode, mIO.left_output);
+			R1.set(mode, mIO.right_output);
+		}
+
+		if (kDrivetrain.TUNING) {
+			setPID(L1, getGainsFromFile(true));
+			setPID(R1, getGainsFromFile(false));
+		}
+	}
+
+	public void printVelocity() {
+		System.out.println(L1.getSelectedSensorVelocity() + "\t\t\t" + R1.getSelectedSensorVelocity());
+	}
+
+	public GZPID getGainsFromFile(boolean left) {
+		GZPID ret;
+
+		try {
+			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), ValidFileExtension.CSV, false, false);
+			Scanner scnr = new Scanner(new FileReader(file.getFile()));
+			double p, i, d, f, iZone;
+
+			if (!left)
+				scnr.nextLine();
+
+			String[] arr = scnr.nextLine().split(",");
+			scnr.close();
+
+			p = Double.parseDouble(arr[0]);
+			i = Double.parseDouble(arr[1]);
+			d = Double.parseDouble(arr[2]);
+			f = Double.parseDouble(arr[3]);
+			iZone = Double.parseDouble(arr[4]);
+			ret = new GZPID(p, i, d, f, (int) iZone);
+		} catch (Exception e) {
+			ret = new GZPID(0, 0, 0, 0, 0);
+		}
+
+		return ret;
 	}
 
 	@Override
@@ -250,6 +412,27 @@ public class Drive extends GZSubsystem {
 			@Override
 			public String val() {
 				return Drive.getInstance().mIO.leftEncoderValid.toString();
+			}
+		};
+
+		new LogItem("X-ODO") {
+			@Override
+			public String val() {
+				return "" + getOdometryX();
+			}
+		};
+
+		new LogItem("Y-ODO") {
+			@Override
+			public String val() {
+				return "" + getOdometryY();
+			}
+		};
+
+		new LogItem("RT-ODO") {
+			@Override
+			public String val() {
+				return "" + getOdometryAngle();
 			}
 		};
 
@@ -312,7 +495,7 @@ public class Drive extends GZSubsystem {
 
 	public enum DriveState {
 		OPEN_LOOP(false), OPEN_LOOP_DRIVER(false), DEMO(false), NEUTRAL(false), MOTION_MAGIC(true),
-		MOTION_PROFILE(true);
+		MOTION_PROFILE(true), PATH_FOLLOWING(true), VELOCITY(true);
 
 		private final boolean usesClosedLoop;
 
@@ -326,8 +509,10 @@ public class Drive extends GZSubsystem {
 		setWantedState(DriveState.NEUTRAL);
 	}
 
-	public synchronized void setWantedState(DriveState wantedState) {
+	public synchronized boolean setWantedState(DriveState wantedState) {
 		this.mWantedState = wantedState;
+
+		return this.mWantedState == this.mState;
 	}
 
 	private synchronized void switchToState(DriveState state) {
@@ -338,7 +523,7 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	private synchronized void handleStates() {
+	public synchronized void handleStates() {
 		GZOI gzOI = GZOI.getInstance();
 
 		boolean neutral = false;
@@ -407,7 +592,7 @@ public class Drive extends GZSubsystem {
 
 				GZSRX.logError(s.setSelectedSensorPosition(0, 0, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
 						"Could not zero " + s.getSide() + " encoder");
-						
+
 				if (!s.isEncoderValid())
 					Health.getInstance().addAlert(this, AlertLevel.ERROR, s.getSide() + " encoder not found");
 
@@ -425,7 +610,6 @@ public class Drive extends GZSubsystem {
 	private void handleRemoteSensor() {
 		R1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, GZSRX.TIMEOUT);
 		R3.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, GZSRX.TIMEOUT);
-		
 	}
 
 	public void setPID(GZSRX talon, GZPID pid) {
@@ -448,23 +632,29 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
+		case PATH_FOLLOWING:
+			brake(true);
+			break;
+		case VELOCITY:
+			brake(true);
+			break;
 		case MOTION_MAGIC:
-			brake(NeutralMode.Brake);
+			brake(true);
 			break;
 		case MOTION_PROFILE:
-			brake(NeutralMode.Brake);
+			brake(true);
 			break;
 		case NEUTRAL:
-			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto() ? NeutralMode.Brake : NeutralMode.Coast);
+			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
 			break;
 		case OPEN_LOOP:
-			brake(NeutralMode.Brake);
+			brake(true);
 			break;
 		case OPEN_LOOP_DRIVER:
-			brake(NeutralMode.Coast);
+			brake(false);
 			break;
 		case DEMO:
-			brake(NeutralMode.Coast);
+			brake(false);
 			break;
 		default:
 			break;
@@ -473,6 +663,10 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
+		case PATH_FOLLOWING:
+			mIO.left_feedforward = 0;
+			mIO.right_feedforward = 0;
+			break;
 		case MOTION_MAGIC:
 			encoderDone();
 			break;
@@ -501,12 +695,17 @@ public class Drive extends GZSubsystem {
 	}
 
 	public static class IO {
+		public Pose2d error;
+		public TimedState<Pose2dWithCurvature> path_setpoint;
 		// in
 		public Map<Integer, Double> amperages = new HashMap<>();
 		public Map<Integer, Double> voltages = new HashMap<>();
 
 		// POOFS
 		private Rotation2d gyro_heading = Rotation2d.identity();
+
+		private double left_feedforward = 0, right_feedforward = 0;
+		private double left_accel = 0, right_accel = 0;
 		// ~POOFS
 
 		public IO() {
@@ -543,7 +742,6 @@ public class Drive extends GZSubsystem {
 
 		private double right_output = 0;
 		public double right_desired_output = 0;
-		ControlMode control_mode = ControlMode.PercentOutput;
 	}
 
 	public Double getLeftRotations() {
@@ -563,10 +761,9 @@ public class Drive extends GZSubsystem {
 
 	}
 
-	@Override
-	protected synchronized void in() {
+	private synchronized void in() {
 		// POOFS
-		mIO.gyro_heading = Rotation2d.fromDegrees(mGyro.getFusedHeading()).rotateBy(mGyroOffset);
+		mIO.gyro_heading = Rotation2d.fromDegrees(mNavX.getYaw())/* .rotateBy(mGyroOffset) */;
 		// ~POOFS
 
 		this.mModifyPercent = (mIsSlow ? .5 : 1);
@@ -603,7 +800,7 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public void outputSmartDashboard() {
-		SmartDashboard.putNumber("NavX Angle", mGyro.getAngle());
+		SmartDashboard.putNumber("NavX Angle", mNavX.getAngle());
 
 		SmartDashboard.putNumber("L1", getLeftRotations());
 		SmartDashboard.putNumber("R1", getRightRotations());
@@ -641,8 +838,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void arcade(double move, double rotate) {
-		setWantedState(DriveState.OPEN_LOOP);
-		arcadeNoState(move, rotate);
+		if (setWantedState(DriveState.OPEN_LOOP))
+			arcadeNoState(move, rotate);
 	}
 
 	public synchronized double[] arcadeToLR(double xSpeed, double zRotation) {
@@ -702,13 +899,18 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void tank(double left, double right) {
-		setWantedState(DriveState.OPEN_LOOP);
-		mIO.left_desired_output = left * getModifier() * mModifyPercent;
-		mIO.right_desired_output = right * getModifier() * mModifyPercent;
+		if (setWantedState(DriveState.OPEN_LOOP)) {
+			mIO.left_desired_output = left * getModifier() * mModifyPercent;
+			mIO.right_desired_output = right * getModifier() * mModifyPercent;
+		}
 	}
 
 	public synchronized void tank(GZJoystick joy) {
 		tank(joy.getLeftAnalogY(), joy.getRightAnalogY());
+	}
+
+	private synchronized void brake(boolean brake) {
+		brake(brake ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 
 	private synchronized void brake(NeutralMode mode) {
@@ -719,24 +921,25 @@ public class Drive extends GZSubsystem {
 	public synchronized void motionMagic(double leftRotations, double rightRotations, double leftAccel,
 			double rightAccel, double leftSpeed, double rightSpeed) {
 
-		setWantedState(DriveState.MOTION_MAGIC);
+		if (setWantedState(DriveState.MOTION_MAGIC)) {
 
-		double topspeed = 4350;
+			double topspeed = 4350;
 
-		mLeft_target = Units.rotations_to_ticks(leftRotations);
-		mRight_target = -Units.rotations_to_ticks(rightRotations);
+			mLeft_target = Units.rotations_to_ticks(leftRotations);
+			mRight_target = -Units.rotations_to_ticks(rightRotations);
 
-		mPercentageComplete = Math
-				.abs(((mIO.left_encoder_ticks / mLeft_target) + (mIO.right_encoder_ticks / mRight_target)) / 2);
+			mPercentageComplete = Math
+					.abs(((mIO.left_encoder_ticks / mLeft_target) + (mIO.right_encoder_ticks / mRight_target)) / 2);
 
-		L1.configMotionAcceleration((int) (topspeed * leftAccel), 10);
-		R1.configMotionAcceleration((int) (topspeed * rightAccel), 10);
+			L1.configMotionAcceleration((int) (topspeed * leftAccel), 10);
+			R1.configMotionAcceleration((int) (topspeed * rightAccel), 10);
 
-		L1.configMotionCruiseVelocity((int) (topspeed * leftSpeed), 10);
-		R1.configMotionCruiseVelocity((int) (topspeed * rightSpeed), 10);
+			L1.configMotionCruiseVelocity((int) (topspeed * leftSpeed), 10);
+			R1.configMotionCruiseVelocity((int) (topspeed * rightSpeed), 10);
 
-		mIO.left_desired_output = mLeft_target;
-		mIO.right_desired_output = mRight_target;
+			mIO.left_desired_output = mLeft_target;
+			mIO.right_desired_output = mRight_target;
+		}
 	}
 
 	public synchronized boolean encoderSpeedIsUnder(double ticksPer100Ms) {
@@ -804,10 +1007,10 @@ public class Drive extends GZSubsystem {
 			processMotionProfile.startPeriodic(time);
 	}
 
-	public synchronized void getMotionProfileStatus(Side side, MotionProfileStatus statusToFill) {
-		if (side == Side.LEFT)
+	public synchronized void getMotionProfileStatus(boolean left, MotionProfileStatus statusToFill) {
+		if (left)
 			L1.getMotionProfileStatus(statusToFill);
-		else if (side == Side.RIGHT)
+		else
 			R1.getMotionProfileStatus(statusToFill);
 	}
 
@@ -1003,7 +1206,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void zeroGyro() {
-		mGyro.reset();
+		mNavX.reset();
 	}
 
 	public synchronized void toggleSlowSpeed() {
@@ -1020,11 +1223,11 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized Double getGyroAngle() {
-		return mGyro.getAngle();
+		return mNavX.getAngle();
 	}
 
 	public synchronized double getGyroFusedHeading() {
-		return mGyro.getFusedHeading();
+		return mNavX.getFusedHeading();
 	}
 
 	public String getStateString() {

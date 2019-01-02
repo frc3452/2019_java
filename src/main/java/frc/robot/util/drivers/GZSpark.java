@@ -1,8 +1,11 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Spark;
-import frc.robot.util.GZSRX.Breaker;
+import frc.robot.util.GZPDP;
+import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZSRX.Breaker;
 
 public class GZSpark extends Spark implements GZSpeedController {
 

@@ -2,22 +2,20 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kFiles;
 import frc.robot.Constants.kOI;
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.TASK;
-import frc.robot.util.GZJoystick;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Drive.DriveState;
+import frc.robot.util.drivers.GZJoystick;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0);
@@ -47,6 +45,8 @@ public class GZOI extends GZSubsystem {
 	boolean recording = false;
 	boolean prevRecording = recording;
 
+
+		boolean bToggled = false;
 	@Override
 	public void loop() {
 		outputSmartDashboard();
@@ -69,17 +69,24 @@ public class GZOI extends GZSubsystem {
 
 		// if (driverJoy.areButtonsHeld(Arrays.asList(Buttons.A, Buttons.RB,
 		// Buttons.LEFT_CLICK)))
-		// Robot.auton.crash();
+		// Auton.getInstance().crash();
 
 		// RECORDING
 		// recordingUpdates();
 
+		if (driverJoy.isBPressed())
+			bToggled = !bToggled;
+	
 		if (isTele()) {
-			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			if (bToggled && kDrivetrain.TUNING) {
+				drive.printVelocity();
+				drive.setVelocity(1000, 1000);
+			} else
+				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 
 			if (driverJoy.isAPressed())
 				drive.toggleSlowSpeed();
-		} 
+		}
 
 		// CONTROLLER RUMBLE
 
@@ -158,12 +165,15 @@ public class GZOI extends GZSubsystem {
 		};
 	}
 
-	public boolean hasMotors()
-	{
+	public boolean hasMotors() {
 		return false;
 	}
-	public void addPDPTestingMotors(){}
-	public void addMotorTestingGroups(){}
+
+	public void addPDPTestingMotors() {
+	}
+
+	public void addMotorsForTesting() {
+	}
 
 	public void setSafetyDisable(boolean disable) {
 		this.mSafetyDisable = disable;
@@ -171,7 +181,8 @@ public class GZOI extends GZSubsystem {
 
 	@Override
 	public void outputSmartDashboard() {
-		// SmartDashboard.putString("Selected Auton", Auton.getInstance().getAutonString());
+		// SmartDashboard.putString("Selected Auton",
+		// Auton.getInstance().getAutonString());
 		// SmartDashboard.putString("FIELD DATA", Auton.getInstance().gsm());
 	}
 

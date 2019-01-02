@@ -1,12 +1,13 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
-import frc.robot.util.GZSRX.Breaker;
+import frc.robot.util.drivers.GZSRX.Breaker;
 
 public interface GZSpeedController {
-    
+
     public void lockOutController(boolean lockedOut);
-    
+
     public void set(double speed);
+
     public void set(double speed, boolean overrideLockout);
 
     public Double getAmperage();
@@ -14,12 +15,15 @@ public interface GZSpeedController {
     public String getGZName();
 
     public Double getTemperatureSensor();
+
     public boolean hasTemperatureSensor();
+
     public int getTemperatureSensorPort();
 
     public int getPort();
 
     public Breaker getCalculatedBreaker();
+
     public int getPDPChannel();
 
     public static Breaker setBreaker(int pdpchannel, GZSpeedController controller) {

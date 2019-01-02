@@ -14,9 +14,9 @@ import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kLights;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.GZJoystick.Buttons;
-import frc.robot.util.GZSRX;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.GZSRX;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;
@@ -74,10 +74,10 @@ public class Lights extends GZSubsystem {
 
 		if (!gzOI.isSafetyDisabled()) {
 
-			if (GZOI.driverJoy.areButtonsHeld(Arrays.asList(Buttons.A, Buttons.B, Buttons.BACK)))
+			if (GZOI.driverJoy.areButtonsHeld(Buttons.A, Buttons.B, Buttons.BACK))
 				readyForMatch = true;
 
-			if (GZOI.driverJoy.areButtonsHeld(Arrays.asList(Buttons.A, Buttons.B, Buttons.START)))
+			if (GZOI.driverJoy.areButtonsHeld(Buttons.A, Buttons.B, Buttons.START))
 				readyForMatch = false;
 
 			if (gzOI.isTele()) {
@@ -165,7 +165,7 @@ public class Lights extends GZSubsystem {
 	}
 	public void addPDPTestingMotors(){}
 
-	public void addMotorTestingGroups() {
+	public void addMotorsForTesting() {
 	}
 
 	public void hsv(double hDegrees, double saturation, double value) {

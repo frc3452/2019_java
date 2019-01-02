@@ -9,11 +9,13 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
-import frc.robot.commands.drive.EncoderFrom;
-import frc.robot.util.GZCommand;
-import frc.robot.util.GZJoystick.Buttons;
-import frc.robot.util.GZTimer;
 import frc.robot.commands.NoCommand;
+import frc.robot.commands.drive.DriveAtVelocityForTime;
+import frc.robot.commands.poofs.DriveTrajectoryCommand;
+import frc.robot.commands.poofs.TrajectoryGenerator;
+import frc.robot.util.GZCommand;
+import frc.robot.util.GZTimer;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -71,7 +73,7 @@ public class Auton {
 	}
 
 	public void crash() {
-		if (GZOI.getInstance().isDisabled()) {
+		if (GZOI.getInstance().isDisabled() && !GZOI.getInstance().isFMS()) {
 			Timer f = null;
 			f.start();
 		}
@@ -137,6 +139,11 @@ public class Auton {
 			Arrays.fill(commandArray, noCommand);
 		}
 
+		Command c = new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectory(), true);
+
+		commandArray[1] = new GZCommand("Test trajectory", c);
+		commandArray[2] = new GZCommand("Test velocity", new DriveAtVelocityForTime(1024, 1024, 6));
+
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 
 		autonChooser();
@@ -150,12 +157,20 @@ public class Auton {
 		}
 	}
 
+	public void cancelAuton() {
+		if (autonomousCommand != null) {
+			autonomousCommand.cancel();
+		}
+	}
+
 	public boolean isDemo() {
 		return uglyAnalog() == kAuton.SAFTEY_SWITCH;
 	}
 
-	private void printSelected(){}
 	private void printSelected2() {
+	}
+
+	private void printSelected() {
 		m_asA = as_A.getValue();
 		m_asB = as_B.getValue();
 

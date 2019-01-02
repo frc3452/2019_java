@@ -1,7 +1,8 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -9,6 +10,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZUtil;
 
 public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 
@@ -145,6 +148,11 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		}
 	}
 
+	public void set(ControlMode mode, double demand0, DemandType demand1Type, double demand1) {
+		if (!mLockedOut)
+			super.set(mode, demand0, demand1Type, demand1);
+	}
+
 	@Override
 	public void set(ControlMode mode, double value) {
 		set(mode, value, false);
@@ -237,13 +245,11 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return this.encoderPresent();
 	}
 
-	private void zeroSensor()
-	{
+	private void zeroSensor() {
 		this.setSelectedSensorPosition(0);
 	}
 
-	public void zero()
-	{
+	public void zero() {
 		if (usingRemoteSensor())
 			mRemoteSensorTalon.zeroSensor();
 		else

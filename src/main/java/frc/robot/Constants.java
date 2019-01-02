@@ -81,16 +81,18 @@ public class Constants {
 
 	public static class kDrivetrain {
 
+		public static final boolean TUNING = false;
 		public static class PID {
 
-			static double p = .3; //.1 
-			static double d = p * 0; //40
-			public final static GZPID Left = new GZPID(0, p, 0, d, .235, 0);
-			public final static GZPID Right = new GZPID(0, p, 0, d, .239, 0);
+
+			static final double p = .3; //.1
+			static final double d = 3; //10
+			public final static GZPID Left = new GZPID(p, 0, d, 0, 0);
+			public final static GZPID Right = new GZPID(p, 0, d, 0, 0);
 
 			// public final static GZPID Left = new GZPID(0, 2.7, 0, 2.7 * 25, .235, 0);
 			// public final static GZPID Right = new GZPID(0, 2.7, 0, 2.7 * 25, .239, 0);
-			
+
 			public final static GZPID OldLeft = new GZPID(0, .425, 0, 4.25, 0, 0);
 			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);
 		}
@@ -113,7 +115,7 @@ public class Constants {
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
 
-		public final static double ELEV_TURN_SCALAR = 1.67; //1.67
+		public final static double ELEV_TURN_SCALAR = 1.67; // 1.67
 	}
 
 	public static class kPDP {
@@ -128,7 +130,6 @@ public class Constants {
 		public final static double HIGH_VOLT = 1.75;
 	}
 
-
 	public static class kLights {
 		public final static int CANIFIER_ID = 0;
 
@@ -140,6 +141,23 @@ public class Constants {
 	}
 
 	public static class kPoofs {
+		// PROBABLY GOTTA BE BIG TUNED
+		public static final double kRobotLinearInertia = 60.0; // kg TODO tune
+		public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
+		public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+		public static final double kDriveVIntercept = 1.055; // V
+		public static final double kDriveKv = 0.135; // V per rad/s //.135
+		public static final double kDriveKa = 0.012; // V per rad/s^2 //.012
+
+		//ratio { kA = kV / 11.25}
+		// ~BIG TUNE
+
+		public static final double kPathKX = 4.0; // units/s per unit of error
+		public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
+		public static final double kPathMinLookaheadDistance = 24.0; // inches
+
+		public static final double kEpsilon = 1e-12;
+
 		public static final double kLidarXOffset = -3.3211;
 		public static final double kLidarYOffset = 0;
 		public static final double kLidarYawAngleDegrees = 0;
@@ -147,19 +165,22 @@ public class Constants {
 		public static final double kDriveWheelTrackWidthInches = 25.5;
 		public static final double kDriveWheelDiameterInches = 6;
 		public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-		public static final double kTrackScrubFactor = 1.0; // ?Tune?
+		public static final double kTrackScrubFactor = 1.0;
 	}
 
 	public static class kFiles {
-		private kFiles(){}
+		private kFiles() {
+		}
 
-		public static final boolean FAKE_PDP = false;
+		public static final boolean FAKE_PDP = true;
 
 		public final static String MP_NAME = "MP1";
-		public final static Folder MP_FOLDER = new Folder("MotionProfiles"); // if on rio, folder is MotionProfiles/MP1.csv
-		public final static boolean MP_USB = true;							// if on usb, folder is 3452/MotionProfiles/MP1.csv
+		public final static Folder MP_FOLDER = new Folder("MotionProfiles"); // if on rio, folder is
+																				// MotionProfiles/MP1.csv
+		public final static boolean MP_USB = true; // if on usb, folder is 3452/MotionProfiles/MP1.csv
 
-		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""), ValidFileExtension.CSV, false, false);
+		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
+				ValidFileExtension.CSV, false, false);
 
 		public final static Folder STATS_FILE_FOLDER = new Folder("GZStats");
 		public final static String STATS_FILE_NAME = "Stats";
@@ -169,7 +190,7 @@ public class Constants {
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
 		public final static double LOGGING_SPEED = .125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";
-		
+
 		public final static double PDPChannelCheckerWaitTime = 1;
 
 		public final static double COPY_WAIT_TIME = 5;
