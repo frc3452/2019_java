@@ -5,6 +5,8 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.MotorChecker.AmperageChecker;
+import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
 import frc.robot.util.drivers.GZSRX;
 import frc.robot.util.drivers.GZSpeedController;
 
@@ -45,7 +47,9 @@ public abstract class GZSubsystem extends Subsystem {
 		return mMotorTestingFails;
 	}
 
-	public void addMotorsForTesting(){}
+	public void addMotorsForTesting(){
+		AmperageChecker.getInstance().addTalonGroups(CheckerConfig.getFromFile(this));
+	}
 
 	/**
 	 * Disabling each subsystem

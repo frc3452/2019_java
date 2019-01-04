@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import edu.wpi.first.wpilibj.Spark;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.util.GZLog.LogItem;
@@ -110,8 +111,8 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 * a hierarchy of what we need the subsystem to be controlled by. (Saftey first)
 	 */
 	private synchronized void handleStates() {
-		boolean neutral = false;
 
+		boolean neutral = false;
 		neutral |= this.isSafetyDisabled() && !GZOI.getInstance().isFMS();
 		neutral |= mWantedState == ExampleState.NEUTRAL;
 		neutral |= (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop));
@@ -262,8 +263,8 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 * this method is.
 	 */
 	public void exampleMethodRunMotorWithJoystick(GZJoystick joy) {
-		setWantedState(ExampleState.MANUAL);
-		mIO.desired_output = joy.getLeftAnalogY();
+		if (setWantedState(ExampleState.MANUAL))
+			mIO.desired_output = joy.getLeftAnalogY();
 	}
 
 	/**
@@ -274,7 +275,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	public enum ExampleState {
 		NEUTRAL(false), MANUAL(false), DEMO(false), MOTION_PROFILE(true);
 
-		private boolean usesClosedLoop;
+		public final boolean usesClosedLoop;
 
 		private ExampleState(boolean closed) {
 			this.usesClosedLoop = closed;
@@ -310,8 +311,9 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 * This is the central control for each subsystem. This sets the wanted state to
 	 * whatever we please
 	 */
-	public void setWantedState(ExampleState wantedState) {
+	public boolean setWantedState(ExampleState wantedState) {
 		this.mWantedState = wantedState;
+		return this.mWantedState == mState;
 	}
 
 	/**
@@ -340,11 +342,4 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	public boolean hasMotors() {
 		return true;
 	}
-
-	public void addPDPTestingMotors(){}
-
-	/**
-	 * Add testing groups to MotorCheckers
-	 */
-	public void addMotorsForTesting(){}
 }

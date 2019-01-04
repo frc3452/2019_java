@@ -115,17 +115,6 @@ public class TestModeRunner {
         return posInMenu;
     }
 
-    public void handleJoystickRun() {
-        if (GZOI.driverJoy.isYPressed()) {
-            for (OptionList o : optionsList)
-                if (o.isSelected())
-                    o.run();
-
-            isEnabled = false;
-            clearMenu();
-        }
-    }
-
     public void update() {
         if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
@@ -204,7 +193,14 @@ public class TestModeRunner {
             print(message);
         }
 
-        handleJoystickRun();
+        if (GZOI.driverJoy.isYPressed()) {
+            for (OptionList o : optionsList)
+                if (o.isSelected())
+                    o.run();
+
+            isEnabled = false;
+            clearMenu();
+        }
 
         prevInMenu = inMenu;
         prevPosInMenu = posInMenu;

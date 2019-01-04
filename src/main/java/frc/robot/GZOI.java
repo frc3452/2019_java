@@ -45,8 +45,8 @@ public class GZOI extends GZSubsystem {
 	boolean recording = false;
 	boolean prevRecording = recording;
 
+	boolean bToggled = false;
 
-		boolean bToggled = false;
 	@Override
 	public void loop() {
 		outputSmartDashboard();
@@ -76,11 +76,14 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.isBPressed())
 			bToggled = !bToggled;
-	
+
 		if (isTele()) {
 			if (bToggled && kDrivetrain.TUNING) {
-				drive.printVelocity();
-				drive.setVelocity(1000, 1000);
+				final double high = 1500;
+				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
+				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
+				drive.printVelocity(left);
+				drive.setVelocity(left, right);
 			} else
 				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 

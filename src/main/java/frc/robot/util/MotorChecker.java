@@ -123,7 +123,6 @@ public class MotorChecker {
         }
 
         public static class CheckerConfig {
-
             public static List<MotorTestingGroup> getFromFile(GZSubsystem subsystem) {
                 File file = kFiles.MOTOR_TESTING_CONFIG.getFile();
 

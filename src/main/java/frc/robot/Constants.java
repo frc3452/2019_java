@@ -18,6 +18,8 @@ public class Constants {
 	}
 
 	public static class kAuton {
+		public final static boolean IGNORE_ANALOG_AUTON_SELECTOR = true;
+		
 		public final static double GYRO_TURN_SPEED = .25;
 
 		public final static int COMMAND_ARRAY_SIZE = 41;
@@ -82,11 +84,11 @@ public class Constants {
 	public static class kDrivetrain {
 
 		public static final boolean TUNING = false;
+
 		public static class PID {
 
-
-			static final double p = .3; //.1
-			static final double d = 3; //10
+			static final double p = .3; // .1
+			static final double d = 3; // 10
 			public final static GZPID Left = new GZPID(p, 0, d, 0, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, 0, 0);
 
@@ -102,14 +104,16 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public final static boolean L_INVERT = false;
+		public final static boolean L_INVERT = true;
 		public final static boolean R_INVERT = true;
 
-		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.045;
+		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.025;
 
-		public final static int AMP_40_TRIGGER = 60, AMP_40_LIMIT = 30, AMP_40_TIME = 4000;
 
-		public final static int AMP_30_TRIGGER = 45, AMP_30_LIMIT = 25, AMP_30_TIME = 3000;
+		//Wasserman: Peak should be half of continuous with duration of 50ms
+		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
+
+		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
 		public final static double OPEN_LOOP_RAMP_TIME = 0.125;
 
@@ -119,8 +123,8 @@ public class Constants {
 	}
 
 	public static class kPDP {
-		public final static int DRIVE_L_1 = 0, DRIVE_L_2 = 1, DRIVE_L_3 = 5, DRIVE_L_4 = 4;
-		public final static int DRIVE_R_1 = 15, DRIVE_R_2 = 14, DRIVE_R_3 = 11, DRIVE_R_4 = 10;
+		public final static int DRIVE_L_1 = 10, DRIVE_L_2 = 11, DRIVE_L_3 = 12, DRIVE_L_4 = 13;
+		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 	}
 
 	public class kTempSensor {
@@ -142,15 +146,21 @@ public class Constants {
 
 	public static class kPoofs {
 		// PROBABLY GOTTA BE BIG TUNED
+		// public static final double kRobotLinearInertia = 60.0; // kg TODO tune
+		// public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
+		// public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO
+		// tune
+		// public static final double kDriveVIntercept = 1.055; // V
+		// public static final double kDriveKv = 0.135; // V per rad/s //.135
+		// public static final double kDriveKa = 0.012; // V per rad/s^2 //.012
+		// ~BIG TUNE
+
 		public static final double kRobotLinearInertia = 60.0; // kg TODO tune
 		public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
 		public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 		public static final double kDriveVIntercept = 1.055; // V
-		public static final double kDriveKv = 0.135; // V per rad/s //.135
-		public static final double kDriveKa = 0.012; // V per rad/s^2 //.012
-
-		//ratio { kA = kV / 11.25}
-		// ~BIG TUNE
+		public static final double kDriveKv = 0.4; // V per rad/s
+		public static final double kDriveKa = 0.1; // V per rad/s^2
 
 		public static final double kPathKX = 4.0; // units/s per unit of error
 		public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering

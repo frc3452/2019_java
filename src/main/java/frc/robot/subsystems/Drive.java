@@ -84,23 +84,15 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
-		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT)
-				.overrideBreaker(Breaker.AMP_30).build();
+		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
+		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
+		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
+		L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT).build();
 
-		R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT)
-				.overrideBreaker(Breaker.AMP_30).build();
-		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT)
-				.overrideBreaker(Breaker.AMP_30).build();
+		R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT).build();
+		R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT).build();
+		R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
+		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
 
 		mNavX = new GZAHRS(SPI.Port.kMXP);
 
@@ -268,10 +260,6 @@ public class Drive extends GZSubsystem {
 
 	// ~POOFS
 
-	public void addMotorsForTesting() {
-		AmperageChecker.getInstance().addTalonGroups(CheckerConfig.getFromFile(this));
-	}
-
 	public boolean hasMotors() {
 		return true;
 	}
@@ -364,12 +352,12 @@ public class Drive extends GZSubsystem {
 
 		if (kDrivetrain.TUNING) {
 			setPID(L1, getGainsFromFile(true));
-			setPID(R1, getGainsFromFile(false));
+			setPID(R1, getGainsFromFile(true)); // both top line
 		}
 	}
 
-	public void printVelocity() {
-		System.out.println(L1.getSelectedSensorVelocity() + "\t\t\t" + R1.getSelectedSensorVelocity());
+	public void printVelocity(double tar) {
+		System.out.println(L1.getSelectedSensorVelocity() + "\t\t\t" + R1.getSelectedSensorVelocity() + "\t\t\t" + tar);
 	}
 
 	public GZPID getGainsFromFile(boolean left) {
@@ -559,13 +547,14 @@ public class Drive extends GZSubsystem {
 			// s.enableVoltageCompensation(true);
 
 			// CURRENT LIMIT
-			GZSRX.logError(s.configContinuousCurrentLimit(
-					s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_LIMIT : kDrivetrain.AMP_30_LIMIT,
-					GZSRX.TIMEOUT), this, AlertLevel.WARNING, "Could not set current limit for Talon " + name);
+			GZSRX.logError(
+					s.configContinuousCurrentLimit(s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_CONTINUOUS
+							: kDrivetrain.AMP_30_CONTINUOUS, GZSRX.TIMEOUT),
+					this, AlertLevel.WARNING, "Could not set current limit for Talon " + name);
 
 			GZSRX.logError(
 					s.configPeakCurrentLimit(
-							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TRIGGER : kDrivetrain.AMP_30_TRIGGER,
+							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_PEAK : kDrivetrain.AMP_30_PEAK,
 							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current limit trigger for Talon " + name);
 
@@ -645,6 +634,7 @@ public class Drive extends GZSubsystem {
 			brake(true);
 			break;
 		case NEUTRAL:
+			// brake(false);
 			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
 			break;
 		case OPEN_LOOP:
@@ -763,10 +753,10 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void in() {
 		// POOFS
-		mIO.gyro_heading = Rotation2d.fromDegrees(mNavX.getYaw())/* .rotateBy(mGyroOffset) */;
+		mIO.gyro_heading = Rotation2d.fromDegrees(mNavX.getYaw()).rotateBy(mGyroOffset);
 		// ~POOFS
 
-		this.mModifyPercent = (mIsSlow ? .5 : 1);
+		this.mModifyPercent = (mIsSlow ? .5 : 1); //.5
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();

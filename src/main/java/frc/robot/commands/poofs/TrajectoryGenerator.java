@@ -14,9 +14,12 @@ import frc.robot.poofs.trajectory.TrajectoryUtil;
 import frc.robot.poofs.trajectory.timing.CentripetalAccelerationConstraint;
 import frc.robot.poofs.trajectory.timing.TimedState;
 import frc.robot.poofs.trajectory.timing.TimingConstraint;
+import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFiles;
+import frc.robot.util.GZFiles.Folder;
 
 public class TrajectoryGenerator {
-        // TODO TUNE      
+        // TODO TUNE
         // private static final double kMaxVelocity = 130.0;
         // private static final double kMaxAccel = 130.0;
         // private static final double kMaxCentripetalAccelElevatorDown = 110.0;
@@ -25,11 +28,11 @@ public class TrajectoryGenerator {
         // private static final double kFirstPathMaxVoltage = 9.0;
         // private static final double kFirstPathMaxAccel = 130.0;
         // private static final double kFirstPathMaxVel = 130.0;
-        private static final double kMaxVelocity = 10;
-        private static final double kMaxAccel = 10;
+        private static final double kMaxVelocity = 150;
+        private static final double kMaxAccel = 150;
         private static final double kMaxCentripetalAccelElevatorDown = kMaxAccel;
         private static final double kMaxCentripetalAccel = 100.0;
-        private static final double kMaxVoltage = 3;
+        private static final double kMaxVoltage = 9.0;
         private static final double kFirstPathMaxVoltage = 9.0;
         private static final double kFirstPathMaxAccel = 130.0;
         private static final double kFirstPathMaxVel = 130.0;
@@ -65,24 +68,46 @@ public class TrajectoryGenerator {
                 return mTrajectorySet;
         }
 
-        public Trajectory<TimedState<Pose2dWithCurvature>> getTestTrajectory() {
+        private static final Folder mCSVFolder = new Folder("POOFS");
+
+        public Trajectory<TimedState<Pose2dWithCurvature>> getTestTrajectoryStraight() {
                 List<Pose2d> waypoints = new ArrayList<>();
 
-                waypoints.add(new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0.0)));
+                waypoints.add(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0.0)));
 
-                double x = 60;
+                waypoints.add(new Pose2d(new Translation2d(50, 90), Rotation2d.fromDegrees(90)));
+
+                Trajectory<TimedState<Pose2dWithCurvature>> temp = generateTrajectory(false, waypoints,
+                                Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccelElevatorDown)),
+                                kMaxVelocity, kMaxAccel, kMaxVoltage);
+
+                try {
+                        GZFiles.writeToCSV(GZFileMaker.getFile("Straight", mCSVFolder, true), temp.toCSV());
+                } catch (Exception e) {
+                }
+                return temp;
+        }
+
+        public Trajectory<TimedState<Pose2dWithCurvature>> getTestTrajectoryCurve() {
+                List<Pose2d> waypoints = new ArrayList<>();
+
+                waypoints.add(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
+
+                double x = 50;
                 double y = 60;
 
-                double xadder = 20;
-                waypoints.add(new Pose2d(new Translation2d(x,y),Rotation2d.fromDegrees(90)));
-                
-                waypoints.add(new Pose2d(new Translation2d(xadder,y), Rotation2d.fromDegrees(90)));
-                // waypoints.add(new Pose2d(new Translation2d(310,-30), Rotation2d.fromDegrees(0)));
+                waypoints.add(new Pose2d(x, y, Rotation2d.fromDegrees(0)));
+                waypoints.add(new Pose2d(x * 2, y/2, Rotation2d.fromDegrees(-90)));
 
-                return generateTrajectory(true, waypoints,
-                                Arrays.asList(new CentripetalAccelerationConstraint(
-                                                kMaxCentripetalAccelElevatorDown)),
+                Trajectory<TimedState<Pose2dWithCurvature>> temp = generateTrajectory(false, waypoints,
+                                Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccelElevatorDown)),
                                 kMaxVelocity, kMaxAccel, kMaxVoltage);
+
+                try {
+                        GZFiles.writeToCSV(GZFileMaker.getFile("Curve", mCSVFolder, true), temp.toCSV());
+                } catch (Exception e) {
+                }
+                return temp;
         }
 
         public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(boolean reversed,
@@ -290,7 +315,6 @@ public class TrajectoryGenerator {
 
                 }
 
-                               
                 private Trajectory<TimedState<Pose2dWithCurvature>> getSideStartToNearScale() {
                         List<Pose2d> waypoints = new ArrayList<>();
                         waypoints.add(kSideStartPose);

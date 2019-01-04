@@ -3,8 +3,6 @@ package frc.robot.util;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.wpi.first.wpilibj.Notifier;
-
 //thx 254
 public class GZSubsystemManager {
 

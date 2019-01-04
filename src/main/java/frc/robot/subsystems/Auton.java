@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -13,7 +15,13 @@ import frc.robot.commands.NoCommand;
 import frc.robot.commands.drive.DriveAtVelocityForTime;
 import frc.robot.commands.poofs.DriveTrajectoryCommand;
 import frc.robot.commands.poofs.TrajectoryGenerator;
+import frc.robot.poofs.geometry.Pose2dWithCurvature;
+import frc.robot.poofs.trajectory.Trajectory;
+import frc.robot.poofs.trajectory.timing.TimedState;
 import frc.robot.util.GZCommand;
+import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZTimer;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
@@ -66,8 +74,8 @@ public class Auton {
 		as_A.setName("Selector A");
 		as_B.setName("Selector B");
 
-		mSelector1 = new DigitalSelector("AutonSelector (Tens)", 0, 1, 2, 3);
-		mSelector2 = new DigitalSelector("AutonSelector (Ones", 4, 5, 6, 7);
+		// mSelector1 = new DigitalSelector("AutonSelector (Tens)", 0, 1, 2, 3);
+		// mSelector2 = new DigitalSelector("AutonSelector (Ones", 4, 5, 6, 7);
 
 		commandArray = null;
 
@@ -149,9 +157,8 @@ public class Auton {
 			Arrays.fill(commandArray, noCommand);
 		}
 
-		Command c = new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectory(), true);
-
-		commandArray[1] = new GZCommand("Test trajectory", c);
+		commandArray[1] = new GZCommand("Test trajectory",
+				new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true));
 		commandArray[2] = new GZCommand("Test velocity", new DriveAtVelocityForTime(1024, 1024, 6));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
@@ -177,9 +184,6 @@ public class Auton {
 		return uglyAnalog() == kAuton.SAFTEY_SWITCH;
 	}
 
-	private void printSelected2() {
-	}
-
 	private void printSelected() {
 		m_asA = as_A.getValue();
 		m_asB = as_B.getValue();
@@ -188,24 +192,26 @@ public class Auton {
 		if (controllerOverride && (!overrideString.equals(overrideStringPrevious)))
 			System.out.println(overrideString);
 
-		if (((m_asA + 8 < m_prev_as1 || m_prev_as1 < m_asA - 8)
-				|| (m_asB + 8 < m_prev_as2 || m_prev_as2 < m_asB - 8))) {
+		if (!kAuton.IGNORE_ANALOG_AUTON_SELECTOR) {
+			if (((m_asA + 8 < m_prev_as1 || m_prev_as1 < m_asA - 8)
+					|| (m_asB + 8 < m_prev_as2 || m_prev_as2 < m_asB - 8))) {
 
-			if ((uglyAnalog() >= 1) && (uglyAnalog() <= 10)) {
-				autonString = "A / " + uglyAnalog() + ": " + commandArray[uglyAnalog()].getName();
-			} else if ((uglyAnalog() >= 11) && (uglyAnalog() <= 20)) {
-				autonString = "B / " + (uglyAnalog() - 10) + ": " + commandArray[uglyAnalog()].getName() + " ("
-						+ uglyAnalog() + ")";
-			} else if ((uglyAnalog() >= 21) && (uglyAnalog() <= 30)) {
-				autonString = "C / " + (uglyAnalog() - 20) + ": " + commandArray[uglyAnalog()].getName() + " ("
-						+ uglyAnalog() + ")";
-			} else if ((uglyAnalog() >= 31) && (uglyAnalog() <= 40)) {
-				autonString = "D / " + (uglyAnalog() - 30) + ": " + commandArray[uglyAnalog()].getName() + " ("
-						+ uglyAnalog() + ")";
-			} else {
-				autonString = "AUTON NOT SELECTED: " + uglyAnalog();
+				if ((uglyAnalog() >= 1) && (uglyAnalog() <= 10)) {
+					autonString = "A / " + uglyAnalog() + ": " + commandArray[uglyAnalog()].getName();
+				} else if ((uglyAnalog() >= 11) && (uglyAnalog() <= 20)) {
+					autonString = "B / " + (uglyAnalog() - 10) + ": " + commandArray[uglyAnalog()].getName() + " ("
+							+ uglyAnalog() + ")";
+				} else if ((uglyAnalog() >= 21) && (uglyAnalog() <= 30)) {
+					autonString = "C / " + (uglyAnalog() - 20) + ": " + commandArray[uglyAnalog()].getName() + " ("
+							+ uglyAnalog() + ")";
+				} else if ((uglyAnalog() >= 31) && (uglyAnalog() <= 40)) {
+					autonString = "D / " + (uglyAnalog() - 30) + ": " + commandArray[uglyAnalog()].getName() + " ("
+							+ uglyAnalog() + ")";
+				} else {
+					autonString = "AUTON NOT SELECTED: " + uglyAnalog();
+				}
+				System.out.println(autonString);
 			}
-			System.out.println(autonString);
 		}
 
 		// update values for one time display

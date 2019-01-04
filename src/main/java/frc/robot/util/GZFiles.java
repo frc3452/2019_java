@@ -60,7 +60,8 @@ public class GZFiles {
 	 */
 	private GZFiles() {
 		try {
-			GZFiles.copyFolder(new Folder("RIOSHORTCUTS"), false, new Folder("", "RIOSHORTCUTS"), true);
+			final Folder f = new Folder("RIOSHORTCUTS");
+			GZFiles.copyFolder(f, false, f, true);
 		} catch (Exception e) {
 			System.out.println("ERROR Could not copy installation material to flash drive!");
 		}
@@ -100,6 +101,15 @@ public class GZFiles {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Parse failed!");
+		}
+	}
+
+	public static void writeToCSV(GZFile file, String body) {
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getFile()));
+			bw.write(body);
+			bw.close();
+		} catch (Exception e) {
 		}
 	}
 
@@ -364,6 +374,7 @@ public class GZFiles {
 								+ HTML.tableHeader("Encoder Connected") + HTML.tableHeader("PDP Channel")
 								+ HTML.tableHeader("Calculated breaker") + HTML.tableHeader("Breaker treated as")
 								+ HTML.tableHeader("Firmware version") + HTML.tableHeader("Temperature Sensor Port")
+								+ HTML.tableHeader("Temperature sensor value (F)")
 								+ HTML.tableHeader("Master/Follower"));
 
 						talonTable += header;
@@ -390,6 +401,9 @@ public class GZFiles {
 									+ HTML.tableCell("" + talon.getBreaker()) + HTML.tableCell("" + talon.getFirmware())
 									+ HTML.tableCell("" + talon.getTemperatureSensorPort(),
 											talon.hasTemperatureSensor() ? "white" : "red",
+											!talon.hasTemperatureSensor())
+									+ HTML.tableCell(talon.getTemperatureSensor().toString(),
+											(talon.hasTemperatureSensor() ? "white" : "red"),
 											!talon.hasTemperatureSensor())
 									+ HTML.tableCell("" + talon.getMaster()));
 							tableBody += talonRow;
