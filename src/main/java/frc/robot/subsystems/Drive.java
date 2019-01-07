@@ -17,6 +17,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -41,8 +42,6 @@ import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.MotorChecker.AmperageChecker;
-import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZAHRS;
 import frc.robot.util.drivers.GZJoystick;
@@ -81,6 +80,11 @@ public class Drive extends GZSubsystem {
 		if (mInstance == null)
 			mInstance = new Drive();
 		return mInstance;
+	}
+
+	public void printNavX()
+	{
+		System.out.println(this.mNavX.toString());
 	}
 
 	private Drive() {
@@ -255,7 +259,6 @@ public class Drive extends GZSubsystem {
 		mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mNavX.getYaw()));
 
 		mIO.gyro_heading = heading;
-		GZUtil.trace(GZUtil.currentThread());
 	}
 
 	// ~POOFS

@@ -16,10 +16,11 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZJoystick;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0);
-	// public static GZJoystick opJoy = new GZJoystick(1);
+	public static GZJoystick opJoy = new GZJoystick(1);
 
 	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
 
@@ -39,7 +40,7 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		driverJoy = new GZJoystick(0);
-		// opJoy = new GZJoystick(1);
+		opJoy = new GZJoystick(1);
 	}
 
 	boolean recording = false;
@@ -78,15 +79,17 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (isTele()) {
+			
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;
 				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
 				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
 				drive.printVelocity(left);
 				drive.setVelocity(left, right);
-			} else
+			} else{
 				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-
+			}
+				
 			if (driverJoy.isAPressed())
 				drive.toggleSlowSpeed();
 		}
