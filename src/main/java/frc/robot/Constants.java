@@ -77,7 +77,9 @@ public class Constants {
 
 		public final static String DEFAULT_NAME = "NO COMMAND";
 	}
-
+	public static class kManipulator{
+		public final static int EXAMPLE_MOTOR_ID = 9;
+	}
 	public static class kCamera {
 	}
 
@@ -125,6 +127,7 @@ public class Constants {
 	public static class kPDP {
 		public final static int DRIVE_L_1 = 10, DRIVE_L_2 = 11, DRIVE_L_3 = 12, DRIVE_L_4 = 13;
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
+		public final static int EXAMPLE_MOTOR = 6;
 	}
 
 	public class kTempSensor {
