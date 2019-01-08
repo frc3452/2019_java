@@ -20,8 +20,8 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	private GZSRX example_motor;
 
 	/** Current state of subsystem and wanted state of subsystem */
-	private ExampleState mState = ExampleState.NEUTRAL;
-	private ExampleState mWantedState = ExampleState.MANUAL;
+	private ExampleState mState = ExampleState.MANUAL;
+	private ExampleState mWantedState = ExampleState.NEUTRAL;
 
 	// Input & output object.
 	public IO mIO = new IO();
@@ -55,7 +55,6 @@ public class ExampleGZSubsystem extends GZSubsystem {
 
 	@Override
 	public void addLoggingValues() {
-
 		// Creating this object will add it to a list of other logging values
 		new LogItem("EXMPL-AMP") {
 			public String val() {
@@ -65,7 +64,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 
 		// This will put a formula for Google Sheets or Excel that will average the
 		// column to the left
-		new LogItem("AVG-AMP") {
+		new LogItem("AVG-AMP", true) {
 			public String val() {
 				return LogItem.Average_Left_Formula;
 			}
@@ -113,6 +112,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	private synchronized void handleStates() {
 
 		boolean neutral = false;
+
 		neutral |= this.isSafetyDisabled() && !GZOI.getInstance().isFMS();
 		neutral |= mWantedState == ExampleState.NEUTRAL;
 		neutral |= (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop));
@@ -121,12 +121,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 
 			switchToState(ExampleState.NEUTRAL);
 
-		} else if (Auton.getInstance().isDemo()) { /* AAAA **/
-
-			switchToState(ExampleState.DEMO);
-
-		} else if (mWantedState != mState) { /* AAAA **/
-
+		} else { /* AAAA **/
 			switchToState(mWantedState);
 		}
 	}
@@ -238,7 +233,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 * anything to be able to change what the subsystem is trying to do, but nothing
 	 * but the subsystem itself to change what it is actually doing.
 	 */
-	static class IO {
+	public class IO {
 		// In
 
 		// heres a decent amount of advantages to using a Double versus a double,
@@ -313,6 +308,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 	 */
 	public boolean setWantedState(ExampleState wantedState) {
 		this.mWantedState = wantedState;
+
 		return this.mWantedState == mState;
 	}
 

@@ -770,8 +770,8 @@ public class Drive extends GZSubsystem {
 			mIO.left_encoder_ticks = (double) L1.getSelectedSensorPosition(0);
 			mIO.left_encoder_vel = (double) L1.getSelectedSensorVelocity(0);
 		} else {
-			mIO.left_encoder_ticks = 0.0;
-			mIO.left_encoder_vel = 0.0;
+			mIO.left_encoder_ticks = Double.NaN;
+			mIO.left_encoder_vel = Double.NaN;
 		}
 
 		if (mIO.rightEncoderValid) {

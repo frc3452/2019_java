@@ -8,6 +8,7 @@ import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.RobotStateEstimator;
+import frc.robot.util.ExampleGZSubsystem;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
@@ -51,8 +52,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		drive.printNavX();
-
-
 
 		//Test branch
 	}
