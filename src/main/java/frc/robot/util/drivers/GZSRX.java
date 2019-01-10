@@ -47,6 +47,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 			this.mPDPChannel = PDPChannel;
 		}
 
+		// public abstract double getInternalVoltage();
+
 		public Builder overrideBreaker(Breaker b) {
 			this.mBreaker = b;
 			return this;
@@ -84,6 +86,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 	}
 
 	public final static int TIMEOUT = 10;
+	public static final int LONG_TIMEOUT = 100;
 	public final static int FIRMWARE = 1024; // 778 //1025
 	private final static AlertLevel mFirmwareLevel = AlertLevel.WARNING;
 
@@ -135,7 +138,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
 					+ " overridden to breaker " + this.mBreaker + ", plugged into " + this.mActualBreaker);
 
-		subsystem.mTalons.put(deviceNumber, this);
+		subsystem.mTalons.add(this);
 	}
 
 	/**
@@ -216,6 +219,11 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return this.getMotorOutputVoltage();
 	}
 
+	@Override
+	public double getOutputPercentage() {
+		return super.getMotorOutputPercent();
+	}
+
 	private boolean encoderPresent() {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
@@ -265,10 +273,48 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 			Health.getInstance().addAlert(subsystem, level, message);
 	}
 
+	public abstract static class TestLogError {
+
+		private GZSubsystem subsystem;
+		private AlertLevel level;
+		private String message;
+		private int retries;
+
+		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message, int retries) {
+			this.subsystem = subsystem;
+			this.level = level;
+			this.message = message;
+			this.retries = retries;
+			test();
+		}
+
+		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message) {
+			this(subsystem, level, message, -1);
+		}
+
+		public abstract ErrorCode error();
+
+		public void test() {
+			boolean success = false;
+			if (this.level == AlertLevel.WARNING)
+				retries = 3;
+			else
+				retries = 6;
+
+			for (int i = 0; i < retries && !success; i++) {
+				if (error() == ErrorCode.OK)
+					success = true;
+			}
+
+			if (!success)
+				Health.getInstance().addAlert(this.subsystem, this.level, this.message);
+		}
+	}
+
 	public int getFirmware() {
 		// once we get the firmware version
 
-		// Give it 6 trys to pull the firmware, and once we get it, store it
+		// Give it a few trys to pull the firmware, and once we get it, store it
 		// (firmware be funky)
 		int counter = 0;
 		do {
@@ -279,7 +325,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 			if (counter > 0)
 				System.out.println("Trying to get firmware for Talon " + this.getGZName() + ": try " + counter);
 			counter++;
-		} while (counter < 6 && mFirmware == -1);
+		} while (counter <= 3 && mFirmware == -1);
 
 		return mFirmware;
 	}

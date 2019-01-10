@@ -79,17 +79,17 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (isTele()) {
-			
+
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;
 				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
 				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
 				drive.printVelocity(left);
 				drive.setVelocity(left, right);
-			} else{
+			} else {
 				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			}
-				
+
 			if (driverJoy.isAPressed())
 				drive.toggleSlowSpeed();
 		}
@@ -110,6 +110,11 @@ public class GZOI extends GZSubsystem {
 			recording = !recording;
 		if (recording != prevRecording)
 			GZFiles.getInstance().csvControl(kFiles.MP_NAME, kFiles.MP_FOLDER, kFiles.MP_USB, TASK.Record, recording);
+	}
+
+	public String getSmallString() {
+		// no motors, so not really used but
+		return "GZOI";
 	}
 
 	public void addLoggingValues() {
@@ -175,10 +180,11 @@ public class GZOI extends GZSubsystem {
 		return false;
 	}
 
-	public void addPDPTestingMotors() {
+	public boolean hasAir() {
+		return false;
 	}
 
-	public void addMotorsForTesting() {
+	public void addPDPTestingMotors() {
 	}
 
 	public void setSafetyDisable(boolean disable) {
@@ -199,6 +205,11 @@ public class GZOI extends GZSubsystem {
 
 	public boolean isFMS() {
 		return DriverStation.getInstance().isFMSAttached();
+	}
+
+	public Alliance getAlliance()
+	{
+		return DriverStation.getInstance().getAlliance();
 	}
 
 	public boolean isRed() {

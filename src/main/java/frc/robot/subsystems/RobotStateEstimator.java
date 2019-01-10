@@ -20,6 +20,11 @@ public class RobotStateEstimator extends GZSubsystem {
         right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
     }
 
+    public String getSmallString()
+    {
+        return "POOF-RSE";
+    }
+
     public static RobotStateEstimator getInstance() {
         if (mInstance == null)
             mInstance = new RobotStateEstimator();
@@ -32,6 +37,10 @@ public class RobotStateEstimator extends GZSubsystem {
 
     @Override
     public boolean hasMotors() {
+        return false;
+    }
+    public boolean hasAir()
+    {
         return false;
     }
 

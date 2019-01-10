@@ -8,8 +8,6 @@ public class DriveAtVelocityForTime extends Command {
 
   private double leftVel, rightVel, time;
 
-  private GZTimer timer = new GZTimer();
-
   private Drive drive = Drive.getInstance();
 
   public DriveAtVelocityForTime(double leftVel, double rightVel, double time) {
@@ -21,13 +19,11 @@ public class DriveAtVelocityForTime extends Command {
 
   protected void initialize() {
     setTimeout(time);
-    // timer.startTimer();
   }
   protected void execute() {
     drive.setVelocity(leftVel, rightVel);
   }
   protected boolean isFinished() {
-    // return timer.get() > time;
     return isTimedOut();
   }
   protected void end() {

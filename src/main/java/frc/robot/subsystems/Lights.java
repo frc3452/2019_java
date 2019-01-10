@@ -47,6 +47,11 @@ public class Lights extends GZSubsystem {
 		// D:
 	}
 
+	public String getSmallString()
+	{
+		return "LGHT";
+	}
+
 	private Lights() {
 
 		for (int i = 0; i < 10; i++)
@@ -90,7 +95,7 @@ public class Lights extends GZSubsystem {
 
 			} else if (gzOI.isDisabled()) {
 
-				switch (Auton.getInstance().uglyAnalog()) {
+				switch (Auton.getInstance().getSelector()) {
 				case 100:
 
 					// OFF
@@ -160,6 +165,11 @@ public class Lights extends GZSubsystem {
 	}
 
 	public boolean hasMotors()
+	{
+		return false;
+	}
+
+	public boolean hasAir()
 	{
 		return false;
 	}

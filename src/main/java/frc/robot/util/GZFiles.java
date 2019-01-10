@@ -17,7 +17,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.kFiles;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.drivers.GZDoubleSolenoid;
 import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.GZSolenoid;
 import frc.robot.util.drivers.GZSpeedController;
 
 /**
@@ -360,29 +362,26 @@ public class GZFiles {
 	public void writeCurrentHardwareConfigurationFile() {
 		String body = HTML.paragraph("Created on: " + GZUtil.dateTime(false));
 
-		for (GZSubsystem s : Robot.allSubsystems.getSubsystems())
+		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
+			String subsystem = HTML.header(s.toString(), 2);
 			if (s.hasMotors()) {
-				String subsystem = HTML.header(s.toString(), 2);
 
 				// if has tallons
-				if (s.mTalons.values().size() != 0) {
+				if (s.mTalons.size() != 0) {
 					subsystem += HTML.paragraph("Talons");
 					String talonTable = "";
 					{
 						String header = "";
-						header += HTML.tableRow(HTML.tableHeader("Talon Name") + HTML.tableHeader("Device ID")
-								+ HTML.tableHeader("Encoder Connected") + HTML.tableHeader("PDP Channel")
-								+ HTML.tableHeader("Calculated breaker") + HTML.tableHeader("Breaker treated as")
-								+ HTML.tableHeader("Firmware version") + HTML.tableHeader("Temperature Sensor Port")
-								+ HTML.tableHeader("Temperature sensor value (F)")
-								+ HTML.tableHeader("Master/Follower"));
+						header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "Encoder Connected",
+								"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version",
+								"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
 
 						talonTable += header;
 					}
 
 					{
 						String tableBody = "";
-						for (GZSRX talon : s.mTalons.values()) {
+						for (GZSRX talon : s.mTalons) {
 							String talonRow = "";
 
 							final String encoderCellColor;
@@ -429,7 +428,7 @@ public class GZFiles {
 
 					{
 						String tableBody = "";
-						for (GZSpeedController controller : s.mDumbControllers.values()) {
+						for (GZSpeedController controller : s.mDumbControllers) {
 							String pwmRow = "";
 							pwmRow += HTML.tableRow(HTML.tableCell(controller.getGZName())
 									+ HTML.tableCell(String.valueOf(controller.getPort()))
@@ -446,9 +445,57 @@ public class GZFiles {
 					subsystem += pwmTable;
 				}
 
-				body += subsystem;
+			} // if has motors
+
+			if (s.hasAir()) {
+				subsystem += HTML.paragraph("Pneumatics");
+
+				// If has single solenoids
+				if (s.mSingleSolenoids.size() != 0) {
+					subsystem += HTML.paragraph("Single solenoids");
+					String singlesTable = "";
+					{
+						String singlesHeader = "";
+						singlesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM", "Solenoid Channel"));
+						singlesTable += singlesHeader;
+					}
+
+					for (GZSolenoid sol : s.mSingleSolenoids) {
+						String solenoidRow = "";
+						solenoidRow += HTML.tableRow(
+								HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(), "" + sol.getChannel()));
+						singlesTable += solenoidRow;
+					}
+					singlesTable = HTML.table(singlesTable);
+					subsystem += singlesTable;
+				}
+
+				// If has double solenoids
+				if (s.mDoubleSolenoids.size() != 0) {
+					subsystem += HTML.paragraph("Double solenoids");
+					String doublesTable = "";
+					{
+						String doublesHeader = "";
+						doublesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM", "Solenoid Channel (FWD)",
+								"Solenoid Channel (REV)"));
+						doublesTable += doublesHeader;
+					}
+
+					for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
+						String solenoidRow = "";
+						solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(),
+								"" + sol.getChannel().fwd_channel, "" + sol.getChannel().rev_channel));
+						doublesTable += solenoidRow;
+					}
+
+					doublesTable = HTML.table(doublesTable);
+					subsystem += doublesTable;
+				}
+
 			}
 
+			body += subsystem;
+		}
 		try {
 			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
 			HTML.createHTMLFile(file, body);
@@ -553,6 +600,15 @@ public class GZFiles {
 			return header(f, 1, "black");
 		}
 
+		public static String easyHeader(String... f) {
+			String retval = "";
+			for (String s : f) {
+				retval += header(s);
+			}
+
+			return retval;
+		}
+
 		public static String button(String buttonTitle, String content) {
 			return newLine("<button class=\"collapsible\">" + buttonTitle + "</button> <div class=\"content\">"
 					+ content + "</div>");
@@ -593,6 +649,15 @@ public class GZFiles {
 
 		public static String tableCell(String f) {
 			return "<td>" + f + "</td>";
+		}
+
+		public static String easyTableCell(String... f) {
+			String retval = "";
+
+			for (String s : f) {
+				retval += tableCell(s);
+			}
+			return retval;
 		}
 
 		public static String bold(String f, String color) {

@@ -2,22 +2,20 @@ package frc.robot.util.drivers;
 
 import frc.robot.util.drivers.GZSRX.Breaker;
 
-public interface GZSpeedController {
+public interface GZSpeedController extends IGZHardware {
 
+    //sets
     public void lockOutController(boolean lockedOut);
-
     public void set(double speed);
-
     public void set(double speed, boolean overrideLockout);
 
     public Double getAmperage();
 
-    public String getGZName();
+    public double getOutputPercentage();
 
+    //temperature sensor
     public Double getTemperatureSensor();
-
     public boolean hasTemperatureSensor();
-
     public int getTemperatureSensorPort();
 
     public int getPort();

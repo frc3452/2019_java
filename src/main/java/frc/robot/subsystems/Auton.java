@@ -1,27 +1,18 @@
 package frc.robot.subsystems;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
 import frc.robot.commands.drive.DriveAtVelocityForTime;
 import frc.robot.commands.poofs.DriveTrajectoryCommand;
 import frc.robot.commands.poofs.TrajectoryGenerator;
-import frc.robot.poofs.geometry.Pose2dWithCurvature;
-import frc.robot.poofs.trajectory.Trajectory;
-import frc.robot.poofs.trajectory.timing.TimedState;
 import frc.robot.util.GZCommand;
-import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
-import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZTimer;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
@@ -35,23 +26,18 @@ import frc.robot.util.drivers.GZJoystick.Buttons;
  */
 public class Auton {
 
-	private AnalogInput as_A;
-	private AnalogInput as_B;
-
-	private int m_prev_as1, m_prev_as2;
-	private int m_asA, m_asB;
-
-	public GZCommand commandArray[];
+	public ArrayList<GZCommand> commandArray;
 
 	private GZCommand defaultCommand = null;
 	public Command autonomousCommand = null;
 
-	private boolean controllerOverride = false;
+	private int m_controllerOverrideValue = -1;
+	private int p_controllerOverrideValue = m_controllerOverrideValue;
 
-	private int overrideValue = 1;
-	private String overrideStringPrevious = "";
-	private String overrideString = "", autonString = "";
-	private String gameMsg = "NOT";
+	private int m_selectorValue = 0;
+	private int p_selectorValue = -1;
+
+	private final String gameMsg = "NOT";
 
 	public GZTimer matchTimer = new GZTimer("AutonTimer");
 
@@ -66,14 +52,6 @@ public class Auton {
 	}
 
 	private Auton() {
-		as_A = new AnalogInput(Constants.kAuton.AUTO_SELECTOR_1);
-		as_B = new AnalogInput(Constants.kAuton.AUTO_SELECTOR_2);
-
-		as_A.setSubsystem("AutonSelector");
-		as_B.setSubsystem("AutonSelector");
-		as_A.setName("Selector A");
-		as_B.setName("Selector B");
-
 		// mSelector1 = new DigitalSelector("AutonSelector (Tens)", 0, 1, 2, 3);
 		// mSelector2 = new DigitalSelector("AutonSelector (Ones", 4, 5, 6, 7);
 
@@ -82,12 +60,8 @@ public class Auton {
 		// fillAutonArray();
 	}
 
-	private int getSelector() {
+	public int getSelector() {
 		return DigitalSelector.get(mSelector1, mSelector2);
-	}
-
-	public String getAutonString() {
-		return autonString;
 	}
 
 	public void crash() {
@@ -107,12 +81,13 @@ public class Auton {
 
 		controllerChooser();
 
-		if (controllerOverride) {
-			autonomousCommand = commandArray[overrideValue].getCommand();
+		if (m_controllerOverrideValue != -1) {
+			autonomousCommand = commandArray.get(m_controllerOverrideValue).getCommand();
 		} else {
 			// Check if auton selectors are returning what they should be
-			if (uglyAnalog() <= kAuton.COMMAND_ARRAY_SIZE && uglyAnalog() >= 1) {
-				autonomousCommand = commandArray[uglyAnalog()].getCommand();
+			final int selectorValue = getSelector();
+			if (selectorValue <= 99 && selectorValue >= 1) {
+				autonomousCommand = commandArray.get(selectorValue).getCommand();
 			} else {
 				autonomousCommand = defaultCommand.getCommand();
 			}
@@ -129,37 +104,32 @@ public class Auton {
 		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
 
 			if (GZOI.driverJoy.isAPressed()) {
-				overrideValue++;
-				controllerOverride = true;
+				m_controllerOverrideValue++;
 			} else if (GZOI.driverJoy.isBPressed()) {
-				overrideValue--;
-				controllerOverride = true;
+				m_controllerOverrideValue--;
 			} else if (GZOI.driverJoy.getButton(Buttons.RIGHT_CLICK)) {
-				controllerOverride = false;
-				System.out.println(autonString);
+				m_controllerOverrideValue = -1;
+				printSelectors();
 			}
 
-			if (overrideValue < 0)
-				overrideValue = commandArray.length - 1;
-			if (overrideValue > commandArray.length - 1)
-				overrideValue = 0;
-
-			if (controllerOverride)
-				overrideString = "Controller override:\t (" + overrideValue + ")"
-						+ commandArray[overrideValue].getName();
+			if (m_controllerOverrideValue < 0)
+				m_controllerOverrideValue = commandArray.size() - 1;
+			if (m_controllerOverrideValue > commandArray.size() - 1)
+				m_controllerOverrideValue = 0;
 		}
 	}
 
 	public void fillAutonArray() {
 		if (commandArray == null) {
-			commandArray = new GZCommand[kAuton.COMMAND_ARRAY_SIZE];
 			GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
-			Arrays.fill(commandArray, noCommand);
+			commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
 		}
+		commandArray.clear();
 
-		commandArray[1] = new GZCommand("Test trajectory",
-				new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true));
-		commandArray[2] = new GZCommand("Test velocity", new DriveAtVelocityForTime(1024, 1024, 6));
+		commandArray.add(new GZCommand("Test trajectory",
+				new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));
+
+		commandArray.add(new GZCommand("Test velocity", new DriveAtVelocityForTime(1024, 1024, 6)));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 
@@ -181,135 +151,59 @@ public class Auton {
 	}
 
 	public boolean isDemo() {
-		return uglyAnalog() == kAuton.SAFTEY_SWITCH;
+		return getSelector() == kAuton.SAFTEY_SWITCH;
 	}
 
 	private void printSelected() {
-		m_asA = as_A.getValue();
-		m_asB = as_B.getValue();
-
 		// If overriden, print overide
-		if (controllerOverride && (!overrideString.equals(overrideStringPrevious)))
-			System.out.println(overrideString);
+		m_selectorValue = getSelector();
 
-		if (!kAuton.IGNORE_ANALOG_AUTON_SELECTOR) {
-			if (((m_asA + 8 < m_prev_as1 || m_prev_as1 < m_asA - 8)
-					|| (m_asB + 8 < m_prev_as2 || m_prev_as2 < m_asB - 8))) {
+		if (m_controllerOverrideValue != p_controllerOverrideValue)
+			System.out.println("Auton Controller override: (" + m_controllerOverrideValue + ") "
+					+ commandArray.get(m_controllerOverrideValue).getName());
 
-				if ((uglyAnalog() >= 1) && (uglyAnalog() <= 10)) {
-					autonString = "A / " + uglyAnalog() + ": " + commandArray[uglyAnalog()].getName();
-				} else if ((uglyAnalog() >= 11) && (uglyAnalog() <= 20)) {
-					autonString = "B / " + (uglyAnalog() - 10) + ": " + commandArray[uglyAnalog()].getName() + " ("
-							+ uglyAnalog() + ")";
-				} else if ((uglyAnalog() >= 21) && (uglyAnalog() <= 30)) {
-					autonString = "C / " + (uglyAnalog() - 20) + ": " + commandArray[uglyAnalog()].getName() + " ("
-							+ uglyAnalog() + ")";
-				} else if ((uglyAnalog() >= 31) && (uglyAnalog() <= 40)) {
-					autonString = "D / " + (uglyAnalog() - 30) + ": " + commandArray[uglyAnalog()].getName() + " ("
-							+ uglyAnalog() + ")";
-				} else {
-					autonString = "AUTON NOT SELECTED: " + uglyAnalog();
-				}
-				System.out.println(autonString);
+		if (m_controllerOverrideValue != -1) {
+			if (m_selectorValue != p_selectorValue) {
+				printSelectors();
 			}
 		}
 
 		// update values for one time display
-		m_prev_as1 = m_asA;
-		m_prev_as2 = m_asB;
-
-		overrideStringPrevious = overrideString;
+		p_selectorValue = m_selectorValue;
+		p_controllerOverrideValue = m_controllerOverrideValue;
 	}
 
-	/**
-	 * @author max
-	 * @return Number between 1 - 100, A1 = 1, A10 = 10, B1 = 11, B10 = 20, or 3452
-	 *         as error
-	 */
-	public int uglyAnalog() {
-		if (m_asA < Constants.kAuton.AUTO_1 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_1 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(0);
-
-		} else if (m_asA < Constants.kAuton.AUTO_2 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_2 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(1);
-
-		} else if (m_asA < Constants.kAuton.AUTO_3 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_3 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(2);
-
-		} else if ((m_asA < Constants.kAuton.AUTO_4 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_4 - Constants.kAuton.AUTO_VARIANCE)) {
-			return selectorB(3);
-
-		} else if ((m_asA < Constants.kAuton.AUTO_5 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_5 - Constants.kAuton.AUTO_VARIANCE)) {
-			return selectorB(4);
-
-		} else if (m_asA < Constants.kAuton.AUTO_6 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_6 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(5);
-
-		} else if (m_asA < Constants.kAuton.AUTO_7 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_7 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(6);
-
-		} else if (m_asA < Constants.kAuton.AUTO_8 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_8 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(7);
-		} else if (m_asA < Constants.kAuton.AUTO_9 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_9 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(8);
-
-		} else if (m_asA < Constants.kAuton.AUTO_10 + Constants.kAuton.AUTO_VARIANCE
-				&& m_asA > Constants.kAuton.AUTO_10 - Constants.kAuton.AUTO_VARIANCE) {
-			return selectorB(9);
-
+	private void printSelectors() {
+		// if is valid
+		if (m_selectorValue >= 0 && m_selectorValue <= 99) {
+			System.out.println(
+					"Auton selected: (" + m_selectorValue + ") " + commandArray.get(m_selectorValue).getName());
 		} else {
-			// ERROR
-			return 3452;
-		}
-
-	}
-
-	private int selectorB(int selectorA) {
-		if (m_asB > Constants.kAuton.AUTO_1_L && m_asB < Constants.kAuton.AUTO_1_H) {
-			return 1 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_2_L && m_asB < Constants.kAuton.AUTO_2_H) {
-			return 2 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_3_L && m_asB < Constants.kAuton.AUTO_3_H) {
-			return 3 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_4_L && m_asB < Constants.kAuton.AUTO_4_H) {
-			return 4 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_5_L && m_asB < Constants.kAuton.AUTO_5_H) {
-			return 5 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_6_L && m_asB < Constants.kAuton.AUTO_6_H) {
-			return 6 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_7_L && m_asB < Constants.kAuton.AUTO_7_H) {
-			return 7 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_8_L && m_asB < Constants.kAuton.AUTO_8_H) {
-			return 8 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_9_L && m_asB < Constants.kAuton.AUTO_9_H) {
-			return 9 + (selectorA * 10);
-		} else if (m_asB > Constants.kAuton.AUTO_10_L && m_asB < Constants.kAuton.AUTO_10_H) {
-			return 10 + (selectorA * 10);
-		} else {
-			// ERROR
-			return 3452;
+			System.out.println("WARNING Auton not selected! Selectors returning value: " + m_selectorValue);
 		}
 	}
 
-	public String gsm() {
-		String f;
-		f = DriverStation.getInstance().getGameSpecificMessage();
+	// get game message, returns "NOT" if anything incorrect
+	public String gameMessage() {
+		String badValue = gameMsg;
 
-		if (f.length() > 0)
-			gameMsg = f;
-		else
-			gameMsg = "NOT";
+		String f = DriverStation.getInstance().getGameSpecificMessage();
 
-		return gameMsg;
+		// Check length
+		if (f.length() == 3) {
+
+			// Check and make sure every character is an L or an R
+			for (int i = 0; i < 3; i++)
+				// if character doesn't equal l or r
+				if (!(f.charAt(i) == 'L' || f.charAt(i) == 'R'))
+					return badValue;
+
+			// If we get here, we're good
+			return f;
+		}
+
+		// Length incorrect
+		return badValue;
 	}
 
 	/**
@@ -319,7 +213,7 @@ public class Auton {
 	 *
 	 */
 	public enum AV {
-		SEASON, FOREST_HILLS, CURRENT
+		// SEASON, FOREST_HILLS, CURRENT
 	}
 
 	/**
@@ -329,7 +223,6 @@ public class Auton {
 	 *
 	 */
 	public enum AO {
-		SWITCH, SCALE, SWITCH_PRIORITY_NO_CROSS, SCALE_PRIORITY_NO_CROSS, SWITCH_ONLY, SCALE_ONLY, DEFAULT
 	}
 
 }

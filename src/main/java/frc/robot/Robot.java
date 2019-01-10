@@ -1,11 +1,14 @@
 package frc.robot;
 
+import java.util.Arrays;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Health;
-import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
@@ -19,7 +22,7 @@ public class Robot extends TimedRobot {
 	// This order is crucial! it determines what order logging is added, what order
 	// health is generated in, etc
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), /**Manipulator.getInstance(),*/ GZOI.getInstance());
+			RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -51,6 +54,8 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		drive.printNavX();
 
+
+
 		//Test branch
 	}
 
@@ -81,11 +86,6 @@ public class Robot extends TimedRobot {
 		// timer start
 		auton.matchTimer.oneTimeStartTimer();
 
-		// Loop while game data is bad and timer is acceptable
-		do {
-		} while ((auton.gsm().equals("NOT") && auton.matchTimer.get() < 3));
-
-		// Fill auton array and set values, regardless of good game message
 		auton.startAuton();
 	}
 
