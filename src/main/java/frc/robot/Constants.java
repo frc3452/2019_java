@@ -99,6 +99,7 @@ public class Constants {
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 
 		public static final int ELEVATOR_MOTOR = 0;
+		public static final int CLIMBER_FRONT = 0;
 	}
 
 	public static class kBasicSubsystem {
@@ -120,6 +121,21 @@ public class Constants {
 		public final static int PURPLE = 55;
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
+	}
+
+	public static class kClimber {
+		public static final int FRONT_MOTOR_ID = 0;
+		public static final int BACK_MOTOR_ID = 0;
+		public static final int RAMP_DROP_SOLENOID_CHANNEL = 0;
+
+		public static final boolean CLIMBER_FRONT_INVERT = false;
+		public static final boolean CLIMBER_BACK_INVERT = true;
+		
+		public static final double OPEN_RAMP_TIME = 0;
+		
+		public static final int AMP_CONTINUOUS = 40;
+		public static final int AMP_PEAK = 20;
+		public static final int AMP_TIME = 50;
 	}
 
 	public static class kPoofs {
