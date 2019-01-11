@@ -29,6 +29,8 @@ public class Constants {
 
 		public static final double OPEN_RAMP_TIME = 0;
 
+		public static final int TICKS_PER_INCH = 3; //TODO TUNE ME
+
 		public static final boolean ENC_INVERT = false;
 
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0);
@@ -99,10 +101,6 @@ public class Constants {
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 
 		public static final int ELEVATOR_MOTOR = 0;
-	}
-
-	public static class kBasicSubsystem {
-		public final static int TALON_1 = 30;
 	}
 
 	public class kTempSensor {

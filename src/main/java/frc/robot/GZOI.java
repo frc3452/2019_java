@@ -68,10 +68,6 @@ public class GZOI extends GZSubsystem {
 
 		Robot.allSubsystems.disable(mSafetyDisable);
 
-		// if (driverJoy.areButtonsHeld(Arrays.asList(Buttons.A, Buttons.RB,
-		// Buttons.LEFT_CLICK)))
-		// Auton.getInstance().crash();
-
 		// RECORDING
 		// recordingUpdates();
 
@@ -79,6 +75,15 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (isTele()) {
+
+
+			// if button a
+				// runClimber(1,1); //go up
+			// else if button b
+				// runClimber(-1,-1); //go down
+			//	else if button x
+				// runClimber(1)
+			
 
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;

@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
@@ -19,7 +21,7 @@ public class Elevator extends GZSubsystem {
     private ElevatorState mState = ElevatorState.MANUAL;
     private ElevatorState mWantedState = ElevatorState.NEUTRAL;
     public IO mIO = new IO();
-    private GZSRX elevator_1;
+    private GZSRX mElevator1;
 
     private static Elevator mInstance = null;
 
@@ -31,23 +33,32 @@ public class Elevator extends GZSubsystem {
     }
 
     private Elevator() {
-        elevator_1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator_Motor", kPDP.ELEVATOR_MOTOR)
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator_Motor", kPDP.ELEVATOR_MOTOR)
                 .build();
 
         talonInit();
 
-        elevator_1.setInverted(Constants.kElevator.E_1_INVERT);
+        mElevator1.setInverted(Constants.kElevator.E_1_INVERT);
+
+        GZSRX.logError(
+                mElevator1.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        LimitSwitchNormal.NormallyOpen),
+                this, AlertLevel.WARNING, "Could not configure forward limit switch source");
+        GZSRX.logError(
+                mElevator1.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        LimitSwitchNormal.NormallyOpen),
+                this, AlertLevel.WARNING, "Could not configure reverse limit switch source");
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set open loop ramp time") {
             @Override
             public ErrorCode error() {
-                return elevator_1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT);
+                return mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT);
             }
         };
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set encoder zero on bottom limit") {
             public ErrorCode error() {
-                return elevator_1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT);
+                return mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT);
             }
         };
 
@@ -60,35 +71,35 @@ public class Elevator extends GZSubsystem {
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'F' Gain for slot" + gains.parameterSlot) {
             @Override
             public ErrorCode error() {
-                return elevator_1.config_kF(gains.parameterSlot, gains.F, GZSRX.TIMEOUT);
+                return mElevator1.config_kF(gains.parameterSlot, gains.F, GZSRX.TIMEOUT);
             }
         };
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'P' Gain for slot" + gains.parameterSlot) {
             @Override
             public ErrorCode error() {
-                return elevator_1.config_kP(gains.parameterSlot, gains.P, GZSRX.TIMEOUT);
+                return mElevator1.config_kP(gains.parameterSlot, gains.P, GZSRX.TIMEOUT);
             }
         };
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'I' Gain for slot" + gains.parameterSlot) {
             @Override
             public ErrorCode error() {
-                return elevator_1.config_kI(gains.parameterSlot, gains.I, GZSRX.TIMEOUT);
+                return mElevator1.config_kI(gains.parameterSlot, gains.I, GZSRX.TIMEOUT);
             }
         };
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'D' Gain for slot" + gains.parameterSlot) {
             @Override
             public ErrorCode error() {
-                return elevator_1.config_kD(gains.parameterSlot, gains.D, GZSRX.TIMEOUT);
+                return mElevator1.config_kD(gains.parameterSlot, gains.D, GZSRX.TIMEOUT);
             }
         };
 
         new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'iZone' Gain for slot" + gains.parameterSlot) {
             @Override
             public ErrorCode error() {
-                return elevator_1.config_IntegralZone(gains.parameterSlot, gains.iZone, GZSRX.TIMEOUT);
+                return mElevator1.config_IntegralZone(gains.parameterSlot, gains.iZone, GZSRX.TIMEOUT);
             }
         };
 
@@ -119,12 +130,12 @@ public class Elevator extends GZSubsystem {
 
             new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not set up encoder") {
                 public ErrorCode error() {
-                    return elevator_1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+                    return mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
                             GZSRX.LONG_TIMEOUT);
                 }
             };
 
-            elevator_1.setSensorPhase(Constants.kElevator.ENC_INVERT);
+            mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
             s.enableCurrentLimit(true);
 
@@ -149,7 +160,10 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void addLoggingValues() {
-
+        new LogItem(getSmallString() + "-HEIGHT")
+        {
+            public String 
+        };
     }
 
     @Override
@@ -214,21 +228,32 @@ public class Elevator extends GZSubsystem {
     }
 
     private void in() {
-        mIO.encoders_valid = elevator_1.isEncoderValid();
+        mIO.encoders_valid = mElevator1.isEncoderValid();
 
         if (mIO.encoders_valid) {
-            mIO.ticks_position = (double) elevator_1.getSelectedSensorPosition();
-            mIO.ticks_velocity = (double) elevator_1.getSelectedSensorVelocity();
+            mIO.ticks_position = (double) mElevator1.getSelectedSensorPosition();
+            mIO.ticks_velocity = (double) mElevator1.getSelectedSensorVelocity();
         } else {
             mIO.ticks_position = Double.NaN;
             mIO.ticks_velocity = Double.NaN;
         }
     }
 
+    public boolean getTopLimit() {
+        return mIO.fwd_limit_switch; // TODO TUNE
+    }
+
+    public boolean getBottomLimit() {
+        return mIO.rev_limit_switch; // TODO TUNE
+    }
+
     public class IO {
         // In
         public Double ticks_velocity = Double.NaN;
         public Double ticks_position = Double.NaN;
+
+        public Boolean fwd_limit_switch = false;
+        public Boolean rev_limit_switch = false;
 
         public Boolean encoders_valid = false;
 
@@ -238,14 +263,13 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
-
         if (mState != ElevatorState.NEUTRAL) {
             mIO.output = mIO.desired_output;
         } else {
             mIO.output = 0;
         }
 
-        elevator_1.set(mState.controlMode, mIO.output);
+        mElevator1.set(mState.controlMode, mIO.output);
     }
 
     public synchronized void enableFollower() {

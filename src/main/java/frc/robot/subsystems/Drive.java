@@ -406,8 +406,6 @@ public class Drive extends GZSubsystem {
 				return Drive.getInstance().mIO.rightEncoderValid.toString();
 			}
 		};
-
-		this.addLoggingValuesTalons();
 	}
 
 	public enum DriveState {
