@@ -30,6 +30,7 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
         this.mSub = subsystem;
         this.mName = name;
         this.mModule = module;
+        this.mSub.mDoubleSolenoids.add(this);
     }
 
     public DoubleSolenoidChannel getChannel()

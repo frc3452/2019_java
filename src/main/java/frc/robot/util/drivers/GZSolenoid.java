@@ -24,6 +24,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         this.mSub = subsystem;
         this.mName = name;
         this.mModule = module;
+        this.mSub.mSingleSolenoids.add(this);
     }
     
 
