@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import java.io.File;
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -632,6 +633,7 @@ public class MotorChecker {
 
         public void runCheck(double waitTime) {
             String body = HTML.paragraph("File created on: " + GZUtil.dateTime(false));
+            final DecimalFormat fmt = new DecimalFormat("#0.00");
 
             System.out.println("RUNNING PDP CHANNEL CHECK");
             {
@@ -665,7 +667,7 @@ public class MotorChecker {
                     String hidden = "";
                     // AVERAGE
                     {
-                        String average = "Average current: " + GZUtil.roundTo(result.average, 2);
+                        String average = "Average current: " + fmt.format(result.average);
                         hidden += HTML.paragraph(average);
                     }
 
@@ -684,7 +686,7 @@ public class MotorChecker {
                         String nextRow = "";
                         nextRow += HTML.tableHeader("Current");
                         for (int i = 0; i <= 15; i++) {
-                            nextRow += HTML.tableCell(GZUtil.roundTo(result.pdpVals.get(i).val, 2).toString(),
+                            nextRow += HTML.tableCell(fmt.format(result.pdpVals.get(i).val).toString(),
                                     result.pdpVals.get(i).trip ? "red" : "white", false);
                         }
                         nextRow = HTML.tableRow(nextRow);
