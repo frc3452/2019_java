@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
@@ -15,9 +13,12 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
@@ -304,9 +305,6 @@ public class Drive extends GZSubsystem {
 			break;
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
-			break;
-		default:
-			System.out.println("WARNING: Incorrect drive state " + mState + " reached.");
 			break;
 		}
 
