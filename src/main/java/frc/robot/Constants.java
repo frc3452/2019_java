@@ -99,6 +99,11 @@ public class Constants {
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 
 		public static final int ELEVATOR_MOTOR = 0;
+
+		public static final int INTAKE_LEFT = 0;
+		public static final int INTAKE_RIGHT = 0;
+
+
 	}
 
 	public static class kBasicSubsystem {
@@ -120,6 +125,14 @@ public class Constants {
 		public final static int PURPLE = 55;
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
+	}
+
+	public static class kIntake{
+		public static final int INTAKE_LEFT_PORT = 0;
+		public static final int INTAKE_RIGHT_PORT = 0;
+		public static final int INTAKE_SOLENOID_PORT = 0;
+		public static final double RAISE_TIME = 0;
+		public static final double LOWERED_TIME = 0;
 	}
 
 	public static class kPoofs {
