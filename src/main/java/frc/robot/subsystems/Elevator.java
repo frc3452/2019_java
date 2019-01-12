@@ -12,6 +12,7 @@ import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZSRX;
@@ -21,6 +22,7 @@ public class Elevator extends GZSubsystem {
     private ElevatorState mState = ElevatorState.MANUAL;
     private ElevatorState mWantedState = ElevatorState.NEUTRAL;
     public IO mIO = new IO();
+
     private GZSRX mElevator1;
 
     private static Elevator mInstance = null;
@@ -33,7 +35,7 @@ public class Elevator extends GZSubsystem {
     }
 
     private Elevator() {
-        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator_Motor", kPDP.ELEVATOR_MOTOR)
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR)
                 .build();
 
         talonInit();
@@ -162,8 +164,32 @@ public class Elevator extends GZSubsystem {
     public void addLoggingValues() {
         new LogItem(getSmallString() + "-HEIGHT")
         {
-            public String 
+            public String val()
+            {
+                return "" + getHeight();
+            }
         };
+
+        new LogItem(getSmallString() + "-ENC-VALID")
+        {
+            public String val()
+            {
+                return "" + mIO.encoders_valid;
+            }
+
+        };
+
+        this.addLoggingValuesTalons();
+    }
+
+    public double getRotations()
+    {
+        return mIO.ticks_position / 4096;
+    }
+
+    public double getHeight()
+    {
+        return mIO.ticks_position / kElevator.TICKS_PER_INCH;
     }
 
     @Override
@@ -237,6 +263,9 @@ public class Elevator extends GZSubsystem {
             mIO.ticks_position = Double.NaN;
             mIO.ticks_velocity = Double.NaN;
         }
+
+        mIO.elevator_total_rotations = mElevator1.getTotalEncoderRotations(getRotations());
+        // mElevator1.getTotalEncoderRotations(currentRotationValue)
     }
 
     public boolean getTopLimit() {
@@ -248,6 +277,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public class IO {
+        public Object elevator_total_rotations;
         // In
         public Double ticks_velocity = Double.NaN;
         public Double ticks_position = Double.NaN;

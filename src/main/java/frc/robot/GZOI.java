@@ -77,14 +77,6 @@ public class GZOI extends GZSubsystem {
 		if (isTele()) {
 
 
-			// if button a
-				// runClimber(1,1); //go up
-			// else if button b
-				// runClimber(-1,-1); //go down
-			//	else if button x
-				// runClimber(1)
-			
-
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;
 				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);

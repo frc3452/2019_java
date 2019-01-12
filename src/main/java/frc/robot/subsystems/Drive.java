@@ -83,6 +83,7 @@ public class Drive extends GZSubsystem {
 
 	public void printNavX() {
 		System.out.println(this.mNavX.toString());
+
 	}
 
 	private Drive() {
