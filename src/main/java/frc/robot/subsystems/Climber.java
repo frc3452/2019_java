@@ -12,6 +12,7 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZSRX;
 import frc.robot.util.drivers.GZSolenoid;
+import frc.robot.util.drivers.GZSpark;
 
 
 public class Climber extends GZSubsystem {
@@ -20,8 +21,7 @@ public class Climber extends GZSubsystem {
     private ClimberState mWantedState = ClimberState.NEUTRAL;
     public IO mIO = new IO();
 
-
-    private GZSRX mClimberFront, mClimberBack;
+    private GZSpark mClimberFront, mClimberBack;
     private GZSolenoid mRampDrop;
 
     private static Climber mInstance = null;
@@ -34,47 +34,13 @@ public class Climber extends GZSubsystem {
     }
 
     private Climber() {
-        mClimberFront = new GZSRX.Builder(kClimber.FRONT_MOTOR_ID, this, "Climber Front", kPDP.CLIMBER_FRONT).build();
-        mClimberBack = new GZSRX.Builder(kClimber.BACK_MOTOR_ID, this, "Climber Back", kPDP.CLIMBER_FRONT).build();
+        mClimberFront = new GZSpark.Builder(kClimber.FRONT_MOTOR_ID, this, "Climber Front", kPDP.CLIMBER_FRONT).build();
+        mClimberBack = new GZSpark.Builder(kClimber.BACK_MOTOR_ID, this, "Climber Back", kPDP.CLIMBER_FRONT).build();
         mRampDrop = new GZSolenoid(kClimber.RAMP_DROP_SOLENOID_CHANNEL, this, "Ramp Drop");
-
-        talonInit();
 
         mClimberFront.setInverted(kClimber.CLIMBER_FRONT_INVERT);
         mClimberFront.setInverted(kClimber.CLIMBER_BACK_INVERT);
 
-    }
-
-    private void talonInit() {
-        for (GZSRX s : mTalons) {
-
-            new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not factory reset " + s.getGZName()) {
-                @Override
-                public ErrorCode error() {
-                    return s.configFactoryDefault(GZSRX.LONG_TIMEOUT);
-                }
-            };
-
-            GZSRX.logError(mClimberFront.configOpenloopRamp(kClimber.OPEN_RAMP_TIME, GZSRX.TIMEOUT), this,
-                    AlertLevel.WARNING, "Could not set open loop ramp time for " + s.getGZName());
-
-            s.setNeutralMode(NeutralMode.Brake);
-
-            s.enableVoltageCompensation(true);
-
-            GZSRX.logError(s.configContinuousCurrentLimit(kClimber.AMP_CONTINUOUS, GZSRX.TIMEOUT), this,
-                    AlertLevel.WARNING, "Could not set current-limit continuous current limit for " + s.getGZName());
-
-            GZSRX.logError(s.configPeakCurrentLimit(kClimber.AMP_PEAK, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-                    "Could not set current-limit peak for " + s.getGZName());
-
-            GZSRX.logError(s.configPeakCurrentDuration(kClimber.AMP_TIME, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-                    "Could not set current-limit duration for " + s.getGZName());
-
-            s.enableCurrentLimit(true);
-
-            s.setSubsystem("Climber");
-        }
     }
 
     @Override
@@ -105,6 +71,7 @@ public class Climber extends GZSubsystem {
 
     @Override
     public void addLoggingValues() {
+        this.addLoggingItemsDumbControllers();
     }
 
     @Override
@@ -186,8 +153,8 @@ public class Climber extends GZSubsystem {
             mIO.back_output = 0;
         }
 
-        mClimberFront.set(mState.controlMode, mIO.front_output);
-        mClimberBack.set(mState.controlMode, mIO.back_output);
+        mClimberFront.set(mIO.front_output);
+        mClimberBack.set(mIO.back_output);
     }
 
     public synchronized void enableFollower() {
@@ -214,13 +181,7 @@ public class Climber extends GZSubsystem {
     }
 
     public enum ClimberState {
-        NEUTRAL(ControlMode.Disabled), MANUAL(ControlMode.PercentOutput);
-
-        public final ControlMode controlMode;
-
-        private ClimberState(ControlMode controlMode) {
-            this.controlMode = controlMode;
-        }
+        NEUTRAL, MANUAL , 
     }
 
     @Override
