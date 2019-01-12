@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
 
 		allSubsystems.startLooping();
 
-		files.writeCurrentHardwareConfigurationFile();
+		files.writeHardwareReport();
 	}
 
 	@Override

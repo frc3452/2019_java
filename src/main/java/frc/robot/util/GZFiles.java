@@ -359,7 +359,7 @@ public class GZFiles {
 		}
 	}
 
-	public void writeCurrentHardwareConfigurationFile() {
+	public void writeHardwareReport() {
 		String body = HTML.paragraph("Created on: " + GZUtil.dateTime(false));
 
 		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
@@ -386,13 +386,12 @@ public class GZFiles {
 							String tableBody = "";
 							for (GZSRX talon : s.mTalons) {
 								String talonRow = "";
-
-								
-								
+						
+								final String remoteSensor = "Remote sensor encoder found";
 								String encoderCell = "";
 								final String encoderCellColor;
 								if (talon.isEncoderValid() && talon.usingRemoteSensor()){
-									encoderCell = "Remote sensor encoder found";
+									encoderCell = remoteSensor;
 									encoderCellColor = "yellow";
 								}
 								else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
@@ -402,7 +401,7 @@ public class GZFiles {
 
 								talonRow += HTML.tableRow(HTML.tableCell(talon.getGZName())
 										+ HTML.tableCell(String.valueOf(talon.getDeviceID()))
-										+ HTML.tableCell("", encoderCellColor, true)
+										+ HTML.tableCell(encoderCell, encoderCellColor, !encoderCell.equals(remoteSensor))
 										+ HTML.tableCell("" + talon.getPDPChannel())
 										+ HTML.tableCell("" + talon.getCalculatedBreaker())
 										+ HTML.tableCell("" + talon.getBreaker())
@@ -684,7 +683,7 @@ public class GZFiles {
 				+ "transition: max-height 0.2s ease-out;" + "background-color: #f1f1f1;" + "}" +
 
 				"table {" + "border: 1px solid black;" + "border-collapse: collapse;" + "width: \"device-width\";" + "}"
-				+ "body {} th, td {" + "border: 5px solid black;" + "padding: 5px;" + "text-align: center;" + "}"
+				+ "body {-webkit-print-color-adjust:exact;} th, td {" + "border: 5px solid black;" + "padding: 5px;" + "text-align: center;" + "}"
 				+ "</style>" + "</head>" + "<body>" + "$BODY\r\n" + "\r\n" + "<script>"
 				+ "var coll = document.getElementsByClassName(\"collapsible\");" + "var i;" +
 
