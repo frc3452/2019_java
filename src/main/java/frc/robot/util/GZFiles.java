@@ -387,9 +387,14 @@ public class GZFiles {
 							for (GZSRX talon : s.mTalons) {
 								String talonRow = "";
 
+								
+								
+								String encoderCell = "";
 								final String encoderCellColor;
-								if (talon.isEncoderValid() && talon.usingRemoteSensor())
+								if (talon.isEncoderValid() && talon.usingRemoteSensor()){
+									encoderCell = "Remote sensor encoder found";
 									encoderCellColor = "yellow";
+								}
 								else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
 									encoderCellColor = "green";
 								else
