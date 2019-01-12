@@ -1,13 +1,13 @@
-package frc.robot.util.drivers;
+package frc.robot.util.drivers.motorcontrollers.dumbcontrollers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Spark;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZSRX.Breaker;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
-public class GZTalonSR extends Talon implements GZSpeedController {
+public class GZSpark extends Spark implements GZSpeedController {
 
     public static class Builder {
         private int mPWMPort;
@@ -29,9 +29,9 @@ public class GZTalonSR extends Talon implements GZSpeedController {
             return this;
         }
 
-        public GZTalonSR build() {
-            GZTalonSR s;
-            s = new GZTalonSR(this.mPWMPort, this.mSub, this.mPDPChannel, this.mName, this.mTempSensorPort);
+        public GZSpark build() {
+            GZSpark s;
+            s = new GZSpark(this.mPWMPort, this.mSub, this.mPDPChannel, this.mName, this.mTempSensorPort);
 
             return s;
         }
@@ -48,7 +48,7 @@ public class GZTalonSR extends Talon implements GZSpeedController {
     private AnalogInput mTemperatureSensor = null;
     private int mTemperatureSensorPort;
 
-    private GZTalonSR(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
+    private GZSpark(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
         super(pwmPort);
         this.mPWMPort = pwmPort;
         this.mName = name;

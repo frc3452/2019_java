@@ -17,10 +17,10 @@ import frc.robot.Constants;
 import frc.robot.Constants.kFiles;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
-import frc.robot.util.drivers.GZDoubleSolenoid;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSolenoid;
-import frc.robot.util.drivers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.

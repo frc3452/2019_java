@@ -1,9 +1,13 @@
 package frc.robot.poofs.spline;
 
-import frc.robot.poofs.geometry.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import frc.robot.poofs.geometry.Pose2d;
+import frc.robot.poofs.geometry.Pose2dWithCurvature;
+import frc.robot.poofs.geometry.Rotation2d;
+import frc.robot.poofs.geometry.Translation2d;
+import frc.robot.poofs.geometry.Twist2d;
 
 public class SplineGenerator {
     private static final double kMaxDX = 2.0; //inches

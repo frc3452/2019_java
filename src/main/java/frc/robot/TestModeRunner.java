@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.MotorChecker.AmperageChecker;

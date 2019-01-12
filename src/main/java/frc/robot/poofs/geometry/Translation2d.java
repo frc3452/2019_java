@@ -1,8 +1,8 @@
 package frc.robot.poofs.geometry;
 
-import frc.robot.poofs.util.Util;
-
 import java.text.DecimalFormat;
+
+import frc.robot.poofs.util.Util;
 
 /**
  * A translation in a 2d coordinate frame. Translations are simply shifts in an (x, y) plane.

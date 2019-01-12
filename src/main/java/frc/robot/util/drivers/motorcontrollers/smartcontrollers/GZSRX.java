@@ -1,4 +1,4 @@
-package frc.robot.util.drivers;
+package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -12,20 +12,9 @@ import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
-public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
-
-	public enum Side {
-		LEFT, RIGHT, NO_INFO;
-	}
-
-	public enum Master {
-		MASTER, FOLLOWER, NO_INFO;
-	}
-
-	public enum Breaker {
-		AMP_20, AMP_30, AMP_40, NO_INFO
-	}
+public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 	// BUILDER
 	public static class Builder {
@@ -139,6 +128,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 					+ " overridden to breaker " + this.mBreaker + ", plugged into " + this.mActualBreaker);
 
 		subsystem.mTalons.add(this);
+		subsystem.mSmartControllers.add(this);
 	}
 
 	/**
@@ -206,9 +196,21 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		return mActualBreaker;
 	}
 
+	@Override
+	public Side getSide() {
+		return mSide;
+	}
+
+	@Override
+	public Master getMaster() {
+		return mMaster;
+	}
+
+	@Override
 	public Breaker getBreaker() {
 		return mBreaker;
 	}
+
 
 	public int getPDPChannel() {
 		return this.mPDPChannel;
@@ -342,11 +344,4 @@ public class GZSRX extends WPI_TalonSRX implements GZSpeedController {
 		}
 	}
 
-	public Side getSide() {
-		return mSide;
-	}
-
-	public Master getMaster() {
-		return mMaster;
-	}
 }

@@ -1,7 +1,8 @@
-package frc.robot.util.drivers;
+package frc.robot.util.drivers.pneumatics;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.drivers.IGZHardware;
 
 public class GZSolenoid extends Solenoid implements IGZHardware {
 

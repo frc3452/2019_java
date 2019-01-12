@@ -1,8 +1,12 @@
-package frc.robot.util.drivers;
+package frc.robot.util.drivers.motorcontrollers;
 
-import frc.robot.util.drivers.GZSRX.Breaker;
+import frc.robot.util.drivers.IGZHardware;
 
 public interface GZSpeedController extends IGZHardware {
+
+	public static enum Breaker {
+		AMP_20, AMP_30, AMP_40, NO_INFO
+	}
 
     //sets
     public void lockOutController(boolean lockedOut);

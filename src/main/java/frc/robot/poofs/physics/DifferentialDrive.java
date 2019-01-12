@@ -1,10 +1,10 @@
 package frc.robot.poofs.physics;
 
-import frc.robot.poofs.util.CSVWritable;
-import frc.robot.poofs.util.Util;
-
 import java.text.DecimalFormat;
 import java.util.Arrays;
+
+import frc.robot.poofs.util.CSVWritable;
+import frc.robot.poofs.util.Util;
 
 /**
  * Dynamic model a differential drive robot.  Note: to simplify things, this math assumes the center of mass is

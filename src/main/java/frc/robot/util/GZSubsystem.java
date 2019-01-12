@@ -7,18 +7,26 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.MotorChecker.AmperageChecker;
 import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
-import frc.robot.util.drivers.GZDoubleSolenoid;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSolenoid;
-import frc.robot.util.drivers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public abstract class GZSubsystem extends Subsystem {
 
 	// Set to neutral
 	public abstract void stop();
 
+	//Talons
 	public ArrayList<GZSRX> mTalons = new ArrayList<GZSRX>();
+
+	//Talons, VictorSPXs, etc.
+	public ArrayList<GZSmartSpeedController> mSmartControllers = new ArrayList<GZSmartSpeedController>();
+
+	//PWM, Sparks, Etc.
 	public ArrayList<GZSpeedController> mDumbControllers = new ArrayList<GZSpeedController>();
+
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
 

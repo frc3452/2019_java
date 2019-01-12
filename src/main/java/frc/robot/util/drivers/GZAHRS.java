@@ -8,9 +8,12 @@ import edu.wpi.first.wpilibj.SPI.Port;
 
 public class GZAHRS extends AHRS {
 
+	private final DecimalFormat df = new DecimalFormat("#0.000");
+
 	public GZAHRS(Port kmxp) {
 		super(kmxp);
 	}
+	
 
 	@Override
 	public float getYaw() {
@@ -19,9 +22,7 @@ public class GZAHRS extends AHRS {
 
 	@Override
 	public String toString() {
-		final DecimalFormat df = new DecimalFormat("#0.000");
 		return "x disp: " + df.format(this.getDisplacementX()) + "\ty disp: "
 				+ df.format(this.getDisplacementY() + "\theading: " + this.getFusedHeading());
 	}
-
 }

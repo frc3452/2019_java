@@ -1,10 +1,10 @@
 package frc.robot.poofs.trajectory;
 
-import frc.robot.poofs.geometry.State;
-import frc.robot.poofs.util.CSVWritable;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import frc.robot.poofs.geometry.State;
+import frc.robot.poofs.util.CSVWritable;
 
 public class Trajectory<S extends State<S>> implements CSVWritable {
     protected final List<TrajectoryPoint<S>> points_;

@@ -15,7 +15,7 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 
 public class Elevator extends GZSubsystem {
 
@@ -35,8 +35,7 @@ public class Elevator extends GZSubsystem {
     }
 
     private Elevator() {
-        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR)
-                .build();
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
 
         talonInit();
 
@@ -51,60 +50,29 @@ public class Elevator extends GZSubsystem {
                         LimitSwitchNormal.NormallyOpen),
                 this, AlertLevel.WARNING, "Could not configure reverse limit switch source");
 
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set open loop ramp time") {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT);
-            }
-        };
-
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set encoder zero on bottom limit") {
-            public ErrorCode error() {
-                return mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT);
-            }
-        };
+        GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT), this,
+                AlertLevel.WARNING, "Could not set open loop ramp time");
+        GZSRX.logError(mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set encoder zero on bottom limit");
 
         configPID(kElevator.PID);
         configPID(kElevator.PID2);
-
     }
 
     private void configPID(GZPID gains) {
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'F' Gain for slot" + gains.parameterSlot) {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.config_kF(gains.parameterSlot, gains.F, GZSRX.TIMEOUT);
-            }
-        };
+        GZSRX.logError(mElevator1.config_kF(gains.parameterSlot, gains.F, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set 'F' Gain for slot" + gains.parameterSlot);
 
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'P' Gain for slot" + gains.parameterSlot) {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.config_kP(gains.parameterSlot, gains.P, GZSRX.TIMEOUT);
-            }
-        };
+        GZSRX.logError(mElevator1.config_kP(gains.parameterSlot, gains.P, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set 'P' Gain for slot" + gains.parameterSlot);
 
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'I' Gain for slot" + gains.parameterSlot) {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.config_kI(gains.parameterSlot, gains.I, GZSRX.TIMEOUT);
-            }
-        };
+        GZSRX.logError(mElevator1.config_kI(gains.parameterSlot, gains.I, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set 'I' Gain for slot" + gains.parameterSlot);
+        GZSRX.logError(mElevator1.config_kD(gains.parameterSlot, gains.D, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set 'D' Gain for slot" + gains.parameterSlot);
 
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'D' Gain for slot" + gains.parameterSlot) {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.config_kD(gains.parameterSlot, gains.D, GZSRX.TIMEOUT);
-            }
-        };
-
-        new GZSRX.TestLogError(this, AlertLevel.WARNING, "Could not set 'iZone' Gain for slot" + gains.parameterSlot) {
-            @Override
-            public ErrorCode error() {
-                return mElevator1.config_IntegralZone(gains.parameterSlot, gains.iZone, GZSRX.TIMEOUT);
-            }
-        };
-
+        GZSRX.logError(mElevator1.config_IntegralZone(gains.parameterSlot, gains.iZone, GZSRX.TIMEOUT), this,
+                AlertLevel.WARNING, "Could not set 'iZone' Gain for slot" + gains.parameterSlot);
     }
 
     private void talonInit() {
@@ -162,18 +130,14 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void addLoggingValues() {
-        new LogItem(getSmallString() + "-HEIGHT")
-        {
-            public String val()
-            {
+        new LogItem(getSmallString() + "-HEIGHT") {
+            public String val() {
                 return "" + getHeight();
             }
         };
 
-        new LogItem(getSmallString() + "-ENC-VALID")
-        {
-            public String val()
-            {
+        new LogItem(getSmallString() + "-ENC-VALID") {
+            public String val() {
                 return "" + mIO.encoders_valid;
             }
 
@@ -182,13 +146,11 @@ public class Elevator extends GZSubsystem {
         this.addLoggingValuesTalons();
     }
 
-    public double getRotations()
-    {
+    public double getRotations() {
         return mIO.ticks_position / 4096;
     }
 
-    public double getHeight()
-    {
+    public double getHeight() {
         return mIO.ticks_position / kElevator.TICKS_PER_INCH;
     }
 

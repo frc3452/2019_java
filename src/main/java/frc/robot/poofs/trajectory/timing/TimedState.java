@@ -1,9 +1,9 @@
 package frc.robot.poofs.trajectory.timing;
 
+import java.text.DecimalFormat;
+
 import frc.robot.poofs.geometry.State;
 import frc.robot.poofs.util.Util;
-
-import java.text.DecimalFormat;
 
 public class TimedState<S extends State<S>> implements State<TimedState<S>> {
     protected final S state_;

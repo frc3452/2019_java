@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
@@ -44,10 +42,11 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZAHRS;
 import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSRX.Breaker;
-import frc.robot.util.drivers.GZSRX.Master;
-import frc.robot.util.drivers.GZSRX.Side;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
 
 public class Drive extends GZSubsystem {
 
@@ -1087,7 +1086,7 @@ public class Drive extends GZSubsystem {
 	// }
 
 	public synchronized void enableFollower() {
-		for (GZSRX c : mTalons) {
+		for (GZSmartSpeedController c : mSmartControllers) {
 			if (c.getMaster() != Master.MASTER) {
 				switch (c.getSide()) {
 				case LEFT:

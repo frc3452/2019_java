@@ -15,7 +15,7 @@ import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
-import frc.robot.util.drivers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class MotorChecker {
     public static class AmperageChecker {
