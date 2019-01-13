@@ -1,10 +1,10 @@
 package frc.robot.poofs.spline;
 
+import java.util.List;
+
 import frc.robot.poofs.geometry.Pose2d;
 import frc.robot.poofs.geometry.Rotation2d;
 import frc.robot.poofs.geometry.Translation2d;
-
-import java.util.List;
 
 public class QuinticHermiteSpline extends Spline {
     private static final double kEpsilon = 1e-5;

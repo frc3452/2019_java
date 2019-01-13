@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.Arrays;
-
 import com.ctre.phoenix.CANifier;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,7 +14,7 @@ import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZJoystick.Buttons;
-import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;

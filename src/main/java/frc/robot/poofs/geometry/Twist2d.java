@@ -1,8 +1,8 @@
 package frc.robot.poofs.geometry;
 
-import frc.robot.poofs.util.Util;
-
 import java.text.DecimalFormat;
+
+import frc.robot.poofs.util.Util;
 
 /**
  * A movement along an arc at constant curvature and velocity. We can use ideas from "differential calculus" to create

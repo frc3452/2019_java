@@ -8,7 +8,6 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
-import frc.robot.util.drivers.GZSRX.Side;
 
 /**
  * @author max

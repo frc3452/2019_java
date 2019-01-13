@@ -1,0 +1,5 @@
+Subsystem, Group, Current Floor, Current Epsilon, Run Time (sec), Wait time (sec), Output percentage, Reverse after group (true or false), Controllers
+Drive,Left,0,0,1,1,.75,false,L1,L2,L3,L4,
+Drive,Right,0,0,1,1,.5,false,R1,R2,R3,R4,
+aDrive,All,0,5,1,10,.25,true,L1,L2,L3,L4,R1,R2,R3,R4,
+Drive,LeftOneAndTwo,0,5,1,10,.25,true,L1,L3,

@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
@@ -15,9 +13,12 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
@@ -44,10 +45,11 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZAHRS;
 import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSRX.Breaker;
-import frc.robot.util.drivers.GZSRX.Master;
-import frc.robot.util.drivers.GZSRX.Side;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
 
 public class Drive extends GZSubsystem {
 
@@ -83,6 +85,7 @@ public class Drive extends GZSubsystem {
 
 	public void printNavX() {
 		System.out.println(this.mNavX.toString());
+
 	}
 
 	private Drive() {
@@ -304,9 +307,6 @@ public class Drive extends GZSubsystem {
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
 			break;
-		default:
-			System.out.println("WARNING: Incorrect drive state " + mState + " reached.");
-			break;
 		}
 
 		if (mState == DriveState.PATH_FOLLOWING) {
@@ -406,8 +406,6 @@ public class Drive extends GZSubsystem {
 				return Drive.getInstance().mIO.rightEncoderValid.toString();
 			}
 		};
-
-		this.addLoggingValuesTalons();
 	}
 
 	public enum DriveState {
@@ -1088,7 +1086,7 @@ public class Drive extends GZSubsystem {
 	// }
 
 	public synchronized void enableFollower() {
-		for (GZSRX c : mTalons) {
+		for (GZSmartSpeedController c : mSmartControllers) {
 			if (c.getMaster() != Master.MASTER) {
 				switch (c.getSide()) {
 				case LEFT:

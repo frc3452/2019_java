@@ -1,11 +1,10 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
-
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 import frc.robot.util.GZPID;
 
 /**
@@ -21,16 +20,25 @@ public class Constants {
 
 	public static class kElevator {
 		public static final int ELEVATOR_MOTOR_ID = 0;
+		public static final boolean E_1_INVERT = false;
+
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
-		public static final boolean E_1_INVERT = false;
+		public static final int CARGO_SENSOR_CHANNEL = 0;
+		public static final double CARGO_SENSOR_LOW_VOLT = 1.2;
+		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4;
+
 
 		public static final double OPEN_RAMP_TIME = 0;
 
-		public static final boolean ENC_INVERT = false;
+		public static final int TICKS_PER_INCH = 3; //TODO TUNE ME
 
+		public static final boolean ENC_INVERT = false;
+		
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0);
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 	}
@@ -99,11 +107,14 @@ public class Constants {
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 
 		public static final int ELEVATOR_MOTOR = 0;
+    
 		public static final int CLIMBER_FRONT = 0;
 	}
 
-	public static class kBasicSubsystem {
-		public final static int TALON_1 = 30;
+		public static final int INTAKE_LEFT = 0;
+		public static final int INTAKE_RIGHT = 0;
+
+
 	}
 
 	public class kTempSensor {
@@ -123,6 +134,7 @@ public class Constants {
 		public final static int YELLOW = 330;
 	}
 
+
 	public static class kClimber {
 		public static final int FRONT_MOTOR_ID = 0;
 		public static final int BACK_MOTOR_ID = 0;
@@ -136,6 +148,13 @@ public class Constants {
 		public static final int AMP_CONTINUOUS = 40;
 		public static final int AMP_PEAK = 20;
 		public static final int AMP_TIME = 50;
+  }
+	public static class kIntake{
+		public static final int INTAKE_LEFT_PORT = 0;
+		public static final int INTAKE_RIGHT_PORT = 0;
+		public static final int INTAKE_SOLENOID_PORT = 0;
+		public static final double RAISE_TIME = 0;
+		public static final double LOWERED_TIME = 0;
 	}
 
 	public static class kPoofs {

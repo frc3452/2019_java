@@ -2,12 +2,11 @@ package frc.robot.util;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-import edu.wpi.first.wpilibj.Spark;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 
 public class ExampleGZSubsystem extends GZSubsystem {
 	/**

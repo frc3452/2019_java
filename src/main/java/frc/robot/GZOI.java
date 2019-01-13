@@ -16,7 +16,6 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0);
@@ -68,10 +67,6 @@ public class GZOI extends GZSubsystem {
 
 		Robot.allSubsystems.disable(mSafetyDisable);
 
-		// if (driverJoy.areButtonsHeld(Arrays.asList(Buttons.A, Buttons.RB,
-		// Buttons.LEFT_CLICK)))
-		// Auton.getInstance().crash();
-
 		// RECORDING
 		// recordingUpdates();
 
@@ -79,6 +74,7 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (isTele()) {
+
 
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;

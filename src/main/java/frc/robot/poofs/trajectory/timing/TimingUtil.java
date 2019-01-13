@@ -1,11 +1,11 @@
 package frc.robot.poofs.trajectory.timing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import frc.robot.poofs.geometry.State;
 import frc.robot.poofs.trajectory.DistanceView;
 import frc.robot.poofs.trajectory.Trajectory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TimingUtil {
     public static <S extends State<S>> Trajectory<TimedState<S>> timeParameterizeTrajectory(

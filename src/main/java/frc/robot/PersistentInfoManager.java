@@ -33,9 +33,6 @@ public class PersistentInfoManager {
 
     private GZNotifier mUpdateNotifier;
     private GZFlag mReadFailed = new GZFlag();
-    private GZFlagMultiple mResetFlag;
-
-    private LatchedBoolean mResetFlagLatchedBoolean = new LatchedBoolean();
 
     private PersistentInfo mEnabledTime = new PersistentInfo() {
         public void update() {

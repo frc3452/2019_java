@@ -1,6 +1,10 @@
 package frc.robot.poofs.trajectory;
 
-import frc.robot.poofs.geometry.*;
+import frc.robot.poofs.geometry.ITranslation2d;
+import frc.robot.poofs.geometry.Pose2d;
+import frc.robot.poofs.geometry.Rotation2d;
+import frc.robot.poofs.geometry.Translation2d;
+import frc.robot.poofs.geometry.Twist2d;
 import frc.robot.poofs.util.Util;
 
 public class PurePursuitController<S extends ITranslation2d<S>> implements IPathFollower {

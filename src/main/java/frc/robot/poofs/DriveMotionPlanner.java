@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import frc.robot.Constants;
 import frc.robot.Constants.kPoofs;
 import frc.robot.poofs.geometry.Pose2d;
 import frc.robot.poofs.geometry.Pose2dWithCurvature;
@@ -24,7 +23,6 @@ import frc.robot.poofs.trajectory.timing.TimingConstraint;
 import frc.robot.poofs.trajectory.timing.TimingUtil;
 import frc.robot.poofs.util.Units;
 import frc.robot.poofs.util.Util;
-import frc.robot.util.GZUtil;
 
 public class DriveMotionPlanner {
     private static final double kMaxDx = 2.0;

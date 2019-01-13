@@ -17,10 +17,10 @@ import frc.robot.Constants;
 import frc.robot.Constants.kFiles;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
-import frc.robot.util.drivers.GZDoubleSolenoid;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSolenoid;
-import frc.robot.util.drivers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.
@@ -359,142 +359,151 @@ public class GZFiles {
 		}
 	}
 
-	public void writeCurrentHardwareConfigurationFile() {
+	public void writeHardwareReport() {
 		String body = HTML.paragraph("Created on: " + GZUtil.dateTime(false));
 
 		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
-			String subsystem = HTML.header(s.toString(), 2);
-			if (s.hasMotors()) {
+			if (s.hasAir() || s.hasMotors()) {
 
-				// if has tallons
-				if (s.mTalons.size() != 0) {
-					subsystem += HTML.paragraph("Talons");
-					String talonTable = "";
-					{
-						String header = "";
-						header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "Encoder Connected",
-								"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version",
-								"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
+				String subsystem = HTML.header(s.toString(), 2);
+				if (s.hasMotors()) {
 
-						talonTable += header;
-					}
+					// if has tallons
+					if (s.mTalons.size() != 0) {
+						subsystem += HTML.paragraph("Talons");
 
-					{
-						String tableBody = "";
-						for (GZSRX talon : s.mTalons) {
-							String talonRow = "";
+						String talonTable = "";
+						{
+							String header = "";
+							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "Encoder Connected",
+									"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version",
+									"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
 
-							final String encoderCellColor;
-							if (talon.isEncoderValid() && talon.usingRemoteSensor())
-								encoderCellColor = "yellow";
-							else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
-								encoderCellColor = "green";
-							else
-								encoderCellColor = "white";
-
-							talonRow += HTML.tableRow(HTML.tableCell(talon.getGZName())
-									+ HTML.tableCell(String.valueOf(talon.getDeviceID()))
-									+ HTML.tableCell("", encoderCellColor, true)
-									+ HTML.tableCell("" + talon.getPDPChannel())
-									+ HTML.tableCell("" + talon.getCalculatedBreaker())
-									+ HTML.tableCell("" + talon.getBreaker()) + HTML.tableCell("" + talon.getFirmware())
-									+ HTML.tableCell("" + talon.getTemperatureSensorPort(),
-											talon.hasTemperatureSensor() ? "white" : "red",
-											!talon.hasTemperatureSensor())
-									+ HTML.tableCell(talon.getTemperatureSensor().toString(),
-											(talon.hasTemperatureSensor() ? "white" : "red"),
-											!talon.hasTemperatureSensor())
-									+ HTML.tableCell("" + talon.getMaster()));
-							tableBody += talonRow;
+							talonTable += header;
 						}
-						talonTable += tableBody;
-					}
 
-					talonTable = HTML.table(talonTable);
-					subsystem += talonTable;
-				}
+						{
+							String tableBody = "";
+							for (GZSRX talon : s.mTalons) {
+								String talonRow = "";
+						
+								final String remoteSensor = "Remote sensor encoder found";
+								String encoderCell = "";
+								final String encoderCellColor;
+								if (talon.isEncoderValid() && talon.usingRemoteSensor()){
+									encoderCell = remoteSensor;
+									encoderCellColor = "yellow";
+								}
+								else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
+									encoderCellColor = "green";
+								else
+									encoderCellColor = "white";
 
-				if (s.mDumbControllers.size() != 0) {
-					subsystem += HTML.paragraph("PWM Controllers");
-
-					String pwmTable = "";
-					{
-						String header = "";
-						header += HTML.tableRow(HTML.tableHeader("Name") + HTML.tableHeader("PWM Port")
-								+ HTML.tableHeader("PDP Channel") + HTML.tableHeader("Calculated breaker")
-								+ HTML.tableHeader("Temperature Sensor Port"));
-						pwmTable += header;
-					}
-
-					{
-						String tableBody = "";
-						for (GZSpeedController controller : s.mDumbControllers) {
-							String pwmRow = "";
-							pwmRow += HTML.tableRow(HTML.tableCell(controller.getGZName())
-									+ HTML.tableCell(String.valueOf(controller.getPort()))
-									+ HTML.tableCell("" + controller.getPDPChannel())
-									+ HTML.tableCell("" + controller.getCalculatedBreaker())
-									+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
-											controller.hasTemperatureSensor() ? "white" : "red",
-											!controller.hasTemperatureSensor()));
-							tableBody += pwmRow;
+								talonRow += HTML.tableRow(HTML.tableCell(talon.getGZName())
+										+ HTML.tableCell(String.valueOf(talon.getDeviceID()))
+										+ HTML.tableCell(encoderCell, encoderCellColor, !encoderCell.equals(remoteSensor))
+										+ HTML.tableCell("" + talon.getPDPChannel())
+										+ HTML.tableCell("" + talon.getCalculatedBreaker())
+										+ HTML.tableCell("" + talon.getBreaker())
+										+ HTML.tableCell("" + talon.getFirmware())
+										+ HTML.tableCell("" + talon.getTemperatureSensorPort(),
+												talon.hasTemperatureSensor() ? "white" : "red",
+												!talon.hasTemperatureSensor())
+										+ HTML.tableCell(talon.getTemperatureSensor().toString(),
+												(talon.hasTemperatureSensor() ? "white" : "red"),
+												!talon.hasTemperatureSensor())
+										+ HTML.tableCell("" + talon.getMaster()));
+								tableBody += talonRow;
+							}
+							talonTable += tableBody;
 						}
-						pwmTable += tableBody;
+
+						talonTable = HTML.table(talonTable);
+						subsystem += talonTable;
 					}
-					pwmTable = HTML.table(pwmTable);
-					subsystem += pwmTable;
+
+					if (s.mDumbControllers.size() != 0) {
+						subsystem += HTML.paragraph("PWM Controllers");
+
+						String pwmTable = "";
+						{
+							String header = "";
+							header += HTML.tableRow(HTML.tableHeader("Name") + HTML.tableHeader("PWM Port")
+									+ HTML.tableHeader("PDP Channel") + HTML.tableHeader("Calculated breaker")
+									+ HTML.tableHeader("Temperature Sensor Port"));
+							pwmTable += header;
+						}
+
+						{
+							String tableBody = "";
+							for (GZSpeedController controller : s.mDumbControllers) {
+								String pwmRow = "";
+								pwmRow += HTML.tableRow(HTML.tableCell(controller.getGZName())
+										+ HTML.tableCell(String.valueOf(controller.getPort()))
+										+ HTML.tableCell("" + controller.getPDPChannel())
+										+ HTML.tableCell("" + controller.getCalculatedBreaker())
+										+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
+												controller.hasTemperatureSensor() ? "white" : "red",
+												!controller.hasTemperatureSensor()));
+								tableBody += pwmRow;
+							}
+							pwmTable += tableBody;
+						}
+						pwmTable = HTML.table(pwmTable);
+						subsystem += pwmTable;
+					}
+
+				} // if has motors
+
+				if (s.hasAir()) {
+					subsystem += HTML.paragraph("Pneumatics");
+
+					// If has single solenoids
+					if (s.mSingleSolenoids.size() != 0) {
+						subsystem += HTML.paragraph("Single solenoids");
+						String singlesTable = "";
+						{
+							String singlesHeader = "";
+							singlesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM", "Solenoid Channel"));
+							singlesTable += singlesHeader;
+						}
+
+						for (GZSolenoid sol : s.mSingleSolenoids) {
+							String solenoidRow = "";
+							solenoidRow += HTML.tableRow(
+									HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module, "" + sol.getConstants().channel));
+							singlesTable += solenoidRow;
+						}
+						singlesTable = HTML.table(singlesTable);
+						subsystem += singlesTable;
+					}
+
+					// If has double solenoids
+					if (s.mDoubleSolenoids.size() != 0) {
+						subsystem += HTML.paragraph("Double solenoids");
+						String doublesTable = "";
+						{
+							String doublesHeader = "";
+							doublesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM",
+									"Solenoid Channel (FWD)", "Solenoid Channel (REV)"));
+							doublesTable += doublesHeader;
+						}
+
+						for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
+							String solenoidRow = "";
+							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
+							doublesTable += solenoidRow;
+						}
+
+						doublesTable = HTML.table(doublesTable);
+						subsystem += doublesTable;
+					}
+
 				}
 
-			} // if has motors
-
-			if (s.hasAir()) {
-				subsystem += HTML.paragraph("Pneumatics");
-
-				// If has single solenoids
-				if (s.mSingleSolenoids.size() != 0) {
-					subsystem += HTML.paragraph("Single solenoids");
-					String singlesTable = "";
-					{
-						String singlesHeader = "";
-						singlesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM", "Solenoid Channel"));
-						singlesTable += singlesHeader;
-					}
-
-					for (GZSolenoid sol : s.mSingleSolenoids) {
-						String solenoidRow = "";
-						solenoidRow += HTML.tableRow(
-								HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(), "" + sol.getChannel()));
-						singlesTable += solenoidRow;
-					}
-					singlesTable = HTML.table(singlesTable);
-					subsystem += singlesTable;
-				}
-
-				// If has double solenoids
-				if (s.mDoubleSolenoids.size() != 0) {
-					subsystem += HTML.paragraph("Double solenoids");
-					String doublesTable = "";
-					{
-						String doublesHeader = "";
-						doublesHeader = HTML.tableRow(HTML.easyHeader("Solenoid Name", "PCM", "Solenoid Channel (FWD)",
-								"Solenoid Channel (REV)"));
-						doublesTable += doublesHeader;
-					}
-
-					for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
-						String solenoidRow = "";
-						solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(),
-								"" + sol.getChannel().fwd_channel, "" + sol.getChannel().rev_channel));
-						doublesTable += solenoidRow;
-					}
-
-					doublesTable = HTML.table(doublesTable);
-					subsystem += doublesTable;
-				}
-
+				body += subsystem;
 			}
-
-			body += subsystem;
 		}
 		try {
 			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
@@ -603,7 +612,7 @@ public class GZFiles {
 		public static String easyHeader(String... f) {
 			String retval = "";
 			for (String s : f) {
-				retval += header(s);
+				retval += tableHeader(s);
 			}
 
 			return retval;
@@ -674,7 +683,7 @@ public class GZFiles {
 				+ "transition: max-height 0.2s ease-out;" + "background-color: #f1f1f1;" + "}" +
 
 				"table {" + "border: 1px solid black;" + "border-collapse: collapse;" + "width: \"device-width\";" + "}"
-				+ "body {} th, td {" + "border: 5px solid black;" + "padding: 5px;" + "text-align: center;" + "}"
+				+ "body {-webkit-print-color-adjust:exact;} th, td {" + "border: 5px solid black;" + "padding: 5px;" + "text-align: center;" + "}"
 				+ "</style>" + "</head>" + "<body>" + "$BODY\r\n" + "\r\n" + "<script>"
 				+ "var coll = document.getElementsByClassName(\"collapsible\");" + "var i;" +
 
