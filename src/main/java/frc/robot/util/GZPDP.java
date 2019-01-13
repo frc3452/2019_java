@@ -28,7 +28,7 @@ public class GZPDP {
 
     private GZPDP() {
 
-        boolean construct = RobotBase.isReal() && kFiles.FAKE_PDP == false;
+		boolean construct = RobotBase.isReal() && kFiles.FAKE_PDP == false;
         if (construct)
             pdp = new PowerDistributionPanel();
 

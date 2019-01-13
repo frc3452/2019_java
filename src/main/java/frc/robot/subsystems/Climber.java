@@ -1,19 +1,11 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-
-import frc.robot.Constants;
 import frc.robot.Constants.kClimber;
 import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
-import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.drivers.GZSRX;
-import frc.robot.util.drivers.GZSolenoid;
-import frc.robot.util.drivers.GZSpark;
-
+import frc.robot.util.drivers.motorcontrollers.dumbcontrollers.GZSpark;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public class Climber extends GZSubsystem {
 
@@ -36,7 +28,7 @@ public class Climber extends GZSubsystem {
     private Climber() {
         mClimberFront = new GZSpark.Builder(kClimber.FRONT_MOTOR_ID, this, "Climber Front", kPDP.CLIMBER_FRONT).build();
         mClimberBack = new GZSpark.Builder(kClimber.BACK_MOTOR_ID, this, "Climber Back", kPDP.CLIMBER_FRONT).build();
-        mRampDrop = new GZSolenoid(kClimber.RAMP_DROP_SOLENOID_CHANNEL, this, "Ramp Drop");
+        mRampDrop = new GZSolenoid(kClimber.SOLENOID_RAMP_DROP, this, "Ramp Drop");
 
         mClimberFront.setInverted(kClimber.CLIMBER_FRONT_INVERT);
         mClimberFront.setInverted(kClimber.CLIMBER_BACK_INVERT);
@@ -48,15 +40,15 @@ public class Climber extends GZSubsystem {
         setWantedState(ClimberState.NEUTRAL);
     }
 
-    public void rampsDrop(){
+    public void rampsDrop() {
         mRampDrop.set(true);
     };
 
-    public void runClimber(double Frontspeed, double Backspeed){
-        if(setWantedState(ClimberState.MANUAL)){
+    public void runClimber(double Frontspeed, double Backspeed) {
+        if (setWantedState(ClimberState.MANUAL)) {
             mIO.front_desired_output = Frontspeed;
             mIO.back_desired_output = Backspeed;
-     }
+        }
     }
 
     @Override
@@ -84,13 +76,16 @@ public class Climber extends GZSubsystem {
     private void handleStates() {
         boolean neutral = false;
 
+        boolean lockSolenoids = false;
+
         if (mWantedState == ClimberState.NEUTRAL) {
             neutral = true;
+        } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
+            neutral = true;
+            lockSolenoids = true;
         }
 
-        else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
-            neutral = true;
-        }
+        this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
 
@@ -181,7 +176,7 @@ public class Climber extends GZSubsystem {
     }
 
     public enum ClimberState {
-        NEUTRAL, MANUAL , 
+        NEUTRAL, MANUAL,
     }
 
     @Override

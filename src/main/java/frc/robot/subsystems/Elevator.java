@@ -44,7 +44,6 @@ public class Elevator extends GZSubsystem {
     }
 
     //INIT AND LIFT
-
     private Elevator() {
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
         
@@ -298,22 +297,21 @@ public class Elevator extends GZSubsystem {
     private void handleStates() {
         boolean neutral = false;
 
+        boolean lockSolenoids = false;
+
         if (mWantedState == ElevatorState.NEUTRAL) {
             neutral = true;
         } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
             neutral = true;
-            this.lockSolenoids(true);
+            lockSolenoids = true;
         } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
-        } else {
-            this.lockSolenoids(false);
         }
-        
+
+        this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
-
             switchToState(ElevatorState.NEUTRAL);
-
         } else {
             switchToState(mWantedState);
         }

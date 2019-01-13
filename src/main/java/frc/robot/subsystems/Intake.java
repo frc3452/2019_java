@@ -1,12 +1,13 @@
 package frc.robot.subsystems;
 
-import frc.robot.GZOI;
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
+import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
-import frc.robot.util.drivers.GZSolenoid;
-import frc.robot.util.drivers.GZSpark;
+import frc.robot.util.drivers.motorcontrollers.dumbcontrollers.GZSpark;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Intake extends GZSubsystem {
 
@@ -16,17 +17,14 @@ public class Intake extends GZSubsystem {
     private GZSpark mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeSol;
 
-    private GZTimer mRaisedTimer = new GZTimer();
-    private GZTimer mLoweredTimer = new GZTimer();
-
     public IO mIO = new IO();
 
     private static Intake mInstance = null;
 
     private Intake() {
-        mIntakeLeft = new GZSpark.Builder(kIntake.INTAKE_LEFT_PORT, this, "Left", kPDP.INTAKE_LEFT).build();
-        mIntakeRight = new GZSpark.Builder(kIntake.INTAKE_RIGHT_PORT, this, "Right", kPDP.INTAKE_RIGHT).build();
-        mIntakeSol = new GZSolenoid(kIntake.INTAKE_SOLENOID_PORT, this, "Intake Solenoid");
+        mIntakeLeft = new GZSpark.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
+        mIntakeRight = new GZSpark.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
+        mIntakeSol = new GZSolenoid(kIntake.INTAKE_SOLENOID, this, "Intake Solenoid");
     }
 
     public static Intake getInstance() {
@@ -38,36 +36,16 @@ public class Intake extends GZSubsystem {
 
     public void grabCargo() {
         raise(false);
-        if (isLowered()) {
-            runIntake(-.25, -.25);
-        }
+        runIntake(-.125, -.125);
     }
 
-    public void stow()
-    {
+    public void stow() {
         runIntake(0, 0);
         raise(true);
     }
 
     public void raise(boolean raise) {
-        if (raise == !mIntakeSol.get())
-            return;
-
         mIntakeSol.set(raise);
-
-        if (raise) {
-            mRaisedTimer.startTimer();
-        } else {
-            mLoweredTimer.startTimer();
-        }
-    }
-
-    public boolean isRaised() {
-        return !mIntakeSol.get() && mRaisedTimer.get() > kIntake.RAISE_TIME;
-    }
-
-    public boolean isLowered() {
-        return mIntakeSol.get() && mLoweredTimer.get() > kIntake.LOWERED_TIME;
     }
 
     public enum IntakeState {
@@ -85,11 +63,30 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
+    public boolean isRaised()
+    {
+        return mIntakeSol.getSolenoidState() == SolenoidState.EXTENDED;
+    }
+
+    public boolean isLowered()
+    {
+        return mIntakeSol.getSolenoidState() == SolenoidState.RETRACTED;
+    }
+
+    public SolenoidState getSolenoidState()
+    {
+        return mIntakeSol.getSolenoidState();
+    }
+
     public void runIntake(double left, double right) {
         if (setWantedState(IntakeState.MANUAL)) {
             mIO.left_desired_output = left;
             mIO.right_desired_output = right;
         }
+    }
+
+    public void runIntake(double speed) {
+        runIntake(speed);
     }
 
     @Override
@@ -113,8 +110,6 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
-        // raise(mIO.isRaised);
-
         handleStates();
         in();
         out();
@@ -122,13 +117,16 @@ public class Intake extends GZSubsystem {
 
     private void handleStates() {
         boolean neutral = false;
+
+        boolean lockSolenoids = false;
         if (mWantedState == IntakeState.NEUTRAL) {
             neutral = true;
-        }
-
-        else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
+        } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
             neutral = true;
+            lockSolenoids = true;
         }
+        
+        this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
 
@@ -179,7 +177,6 @@ public class Intake extends GZSubsystem {
     }
 
     private void in() {
-
     }
 
     private void out() {
