@@ -1,0 +1,27 @@
+1. Run the installers for putty and pscp
+
+
+
+
+MOTOR TESTING
+1. To tweak the motor testing configuration, edit the configuration file (MotorTestingConfig.csv), click the Transfer icon, (you can then click the shortcut MotorTestingConfig.html to make sure your update pushed), and then use the driver station to start the motor test.
+Keep in mind, you cannot add groups that are not in the robot code by adding the subsystem to the configuration file (for now, maybe I'll get bored and add that in)
+
+2. To enable motor testing, connect a driver station to the robot with an xbox controller plugged into port 0. Enable test mode and then click back and start (buttons right next to the Xbox button) and then use the DPad (up and down, left and right) to navigate the menus in the printouts from the console in the driver station. (MAKE SURE TO ENABLE PRINTOUTS {GEAR TO THE RIGHT OF BATTERY}). Select which subsystem you want to test and click A to select, Y to start when you have all the subsystems selected that you want to test.
+
+
+STATS
+
+How to edit the Stats File
+1. If you don't know what you're doing, please don't.
+2. Click Pull Stats from RIO
+3. Edit Stats.csv to your liking
+3. Push Stats to RIO
+4. Go into Testing menu (described in Motor Testing 2) and scroll to Stats, click Reread Stats from new file
+5. Click A, and then Y
+6. The program will reread your updated file into the program and go from there :)
+
+How to zero the Stats File
+1. Again, if you don't know what you're doing, please don't.
+2. Go into Testing menu (described in Motor Testing 2) and scroll to Stats, click Reset Stats.
+3. This will set all stats values to their default states (may not necessarily be zero)

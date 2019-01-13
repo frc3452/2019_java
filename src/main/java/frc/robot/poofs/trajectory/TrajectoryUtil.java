@@ -1,14 +1,18 @@
 package frc.robot.poofs.trajectory;
 
-import frc.robot.poofs.geometry.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import frc.robot.poofs.geometry.IPose2d;
+import frc.robot.poofs.geometry.Pose2d;
+import frc.robot.poofs.geometry.Pose2dWithCurvature;
+import frc.robot.poofs.geometry.State;
+import frc.robot.poofs.geometry.Twist2d;
 import frc.robot.poofs.spline.QuinticHermiteSpline;
 import frc.robot.poofs.spline.Spline;
 import frc.robot.poofs.spline.SplineGenerator;
 import frc.robot.poofs.trajectory.timing.TimedState;
 import frc.robot.poofs.util.Util;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TrajectoryUtil {
     public static <S extends IPose2d<S>> Trajectory<S> mirror(final Trajectory<S> trajectory) {

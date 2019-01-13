@@ -1,8 +1,8 @@
 package frc.robot.poofs.geometry;
 
-import frc.robot.poofs.util.Util;
-
 import java.text.DecimalFormat;
+
+import frc.robot.poofs.util.Util;
 
 public class Pose2dWithCurvature implements IPose2d<Pose2dWithCurvature>, ICurvature<Pose2dWithCurvature> {
     protected static final Pose2dWithCurvature kIdentity = new Pose2dWithCurvature();

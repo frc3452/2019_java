@@ -7,7 +7,17 @@ public class Units {
 	public static Double ticks_to_rotations(double ticks)
 	{
 		return ticks / 4096;
-	}
+    }
+    
+    public static Double sensorUnits_to_rotations_per_s(int sensorUnitsPer100ms)
+    {
+        return (double) sensorUnitsPer100ms * 10 / 4096;
+    }
+
+    public static Double rotations_per_s_to_sensorUnits(Double rotations_per_second)
+    {
+        return rotations_per_second * 4096 / 10;
+    }
 	
 	public static Integer rotations_to_ticks(Double rotations)
 	{

@@ -81,10 +81,10 @@ public class TrajectoryGenerator {
                                 Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccelElevatorDown)),
                                 kMaxVelocity, kMaxAccel, kMaxVoltage);
 
-                try {
-                        GZFiles.writeToCSV(GZFileMaker.getFile("Straight", mCSVFolder, true), temp.toCSV());
-                } catch (Exception e) {
-                }
+                // try {
+                //         GZFiles.writeToCSV(GZFileMaker.getFile("Straight", mCSVFolder, true), temp.toCSV());
+                // } catch (Exception e) {
+                // }
                 return temp;
         }
 

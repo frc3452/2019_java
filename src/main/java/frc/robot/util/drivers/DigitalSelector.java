@@ -1,8 +1,6 @@
 package frc.robot.util.drivers;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -33,6 +31,12 @@ public class DigitalSelector {
             map.put(4, m4);
         } catch (Exception e) {
             System.out.println("ERROR DigitalSelector" + name + " could not be created!");
+            
+            m1 = null;
+            m2 = null;
+            m3 = null;
+            m4 = null;
+
             e.printStackTrace();
         }
     }
@@ -40,7 +44,7 @@ public class DigitalSelector {
     public static int get(DigitalSelector a, DigitalSelector b)
     {
         int ret;
-
+        
         int aVal = a.get();
         int bVal = b.get();
 

@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2019.1.1"
-    // id "com.snobot.simulator.plugin.SnobotSimulatorPlugin" version "2019-0.0.0" apply false
+    id "com.snobot.simulator.plugin.SnobotSimulatorPlugin" version "2019-0.2.0" apply false
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -42,14 +42,14 @@ def includeDesktopSupport = true
 repositories {
     mavenCentral()
     
-    // maven { url "http://first.wpi.edu/FRC/roborio/maven/release/" }
+    maven { url "http://first.wpi.edu/FRC/roborio/maven/release/" }
 }
 
-// apply plugin: com.snobot.simulator.plugin.SnobotSimulatorPlugin
+apply plugin: com.snobot.simulator.plugin.SnobotSimulatorPlugin
 
-// configurations {
-    // snobotSimCompile
-// }
+configurations {
+    snobotSimCompile
+}
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
@@ -64,7 +64,7 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 
-    // snobotSimCompile snobotSimJava()
+    snobotSimCompile snobotSimJava()
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')

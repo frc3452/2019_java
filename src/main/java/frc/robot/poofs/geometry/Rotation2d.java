@@ -1,10 +1,10 @@
 package frc.robot.poofs.geometry;
 
-import frc.robot.poofs.util.Util;
+import static frc.robot.poofs.util.Util.kEpsilon;
 
 import java.text.DecimalFormat;
 
-import static frc.robot.poofs.util.Util.kEpsilon;
+import frc.robot.poofs.util.Util;
 
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle (cosine and sine).

@@ -2,9 +2,6 @@ package frc.robot.util;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.GZOI;
-import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
 
 /**
