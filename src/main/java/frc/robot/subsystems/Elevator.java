@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kPDP;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
@@ -178,12 +179,26 @@ public class Elevator extends GZSubsystem {
         this.addLoggingValuesTalons();
     }
 
-    public void setDesiredHeight(double heightInInches) {
+    protected void goHome()
+    {
+        setHeight(Heights.Home);
+    }
+
+    protected void setHeight(Heights height)
+    {
+        setHeight(height.inches);
+    }
+
+    protected void setHeight(double heightInInches) {
         setWantedState(ElevatorState.MOTION_MAGIC);
         mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * heightInInches;
     }
 
-    public void setDesiredRotations(double rotations)
+    protected void jogHeight(double jogHeightInches) {
+        setHeight(getHeightInches() + jogHeightInches);
+    }
+
+    protected void setRotations(double rotations)
     {
         setWantedState(ElevatorState.MOTION_MAGIC);
         mIO.desired_output = 4096 * rotations;
@@ -219,12 +234,12 @@ public class Elevator extends GZSubsystem {
         return mIO.ticks_position / kElevator.TICKS_PER_INCH;
     }
 
-    private boolean cargoSensorTripped() {
+    public boolean isCargoSensorTripped() {
         return this.mCargoSensor.isWithinRange();
     }
 
-    private boolean isHome() {
-        return getHeightInches() < 1.5;
+    public boolean isHome() {
+        return getHeightInches() < 3;
     }
 
     /**
@@ -253,12 +268,12 @@ public class Elevator extends GZSubsystem {
 
 
     // MANIPULATOR
-    public void setClaw(boolean clamp)
+    protected void setClaw(boolean clamp)
     {
         mClaw.set(clamp);
     }
 
-    public void setSlides(boolean extended)
+    protected void setSlides(boolean extended)
     {
         mCarriageSlide.set(extended);
     }
@@ -413,7 +428,7 @@ public class Elevator extends GZSubsystem {
         return mState.toString();
     }
 
-    public boolean setWantedState(ElevatorState wantedState) {
+    protected boolean setWantedState(ElevatorState wantedState) {
         this.mWantedState = wantedState;
 
         return this.mWantedState == mState;

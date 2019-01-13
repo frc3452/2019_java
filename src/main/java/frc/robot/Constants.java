@@ -40,6 +40,15 @@ public class Constants {
 
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0);
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
+
+		public static enum Heights {
+			Home(0);
+
+			public final double inches;
+			private Heights(double inches) {
+				this.inches = inches;
+			}
+		}
 	}
 
 	public static class kAuton {
@@ -149,6 +158,7 @@ public class Constants {
 		public static final int INTAKE_LEFT = 0;
 		public static final int INTAKE_RIGHT = 0;
 		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(0, 1.5, 1.5);
+		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPoofs {
