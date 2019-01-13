@@ -45,10 +45,9 @@ public class Climber extends GZSubsystem {
     };
 
     public void runClimber(double Frontspeed, double Backspeed) {
-        if (setWantedState(ClimberState.MANUAL)) {
-            mIO.front_desired_output = Frontspeed;
-            mIO.back_desired_output = Backspeed;
-        }
+        setWantedState(ClimberState.MANUAL);
+        mIO.front_desired_output = Frontspeed;
+        mIO.back_desired_output = Backspeed;
     }
 
     @Override

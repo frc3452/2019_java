@@ -63,30 +63,26 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
-    public boolean isRaised()
-    {
+    public boolean isRaised() {
         return mIntakeSol.getSolenoidState() == SolenoidState.EXTENDED;
     }
 
-    public boolean isLowered()
-    {
+    public boolean isLowered() {
         return mIntakeSol.getSolenoidState() == SolenoidState.RETRACTED;
     }
 
-    public SolenoidState getSolenoidState()
-    {
+    public SolenoidState getSolenoidState() {
         return mIntakeSol.getSolenoidState();
     }
 
     public void runIntake(double left, double right) {
-        if (setWantedState(IntakeState.MANUAL)) {
-            mIO.left_desired_output = left;
-            mIO.right_desired_output = right;
-        }
+        setWantedState(IntakeState.MANUAL);
+        mIO.left_desired_output = left;
+        mIO.right_desired_output = right;
     }
 
     public void runIntake(double speed) {
-        runIntake(speed);
+        runIntake(speed, speed);
     }
 
     @Override
@@ -125,7 +121,7 @@ public class Intake extends GZSubsystem {
             neutral = true;
             lockSolenoids = true;
         }
-        
+
         this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
