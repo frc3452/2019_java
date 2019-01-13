@@ -28,7 +28,14 @@ public class Superstructure extends GZSubsystem {
     private Actions mAction = Actions.IDLE;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP, GRAB_HP_FROM_FEED;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GRAB_CARGO_FROM_FEED, GRAB_STOW_LOW;
+
+        //Checklist:
+        //Off
+        //Idle
+        //Stow
+        //Stow low
+        //Intake cargo
     }
 
     public Actions getCurrentAction()
@@ -54,8 +61,7 @@ public class Superstructure extends GZSubsystem {
                 break;
             case HOLD_CARGO:
                 if (elev.isClawClamped() && elev.isCargoSensorTripped()) {
-                    intake.raise(true);
-                    intake.stop();
+                    intake.stow();
                 }
                 break;
             }
@@ -69,9 +75,17 @@ public class Superstructure extends GZSubsystem {
         mAction = action;
         switch (action) {
         case INTAKE_CARGO:
-            intake.raise(false);
+            intake.lower();
             elev.goHome();
             break;
+        case STOW:
+            intake.stow();
+            elev.setSlides(false);
+        break;
+        case STOW_LOW:
+            elev.goHome();
+            runAction(Actions.STOW);
+        break;
         case HOLD_CARGO:
             elev.setClaw(true);
             break;

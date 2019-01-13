@@ -34,18 +34,23 @@ public class Intake extends GZSubsystem {
         return mInstance;
     }
 
-    public void grabCargo() {
-        raise(false);
-        runIntake(-.125, -.125);
-    }
+    // public void grabCargo() {
+    //     raise(false);
+    //     runIntake(-.125, -.125);
+    // }
 
     public void stow() {
-        runIntake(0, 0);
-        raise(true);
+        stop();
+        raise();
     }
 
-    public void raise(boolean raise) {
-        mIntakeSol.set(raise);
+    public void lower()
+    {
+        mIntakeSol.set(true);
+    }
+
+    public void raise() {
+        mIntakeSol.set(false);
     }
 
     public enum IntakeState {
