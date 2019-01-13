@@ -15,7 +15,10 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Elevator extends GZSubsystem {
 
@@ -24,6 +27,12 @@ public class Elevator extends GZSubsystem {
     public IO mIO = new IO();
 
     private GZSRX mElevator1;
+    private GZAnalogInput mCargoSensor;
+
+    private GZSolenoid mCarriageSlide, mClaw;
+
+    private ElevatorPIDConfig mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
+    private ElevatorPIDConfig mPreviousMotionMode = ElevatorPIDConfig.CARGO;
 
     private static Elevator mInstance = null;
 
@@ -34,8 +43,19 @@ public class Elevator extends GZSubsystem {
         return mInstance;
     }
 
+    //INIT AND LIFT
+
     private Elevator() {
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
+        
+        mCarriageSlide = new GZSolenoid(kElevator.SLIDES, this, "Carriage slides");
+        mCarriageSlide.set(false);
+        mClaw = new GZSolenoid(kElevator.CLAW, this, "Carriage claw");
+        mClaw.set(false);
+
+        mCargoSensor = new GZAnalogInput(kElevator.CARGO_SENSOR_CHANNEL, kElevator.CARGO_SENSOR_LOW_VOLT,
+                kElevator.CARGO_SENSOR_HIGH_VOLT);
+        
 
         talonInit();
 
@@ -57,6 +77,19 @@ public class Elevator extends GZSubsystem {
 
         configPID(kElevator.PID);
         configPID(kElevator.PID2);
+        selectProfileSlot(ElevatorPIDConfig.EMPTY);
+        configAccelInchesPerSec(6 * 12 * .5); //3 fps 
+        configCruiseInchesPerSec(6 * 12);  //6 fps
+    }
+
+ 
+
+    private void selectProfileSlot(ElevatorPIDConfig e) {
+        selectProfileSlot(e.slot);
+    }
+
+    private void selectProfileSlot(int slot) {
+        mElevator1.selectProfileSlot(slot, 0);
     }
 
     private void configPID(GZPID gains) {
@@ -125,14 +158,14 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public boolean hasAir() {
-        return false;
+        return true;
     }
 
     @Override
     public void addLoggingValues() {
         new LogItem(getSmallString() + "-HEIGHT") {
             public String val() {
-                return "" + getHeight();
+                return "" + getHeightInches();
             }
         };
 
@@ -146,35 +179,136 @@ public class Elevator extends GZSubsystem {
         this.addLoggingValuesTalons();
     }
 
+    public void setDesiredHeight(double heightInInches) {
+        setWantedState(ElevatorState.MOTION_MAGIC);
+        mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * heightInInches;
+    }
+
+    public void setDesiredRotations(double rotations)
+    {
+        setWantedState(ElevatorState.MOTION_MAGIC);
+        mIO.desired_output = 4096 * rotations;
+    }
+
+    private void configAccelInchesPerSec(double inchesPerSecond) {
+        configAccel(inchesPerSecondToNativeUnits(inchesPerSecond));
+    }
+
+    private void configCruiseInchesPerSec(double inchesPerSecond) {
+        configCruise(inchesPerSecondToNativeUnits(inchesPerSecond));
+    }
+
+    private int inchesPerSecondToNativeUnits(double inchesPerSecond) {
+        int sensorUnitsPer100ms;
+        sensorUnitsPer100ms = (int) Math.rint(inchesPerSecond * kElevator.TICKS_PER_INCH);
+        return sensorUnitsPer100ms;
+    }
+
+    private void configAccel(int sensorUnitsPer100msPerSec) {
+        mElevator1.configMotionAcceleration(sensorUnitsPer100msPerSec);
+    }
+
+    private void configCruise(int sensorUnitsPer100msPerSec) {
+        mElevator1.configMotionCruiseVelocity(sensorUnitsPer100msPerSec);
+    }
+
     public double getRotations() {
         return mIO.ticks_position / 4096;
     }
 
-    public double getHeight() {
+    public double getHeightInches() {
         return mIO.ticks_position / kElevator.TICKS_PER_INCH;
+    }
+
+    private boolean cargoSensorTripped() {
+        return this.mCargoSensor.isWithinRange();
+    }
+
+    private boolean isHome() {
+        return getHeightInches() < 1.5;
+    }
+
+    /**
+     * if we want to do something with multiple pid tuning slots
+     */
+    private void handlePID() {
+        // if (cargoSensorTripped() && isHome())
+        // {
+
+        // }
+
+        if (mCurrentMotionMode != mPreviousMotionMode) {
+            mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
+            selectProfileSlot(mCurrentMotionMode);
+            mPreviousMotionMode = mCurrentMotionMode;
+        }
     }
 
     @Override
     public void loop() {
+        handlePID();
         handleStates();
         in();
         out();
     }
 
+
+    // MANIPULATOR
+    public void setClaw(boolean clamp)
+    {
+        mClaw.set(clamp);
+    }
+
+    public void setSlides(boolean extended)
+    {
+        mCarriageSlide.set(extended);
+    }
+
+    public boolean isClawClamped()
+    {
+        return mClaw.getSolenoidState() == SolenoidState.EXTENDED; 
+    }
+
+    public boolean isClawOpen()
+    {
+        return mClaw.getSolenoidState() == SolenoidState.RETRACTED;
+    }
+
+    public SolenoidState getClawState()
+    {
+        return mClaw.getSolenoidState();
+    }
+
+    public boolean isSlidesExtended()
+    {
+        return mCarriageSlide.getSolenoidState() == SolenoidState.EXTENDED;
+    }
+
+    public boolean isSlidesRetracted()
+    {
+        return mCarriageSlide.getSolenoidState() == SolenoidState.RETRACTED;
+    }
+
+    public SolenoidState getSlidesState()
+    {
+        return mCarriageSlide.getSolenoidState();
+    }
+
+    //GZ SUBSYSTEM STUFF
     private void handleStates() {
         boolean neutral = false;
 
         if (mWantedState == ElevatorState.NEUTRAL) {
             neutral = true;
-        }
-
-        else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
+        } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
             neutral = true;
-        }
-
-        else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
+            this.lockSolenoids(true);
+        } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
+        } else {
+            this.lockSolenoids(false);
         }
+        
 
         if (neutral) {
 
@@ -303,6 +437,16 @@ public class Elevator extends GZSubsystem {
     @Override
     public String getSmallString() {
         return "ELV";
+    }
+
+    private enum ElevatorPIDConfig {
+        EMPTY(0), CARGO(1);
+
+        private int slot;
+
+        private ElevatorPIDConfig(int slot) {
+            this.slot = slot;
+        }
     }
 
 }

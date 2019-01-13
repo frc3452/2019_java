@@ -4,6 +4,7 @@ import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 import frc.robot.util.GZPID;
 
 /**
@@ -19,18 +20,25 @@ public class Constants {
 
 	public static class kElevator {
 		public static final int ELEVATOR_MOTOR_ID = 0;
+		public static final boolean E_1_INVERT = false;
+
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
-		public static final boolean E_1_INVERT = false;
+		public static final int CARGO_SENSOR_CHANNEL = 0;
+		public static final double CARGO_SENSOR_LOW_VOLT = 1.2;
+		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4;
+
 
 		public static final double OPEN_RAMP_TIME = 0;
 
 		public static final int TICKS_PER_INCH = 3; //TODO TUNE ME
 
 		public static final boolean ENC_INVERT = false;
-
+		
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0);
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 	}

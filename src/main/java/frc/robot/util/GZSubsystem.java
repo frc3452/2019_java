@@ -30,6 +30,17 @@ public abstract class GZSubsystem extends Subsystem {
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
 
+	private boolean areSolenoidsLocked = false;
+	protected void lockSolenoids(boolean lock)
+	{
+		this.areSolenoidsLocked = lock;
+	}
+
+	public boolean areSolenoidsLocked()
+	{
+		return this.areSolenoidsLocked;
+	}
+
 	public void printState() {
 		System.out.println(getStateString());
 	}

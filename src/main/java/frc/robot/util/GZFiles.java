@@ -471,7 +471,7 @@ public class GZFiles {
 						for (GZSolenoid sol : s.mSingleSolenoids) {
 							String solenoidRow = "";
 							solenoidRow += HTML.tableRow(
-									HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(), "" + sol.getChannel()));
+									HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module, "" + sol.getConstants().channel));
 							singlesTable += solenoidRow;
 						}
 						singlesTable = HTML.table(singlesTable);
@@ -491,8 +491,8 @@ public class GZFiles {
 
 						for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getPCM(),
-									"" + sol.getChannel().fwd_channel, "" + sol.getChannel().rev_channel));
+							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
 							doublesTable += solenoidRow;
 						}
 
