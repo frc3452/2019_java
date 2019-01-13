@@ -10,7 +10,20 @@ public class Superstructure extends GZSubsystem {
     private Elevator elev = Elevator.getInstance();
     private Intake intake = Intake.getInstance();
 
-    private GZSubsystemManager subsystems = new GZSubsystemManager(Elevator.getInstance(), Intake.getInstance());
+    private GZSubsystemManager subsystems;
+
+    private static Superstructure mInstance = null;
+    public static Superstructure getInstance()
+    {
+        if (mInstance == null)
+            mInstance = new Superstructure();
+        return mInstance;
+    }
+    private Superstructure()
+    {
+        subsystems = new GZSubsystemManager(Elevator.getInstance(), Intake.getInstance());
+    }
+
 
     private Actions mAction = Actions.IDLE;
 
