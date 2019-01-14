@@ -177,22 +177,6 @@ public class Superstructure extends GZSubsystem {
         intake.lower();
     }
 
-    public void clawNonManual() {
-        elev.setClawManual(false);
-    }
-
-    public void slidesNonManual() {
-        elev.setSlidesManual(false);
-    }
-
-    public void elevatorNonManual() {
-        elev.setElevatorManual(false);
-    }
-
-    public void intakeNonManual() {
-        intake.setManual(false);
-    }
-
     public String getStateString() {
         return mAction.toString();
     }

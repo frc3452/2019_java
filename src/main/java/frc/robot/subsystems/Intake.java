@@ -18,15 +18,6 @@ public class Intake extends GZSubsystem {
     private GZSpark mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeSol;
 
-    private SuperstructureComponent mIntake = new SuperstructureComponent() {
-        @Override
-        public void set(double value) {
-            mIntakeSol.set(value == 0);
-        }
-    };
-
-    private boolean mIsManual = false;
-
     public IO mIO = new IO();
 
     private static Intake mInstance = null;
@@ -49,10 +40,8 @@ public class Intake extends GZSubsystem {
     }
 
     protected void stow(boolean manual) {
-        if (!mIsManual || (manual && mIsManual)) {
-            stop();
-            raise(manual);
-        }
+        stop();
+        raise();
     }
 
     protected void lower() {
@@ -60,8 +49,7 @@ public class Intake extends GZSubsystem {
     }
 
     protected void lower(boolean manual) {
-        if (!mIsManual || (manual && mIsManual))
-            mIntakeSol.set(true);
+        mIntakeSol.set(true);
     }
 
     protected void raise() {
@@ -69,8 +57,7 @@ public class Intake extends GZSubsystem {
     }
 
     protected void raise(boolean manual) {
-        if (!mIsManual || (manual && mIsManual))
-            mIntakeSol.set(false);
+        mIntakeSol.set(false);
     }
 
     public enum IntakeState {
@@ -100,24 +87,14 @@ public class Intake extends GZSubsystem {
         return mIntakeSol.getSolenoidState();
     }
 
-    protected void setManual(boolean manual) {
-        this.mIsManual = manual;
-    }
-
-    protected void runIntake(double left, double right, boolean manual) {
-        if (!mIsManual || (manual && mIsManual)) {
-            setWantedState(IntakeState.MANUAL);
-            mIO.left_desired_output = left;
-            mIO.right_desired_output = right;
-        }
+    protected void runIntake(double left, double right) {
+        setWantedState(IntakeState.MANUAL);
+        mIO.left_desired_output = left;
+        mIO.right_desired_output = right;
     }
 
     protected void runIntake(double speed) {
-        runIntake(speed, false);
-    }
-
-    protected void runIntake(double speed, boolean manual) {
-        runIntake(speed, speed, manual);
+        runIntake(speed, speed);
     }
 
     @Override

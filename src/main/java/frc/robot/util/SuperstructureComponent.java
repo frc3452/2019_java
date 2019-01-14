@@ -6,16 +6,28 @@ public abstract class SuperstructureComponent {
     public SuperstructureComponent() {
     }
 
-    public void setComponent(double value) {
-        setComponent(value, false);
+
+    public void setComponent(double value, boolean manual)
+    {
+        setComponent(value, value, manual);
     }
 
-    public void setComponent(double value, boolean manual) {
+    public void setComponent(double value)
+    {
+        setComponent(value, value);
+    }
+
+    public void setComponent(double value, double value2)
+    {
+        setComponent(value, value2, false);
+    }
+
+    public void setComponent(double value, double value2, boolean manual) {
         if (manual)
             this.beingUsedManually = true;
 
         if (!this.beingUsedManually || ((this.beingUsedManually && manual)))
-            set(value);
+            set(value, value2);
     }
 
     public void notBeingUsedManually()
@@ -23,6 +35,6 @@ public abstract class SuperstructureComponent {
         this.beingUsedManually = false;
     }
 
-    public abstract void set(double value);
+    public abstract void set(double value, double value2);
 
 }

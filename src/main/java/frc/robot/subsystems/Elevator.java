@@ -36,8 +36,6 @@ public class Elevator extends GZSubsystem {
     private ElevatorPIDConfig mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
     private ElevatorPIDConfig mPreviousMotionMode = ElevatorPIDConfig.CARGO;
 
-    private boolean mClawManual = false, mSlidesManual = false, mElevatorManual = false;
-
     private static Elevator mInstance = null;
 
     public static Elevator getInstance() {
@@ -180,32 +178,21 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void setHeight(Heights height) {
-        setHeight(height, false);
-    }
-
-    protected void setHeight(Heights height, boolean manual) {
-        setHeight(height.inches, manual);
+        setHeight(height.inches);
     }
 
     protected void goHome()
     {
-        goHome(false);
-    }
-
-    protected void goHome(boolean manual)
-    {
-        setHeight(Heights.Home, manual);
+        setHeight(Heights.Home);
     } 
 
-    protected void setHeight(double heightInInches, boolean manual) {
-        if ((mElevatorManual && manual) || !mElevatorManual) {
+    protected void setHeight(double heightInInches) {
             setWantedState(ElevatorState.MOTION_MAGIC);
             mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * (heightInInches + kElevator.HOME_INCHES);
-        }
     }
 
     protected void jogHeight(double jogHeightInches) {
-        setHeight(getHeightInches() + jogHeightInches, true);
+        setHeight(getHeightInches() + jogHeightInches);
     }
 
     // protected void setRotations(double rotations) {
@@ -283,51 +270,19 @@ public class Elevator extends GZSubsystem {
         return GZUtil.epsilonEquals(getHeightInches(), tar, with_Inches_Tolerance);
     }
 
-    protected void setClawManual(boolean manual) {
-        this.mClawManual = manual;
-    }
-
-    protected void setElevatorManual(boolean manual) {
-        this.mElevatorManual = manual;
-    }
-
-    protected void setSlidesManual(boolean manual) {
-        this.mSlidesManual = manual;
-    }
 
     protected void openClaw() {
-        openClaw(false);
-    }
-
-    protected void openClaw(boolean manual) {
-        if ((mClawManual && manual) || !mClawManual)
             mClaw.set(false);
     }
-
     protected void closeClaw() {
-        closeClaw(false);
-    }
-
-    protected void closeClaw(boolean manual) {
-        if ((mClawManual && manual) || !mClawManual)
-            mClaw.set(true);
+        mClaw.set(true);
     }
 
     protected void extendSlides() {
-        extendSlides(false);
-    }
-
-    protected void extendSlides(boolean manual) {
-        if ((mSlidesManual && manual) || !mSlidesManual)
             mCarriageSlide.set(true);
     }
 
     protected void retractSlides() {
-        retractSlides(false);
-    }
-
-    protected void retractSlides(boolean manual) {
-        if ((mSlidesManual && manual) || !mSlidesManual)
             mCarriageSlide.set(false);
     }
 
