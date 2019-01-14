@@ -195,10 +195,10 @@ public class Elevator extends GZSubsystem {
         setHeight(getHeightInches() + jogHeightInches);
     }
 
-    // protected void setRotations(double rotations) {
-    // setWantedState(ElevatorState.MOTION_MAGIC);
-    // mIO.desired_output = 4096 * rotations;
-    // }
+    protected void setRotations(double rotations) {
+    setWantedState(ElevatorState.MOTION_MAGIC);
+    mIO.desired_output = 4096 * rotations;
+    }
 
     private void configAccelInchesPerSec(double inchesPerSecond) {
         configAccel(inchesPerSecondToNativeUnits(inchesPerSecond));
