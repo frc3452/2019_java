@@ -1,8 +1,7 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kElevator.Heights;
-import edu.wpi.first.wpilibj.Compressor;
+import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZSubsystem;
@@ -15,12 +14,24 @@ public class Superstructure extends GZSubsystem {
 
     private GZSubsystemManager subsystems;
 
-    private class Flags {
-        private GZFlag HPFromFeed = new GZFlag();
-        private GZFlag HPFromFloorFlag1 = new GZFlag();
-        private GZFlag HPFromFloorFlag2 = new GZFlag();
+    private class Manual {
+        private boolean mIntake = false;
+        private boolean mIntakeDrop = false;
+        private boolean mElevator = false;
+        private boolean mClaw = false;
+        private boolean mSlides = false;
     }
 
+    private class Flags {
+        private GZFlag HPFromFeed = new GZFlag();
+        
+        private GZFlag HPFromFloorFlag1 = new GZFlag();
+        private GZFlag HPFromFloorFlag2 = new GZFlag();
+        private GZFlag HPFromFloorFlag3 = new GZFlag();
+        private GZFlag HPFromFloorFlag4 = new GZFlag();
+    }
+
+    private Manual mManual = new Manual();
     private Flags mFlags = new Flags();
 
     private static Superstructure mInstance = null;
@@ -58,7 +69,7 @@ public class Superstructure extends GZSubsystem {
                 break;
             case INTAKE_CARGO:
                 if (intake.isLowered() && elev.nearTarget())
-                    intake.runIntake(kIntake.INTAKE_SPEED);
+                    runIntake(kIntake.INTAKE_SPEED, false);
 
                 if (elev.isCargoSensorTripped())
                     runAction(Actions.HOLD_CARGO);
@@ -69,33 +80,34 @@ public class Superstructure extends GZSubsystem {
                     stow();
                 break;
             case TRNSFR_HP_FROM_FLOOR:
-                elev.setHeight(Heights.Floor_HP);
+                setHeight(Heights.Floor_HP, false);
                 if (elev.nearTarget()) {
-                    intake.stow();
-                    if (intake.isRaised()) {
-                        if (!mFlags.HPFromFloorFlag1.get()) {
-                            elev.extendSlides();
-                            mFlags.HPFromFloorFlag1.tripFlag();
-                        } else if (elev.areSlidesOut() && mFlags.HPFromFloorFlag1.get()) {
-                            elev.openClaw();
-                            mFlags.HPFromFloorFlag2.tripFlag();
-                        } else if (elev.isClawOpen() && mFlags.HPFromFloorFlag2.get()) {
-                            elev.retractSlides();
-                        }
-                        if (mFlags.HPFromFloorFlag2.get() && elev.areSlidesIn()) {
-                            idle();
-                        }
+                    if (!mFlags.HPFromFloorFlag1.get() && elev.areSlidesIn() && elev.isClawClosed()) {
+                        stow();
+                        mFlags.HPFromFloorFlag1.tripFlag();
+                    } else if (!mFlags.HPFromFloorFlag2.get() && intake.isRaised()) {
+                        extendSlides(false);
+                        mFlags.HPFromFloorFlag2.tripFlag();
+                    } else if (!mFlags.HPFromFloorFlag3.get() && elev.areSlidesOut()) {
+                        openClaw(false);
+                        mFlags.HPFromFloorFlag3.tripFlag();
+                    } else if (!mFlags.HPFromFloorFlag4.get() && elev.isClawOpen()) {
+                        retractSlides(false);
+                        mFlags.HPFromFloorFlag4.tripFlag();
                     }
+                }
+                if (mFlags.HPFromFloorFlag4.get() && elev.areSlidesIn()) {
+                    idle();
                 }
                 break;
             case GRAB_HP_FROM_FEED:
                 if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
 
                     if (!mFlags.HPFromFeed.get()) {
-                        elev.extendSlides();
+                        extendSlides(false);
                         mFlags.HPFromFeed.tripFlag();
                     } else if (elev.areSlidesOut()) {
-                        elev.openClaw();
+                        openClaw(false);
                     }
                     // have automatically retract????
                 } else if (elev.isClawOpen() && mFlags.HPFromFeed.get())
@@ -110,71 +122,129 @@ public class Superstructure extends GZSubsystem {
         runAction(Actions.IDLE);
     }
 
-    private void stow() {
-        intake.stow();
-        elev.retractSlides();
-    }
-
     public void runAction(Actions action) {
         mAction = action;
         switch (action) {
         case INTAKE_CARGO:
-            intake.lower();
-            elev.goHome();
+            lowerIntake(false);
+            setHeight(Heights.Home, false);
             break;
         case STOW:
             stow();
             break;
         case STOW_LOW:
             stow();
-            elev.goHome();
+            setHeight(Heights.Home, false);
             break;
         case HOLD_CARGO:
-            elev.closeClaw();
+            closeClaw(false);
             break;
         case TRNSFR_HP_FROM_FLOOR:
             mFlags.HPFromFloorFlag1.rst();
             mFlags.HPFromFloorFlag2.rst();
-            elev.closeClaw();
+            mFlags.HPFromFloorFlag3.rst();
+            closeClaw(false);
+            retractSlides(false);
             break;
         case GRAB_HP_FROM_FEED:
             mFlags.HPFromFeed.rst();
             stow();
-            elev.setHeight(Heights.Feeder_HP);
-            elev.closeClaw();
+            setHeight(Heights.Feeder_HP, false);
+            closeClaw(false);
             break;
         }
     }
 
     // MANUAL
-    public void openClaw() {
-        idle();
-        elev.openClaw();
+    public void intakeNoManual() {
+        mManual.mIntake = false;
     }
 
-    public void closeClaw() {
-        idle();
-        elev.closeClaw();
+    public void intakeDropNoManual() {
+        mManual.mIntakeDrop = false;
     }
 
-    public void extendSlides() {
-        idle();
-        elev.extendSlides();
+    public void elevatorNoManual() {
+        mManual.mElevator = false;
     }
 
-    public void retractSlides() {
-        idle();
-        elev.retractSlides();
+    public void clawNoManual() {
+        mManual.mClaw = false;
     }
 
-    public void raiseIntake() {
-        idle();
-        intake.raise();
+    public void slidesNoManual() {
+        mManual.mSlides = false;
     }
 
-    public void lowerIntake() {
-        idle();
-        intake.lower();
+    public void stow() {
+        raiseIntake(false);
+        retractSlides(false);
+    }
+
+    public void setHeight(Heights h, boolean manual) {
+        if (manual) {
+            elev.setHeight(h);
+            mManual.mElevator = true;
+        } else if (!mManual.mElevator)
+            elev.setHeight(h);
+    }
+
+    public void openClaw(boolean manual) {
+        if (manual) {
+            elev.openClaw();
+            mManual.mClaw = true;
+        } else if (!mManual.mClaw)
+            elev.openClaw();
+
+    }
+
+    public void closeClaw(boolean manual) {
+        if (manual) {
+            elev.closeClaw();
+            mManual.mClaw = true;
+        } else if (!mManual.mClaw)
+            elev.closeClaw();
+    }
+
+    public void extendSlides(boolean manual) {
+        if (manual) {
+            elev.extendSlides();
+            mManual.mSlides = true;
+        } else if (!mManual.mSlides)
+            elev.extendSlides();
+
+    }
+
+    public void retractSlides(boolean manual) {
+        if (manual) {
+            elev.retractSlides();
+            mManual.mSlides = true;
+        } else if (!mManual.mSlides)
+            elev.retractSlides();
+
+    }
+
+    public void raiseIntake(boolean manual) {
+        if (manual) {
+            intake.raise();
+            mManual.mIntakeDrop = true;
+        } else if (!mManual.mIntakeDrop)
+            intake.raise();
+    }
+
+    public void lowerIntake(boolean manual) {
+        if (manual) {
+            intake.lower();
+            mManual.mIntakeDrop = true;
+        } else if (!mManual.mIntakeDrop)
+            intake.lower();
+    }
+
+    public void runIntake(double speed, boolean manual) {
+        if (manual) {
+            intake.runIntake(speed);
+        } else if (!mManual.mIntake)
+            intake.runIntake(speed);
     }
 
     public String getStateString() {
