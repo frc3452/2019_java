@@ -154,7 +154,7 @@ public class PersistentInfoManager {
             Scanner scnr = new Scanner(new FileReader(f));
 
             // loop through lines but drop out if it fails
-            while (scnr.hasNext() && !mReadFailed.isFlagTripped()) {
+            while (scnr.hasNext() && !mReadFailed.get()) {
                 String t = scnr.nextLine();
                 String split[] = t.split(",");
 
@@ -179,7 +179,7 @@ public class PersistentInfoManager {
             // If any PersistentInfos do anything on startup like refresh variables in other
             // files, have
             // them do it now
-            if (!mReadFailed.isFlagTripped())
+            if (!mReadFailed.get())
                 readSettings();
 
         } catch (Exception e) {
@@ -189,7 +189,7 @@ public class PersistentInfoManager {
                     + GZFileMaker.getFileLocation(fileName, folder, ValidFileExtension.CSV, usb, true));
         }
 
-        if (!mReadFailed.isFlagTripped())
+        if (!mReadFailed.get())
             System.out.println("Persistent settings read correctly.");
     }
 
@@ -204,7 +204,7 @@ public class PersistentInfoManager {
     }
 
     public void printPersistentSettings() {
-        System.out.println("~~~Persistent settings" + (mReadFailed.isFlagTripped() ? " on temp file" : "") + "~~~");
+        System.out.println("~~~Persistent settings" + (mReadFailed.get() ? " on temp file" : "") + "~~~");
         for (String s : mSettingsMap.keySet())
             System.out.println(s + "\t\t\t" + mSettingsMap.get(s).getValue());
     }
@@ -252,7 +252,7 @@ public class PersistentInfoManager {
 
         // If flag we failed while reading, write to a temporary file so that we don't
         // accidentally overrwrite the old one
-        if (mReadFailed.isFlagTripped()) {
+        if (mReadFailed.get()) {
             mFileName = GZUtil.dateTime(false);
             mFolder = Constants.kFiles.STATS_FILE_FOLDER;
             mUsb = Constants.kFiles.STATS_FILE_ON_USB;

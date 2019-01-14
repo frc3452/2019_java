@@ -34,18 +34,18 @@ public class Intake extends GZSubsystem {
         return mInstance;
     }
 
-    public void grabCargo() {
-        raise(false);
-        runIntake(-.125, -.125);
+
+    protected void stow() {
+        stop();
+        raise();
     }
 
-    public void stow() {
-        runIntake(0, 0);
-        raise(true);
+    protected void lower() {
+        mIntakeSol.set(true);
     }
 
-    public void raise(boolean raise) {
-        mIntakeSol.set(raise);
+    protected void raise() {
+        mIntakeSol.set(false);
     }
 
     public enum IntakeState {
@@ -75,13 +75,13 @@ public class Intake extends GZSubsystem {
         return mIntakeSol.getSolenoidState();
     }
 
-    public void runIntake(double left, double right) {
+    protected void runIntake(double left, double right) {
         setWantedState(IntakeState.MANUAL);
         mIO.left_desired_output = left;
         mIO.right_desired_output = right;
     }
 
-    public void runIntake(double speed) {
+    protected void runIntake(double speed) {
         runIntake(speed, speed);
     }
 

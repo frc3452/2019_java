@@ -46,7 +46,7 @@ public class Mutable<T> {
         if (this.mMutableFlag == null) {
             return this.mMutable;
         } else {
-            return this.mMutableFlag.isFlagTripped();
+            return this.mMutableFlag.get();
         }
     }
 

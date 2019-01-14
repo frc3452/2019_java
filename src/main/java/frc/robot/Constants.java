@@ -29,17 +29,33 @@ public class Constants {
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
 		public static final int CARGO_SENSOR_CHANNEL = 0;
-		public static final double CARGO_SENSOR_LOW_VOLT = 1.2;
-		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4;
+		public static final double CARGO_SENSOR_LOW_VOLT = 1.2; // TODO TUNE
+		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; //TODO TUNE
 
 		public static final double OPEN_RAMP_TIME = 0;
 
+		public static final double HOME_INCHES = 14;
 		public static final int TICKS_PER_INCH = 3; // TODO TUNE ME
 
 		public static final boolean ENC_INVERT = false;
+		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
+		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 30; // TODO TUNE
 
-		public static GZPID PID = new GZPID(0, 0, 0, 0, 0);
+		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); //TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
+
+		public static enum Heights {
+			Home(HOME_INCHES), Floor_HP(17), Feeder_HP(19);
+
+			public final double inches;
+			private Heights(double inches) {
+				this.inches = inches;
+			}
+			private Heights(Heights h)
+			{
+				this(h.inches);
+			}
+		}
 	}
 
 	public static class kAuton {
@@ -149,6 +165,7 @@ public class Constants {
 		public static final int INTAKE_LEFT = 0;
 		public static final int INTAKE_RIGHT = 0;
 		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(0, 1.5, 1.5);
+		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPoofs {

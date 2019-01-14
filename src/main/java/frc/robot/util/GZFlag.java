@@ -21,7 +21,12 @@ public class GZFlag {
         mTripped = true;
     }
 
-    public boolean isFlagTripped() {
+    public void rst()
+    {
+        this.mTripped = false;
+    }
+
+    public boolean get() {
         return this.mTripped;
     }
 }

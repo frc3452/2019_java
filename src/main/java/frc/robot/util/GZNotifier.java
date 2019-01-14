@@ -32,7 +32,7 @@ public class GZNotifier extends Notifier {
 
     public boolean hasStarted()
     {
-        return this.hasStarted.isFlagTripped();
+        return this.hasStarted.get();
     }
 
 }

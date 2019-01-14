@@ -36,6 +36,9 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     private GZTimer mExtendedTimer = new GZTimer();
     private GZTimer mRetractedTimer = new GZTimer();
 
+    private int mChangeCounts = 0;
+
+
     public SolenoidConstants getConstants() {
         return this.mConstants;
     }
@@ -55,12 +58,17 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         return this.mSub.areSolenoidsLocked();
     }
 
+    public int getChangeCounts() {
+        return mChangeCounts;
+    }
+
     @Override
     public void set(boolean on) {
         if (on == super.get() || this.isLocked())
             return;
 
         super.set(on);
+        mChangeCounts++;
 
         if (on) {
             mExtendedTimer.startTimer();
