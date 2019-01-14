@@ -35,6 +35,7 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
     private final GZSubsystem mSub;
     private final String mName;
     private final DoubleSolenoidConstants mConstants;
+    private int mChangeCounts = 0;
 
     public GZDoubleSolenoid(DoubleSolenoidConstants constants, GZSubsystem subsystem, String name) {
         super(constants.module, constants.fwd_channel, constants.rev_channel);
@@ -47,12 +48,17 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
         this.mSub.mDoubleSolenoids.add(this);
     }
 
+    public int getChangeCounts() {
+        return mChangeCounts;
+    }
+
     @Override
     public void set(Value value) {
         if (value == super.get() || this.isLocked())
             return;
 
         super.set(value);
+        mChangeCounts++;
 
         if (value == Value.kForward) {
             mExtendedTimer.startTimer();

@@ -9,13 +9,14 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
-import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
@@ -35,6 +36,8 @@ public class Elevator extends GZSubsystem {
     private ElevatorPIDConfig mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
     private ElevatorPIDConfig mPreviousMotionMode = ElevatorPIDConfig.CARGO;
 
+    private boolean mClawManual = false, mSlidesManual = false, mElevatorManual = false;
+
     private static Elevator mInstance = null;
 
     public static Elevator getInstance() {
@@ -44,10 +47,10 @@ public class Elevator extends GZSubsystem {
         return mInstance;
     }
 
-    //INIT AND LIFT
+    // INIT AND LIFT
     private Elevator() {
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
-        
+
         mCarriageSlide = new GZSolenoid(kElevator.SLIDES, this, "Carriage slides");
         mCarriageSlide.set(false);
         mClaw = new GZSolenoid(kElevator.CLAW, this, "Carriage claw");
@@ -55,7 +58,6 @@ public class Elevator extends GZSubsystem {
 
         mCargoSensor = new GZAnalogInput(kElevator.CARGO_SENSOR_CHANNEL, kElevator.CARGO_SENSOR_LOW_VOLT,
                 kElevator.CARGO_SENSOR_HIGH_VOLT);
-        
 
         talonInit();
 
@@ -78,11 +80,9 @@ public class Elevator extends GZSubsystem {
         configPID(kElevator.PID);
         configPID(kElevator.PID2);
         selectProfileSlot(ElevatorPIDConfig.EMPTY);
-        configAccelInchesPerSec(6 * 12 * .5); //3 fps 
-        configCruiseInchesPerSec(6 * 12);  //6 fps
+        configAccelInchesPerSec(6 * 12 * .5); // 3 fps
+        configCruiseInchesPerSec(6 * 12); // 6 fps
     }
-
- 
 
     private void selectProfileSlot(ElevatorPIDConfig e) {
         selectProfileSlot(e.slot);
@@ -179,30 +179,39 @@ public class Elevator extends GZSubsystem {
         this.addLoggingValuesTalons();
     }
 
+    protected void setHeight(Heights height) {
+        setHeight(height, false);
+    }
+
+    protected void setHeight(Heights height, boolean manual) {
+        setHeight(height.inches, manual);
+    }
+
     protected void goHome()
     {
-        setHeight(Heights.Home);
+        goHome(false);
     }
 
-    protected void setHeight(Heights height)
+    protected void goHome(boolean manual)
     {
-        setHeight(height.inches);
-    }
+        setHeight(Heights.Home, manual);
+    } 
 
-    protected void setHeight(double heightInInches) {
-        setWantedState(ElevatorState.MOTION_MAGIC);
-        mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * heightInInches;
+    protected void setHeight(double heightInInches, boolean manual) {
+        if ((mElevatorManual && manual) || !mElevatorManual) {
+            setWantedState(ElevatorState.MOTION_MAGIC);
+            mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * (heightInInches + kElevator.HOME_INCHES);
+        }
     }
 
     protected void jogHeight(double jogHeightInches) {
-        setHeight(getHeightInches() + jogHeightInches);
+        setHeight(getHeightInches() + jogHeightInches, true);
     }
 
-    protected void setRotations(double rotations)
-    {
-        setWantedState(ElevatorState.MOTION_MAGIC);
-        mIO.desired_output = 4096 * rotations;
-    }
+    // protected void setRotations(double rotations) {
+    // setWantedState(ElevatorState.MOTION_MAGIC);
+    // mIO.desired_output = 4096 * rotations;
+    // }
 
     private void configAccelInchesPerSec(double inchesPerSecond) {
         configAccel(inchesPerSecondToNativeUnits(inchesPerSecond));
@@ -235,11 +244,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public boolean isCargoSensorTripped() {
-        return this.mCargoSensor.isWithinRange();
-    }
-
-    public boolean isHome() {
-        return getHeightInches() < 3;
+        return mIO.mCargoSensorLoopCounter > kElevator.CARGO_SENSOR_LOOPS_FOR_VALID;
     }
 
     /**
@@ -266,49 +271,87 @@ public class Elevator extends GZSubsystem {
         out();
     }
 
-
     // MANIPULATOR
-    protected void setClaw(boolean clamp)
-    {
-        mClaw.set(clamp);
+    public boolean nearTarget() {
+        return nearTarget(kElevator.TARGET_TOLERANCE);
     }
 
-    protected void setSlides(boolean extended)
-    {
-        mCarriageSlide.set(extended);
+    public boolean nearTarget(double with_Inches_Tolerance) {
+        double tar = mElevator1.getClosedLoopTarget();
+        tar /= kElevator.TICKS_PER_INCH;
+
+        return GZUtil.epsilonEquals(getHeightInches(), tar, with_Inches_Tolerance);
     }
 
-    public boolean isClawClamped()
-    {
-        return mClaw.getSolenoidState() == SolenoidState.EXTENDED; 
+    protected void setClawManual(boolean manual) {
+        this.mClawManual = manual;
     }
 
-    public boolean isClawOpen()
-    {
+    protected void setElevatorManual(boolean manual) {
+        this.mElevatorManual = manual;
+    }
+
+    protected void setSlidesManual(boolean manual) {
+        this.mSlidesManual = manual;
+    }
+
+    protected void openClaw() {
+        openClaw(false);
+    }
+
+    protected void openClaw(boolean manual) {
+        if ((mClawManual && manual) || !mClawManual)
+            mClaw.set(false);
+    }
+
+    protected void closeClaw() {
+        closeClaw(false);
+    }
+
+    protected void closeClaw(boolean manual) {
+        if ((mClawManual && manual) || !mClawManual)
+            mClaw.set(true);
+    }
+
+    protected void extendSlides() {
+        extendSlides(false);
+    }
+
+    protected void extendSlides(boolean manual) {
+        if ((mSlidesManual && manual) || !mSlidesManual)
+            mCarriageSlide.set(true);
+    }
+
+    protected void retractSlides() {
+        retractSlides(false);
+    }
+
+    protected void retractSlides(boolean manual) {
+        if ((mSlidesManual && manual) || !mSlidesManual)
+            mCarriageSlide.set(false);
+    }
+
+    public boolean isClawClosed() {
         return mClaw.getSolenoidState() == SolenoidState.RETRACTED;
     }
 
-    public SolenoidState getClawState()
-    {
-        return mClaw.getSolenoidState();
+    public boolean isClawOpen() {
+        return mClaw.getSolenoidState() == SolenoidState.EXTENDED;
     }
 
-    public boolean isSlidesExtended()
-    {
+    public boolean areSlidesOut() {
         return mCarriageSlide.getSolenoidState() == SolenoidState.EXTENDED;
     }
 
-    public boolean isSlidesRetracted()
-    {
+    public boolean areSlidesIn() {
         return mCarriageSlide.getSolenoidState() == SolenoidState.RETRACTED;
     }
 
-    public SolenoidState getSlidesState()
-    {
+    public SolenoidState getSlidesState() {
         return mCarriageSlide.getSolenoidState();
     }
 
-    //GZ SUBSYSTEM STUFF
+    // GZ SUBSYSTEM STUFF
     private void handleStates() {
         boolean neutral = false;
 
@@ -365,6 +408,11 @@ public class Elevator extends GZSubsystem {
     private void in() {
         mIO.encoders_valid = mElevator1.isEncoderValid();
 
+        if (mCargoSensor.isWithinRange())
+            mIO.mCargoSensorLoopCounter++;
+        else
+            mIO.mCargoSensorLoopCounter = 0;
+
         if (mIO.encoders_valid) {
             mIO.ticks_position = (double) mElevator1.getSelectedSensorPosition();
             mIO.ticks_velocity = (double) mElevator1.getSelectedSensorVelocity();
@@ -386,7 +434,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public class IO {
-        public Object elevator_total_rotations;
+        public Double elevator_total_rotations = 0.0;
         // In
         public Double ticks_velocity = Double.NaN;
         public Double ticks_position = Double.NaN;
@@ -399,6 +447,8 @@ public class Elevator extends GZSubsystem {
         // out
         private double output = 0;
         public Double desired_output = 0.0;
+
+        private int mCargoSensorLoopCounter = 0;
     }
 
     private void out() {

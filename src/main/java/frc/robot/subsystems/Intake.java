@@ -5,6 +5,7 @@ import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
+import frc.robot.util.SuperstructureComponent;
 import frc.robot.util.drivers.motorcontrollers.dumbcontrollers.GZSpark;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
@@ -16,6 +17,15 @@ public class Intake extends GZSubsystem {
 
     private GZSpark mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeSol;
+
+    private SuperstructureComponent mIntake = new SuperstructureComponent() {
+        @Override
+        public void set(double value) {
+            mIntakeSol.set(value == 0);
+        }
+    };
+
+    private boolean mIsManual = false;
 
     public IO mIO = new IO();
 
@@ -34,23 +44,33 @@ public class Intake extends GZSubsystem {
         return mInstance;
     }
 
-    // public void grabCargo() {
-    //     raise(false);
-    //     runIntake(-.125, -.125);
-    // }
-
-    public void stow() {
-        stop();
-        raise();
+    protected void stow() {
+        stow(false);
     }
 
-    public void lower()
-    {
-        mIntakeSol.set(true);
+    protected void stow(boolean manual) {
+        if (!mIsManual || (manual && mIsManual)) {
+            stop();
+            raise(manual);
+        }
     }
 
-    public void raise() {
-        mIntakeSol.set(false);
+    protected void lower() {
+        lower(false);
+    }
+
+    protected void lower(boolean manual) {
+        if (!mIsManual || (manual && mIsManual))
+            mIntakeSol.set(true);
+    }
+
+    protected void raise() {
+        raise(false);
+    }
+
+    protected void raise(boolean manual) {
+        if (!mIsManual || (manual && mIsManual))
+            mIntakeSol.set(false);
     }
 
     public enum IntakeState {
@@ -80,14 +100,24 @@ public class Intake extends GZSubsystem {
         return mIntakeSol.getSolenoidState();
     }
 
-    public void runIntake(double left, double right) {
-        setWantedState(IntakeState.MANUAL);
-        mIO.left_desired_output = left;
-        mIO.right_desired_output = right;
+    protected void setManual(boolean manual) {
+        this.mIsManual = manual;
     }
 
-    public void runIntake(double speed) {
-        runIntake(speed, speed);
+    protected void runIntake(double left, double right, boolean manual) {
+        if (!mIsManual || (manual && mIsManual)) {
+            setWantedState(IntakeState.MANUAL);
+            mIO.left_desired_output = left;
+            mIO.right_desired_output = right;
+        }
+    }
+
+    protected void runIntake(double speed) {
+        runIntake(speed, false);
+    }
+
+    protected void runIntake(double speed, boolean manual) {
+        runIntake(speed, speed, manual);
     }
 
     @Override

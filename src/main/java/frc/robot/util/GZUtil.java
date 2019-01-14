@@ -109,18 +109,18 @@ public class GZUtil {
 		return false;
 	}
 
-	public static boolean epsilonEquals(double value, double epislonPoint, double epsilon) {
-		return (value - epsilon <= epislonPoint) && (value + epsilon >= epislonPoint);
+	public static boolean epsilonEquals(double value, double point, double areaAroundPoint) {
+		return (value - areaAroundPoint <= point) && (value + areaAroundPoint >= point);
 	}
 
-	public static boolean allCloseTo(final ArrayList<Double> list, double value, double epsilon) {
+	public static boolean allCloseTo(final ArrayList<Double> list, double point, double areaAroundPoint) {
 		boolean result = true;
 		for (Double value_in : list) {
-			result &= epsilonEquals(value_in, value, epsilon);
+			result &= epsilonEquals(value_in, point, areaAroundPoint);
 		}
 		return result;
 	}
-
+	
 	public static double applyDeadband(double value, double deadband) {
 		if (Math.abs(value) > deadband) {
 			if (value > 0.0) {

@@ -22,7 +22,7 @@ public class GZFlagMultiple {
         boolean prevFlagsTripped = true;
         // Remember, here we are using i as array index but flagToTrip starts at 1
         for (int i = 0; i < flagToTrip - 1; i++)
-            prevFlagsTripped &= mFlags.get(i).isFlagTripped();
+            prevFlagsTripped &= mFlags.get(i).get();
 
         if (prevFlagsTripped || isFirstFlag)
             mFlags.get(flagToTrip - 1).tripFlag();
@@ -32,7 +32,7 @@ public class GZFlagMultiple {
         if (isFlagInvalid(flag))
             return false;
 
-        return mFlags.get(flag - 1).isFlagTripped();
+        return mFlags.get(flag - 1).get();
     }
 
     private boolean isFlagInvalid(int flag) {
@@ -48,7 +48,7 @@ public class GZFlagMultiple {
         boolean allFlagsTripped = true;
 
         for (GZFlag f : mFlags)
-            allFlagsTripped &= f.isFlagTripped();
+            allFlagsTripped &= f.get();
 
         return allFlagsTripped;
     }
