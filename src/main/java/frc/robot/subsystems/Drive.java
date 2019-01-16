@@ -47,8 +47,11 @@ import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
+	private GZSolenoid mShifter;
 
 	// Force switch state to neutral on start up
 	private DriveState mState = DriveState.OPEN_LOOP;
@@ -97,6 +100,9 @@ public class Drive extends GZSubsystem {
 		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
 
 		mNavX = new GZAHRS(SPI.Port.kMXP);
+
+		mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "Shifter");
+		
 
 		brake(false);
 
@@ -271,7 +277,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public boolean hasAir() {
-		return false;
+		return true;
 	}
 
 	public void addPDPTestingMotors() {
@@ -446,6 +452,7 @@ public class Drive extends GZSubsystem {
 		neutral |= this.isSafetyDisabled() && !gzOI.isFMS();
 		neutral |= mWantedState == DriveState.NEUTRAL;
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
+		neutral |= getShifterState() == SolenoidState.TRANSITION;
 
 		if (neutral) {
 
@@ -718,6 +725,18 @@ public class Drive extends GZSubsystem {
 		SmartDashboard.putNumber("R1 Vel", mIO.right_encoder_vel);
 
 		SmartDashboard.putNumber("PercentageCompleted", getPercentageComplete());
+	}
+
+	public void shiftClimber() {
+		mShifter.set(true);
+	}
+
+	public void shiftDrive() {
+		mShifter.set(false);
+	}
+
+	private SolenoidState getShifterState(){
+		return mShifter.getSolenoidState();
 	}
 
 	// called in OPEN_LOOP_DRIVER state

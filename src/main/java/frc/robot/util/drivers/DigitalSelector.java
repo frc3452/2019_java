@@ -43,6 +43,9 @@ public class DigitalSelector {
 
     public static int get(DigitalSelector a, DigitalSelector b)
     {
+        if (a == null || b == null)
+            return -1;
+
         int ret;
         
         int aVal = a.get();

@@ -47,9 +47,11 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Actions mAction = Actions.IDLE;
+    private Actions mQueuedAction = Actions.IDLE;
+    private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_HEIGHT;
         // MOVE CARGO ACROSS FLOOR
     }
 
@@ -122,9 +124,43 @@ public class Superstructure extends GZSubsystem {
         runAction(Actions.IDLE);
     }
 
-    public void runAction(Actions action) {
+    public void queueHeight(Heights h)
+    {
+        mQueuedHeight = h;
+        queueAction(Actions.GO_TO_HEIGHT);
+    }
+
+    private void queueAction(Actions action)
+    {
+        mQueuedAction = action;
+    }
+
+    public void runQueuedAction()
+    {
+        runAction(mQueuedAction);
+        mQueuedAction = Actions.IDLE;
+    }
+
+    public void runAction(Actions action)
+    {
+        runAction(action, false);
+    }
+
+    public void runAction(Actions action, boolean queue) {
+        if (queue){
+            queueAction(action);
+            return;
+        }
+
         mAction = action;
         switch (action) {
+        case OFF:
+            stopElevatorMovement(false);
+        break;  
+
+        case GO_TO_HEIGHT:
+            setHeight(mQueuedHeight, false);
+        break;
         case INTAKE_CARGO:
             lowerIntake(false);
             setHeight(Heights.Home, false);
@@ -181,6 +217,16 @@ public class Superstructure extends GZSubsystem {
         retractSlides(false);
     }
 
+    private void stopElevatorMovement(boolean manual)
+    {
+        if (manual)
+        {
+            elev.stopMovement();
+        } else if (!mManual.mElevator)
+            elev.stopMovement();
+
+    }
+
     public void setHeight(Heights h, boolean manual) {
         if (manual) {
             elev.setHeight(h);
@@ -212,7 +258,6 @@ public class Superstructure extends GZSubsystem {
             mManual.mSlides = true;
         } else if (!mManual.mSlides)
             elev.extendSlides();
-
     }
 
     public void retractSlides(boolean manual) {
