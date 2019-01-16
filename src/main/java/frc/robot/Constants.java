@@ -30,7 +30,7 @@ public class Constants {
 
 		public static final int CARGO_SENSOR_CHANNEL = 0;
 		public static final double CARGO_SENSOR_LOW_VOLT = 1.2; // TODO TUNE
-		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; //TODO TUNE
+		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; // TODO TUNE
 
 		public static final double OPEN_RAMP_TIME = 0;
 
@@ -41,18 +41,20 @@ public class Constants {
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 30; // TODO TUNE
 
-		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); //TODO TUNE
+		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static enum Heights {
-			Home(HOME_INCHES), Floor_HP(17), Feeder_HP(19);
+			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46), Cargo_1(27.5),
+			Cargo_2(55.5), Cargo_3(83.5);
 
 			public final double inches;
+
 			private Heights(double inches) {
 				this.inches = inches;
 			}
-			private Heights(Heights h)
-			{
+
+			private Heights(Heights h) {
 				this(h.inches);
 			}
 		}
