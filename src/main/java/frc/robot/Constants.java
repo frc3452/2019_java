@@ -172,7 +172,7 @@ public class Constants {
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 0, 0);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(4, 1.5, 1);
 	}
 
 	public static class kPoofs {

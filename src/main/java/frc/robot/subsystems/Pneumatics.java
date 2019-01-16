@@ -29,7 +29,7 @@ public class Pneumatics extends GZSubsystem {
     }
 
     public void raiseCrawler(){
-        mClimberCrawler.set(false);;
+        mClimberCrawler.set(false);
     }
 
     @Override

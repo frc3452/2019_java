@@ -23,6 +23,6 @@ public class GZAHRS extends AHRS {
 	@Override
 	public String toString() {
 		return "x disp: " + df.format(this.getDisplacementX()) + "\ty disp: "
-				+ df.format(this.getDisplacementY() + "\theading: " + this.getFusedHeading());
+				+ df.format(this.getDisplacementY()) + "\theading: " + df.format(this.getFusedHeading());
 	}
 }
