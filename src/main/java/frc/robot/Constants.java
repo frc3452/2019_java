@@ -115,6 +115,8 @@ public class Constants {
 		public final static double ELEV_TURN_SCALAR = 1.67; // 1.67
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
+
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 0, 0);
 	}
 
 	public static class kPDP {
@@ -166,6 +168,11 @@ public class Constants {
 		public static final int INTAKE_RIGHT = 0;
 		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(0, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
+	}
+
+	public static class kPneumatics {
+		public static final int COMPRESSOR_MODULE = 0;
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 0, 0);
 	}
 
 	public static class kPoofs {

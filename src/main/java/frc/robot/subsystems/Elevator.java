@@ -270,9 +270,8 @@ public class Elevator extends GZSubsystem {
         return GZUtil.epsilonEquals(getHeightInches(), tar, with_Inches_Tolerance);
     }
 
-
     protected void openClaw() {
-            mClaw.set(false);
+        mClaw.set(false);
     }
     protected void closeClaw() {
         mClaw.set(true);
