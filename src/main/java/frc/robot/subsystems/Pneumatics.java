@@ -48,6 +48,11 @@ public class Pneumatics extends GZSubsystem {
 
     }
 
+    public int getDropClimberTotalCounts()
+     {
+         return mClimberCrawler.getChangeCounts();
+     }
+
     @Override
     public void stop() {
 

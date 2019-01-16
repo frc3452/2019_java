@@ -64,11 +64,7 @@ public class ExampleGZSubsystem extends GZSubsystem {
 
 		// This will put a formula for Google Sheets or Excel that will average the
 		// column to the left
-		new LogItem("AVG-AMP") {
-			public String val() {
-				return LogItem.Average_Left_Formula;
-			}
-		};
+		GZLog.addAverageLeft("EXMPL-AMP-AVG");
 
 		new LogItem("EMXPL-VLT") {
 			public String val() {

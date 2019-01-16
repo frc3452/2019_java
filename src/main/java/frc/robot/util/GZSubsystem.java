@@ -58,12 +58,8 @@ public abstract class GZSubsystem extends Subsystem {
 				}
 			};
 
-			// Amperage average
-			new LogItem(name + "AMP-AVG", true) {
-				public String val() {
-					return LogItem.Average_Left_Formula;
-				}
-			};
+
+			GZLog.addAverageLeft(name + "AMP-AVG");
 
 			// Temperature sensors
 			if (s.hasTemperatureSensor()) {
@@ -74,12 +70,7 @@ public abstract class GZSubsystem extends Subsystem {
 					}
 				};
 
-				new LogItem(name + "TEMP-AVG", true) {
-
-					public String val() {
-						return LogItem.Average_Left_Formula;
-					}
-				};
+				GZLog.addAverageLeft(name + "TEMP-AVG");
 			}
 		}
 
@@ -106,12 +97,8 @@ public abstract class GZSubsystem extends Subsystem {
 					return "" + s.getAmperage();
 				}
 			};
-			new LogItem(name + "AMP-AVG", true) {
-				@Override
-				public String val() {
-					return LogItem.Average_Left_Formula;
-				}
-			};
+
+			GZLog.addAverageLeft(name + "AMP-AVG");
 		}
 
 		for (GZSpeedController s : mDumbControllers) {

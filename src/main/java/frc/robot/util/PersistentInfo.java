@@ -83,6 +83,11 @@ public abstract class PersistentInfo {
         addDifference(newValue, false);
     }
 
+    public void addDifference(int newValue)
+    {
+        addDifference((double) newValue);
+    }
+
 
     public Double getValue() {
         return this.mValue;

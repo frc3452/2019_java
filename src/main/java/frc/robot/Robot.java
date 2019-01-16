@@ -4,7 +4,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
@@ -18,8 +21,12 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// health is generated in, etc
+	// public static final GZSubsystemManager allSubsystems = new
+	// GZSubsystemManager(Drive.getInstance(),
+	// RobotStateEstimator.getInstance(), GZOI.getInstance());
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), GZOI.getInstance());
+			RobotStateEstimator.getInstance(), GZOI.getInstance(), Elevator.getInstance(), Intake.getInstance(),
+			Pneumatics.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -45,12 +52,10 @@ public class Robot extends TimedRobot {
 		allSubsystems.startLooping();
 
 		files.writeHardwareReport();
-
 	}
 
 	@Override
 	public void robotPeriodic() {
-		// drive.printNavX();
 	}
 
 	@Override

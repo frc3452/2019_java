@@ -2,9 +2,10 @@ package frc.robot.util.drivers.buttonboard;
 
 import java.util.ArrayList;
 
-import frc.robot.util.drivers.GZJoystick;
+import edu.wpi.first.wpilibj.Joystick;
 
-public class OperatorController extends GZJoystick {
+public class OperatorController extends Joystick {
+    private boolean isButtonBoard = true;
 
     private ArrayList<GZButton> allButtons = new ArrayList<GZButton>();
 
@@ -40,9 +41,26 @@ public class OperatorController extends GZJoystick {
         this(1);
     }
 
-    public void assignButtons(boolean isButtonBoard) {
+    public void setButtonBoard(boolean isButtonBoard) {
+        this.isButtonBoard = isButtonBoard;
+
         for (GZButton b : allButtons)
             b.setSupplier1(isButtonBoard);
+    }
+
+    public void setButtonBoard()
+    {   
+        setButtonBoard(isButtonBoard);
+    }
+
+    public boolean isButtonBoard()
+    {
+        return isButtonBoard;
+    }
+
+    public void setXboxController()
+    {
+        setButtonBoard(isButtonBoard);
     }
 
     public OperatorController(int port) {

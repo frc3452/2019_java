@@ -11,11 +11,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
+import frc.robot.GZOI;
+import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
@@ -45,6 +45,8 @@ public class GZFiles {
 	private boolean hasPrintedProfileRecordFailed = false;
 
 	private boolean isLogging = false;
+
+	private GZOI gzoi = GZOI.getInstance();
 
 	private static GZFiles mInstance = null;
 
@@ -365,12 +367,12 @@ public class GZFiles {
 		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
 			if (s.hasAir() || s.hasMotors()) {
 
-				String subsystem = HTML.header(s.toString(), 2);
+				String subsystem = HTML.header(s.toString(), 1);
 				if (s.hasMotors()) {
 
 					// if has tallons
 					if (s.mTalons.size() != 0) {
-						subsystem += HTML.paragraph("Talons");
+						subsystem += HTML.header("Talons", 2);
 
 						String talonTable = "";
 						{
@@ -386,22 +388,22 @@ public class GZFiles {
 							String tableBody = "";
 							for (GZSRX talon : s.mTalons) {
 								String talonRow = "";
-						
+
 								final String remoteSensor = "Remote sensor encoder found";
 								String encoderCell = "";
 								final String encoderCellColor;
-								if (talon.isEncoderValid() && talon.usingRemoteSensor()){
+								if (talon.isEncoderValid() && talon.usingRemoteSensor()) {
 									encoderCell = remoteSensor;
 									encoderCellColor = "yellow";
-								}
-								else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
+								} else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
 									encoderCellColor = "green";
 								else
 									encoderCellColor = "white";
 
 								talonRow += HTML.tableRow(HTML.tableCell(talon.getGZName())
 										+ HTML.tableCell(String.valueOf(talon.getDeviceID()))
-										+ HTML.tableCell(encoderCell, encoderCellColor, !encoderCell.equals(remoteSensor))
+										+ HTML.tableCell(encoderCell, encoderCellColor,
+												!encoderCell.equals(remoteSensor))
 										+ HTML.tableCell("" + talon.getPDPChannel())
 										+ HTML.tableCell("" + talon.getCalculatedBreaker())
 										+ HTML.tableCell("" + talon.getBreaker())
@@ -423,7 +425,7 @@ public class GZFiles {
 					}
 
 					if (s.mDumbControllers.size() != 0) {
-						subsystem += HTML.paragraph("PWM Controllers");
+						subsystem += HTML.header("PWM Controllers", 2);
 
 						String pwmTable = "";
 						{
@@ -456,11 +458,11 @@ public class GZFiles {
 				} // if has motors
 
 				if (s.hasAir()) {
-					subsystem += HTML.paragraph("Pneumatics");
+					subsystem += HTML.header("Pneumatics", 2);
 
 					// If has single solenoids
 					if (s.mSingleSolenoids.size() != 0) {
-						subsystem += HTML.paragraph("Single solenoids");
+						subsystem += HTML.header("Single solenoids", 3);
 						String singlesTable = "";
 						{
 							String singlesHeader = "";
@@ -470,8 +472,8 @@ public class GZFiles {
 
 						for (GZSolenoid sol : s.mSingleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML.tableRow(
-									HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module, "" + sol.getConstants().channel));
+							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(),
+									"" + sol.getConstants().module, "" + sol.getConstants().channel));
 							singlesTable += solenoidRow;
 						}
 						singlesTable = HTML.table(singlesTable);
@@ -491,8 +493,9 @@ public class GZFiles {
 
 						for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
-									"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
+							solenoidRow += HTML
+									.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
+											"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
 							doublesTable += solenoidRow;
 						}
 
@@ -586,7 +589,8 @@ public class GZFiles {
 
 	private String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (DriverStation.getInstance().isFMSAttached() ? "FIELD_" : "") + GZUtil.dateTime(true);
+			String retval = (gzoi.isFMS() ? "FIELD_" + (gzoi.isAuto() ? "AUTO_" : "TELE_") : "")
+					+ GZUtil.dateTime(true);
 			prevLog = retval;
 			return retval;
 		} else {
@@ -683,8 +687,8 @@ public class GZFiles {
 				+ "transition: max-height 0.2s ease-out;" + "background-color: #f1f1f1;" + "}" +
 
 				"table {" + "border: 1px solid black;" + "border-collapse: collapse;" + "width: \"device-width\";" + "}"
-				+ "body {-webkit-print-color-adjust:exact;} th, td {" + "border: 5px solid black;" + "padding: 5px;" + "text-align: center;" + "}"
-				+ "</style>" + "</head>" + "<body>" + "$BODY\r\n" + "\r\n" + "<script>"
+				+ "body {-webkit-print-color-adjust:exact;} th, td {" + "border: 5px solid black;" + "padding: 5px;"
+				+ "text-align: center;" + "}" + "</style>" + "</head>" + "<body>" + "$BODY\r\n" + "\r\n" + "<script>"
 				+ "var coll = document.getElementsByClassName(\"collapsible\");" + "var i;" +
 
 				"for (i = 0; i < coll.length; i++) {" + "coll[i].addEventListener(\"click\", function() {"

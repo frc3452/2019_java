@@ -23,7 +23,7 @@ public class Constants {
 		public static final boolean E_1_INVERT = false;
 
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(1, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
@@ -118,7 +118,7 @@ public class Constants {
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
 
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 0, 0);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(2, .5, .5);
 	}
 
 	public static class kPDP {
@@ -153,7 +153,7 @@ public class Constants {
 	public static class kClimber {
 		public static final int FRONT_MOTOR_ID = 0;
 		public static final int BACK_MOTOR_ID = 0;
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(3, 1.5, 1.5);
 
 		public static final boolean CLIMBER_FRONT_INVERT = false;
 		public static final boolean CLIMBER_BACK_INVERT = true;
@@ -166,15 +166,15 @@ public class Constants {
 	}
 
 	public static class kIntake {
-		public static final int INTAKE_LEFT = 0;
-		public static final int INTAKE_RIGHT = 0;
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(0, 1.5, 1.5);
+		public static final int INTAKE_LEFT = 1;
+		public static final int INTAKE_RIGHT = 2;
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(4, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(4, 1.5, 1);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(5, 1.5, 1);
 	}
 
 	public static class kPoofs {

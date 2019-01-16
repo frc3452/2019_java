@@ -94,6 +94,17 @@ public class GZLog {
 		return retval;
 	}
 
+
+	public static void addAverageLeft(String header)
+	{
+		new LogItem(header, true){
+				@Override
+				public String val() {
+					return LogItem.Average_Left_Formula;
+				}
+		};
+	}
+
 	public static abstract class LogItem {
 		private String mName = "";
 		public String mValue = Constants.kFiles.DEFAULT_LOG_VALUE;
