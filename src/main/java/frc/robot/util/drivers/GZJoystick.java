@@ -1,5 +1,6 @@
 package frc.robot.util.drivers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +43,40 @@ public class GZJoystick extends Joystick {
 
 		// array to list
 		return getButtons(temp.toArray(new Buttons[temp.size()]));
+	}
+
+	public void method(List<Integer> list)
+	{
+
+	}
+
+
+	public void go() {
+		ArrayList<Integer> arrayList = new ArrayList<Integer>();
+
+		arrayList.add(3);
+		if (arrayList.contains(3))
+		{
+
+		}
+
+		arrayList.clear();
+
+
+
+
+
+
+		method(Arrays.asList(1,2,3));
+
+		boolean[] boolasdfj = { false, true, false };
+
+		passAnArray(true, "FDS", boolasdfj, 1, 2, 3, 4, 5, 6);
+	}
+
+	public void passAnArray(boolean a, String gf, boolean[] boolArr, int... array) {
+		for (int i = 0; i < array.length; i++)
+			System.out.println(array[i]);
 	}
 
 	public boolean getButtons(Buttons... buttons) {

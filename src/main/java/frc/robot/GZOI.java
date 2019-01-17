@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kFiles;
 import frc.robot.Constants.kOI;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Drive.DriveState;
@@ -32,6 +33,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
+	private Superstructure supe = Superstructure.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -67,14 +69,23 @@ public class GZOI extends GZSubsystem {
 			mSafetyDisable = !mSafetyDisable;
 		Robot.allSubsystems.disable(mSafetyDisable);
 
-		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK))
+		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
 			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.RIGHT_CLICK))
+		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
 			op.setXboxController();
 
 		if (isTele()) {
 
-			//Velocity testing
+			final boolean queue = op.queueAction.get();
+
+			if (op.hatchPannel1.updated())
+					supe.runHeight(Heights.HP_1, queue);
+			else if (op.hatchPanel2.updated())
+				supe.runHeight(Heights.HP_2, queue);
+
+
+				
+			// Velocity testing
 			if (driverJoy.isBPressed())
 				bToggled = !bToggled;
 
@@ -135,7 +146,6 @@ public class GZOI extends GZSubsystem {
 			}
 		};
 		GZLog.addAverageLeft("PDP-AMP-AVG");
-
 
 		new LogItem("PDP-VOLT") {
 
