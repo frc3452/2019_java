@@ -91,16 +91,6 @@ public class Intake extends GZSubsystem {
     }
 
     @Override
-    public boolean hasMotors() {
-        return true;
-    }
-
-    @Override
-    public boolean hasAir() {
-        return true;
-    }
-
-    @Override
     public void addLoggingValues() {
     }
 

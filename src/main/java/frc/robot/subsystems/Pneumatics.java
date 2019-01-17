@@ -64,18 +64,7 @@ public class Pneumatics extends GZSubsystem {
     }
 
     @Override
-    public boolean hasMotors() {
-        return false;
-    }
-
-    @Override
-    public boolean hasAir() {
-        return true;
-    }
-
-    @Override
     public void addLoggingValues() {
-
     }
 
     @Override

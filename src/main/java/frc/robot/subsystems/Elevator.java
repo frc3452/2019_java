@@ -150,16 +150,6 @@ public class Elevator extends GZSubsystem {
     }
 
     @Override
-    public boolean hasMotors() {
-        return true;
-    }
-
-    @Override
-    public boolean hasAir() {
-        return true;
-    }
-
-    @Override
     public void addLoggingValues() {
         new LogItem(getSmallString() + "-HEIGHT") {
             public String val() {

@@ -271,14 +271,6 @@ public class Drive extends GZSubsystem {
 
 	// ~POOFS
 
-	public boolean hasMotors() {
-		return true;
-	}
-
-	public boolean hasAir() {
-		return true;
-	}
-
 	public void addPDPTestingMotors() {
 		// PDPChannelChecker.CheckerConfig config = new
 		// PDPChannelChecker.CheckerConfig(this, 1.2, 1);
