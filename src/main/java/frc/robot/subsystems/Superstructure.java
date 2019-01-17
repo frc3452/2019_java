@@ -315,14 +315,6 @@ public class Superstructure extends GZSubsystem {
         return "SPR-STRCT";
     }
 
-    public boolean hasMotors() {
-        return false;
-    }
-
-    public boolean hasAir() {
-        return false;
-    }
-
     public void addLoggingValues() {
     }
 

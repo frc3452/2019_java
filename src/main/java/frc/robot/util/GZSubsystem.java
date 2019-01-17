@@ -18,26 +18,25 @@ public abstract class GZSubsystem extends Subsystem {
 	// Set to neutral
 	public abstract void stop();
 
-	//Talons
+	// Talons
 	public ArrayList<GZSRX> mTalons = new ArrayList<GZSRX>();
 
-	//Talons, VictorSPXs, etc.
+	// Talons, VictorSPXs, etc.
 	public ArrayList<GZSmartSpeedController> mSmartControllers = new ArrayList<GZSmartSpeedController>();
 
-	//PWM, Sparks, Etc.
+	// PWM, Sparks, Etc.
 	public ArrayList<GZSpeedController> mDumbControllers = new ArrayList<GZSpeedController>();
 
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
 
 	private boolean areSolenoidsLocked = false;
-	protected void lockSolenoids(boolean lock)
-	{
+
+	protected void lockSolenoids(boolean lock) {
 		this.areSolenoidsLocked = lock;
 	}
 
-	public boolean areSolenoidsLocked()
-	{
+	public boolean areSolenoidsLocked() {
 		return this.areSolenoidsLocked;
 	}
 
@@ -57,7 +56,6 @@ public abstract class GZSubsystem extends Subsystem {
 					return "" + s.getOutputCurrent();
 				}
 			};
-
 
 			GZLog.addAverageLeft(name + "AMP-AVG");
 
@@ -118,8 +116,13 @@ public abstract class GZSubsystem extends Subsystem {
 	}
 
 	// Motors testing
-	public abstract boolean hasMotors();
-	public abstract boolean hasAir();
+	public boolean hasMotors() {
+		return mSmartControllers.size() != 0 || mDumbControllers.size() != 0;
+	}
+
+	public boolean hasAir() {
+		return mSingleSolenoids.size() != 0 || mDoubleSolenoids.size() != 0;
+	}
 
 	private boolean mMotorTestingFails = false;
 

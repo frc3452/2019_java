@@ -161,16 +161,6 @@ public class Lights extends GZSubsystem {
 	public void off() {
 		hsv(0, 0, 0);
 	}
-
-	public boolean hasMotors()
-	{
-		return false;
-	}
-
-	public boolean hasAir()
-	{
-		return false;
-	}
 	public void addPDPTestingMotors(){}
 
 	public void addMotorsForTesting() {

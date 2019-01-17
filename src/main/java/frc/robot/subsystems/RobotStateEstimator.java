@@ -36,15 +36,6 @@ public class RobotStateEstimator extends GZSubsystem {
     }
 
     @Override
-    public boolean hasMotors() {
-        return false;
-    }
-    public boolean hasAir()
-    {
-        return false;
-    }
-
-    @Override
     public void addMotorsForTesting() {
     }
 
