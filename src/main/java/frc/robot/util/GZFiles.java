@@ -591,6 +591,7 @@ public class GZFiles {
 		if (returnCurrent) {
 			String retval = (gzoi.isFMS() ? "FIELD_" + (gzoi.isAuto() ? "AUTO_" : "TELE_") : "")
 					+ GZUtil.dateTime(true);
+
 			prevLog = retval;
 			return retval;
 		} else {

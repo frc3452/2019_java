@@ -21,7 +21,7 @@ public class GZButton {
         controller.addButton(this);
     }
 
-    public void setSupplier1(boolean supplier1) {
+    public void useSupplier1(boolean supplier1) {
         this.main = (supplier1 ? this.supplier1 : this.supplier2);
     }
 

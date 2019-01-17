@@ -51,7 +51,7 @@ public class Superstructure extends GZSubsystem {
     private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_HEIGHT;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_QUEUED_HEIGHT;
         // MOVE CARGO ACROSS FLOOR
     }
 
@@ -129,9 +129,18 @@ public class Superstructure extends GZSubsystem {
         stopElevatorMovement(false);
     }
 
-    public void queueHeight(Heights h) {
-        mQueuedHeight = h;
-        queueAction(Actions.GO_TO_HEIGHT);
+    public void runHeight(Heights h) {
+        runHeight(h, false);
+    }
+
+    public void runHeight(Heights h, boolean queue) {
+        if (queue) {
+            mQueuedHeight = h;
+            queueAction(Actions.GO_TO_QUEUED_HEIGHT);
+            System.out.println("Queued action: " + Actions.GO_TO_QUEUED_HEIGHT);
+            return;
+        }
+        setHeight(h, true);
     }
 
     private void queueAction(Actions action) {
@@ -161,8 +170,8 @@ public class Superstructure extends GZSubsystem {
             stopElevatorMovement(false);
             break;
 
-        case GO_TO_HEIGHT:
-            setHeight(mQueuedHeight, false);
+        case GO_TO_QUEUED_HEIGHT:
+            setHeight(mQueuedHeight, true);
             break;
         case INTAKE_CARGO:
             lowerIntake(false);
@@ -225,63 +234,62 @@ public class Superstructure extends GZSubsystem {
             elev.stopMovement();
         } else if (!mManual.mElevator)
             elev.stopMovement();
-
     }
 
-    public void setHeight(Heights h, boolean manual) {
+    private synchronized void setHeight(Heights h, boolean manual) {
         if (manual) {
-            elev.setHeight(h);
             mManual.mElevator = true;
+            elev.setHeight(h);
         } else if (!mManual.mElevator)
             elev.setHeight(h);
     }
 
-    public void openClaw(boolean manual) {
+    public synchronized void openClaw(boolean manual) {
         if (manual) {
-            elev.openClaw();
             mManual.mClaw = true;
+            elev.openClaw();
         } else if (!mManual.mClaw)
             elev.openClaw();
 
     }
 
-    public void closeClaw(boolean manual) {
+    public synchronized void closeClaw(boolean manual) {
         if (manual) {
-            elev.closeClaw();
             mManual.mClaw = true;
+            elev.closeClaw();
         } else if (!mManual.mClaw)
             elev.closeClaw();
     }
 
-    public void extendSlides(boolean manual) {
+    public synchronized void extendSlides(boolean manual) {
         if (manual) {
-            elev.extendSlides();
             mManual.mSlides = true;
+            elev.extendSlides();
         } else if (!mManual.mSlides)
             elev.extendSlides();
     }
 
-    public void retractSlides(boolean manual) {
+    public synchronized void retractSlides(boolean manual) {
         if (manual) {
-            elev.retractSlides();
             mManual.mSlides = true;
+            elev.retractSlides();
         } else if (!mManual.mSlides)
             elev.retractSlides();
 
     }
 
-    public void raiseIntake(boolean manual) {
+    public synchronized void raiseIntake(boolean manual) {
         if (manual) {
-            intake.raise();
             mManual.mIntakeDrop = true;
+            intake.raise();
         } else if (!mManual.mIntakeDrop)
             intake.raise();
     }
 
-    public void lowerIntake(boolean manual) {
+    public synchronized void lowerIntake(boolean manual) {
         if (manual) {
-            intake.lower();
             mManual.mIntakeDrop = true;
+            intake.lower();
         } else if (!mManual.mIntakeDrop)
             intake.lower();
     }

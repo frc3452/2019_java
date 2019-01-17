@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;
@@ -12,7 +14,6 @@ import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
-import frc.robot.util.drivers.buttonboard.OperatorController;
 import frc.robot.util.GZSubsystemManager;
 
 public class Robot extends TimedRobot {
