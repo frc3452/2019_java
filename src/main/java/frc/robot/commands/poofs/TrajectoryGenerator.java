@@ -36,7 +36,6 @@ public class TrajectoryGenerator {
         private static final double kFirstPathMaxVoltage = 9.0;
         private static final double kFirstPathMaxAccel = 130.0;
         private static final double kFirstPathMaxVel = 130.0;
-        // ~TODO TUNE
 
         private static final double kSimpleSwitchMaxAccel = 100.0;
         private static final double kSimpleSwitchMaxCentripetalAccel = 80.0;

@@ -392,6 +392,16 @@ public class Elevator extends GZSubsystem {
         return mIO.rev_limit_switch; // TODO TUNE
     }
 
+    public int getSlidesTotalCounts()
+    {
+        return mCarriageSlide.getChangeCounts();
+    }
+
+    public int getClawTotalCounts()
+    {
+        return mClaw.getChangeCounts();
+    }
+
     public class IO {
         public Double elevator_total_rotations = 0.0;
         // In

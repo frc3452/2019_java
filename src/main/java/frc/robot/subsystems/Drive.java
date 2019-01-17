@@ -9,6 +9,8 @@ import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
@@ -101,8 +103,8 @@ public class Drive extends GZSubsystem {
 
 		mNavX = new GZAHRS(SPI.Port.kMXP);
 
-		mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "Shifter");
-		
+		mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
+		mShifter.set(false);
 
 		brake(false);
 
@@ -115,14 +117,11 @@ public class Drive extends GZSubsystem {
 
 		enableFollower();
 
-		L1.setName("L1");
-		L2.setName("L2");
-		L3.setName("L3");
-		L4.setName("L4");
-		R1.setName("R1");
-		R2.setName("R2");
-		R3.setName("R3");
-		R4.setName("R4");
+		in();
+		if (getFrontBottomLimit() && getFrontTopLimit())
+			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO front limit switches tripped!");
+		if (getRearBottomLimit() && getRearTopLimit())
+			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO rear limit switches tripped!");
 
 		mNavX.reset();
 
@@ -409,13 +408,16 @@ public class Drive extends GZSubsystem {
 				return Drive.getInstance().mIO.rightEncoderValid.toString();
 			}
 		};
+
+		this.addLoggingValuesTalons();
 	}
 
 	public enum DriveState {
 		OPEN_LOOP(false, ControlMode.PercentOutput), OPEN_LOOP_DRIVER(false, ControlMode.PercentOutput),
 		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
 		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
-		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity);
+		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
+		CLIMB(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -458,6 +460,8 @@ public class Drive extends GZSubsystem {
 
 			switchToState(DriveState.NEUTRAL);
 
+		} else if (getShifterState() != SolenoidState.RETRACTED) {
+			switchToState(DriveState.CLIMB);
 		} else if (Auton.getInstance().isDemo()) {
 			if (!gzOI.isFMS()) {
 				switchToState(DriveState.DEMO);
@@ -533,6 +537,15 @@ public class Drive extends GZSubsystem {
 					}
 				};
 
+				new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not set up " + s.getSide() + " limit switch") {
+
+					@Override
+					public ErrorCode error() {
+						return s.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+								LimitSwitchNormal.NormallyClosed);
+					}
+				};
+
 				if (!s.isEncoderValid())
 					Health.getInstance().addAlert(this, AlertLevel.ERROR, s.getSide() + " encoder not found");
 
@@ -565,8 +578,22 @@ public class Drive extends GZSubsystem {
 			s.checkFirmware();
 	}
 
+	private void enableDriveLimits() {
+		if (mState == DriveState.CLIMB) {
+			L1.overrideLimitSwitchesEnable(true); //TODO TUNE
+		}
+	}
+
+	private void disableDriveLimits() {
+		if (mState != DriveState.CLIMB)
+			L1.overrideLimitSwitchesEnable(false);
+	}
+
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
+		case CLIMB:
+			enableDriveLimits();
+			break;
 		case PATH_FOLLOWING:
 			brake(true);
 			break;
@@ -599,6 +626,9 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
+		case CLIMB:
+			disableDriveLimits();
+			break;
 		case PATH_FOLLOWING:
 			mIO.left_feedforward = 0;
 			mIO.right_feedforward = 0;
@@ -653,6 +683,9 @@ public class Drive extends GZSubsystem {
 
 		public Double right_encoder_ticks = Double.NaN, right_encoder_vel = Double.NaN;
 
+		public boolean ls_left_rev = false, ls_left_fwd = false;
+		public boolean ls_right_rev = false, ls_right_fwd = false;
+
 		public Boolean leftEncoderValid = false;
 		public Boolean rightEncoderValid = false;
 		public Boolean encodersValid = false;
@@ -682,6 +715,28 @@ public class Drive extends GZSubsystem {
 
 	}
 
+	//TODO TUNE
+	private boolean getFrontTopLimit()
+	{
+		// return mIO.ls_left_fwd;
+		return false;
+	}
+
+	private boolean getFrontBottomLimit()
+	{
+		return false;
+	}
+
+	private boolean getRearTopLimit()
+	{
+		return false;
+	}
+
+	private boolean getRearBottomLimit()
+	{
+		return false;
+	}
+
 	private synchronized void in() {
 		// POOFS
 		mIO.gyro_heading = Rotation2d.fromDegrees(mNavX.getYaw()).rotateBy(mGyroOffset);
@@ -693,6 +748,12 @@ public class Drive extends GZSubsystem {
 		mIO.rightEncoderValid = R1.isEncoderValid();
 
 		mIO.encodersValid = mIO.leftEncoderValid && mIO.rightEncoderValid;
+
+		mIO.ls_left_fwd = L1.getSensorCollection().isFwdLimitSwitchClosed();
+		mIO.ls_left_rev = L1.getSensorCollection().isRevLimitSwitchClosed();
+
+		mIO.ls_right_fwd = R1.getSensorCollection().isFwdLimitSwitchClosed();
+		mIO.ls_right_rev = R1.getSensorCollection().isRevLimitSwitchClosed();
 
 		if (mIO.leftEncoderValid) {
 			mIO.left_encoder_ticks = (double) L1.getSelectedSensorPosition(0);
@@ -727,15 +788,16 @@ public class Drive extends GZSubsystem {
 		SmartDashboard.putNumber("PercentageCompleted", getPercentageComplete());
 	}
 
-	public void shiftClimber() {
-		mShifter.set(true);
+	public void shift() {
+		mShifter.set(!mShifter.get());
 	}
 
-	public void shiftDrive() {
-		mShifter.set(false);
+	public synchronized void runClimber(double front, double back) {
+		// TODO TUNE
+		tank(front, back);
 	}
 
-	private SolenoidState getShifterState(){
+	private SolenoidState getShifterState() {
 		return mShifter.getSolenoidState();
 	}
 
@@ -1135,6 +1197,10 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void zeroGyro() {
 		mNavX.reset();
+	}
+
+	public int getTotalShiftCounts() {
+		return mShifter.getChangeCounts();
 	}
 
 	public synchronized void toggleSlowSpeed() {

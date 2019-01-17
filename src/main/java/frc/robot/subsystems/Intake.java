@@ -197,6 +197,11 @@ public class Intake extends GZSubsystem {
         return mState.toString();
     }
 
+    public int getIntakeTotalFlips()
+    {
+        return mIntakeSol.getChangeCounts();
+    }
+
     @Override
     protected void initDefaultCommand() {
     }

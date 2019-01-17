@@ -6,11 +6,13 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kFiles;
 import frc.robot.Constants.kOI;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZFiles;
+import frc.robot.util.GZLog;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -19,10 +21,11 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.buttonboard.OperatorController;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0);
-	public static GZJoystick opJoy = new GZJoystick(1);
+	public static OperatorController op = new OperatorController(1);
 
 	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
 
@@ -30,6 +33,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
+	private Superstructure supe = Superstructure.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -42,11 +46,7 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		driverJoy = new GZJoystick(0);
-		opJoy = new GZJoystick(1);
 	}
-
-	boolean recording = false;
-	boolean prevRecording = recording;
 
 	boolean bToggled = false;
 
@@ -67,17 +67,27 @@ public class GZOI extends GZSubsystem {
 			mSafetyDisable = false;
 		else if (mUserButton.update(RobotController.getUserButton()))
 			mSafetyDisable = !mSafetyDisable;
-
 		Robot.allSubsystems.disable(mSafetyDisable);
 
-		// RECORDING
-		// recordingUpdates();
-
-		if (driverJoy.isBPressed())
-			bToggled = !bToggled;
+		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
+			op.setButtonBoard();
+		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
+			op.setXboxController();
 
 		if (isTele()) {
 
+			final boolean queue = op.queueAction.get();
+
+			if (op.hatchPannel1.updated())
+					supe.runHeight(Heights.HP_1, queue);
+			else if (op.hatchPanel2.updated())
+				supe.runHeight(Heights.HP_2, queue);
+
+
+				
+			// Velocity testing
+			if (driverJoy.isBPressed())
+				bToggled = !bToggled;
 
 			if (bToggled && kDrivetrain.TUNING) {
 				final double high = 1500;
@@ -89,27 +99,16 @@ public class GZOI extends GZSubsystem {
 				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			}
 
-
 			if (driverJoy.isAPressed())
 				drive.toggleSlowSpeed();
 		}
 
 		// CONTROLLER RUMBLE
-
 		if (GZUtil.between(getMatchTime(), 29.1, 30))
 			// ENDGAME
 			rumble(kOI.Rumble.ENDGAME);
 		else
 			rumble(0);
-
-		prevRecording = recording;
-	}
-
-	private void recordingUpdates() {
-		if (driverJoy.isLClickPressed())
-			recording = !recording;
-		if (recording != prevRecording)
-			GZFiles.getInstance().csvControl(kFiles.MP_NAME, kFiles.MP_FOLDER, kFiles.MP_USB, TASK.Record, recording);
 	}
 
 	public String getSmallString() {
@@ -138,13 +137,7 @@ public class GZOI extends GZSubsystem {
 				return String.valueOf(GZPDP.getInstance().getTemperature());
 			}
 		};
-
-		new LogItem("PDP-TEMP-AVG", true) {
-			@Override
-			public String val() {
-				return LogItem.Average_Left_Formula;
-			}
-		};
+		GZLog.addAverageLeft("PDP-TEMP-AVG");
 
 		new LogItem("PDP-AMP") {
 			@Override
@@ -152,13 +145,7 @@ public class GZOI extends GZSubsystem {
 				return String.valueOf(GZPDP.getInstance().getTotalCurrent());
 			}
 		};
-
-		new LogItem("PDP-AMP-AVG", true) {
-			@Override
-			public String val() {
-				return LogItem.Average_Left_Formula;
-			}
-		};
+		GZLog.addAverageLeft("PDP-AMP-AVG");
 
 		new LogItem("PDP-VOLT") {
 
@@ -167,13 +154,7 @@ public class GZOI extends GZSubsystem {
 				return String.valueOf(GZPDP.getInstance().getVoltage());
 			}
 		};
-
-		new LogItem("PDP-VOLT-AVG", true) {
-			@Override
-			public String val() {
-				return LogItem.Average_Left_Formula;
-			}
-		};
+		GZLog.addAverageLeft("PDP-VOLT-AVG");
 	}
 
 	public boolean hasMotors() {
@@ -207,8 +188,7 @@ public class GZOI extends GZSubsystem {
 		return DriverStation.getInstance().isFMSAttached();
 	}
 
-	public Alliance getAlliance()
-	{
+	public Alliance getAlliance() {
 		return DriverStation.getInstance().getAlliance();
 	}
 

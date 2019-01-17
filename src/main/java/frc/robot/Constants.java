@@ -23,14 +23,14 @@ public class Constants {
 		public static final boolean E_1_INVERT = false;
 
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(1, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
 		public static final int CARGO_SENSOR_CHANNEL = 0;
 		public static final double CARGO_SENSOR_LOW_VOLT = 1.2; // TODO TUNE
-		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; //TODO TUNE
+		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; // TODO TUNE
 
 		public static final double OPEN_RAMP_TIME = 0;
 
@@ -41,18 +41,20 @@ public class Constants {
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 30; // TODO TUNE
 
-		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); //TODO TUNE
+		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static enum Heights {
-			Home(HOME_INCHES), Floor_HP(17), Feeder_HP(19);
+			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46), Cargo_1(27.5),
+			Cargo_2(55.5), Cargo_3(83.5);
 
 			public final double inches;
+
 			private Heights(double inches) {
 				this.inches = inches;
 			}
-			private Heights(Heights h)
-			{
+
+			private Heights(Heights h) {
 				this(h.inches);
 			}
 		}
@@ -116,7 +118,7 @@ public class Constants {
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
 
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 0, 0);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(2, .5, .5);
 	}
 
 	public static class kPDP {
@@ -151,7 +153,7 @@ public class Constants {
 	public static class kClimber {
 		public static final int FRONT_MOTOR_ID = 0;
 		public static final int BACK_MOTOR_ID = 0;
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 1.5, 1.5);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(3, 1.5, 1.5);
 
 		public static final boolean CLIMBER_FRONT_INVERT = false;
 		public static final boolean CLIMBER_BACK_INVERT = true;
@@ -164,15 +166,15 @@ public class Constants {
 	}
 
 	public static class kIntake {
-		public static final int INTAKE_LEFT = 0;
-		public static final int INTAKE_RIGHT = 0;
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(0, 1.5, 1.5);
+		public static final int INTAKE_LEFT = 1;
+		public static final int INTAKE_RIGHT = 2;
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(4, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(4, 1.5, 1);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(5, 1.5, 1);
 	}
 
 	public static class kPoofs {

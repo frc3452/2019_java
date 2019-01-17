@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import frc.robot.Constants.kFiles;
+import frc.robot.subsystems.Drive;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
@@ -19,6 +20,7 @@ import frc.robot.util.GZNotifier;
 import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.PersistentInfo;
+import frc.robot.util.drivers.buttonboard.OperatorController;
 
 public class PersistentInfoManager {
 
@@ -28,6 +30,9 @@ public class PersistentInfoManager {
     // timers and prev vals
     private final GZTimer mOnTimeTimer = new GZTimer("OnTime");
     private final GZTimer mEnabledTimer = new GZTimer("EnabledTimer");
+
+    private Drive drive = Drive.getInstance();
+    // private Elevator elev = Elevator.getInstance();
 
     private GZNotifier mUpdateNotifier;
     private GZFlag mReadFailed = new GZFlag();
@@ -52,7 +57,7 @@ public class PersistentInfoManager {
 
     private PersistentInfo mLeftEncoderRotations = new PersistentInfo(0.0, .01) {
         public void update() {
-            // this.addDifference(drive.mIO.left_encoder_total_delta_rotations);
+            this.addDifference(drive.mIO.left_encoder_total_delta_rotations);
         }
 
         public void readSetting() {
@@ -60,7 +65,7 @@ public class PersistentInfoManager {
     };
     private PersistentInfo mRightEncoderRotations = new PersistentInfo(0.0, .01) {
         public void update() {
-            // this.addDifference(drive.mIO.right_encoder_total_delta_rotations);
+            this.addDifference(drive.mIO.right_encoder_total_delta_rotations);
         }
 
         public void readSetting() {
@@ -77,6 +82,82 @@ public class PersistentInfoManager {
         }
     };
 
+    private PersistentInfo mElevatorTotalRotations = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            // this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mSlidesTotalChanges = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            // this.addDifference(elev.getSlidesTotalCounts());
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mClawTotalChanges = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            // this.addDifference(elev.getClawTotalCounts());
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mDriveTotalShifts = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            // this.addDifference(drive.getTotalShiftCounts());
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mClimberDrops = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            // this.addDifference(Pneumatics.getInstance().getDropClimberTotalCounts());
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mIsButtonBoard = new PersistentInfo(0.0) {
+        public void update() {
+            this.setValue((GZOI.getInstance().op.isButtonBoard() ? 0.0 : 1.0));
+        }
+
+        @Override
+        public void readSetting() {
+            GZOI.getInstance().op.setButtonBoard(this.getValue() == 0);
+        }
+    };
+
     private void resetMap() {
         mSettingsMap = new HashMap<String, PersistentInfo>();
 
@@ -84,7 +165,13 @@ public class PersistentInfoManager {
         mSettingsMap.put("OnTime", mOnTime);
         mSettingsMap.put("LeftEncoderRot", mLeftEncoderRotations);
         mSettingsMap.put("RightEncoderRot", mRightEncoderRotations);
+        mSettingsMap.put("ElevatorRotations", mElevatorTotalRotations);
         mSettingsMap.put("Disabled", mDisabled);
+        mSettingsMap.put("ClimberDrops", mClimberDrops);
+        mSettingsMap.put("SlideChanges", mSlidesTotalChanges);
+        mSettingsMap.put("DriveShifts", mDriveTotalShifts);
+        mSettingsMap.put("ClawChanges", mClawTotalChanges);
+        mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }
 
     private static PersistentInfoManager mInstance = null;
