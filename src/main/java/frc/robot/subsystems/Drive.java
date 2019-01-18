@@ -17,6 +17,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -53,7 +54,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
-	private GZSolenoid mShifter;
+	// private GZSolenoid mShifter;
 
 	// Force switch state to neutral on start up
 	private DriveState mState = DriveState.OPEN_LOOP;
@@ -103,8 +104,8 @@ public class Drive extends GZSubsystem {
 
 		mNavX = new GZAHRS(SPI.Port.kMXP);
 
-		mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
-		mShifter.set(false);
+		// mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
+		// mShifter.set(false);
 
 		brake(false);
 
@@ -144,10 +145,9 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void setVelocity(double left, double right) {
-		if (setWantedState(DriveState.VELOCITY)) {
-			mIO.left_desired_output = left;
-			mIO.right_desired_output = right;
-		}
+		setWantedState(DriveState.VELOCITY);
+		mIO.left_desired_output = left;
+		mIO.right_desired_output = right;
 	}
 
 	public void overrideTrajectory(boolean value) {
@@ -283,14 +283,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void out() {
-		if (mState != DriveState.NEUTRAL) {
-			mIO.left_output = mIO.left_desired_output;
-			mIO.right_output = mIO.right_desired_output;
-		} else {
-			mIO.left_output = 0;
-			mIO.right_output = 0;
-		}
-
 		switch (mState) {
 		case PATH_FOLLOWING:
 			updatePathFollower();
@@ -301,6 +293,14 @@ public class Drive extends GZSubsystem {
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
 			break;
+		}
+
+		if (mState != DriveState.NEUTRAL) {
+			mIO.left_output = mIO.left_desired_output;
+			mIO.right_output = mIO.right_desired_output;
+		} else {
+			mIO.left_output = 0;
+			mIO.right_output = 0;
 		}
 
 		if (mState == DriveState.PATH_FOLLOWING) {
@@ -446,7 +446,7 @@ public class Drive extends GZSubsystem {
 		neutral |= this.isSafetyDisabled() && !gzOI.isFMS();
 		neutral |= mWantedState == DriveState.NEUTRAL;
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
-		neutral |= getShifterState() == SolenoidState.TRANSITION;
+		// neutral |= getShifterState() == SolenoidState.TRANSITION;
 
 		if (neutral) {
 
@@ -469,8 +469,8 @@ public class Drive extends GZSubsystem {
 		for (GZSRX s : mTalons) {
 			String name = s.getGZName();
 
-			s.setSafetyEnabled(true);
-			s.setExpiration(999);
+			// s.setSafetyEnabled(true);
+			// s.setExpiration(999);
 
 			new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not factory reset Talon " + name) {
 				@Override
@@ -572,13 +572,16 @@ public class Drive extends GZSubsystem {
 
 	private void enableDriveLimits() {
 		if (mState == DriveState.CLIMB) {
-			L1.overrideLimitSwitchesEnable(true); //TODO TUNE
+			L1.overrideLimitSwitchesEnable(true); // TODO TUNE
+			R1.overrideLimitSwitchesEnable(true);
 		}
 	}
 
 	private void disableDriveLimits() {
-		if (mState != DriveState.CLIMB)
+		if (mState != DriveState.CLIMB) {
 			L1.overrideLimitSwitchesEnable(false);
+			R1.overrideLimitSwitchesEnable(false);
+		}
 	}
 
 	private synchronized void onStateStart(DriveState newState) {
@@ -600,6 +603,7 @@ public class Drive extends GZSubsystem {
 			break;
 		case NEUTRAL:
 			// brake(false);
+			disableDriveLimits();
 			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
 			break;
 		case OPEN_LOOP:
@@ -707,25 +711,21 @@ public class Drive extends GZSubsystem {
 
 	}
 
-	//TODO TUNE
-	private boolean getFrontTopLimit()
-	{
+	// TODO TUNE
+	private boolean getFrontTopLimit() {
 		// return mIO.ls_left_fwd;
 		return false;
 	}
 
-	private boolean getFrontBottomLimit()
-	{
+	private boolean getFrontBottomLimit() {
 		return false;
 	}
 
-	private boolean getRearTopLimit()
-	{
+	private boolean getRearTopLimit() {
 		return false;
 	}
 
-	private boolean getRearBottomLimit()
-	{
+	private boolean getRearBottomLimit() {
 		return false;
 	}
 
@@ -781,7 +781,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public void shift() {
-		mShifter.set(!mShifter.get());
+		// mShifter.set(!mShifter.get());
 	}
 
 	public synchronized void runClimber(double front, double back) {
@@ -790,7 +790,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private SolenoidState getShifterState() {
-		return mShifter.getSolenoidState();
+		return SolenoidState.RETRACTED;
+		// return mShifter.getSolenoidState();
 	}
 
 	// called in OPEN_LOOP_DRIVER state
@@ -803,8 +804,10 @@ public class Drive extends GZSubsystem {
 
 		double elv = getModifier();
 
-		arcadeNoState(joy.getLeftAnalogY() * elv,
-				elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65));
+		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
+		final double move = joy.getLeftAnalogY() * elv;
+
+		arcadeNoState(move, rotate);
 	}
 
 	// called in DEMO state
@@ -967,15 +970,7 @@ public class Drive extends GZSubsystem {
 	/**
 	 * notifier object for running MotionProfileBuffer
 	 */
-	private Notifier processMotionProfile = new Notifier(new Runnable() {
-		@Override
-		public void run() {
-			{
-				L1.processMotionProfileBuffer();
-				R1.processMotionProfileBuffer();
-			}
-		}
-	});
+	private Notifier processMotionProfile=new Notifier(new Runnable(){@Override public void run(){{L1.processMotionProfileBuffer();R1.processMotionProfileBuffer();}}});
 
 	/**
 	 * Used to turn on/off runnable for motion profiling
@@ -1192,7 +1187,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public int getTotalShiftCounts() {
-		return mShifter.getChangeCounts();
+		return 0;
+		// return mShifter.getChangeCounts();
 	}
 
 	public synchronized void toggleSlowSpeed() {

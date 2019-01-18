@@ -33,7 +33,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	private Superstructure supe = Superstructure.getInstance();
+	// private Superstructure supe = Superstructure.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -76,15 +76,6 @@ public class GZOI extends GZSubsystem {
 
 		if (isTele()) {
 
-			final boolean queue = op.queueAction.get();
-
-			if (op.hatchPannel1.updated())
-					supe.runHeight(Heights.HP_1, queue);
-			else if (op.hatchPanel2.updated())
-				supe.runHeight(Heights.HP_2, queue);
-
-
-				
 			// Velocity testing
 			if (driverJoy.isBPressed())
 				bToggled = !bToggled;
