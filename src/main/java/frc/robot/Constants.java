@@ -46,7 +46,7 @@ public class Constants {
 
 		public static enum Heights {
 			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46), Cargo_1(27.5),
-			Cargo_2(55.5), Cargo_3(83.5);
+			Cargo_2(55.5), Cargo_3(83.5), HP_Feeder_Jog(HP_1, 2);
 
 			public final double inches;
 
@@ -56,6 +56,11 @@ public class Constants {
 
 			private Heights(Heights h) {
 				this(h.inches);
+			}
+
+			private Heights(Heights h, double jog)
+			{
+				this(h.inches + jog);
 			}
 		}
 	}

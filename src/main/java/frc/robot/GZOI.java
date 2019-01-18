@@ -1,5 +1,7 @@
 package frc.robot;
 
+import javax.lang.model.util.ElementScanner6;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
@@ -78,13 +80,58 @@ public class GZOI extends GZSubsystem {
 
 			final boolean queue = op.queueAction.get();
 
-			if (op.hatchPannel1.updated())
-					supe.runHeight(Heights.HP_1, queue);
-			else if (op.hatchPanel2.updated())
+			if (op.hatchPannel1.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (op.hatchPanel2.get())
 				supe.runHeight(Heights.HP_2, queue);
+			else if (op.hatchPanel3.get())
+				supe.runHeight(Heights.HP_3, queue);
+			else if (op.hatchFromFeed.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (op.cargo1.get())
+				supe.runHeight(Heights.Cargo_1, queue);
+			else if (op.cargo2.get())
+				supe.runHeight(Heights.Cargo_2, queue);
+			else if (op.cargo3.get())
+				supe.runHeight(Heights.Cargo_3, queue);
+			else if (op.cargoShip.get())
+				supe.runHeight(Heights.Cargo_Ship, queue);
+			else
+				supe.elevatorNoManual();
+
+			if (op.intakeDown.get())
+				supe.lowerIntake(true);
+			else if (op.intakeUp.get())
+				supe.raiseIntake(true);
+			else
+				supe.intakeDropNoManual();
+
+			if (op.slidesIn.get())
+				supe.retractSlides(true);
+			else if (op.slidesOut.get())
+				supe.extendSlides(true);
+			else
+				supe.slidesNoManual();
+
+			if (op.clawOpen.get())
+				supe.openClaw(true);
+			else if (op.clawClosed.get())
+				supe.closeClaw(true);
+			else
+				supe.clawNoManual();
 
 
-				
+			if (op.stow.updated())
+				supe.runAction(Actions.STOW, queue);
+			else if (op.stowLow.updated())
+				supe.runAction(Actions.STOW_LOW, queue);
+			else if (op.intakeCargo.updated())
+				supe.runAction(Actions.INTAKE_CARGO, queue);
+			else if (op.floorHatchToManip.updated())
+				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+			else if (op.hatchFromFeed.updated())
+				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+
 			// Velocity testing
 			if (driverJoy.isBPressed())
 				bToggled = !bToggled;

@@ -5,16 +5,20 @@ import java.util.ArrayList;
 public class GZFlagMultiple {
     private ArrayList<GZFlag> mFlags = new ArrayList<>();
 
+    private int lastGet = 0;
+
+    private final int numOfFlags;
+
     public GZFlagMultiple(int numOfFlags) {
-        for (int i = 0; i < numOfFlags; i++)
-            mFlags.add(new GZFlag());
+        this.numOfFlags = numOfFlags;
+        reset();
     }
 
     /**
      * Trip a specific flag (starting at 1, not 0!!!!!)
      */
-    public void tripFlag(int flagToTrip) {
-        if (isFlagInvalid(flagToTrip)){
+    public void trip(int flagToTrip) {
+        if (isFlagInvalid(flagToTrip)) {
             return;
         }
 
@@ -28,7 +32,25 @@ public class GZFlagMultiple {
             mFlags.get(flagToTrip - 1).tripFlag();
     }
 
-    public boolean isFlagTripped(int flag) {
+    public boolean getNext() {
+        return get(lastGet + 1);
+    }
+
+    public void tripNext() {
+        trip(lastGet);
+    }
+
+    public void tripLast() {
+        trip(mFlags.size());
+    }
+
+    public boolean getLast() {
+        return get(mFlags.size());
+    }
+
+    public boolean get(int flag) {
+        lastGet = flag;
+
         if (isFlagInvalid(flag))
             return false;
 
@@ -42,6 +64,13 @@ public class GZFlagMultiple {
         }
 
         return false;
+    }
+
+    public void reset()
+    {
+        mFlags.clear();
+        for (int i = 0; i < numOfFlags; i++)
+            mFlags.add(new GZFlag());
     }
 
     public boolean allFlagsTripped() {
