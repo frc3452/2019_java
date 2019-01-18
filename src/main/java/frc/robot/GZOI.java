@@ -120,6 +120,18 @@ public class GZOI extends GZSubsystem {
 			else
 				supe.clawNoManual();
 
+
+			if (op.stow.updated())
+				supe.runAction(Actions.STOW, queue);
+			else if (op.stowLow.updated())
+				supe.runAction(Actions.STOW_LOW, queue);
+			else if (op.intakeCargo.updated())
+				supe.runAction(Actions.INTAKE_CARGO, queue);
+			else if (op.floorHatchToManip.updated())
+				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+			else if (op.hatchFromFeed.updated())
+				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+
 			// Velocity testing
 			if (driverJoy.isBPressed())
 				bToggled = !bToggled;
