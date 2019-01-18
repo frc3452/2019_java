@@ -12,6 +12,12 @@ public class GZFlag {
     public GZFlag() {
     }
 
+    public static void rst(GZFlag... flags)
+    {
+        for (GZFlag f : flags)
+            f.rst();
+    }
+
     public void update(boolean newVal) {
         if (newVal != mInitValue)
             mTripped = true;
