@@ -135,16 +135,21 @@ public class Superstructure extends GZSubsystem {
 
     public void runHeight(Heights h, boolean queue) {
         if (queue) {
+            if (mQueuedHeight != h){
             mQueuedHeight = h;
             queueAction(Actions.GO_TO_QUEUED_HEIGHT);
-            System.out.println("Queued action: " + Actions.GO_TO_QUEUED_HEIGHT);
+            System.out.println("Queued height: " + mQueuedHeight);
+            }
             return;
         }
         setHeight(h, true);
     }
 
     private void queueAction(Actions action) {
+       if (mQueuedAction != action) {
         mQueuedAction = action;
+        System.out.println("Queued action " + mQueuedAction);
+       }
     }
 
     public void runQueuedAction() {
