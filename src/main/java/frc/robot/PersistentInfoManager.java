@@ -12,7 +12,7 @@ import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFlag;
@@ -272,8 +272,8 @@ public class PersistentInfoManager {
         } catch (Exception e) {
             // Couldn't read persistent settings
             mReadFailed.tripFlag();
-            System.out.println("WARNING ERROR Could not read persistent settings at file location "
-                    + GZFileMaker.getFileLocation(fileName, folder, ValidFileExtension.CSV, usb, true));
+            System.out.println("ERROR Could not read persistent settings at file location "
+                    + GZFileMaker.getFileLocation(fileName, folder, FileExtensions.CSV, usb, true));
         }
 
         if (!mReadFailed.get())
@@ -298,14 +298,17 @@ public class PersistentInfoManager {
 
     public void replaceAndReRead() {
         try {
-            GZFile theOld = GZFileMaker.getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER,
-                    ValidFileExtension.CSV, kFiles.STATS_FILE_ON_USB, false);
-            GZFile theNew = GZFileMaker.getFile("StatsToReplace", kFiles.STATS_FILE_FOLDER, ValidFileExtension.CSV,
-                    false, false);
-            GZFiles.replaceFile(theOld, theNew);
+            GZFile theOld = GZFileMaker.getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER, FileExtensions.CSV,
+                    kFiles.STATS_FILE_ON_USB, false);
+            GZFile theNew = GZFileMaker.getFile("StatsToReplace", kFiles.STATS_FILE_FOLDER, FileExtensions.CSV, false,
+                    false);
+
+            if (theOld.getFile().exists())
+                GZFiles.replaceFile(theOld, theNew);
 
             initialize();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -314,9 +317,9 @@ public class PersistentInfoManager {
         updateFile(fileName, folder, false);
     }
 
-    public void reset() {
+    public void reset(boolean override) {
         // If backup worked
-        if (backupFile()) {
+        if (backupFile() || override) {
             // reset values
             for (PersistentInfo p : mSettingsMap.values())
                 p.setValueToDefault();

@@ -18,10 +18,13 @@ public class OperatorController extends Joystick {
     public GZButton hatchPannel1 = new GZButton(this, () -> this.getRawButton(1), () -> this.getRawButton(1));
     public GZButton hatchPanel2 = new GZButton(this, () -> this.getRawButton(2), () -> this.getRawButton(2));
     public GZButton hatchPanel3 = new GZButton(this, () -> this.getRawButton(3), () -> this.getRawButton(4));
-    public GZButton cargo1 = new GZButton(this, () -> this.getRawButton(4), () -> this.getRawButton(5) && this.getRawButton(1));
-    public GZButton cargo2 = new GZButton(this, () -> this.getRawButton(5), () -> this.getRawButton(5) && this.getRawButton(2));
-    public GZButton cargo3 = new GZButton(this, () -> this.getRawButton(6), () -> this.getRawButton(5) && this.getRawButton(4));
-               
+    public GZButton cargo1 = new GZButton(this, () -> this.getRawButton(4),
+            () -> this.getRawButton(5) && this.getRawButton(1));
+    public GZButton cargo2 = new GZButton(this, () -> this.getRawButton(5),
+            () -> this.getRawButton(5) && this.getRawButton(2));
+    public GZButton cargo3 = new GZButton(this, () -> this.getRawButton(6),
+            () -> this.getRawButton(5) && this.getRawButton(4));
+
     public GZButton cargoShip = new GZButton(this, () -> this.getRawButton(-1), () -> this.getRawButton(-1));
 
     public GZButton intakeDown = new GZButton(this, () -> this.getRawButton(-1), () -> this.getRawButton(-1));
@@ -45,21 +48,22 @@ public class OperatorController extends Joystick {
         this(1);
     }
 
-    public void setButtonBoard(boolean isButtonBoard) {
-        this.isButtonBoard = isButtonBoard;
+    public void setButtonBoard(boolean buttonBoard) {
+        this.isButtonBoard = buttonBoard;
 
-        for (GZButton b : allButtons)
-            b.useSupplier1(isButtonBoard);
-
-        if (this.isButtonBoard != this.p_isButtonBoard)
+        // System.out.println
+        if (this.isButtonBoard != this.p_isButtonBoard) {
             System.out.println("WARNING Operator controller selected: "
                     + (this.isButtonBoard ? "Button board" : "Xbox controller"));
+            for (GZButton b : allButtons)
+                b.useSupplier1(this.isButtonBoard);
+        }
 
         p_isButtonBoard = this.isButtonBoard;
     }
 
     public void setButtonBoard() {
-        setButtonBoard(isButtonBoard);
+        setButtonBoard(true);
     }
 
     public boolean isButtonBoard() {
@@ -67,7 +71,7 @@ public class OperatorController extends Joystick {
     }
 
     public void setXboxController() {
-        setButtonBoard(isButtonBoard);
+        setButtonBoard(false);
     }
 
     public OperatorController(int port) {

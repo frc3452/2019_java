@@ -69,9 +69,9 @@ public class GZOI extends GZSubsystem {
 			mSafetyDisable = !mSafetyDisable;
 		Robot.allSubsystems.disable(mSafetyDisable);
 
-		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
+		if (driverJoy.allButtons(Buttons.LB, Buttons.RIGHT_CLICK, Buttons.LEFT_CLICK, Buttons.X))
 			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
+		else if (driverJoy.allButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
 			op.setXboxController();
 
 		if (isTele()) {
@@ -81,10 +81,14 @@ public class GZOI extends GZSubsystem {
 				bToggled = !bToggled;
 
 			if (bToggled && kDrivetrain.TUNING) {
-				final double high = 1500;
-				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
-				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
-				drive.printVelocity(left);
+				final double left = 1000;
+				final double right = -1000;
+
+				// final double high = 2500;
+				// final double arr[] = Drive.getInstance().arcadeToLR(driverJoy.getLeftAnalogY(), driverJoy.getRightTrigger() - driverJoy.getLeftTrigger());
+				// final double left = GZUtil.scaleBetween(arr[0], -high, high, -1, 1);
+				// final double right = GZUtil.scaleBetween(arr[1], -high, high, -1, 1);
+				drive.printVelocity(left, right);
 				drive.setVelocity(left, right);
 			} else {
 				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);

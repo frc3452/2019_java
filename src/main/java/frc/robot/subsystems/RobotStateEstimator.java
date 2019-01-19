@@ -18,6 +18,8 @@ public class RobotStateEstimator extends GZSubsystem {
     private RobotStateEstimator() {
         left_encoder_prev_distance_ = drive_.getLeftEncoderDistance();
         right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
+
+        robot_state_.resetDistanceDriven();
     }
 
     public String getSmallString()

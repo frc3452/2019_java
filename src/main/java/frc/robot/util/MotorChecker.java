@@ -13,7 +13,7 @@ import java.util.Scanner;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
 import frc.robot.Constants.kFiles;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
@@ -518,7 +518,7 @@ public class MotorChecker {
             try {
                 // write to rio
                 file = GZFileMaker.getFile("MotorReport-" + GZUtil.dateTime(false), new Folder("MotorReports"),
-                        ValidFileExtension.HTML, false, true);
+                        FileExtensions.HTML, false, true);
                 HTML.createHTMLFile(file, body);
 
             } catch (Exception e) {
@@ -710,7 +710,7 @@ public class MotorChecker {
 
             boolean fail = false;
             try {
-                GZFile file = GZFileMaker.getFile("PDPCheck", new Folder(""), ValidFileExtension.HTML, false, true);
+                GZFile file = GZFileMaker.getFile("PDPCheck", new Folder(""), FileExtensions.HTML, false, true);
                 HTML.createHTMLFile(file, body);
                 try {
                     GZFiles.copyFile(file, GZFileMaker.getFile(file, true));

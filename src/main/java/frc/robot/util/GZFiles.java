@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +18,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
@@ -57,12 +59,30 @@ public class GZFiles {
 		return mInstance;
 	}
 
+
+	// private PrintStream realOutput = System.out;
+
+	// private class NullOutputString extends OutputStream {
+
+	// 	@Override
+	// 	public void write(int b) {
+	// 	}
+
+	// 	public void write(byte[] b){}
+
+	// 	public void write(byte[] b, int off, int len){}
+
+	// 	public NullOutputString(){}
+	// }
+
 	/**
 	 * hardware initialization
 	 * 
 	 * @author max
 	 */
 	private GZFiles() {
+		// System.setOut(new PrintStream(new NullOutputString()));
+
 		try {
 			final Folder f = new Folder("RIOSHORTCUTS");
 			GZFiles.copyFolder(f, false, f, true);
@@ -509,7 +529,7 @@ public class GZFiles {
 			}
 		}
 		try {
-			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
+			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), FileExtensions.HTML, false, true);
 			HTML.createHTMLFile(file, body);
 
 			try {

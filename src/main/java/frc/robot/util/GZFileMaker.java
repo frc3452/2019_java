@@ -13,12 +13,12 @@ public class GZFileMaker {
 
     private static String placeForInvalidFilesToGo = "InvalidFileName";
 
-    public static enum ValidFileExtension {
-        CSV(".csv"), HTML(".html");
+    public static enum FileExtensions {
+        CSV(".csv"), HTML(".html"), TXT(".txt");
 
         private String val;
 
-        private ValidFileExtension(String val) {
+        private FileExtensions(String val) {
             this.val = val;
         }
     }
@@ -33,7 +33,7 @@ public class GZFileMaker {
         return ret;
     }
 
-    public static GZFile getSafeFile(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
+    public static GZFile getSafeFile(String name, Folder folder, FileExtensions fileExtension, boolean usb,
             boolean write) {
         try {
             return getFile(name, folder, fileExtension, usb, write);
@@ -42,7 +42,7 @@ public class GZFileMaker {
         }
     }
 
-    public static GZFile getFile(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
+    public static GZFile getFile(String name, Folder folder, FileExtensions fileExtension, boolean usb,
             boolean write) throws Exception {
 
         String path = getFileLocation(name, folder, fileExtension, usb, true);
@@ -71,20 +71,20 @@ public class GZFileMaker {
         return ret;
     }
 
-    public static GZFile getFile(String name, Folder folder, ValidFileExtension fileExtension, boolean write)
+    public static GZFile getFile(String name, Folder folder, FileExtensions fileExtension, boolean write)
             throws Exception {
         return getFile(name, folder, fileExtension, false, write);
     }
 
     public static GZFile getFile(String name, Folder folder, boolean usb, boolean write) throws Exception {
-        return getFile(name, folder, ValidFileExtension.CSV, usb, write);
+        return getFile(name, folder, FileExtensions.CSV, usb, write);
     }
 
     public static GZFile getFile(String name, Folder folder, boolean write) throws Exception {
         return getFile(name, folder, false, write);
     }
 
-    public static String getFileLocation(String name, Folder folder, ValidFileExtension fileExtension, boolean usb,
+    public static String getFileLocation(String name, Folder folder, FileExtensions fileExtension, boolean usb,
             boolean withFile) {
         String folderText = folder.get(usb);
         String retval;

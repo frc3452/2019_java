@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 
 import frc.robot.util.GZSubsystem;
@@ -93,7 +94,7 @@ public class TestModeRunner {
         });
         statsOptions.add(new Option("Reset Stats") {
             public void run() {
-                PersistentInfoManager.getInstance().reset();
+                PersistentInfoManager.getInstance().reset(true);
             }
         });
         statsOptions.add(new Option("Reread Stats from new file") {
@@ -115,7 +116,7 @@ public class TestModeRunner {
     }
 
     public void update() {
-        if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
+        if (GZOI.driverJoy.allButtons(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
         } else if (GZOI.driverJoy.isLClickPressed()) {
             isEnabled = false;

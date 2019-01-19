@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
@@ -35,7 +36,7 @@ import frc.robot.poofs.util.DriveSignal;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
@@ -138,7 +139,7 @@ public class Drive extends GZSubsystem {
 	public synchronized void setVelocity(DriveSignal signal, DriveSignal feedforward) {
 		if (setWantedState(DriveState.PATH_FOLLOWING)) {
 			mIO.left_desired_output = signal.getLeft();
-			mIO.right_desired_output = signal.getRight();
+			mIO.right_desired_output = -signal.getRight();
 			mIO.left_feedforward = feedforward.getLeft();
 			mIO.right_feedforward = feedforward.getRight();
 		}
@@ -149,6 +150,7 @@ public class Drive extends GZSubsystem {
 		mIO.left_desired_output = left;
 		mIO.right_desired_output = right;
 	}
+
 
 	public void overrideTrajectory(boolean value) {
 		mOverrideTrajectory = value;
@@ -319,15 +321,16 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public void printVelocity(double tar) {
-		System.out.println(L1.getSelectedSensorVelocity() + "\t\t\t" + R1.getSelectedSensorVelocity() + "\t\t\t" + tar);
+	private final DecimalFormat df = new DecimalFormat("#0.000"); 
+	public void printVelocity(double tar, double tar2) {
+		System.out.println(df.format(tar) + "\t" + df.format(tar2));
 	}
 
 	public GZPID getGainsFromFile(boolean left) {
 		GZPID ret;
 
 		try {
-			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), ValidFileExtension.CSV, false, false);
+			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
 			Scanner scnr = new Scanner(new FileReader(file.getFile()));
 			double p, i, d, f, iZone;
 

@@ -2,7 +2,7 @@ package frc.robot;
 
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
@@ -84,13 +84,10 @@ public class Constants {
 
 		public static class PID {
 
-			static final double p = .3; // .1
-			static final double d = 3; // 10
+			static final double p = 1.2; // .1
+			static final double d = 0; // 10
 			public final static GZPID Left = new GZPID(p, 0, d, 0, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, 0, 0);
-
-			// public final static GZPID Left = new GZPID(0, 2.7, 0, 2.7 * 25, .235, 0);
-			// public final static GZPID Right = new GZPID(0, 2.7, 0, 2.7 * 25, .239, 0);
 
 			public final static GZPID OldLeft = new GZPID(0, .425, 0, 4.25, 0, 0);
 			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);
@@ -191,9 +188,12 @@ public class Constants {
 		public static final double kRobotLinearInertia = 60.0; // kg TODO tune
 		public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
 		public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
-		public static final double kDriveVIntercept = 1.055; // V
-		public static final double kDriveKv = 0.4; // V per rad/s
-		public static final double kDriveKa = 0.1; // V per rad/s^2
+		
+		static double mod = 1.0;
+
+		public static final double kDriveVIntercept = 1.055 * mod; // V
+		public static final double kDriveKv = 0.135 * mod; // V per rad/s //.135
+		public static final double kDriveKa = 0.012 * mod; // V per rad/s^2 //.012
 
 		public static final double kPathKX = 4.0; // units/s per unit of error
 		public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -223,7 +223,7 @@ public class Constants {
 		public final static boolean MP_USB = true; // if on usb, folder is 3452/MotionProfiles/MP1.csv
 
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
-				ValidFileExtension.CSV, false, false);
+				FileExtensions.CSV, false, false);
 
 		public final static Folder STATS_FILE_FOLDER = new Folder("GZStats");
 		public final static String STATS_FILE_NAME = "Stats";
