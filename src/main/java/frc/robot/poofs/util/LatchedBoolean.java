@@ -2,7 +2,7 @@ package frc.robot.poofs.util;
 
 /**
  * An iterative boolean latch.
- * <p>
+ * 
  * Returns true once if and only if the value of newValue changes from false to true.
  */
 public class LatchedBoolean {

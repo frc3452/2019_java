@@ -6,7 +6,6 @@ import java.util.Date;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.kTempSensor;
-import frc.robot.motionprofiles.Path;
 
 public class GZUtil {
 
@@ -181,25 +180,4 @@ public class GZUtil {
 		double celsius = (9.0 / 5) * fahrenheit - 32;
 		return celsius;
 	}
-
-	public static class Parse implements Path {
-
-		@Override
-		public double[][] mpL() {
-			double[][] mpL = { { 3452, 3452 }, { 3452, 3452 }, };
-			return mpL;
-		}
-
-		@Override
-		public double[][] mpR() {
-			double[][] mpR = { { 3452, 3452 }, { 3452, 3452 }, };
-			return mpR;
-		}
-
-		@Override
-		public Integer mpDur() {
-			return 3452;
-		}
-	}
-
 }
