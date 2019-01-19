@@ -29,19 +29,19 @@ public class GZUtil {
 		return x;
 	}
 
-	// public static Double round(double value)
-	// {
-	// 	return roundTo(value, 2);
-	// }
+	public static Double round(double value)
+	{
+		return roundTo(value, 2);
+	}
 
-	// public static Double roundTo(double value, int place) {
-	// 	try {
-	// 		double ret = (double) Math.round(value * Math.pow(10, place)) / Math.pow(10, place);
-	// 		return ret;
-	// 	} catch (Exception e) {
-	// 		return Double.NaN; //just incase some dumb divided by 0 on accident kinda thing
-	// 	}
-	// }
+	public static Double roundTo(double value, int place) {
+		try {
+			double ret = (double) Math.round(value * Math.pow(10, place)) / Math.pow(10, place);
+			return ret;
+		} catch (Exception e) {
+			return Double.NaN; //just incase some dumb divided by 0 on accident kinda thing
+		}
+	}
 
 	public static Integer getRandInt(int min, int max) {
 		int x = min + (int) (Math.random() * ((max - min + 1)));
@@ -55,6 +55,8 @@ public class GZUtil {
 			retval = GZUtil.scaleBetween(a.getVoltage(), kTempSensor.LOW_TEMP_C, kTempSensor.HIGH_TEMP_C,
 					kTempSensor.LOW_VOLT, kTempSensor.HIGH_VOLT);
 			retval = GZUtil.celsiusToFahrenheit(retval);
+
+			retval = GZUtil.round(retval);
 		}
 
 		return retval;

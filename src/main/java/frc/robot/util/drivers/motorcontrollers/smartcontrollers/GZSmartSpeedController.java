@@ -2,9 +2,16 @@ package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
 
 import com.ctre.phoenix.motorcontrol.IMotorController;
 
+import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public interface GZSmartSpeedController extends GZSpeedController {
+
+	public final static int TIMEOUT = 10;
+	public static final int LONG_TIMEOUT = 100;
+	public final static int FIRMWARE = 1025;
+	public final static AlertLevel FIRMWARE_ALERT_LEVEL = AlertLevel.WARNING;
+
     public static enum Side {
 		LEFT, RIGHT, NO_INFO;
 	}
@@ -16,5 +23,14 @@ public interface GZSmartSpeedController extends GZSpeedController {
 	public Breaker getBreaker();
 	public Side getSide();
 	public Master getMaster();
-    public void follow(IMotorController masterToFollow);
+	public void follow(IMotorController masterToFollow);
+	
+	public void checkFirmware();
+	public int getFirmware();
+
+	public int getPort();
+
+	public int getPDPChannel();
+	public Breaker getCalculatedBreaker();
+	
 }

@@ -94,11 +94,11 @@ public class Constants {
                                                      // our speed
 													 // in inches per sec
 													 
-	public static double kPathFollowingProfileKp = 1000;
-    public static double kPathFollowingProfileKi = 0.00;
-    public static double kPathFollowingProfileKv = 0.02;
-    public static double kPathFollowingProfileKffv = 1.0;
-    public static double kPathFollowingProfileKffa = 0.05;
+	public static double kPathFollowingProfileKp = 2.5;
+    public static double kPathFollowingProfileKi = 0.03; //.03
+    public static double kPathFollowingProfileKv = 0.11;
+    public static double kPathFollowingProfileKffv = 1; //1 //4 slightly sped up ?
+    public static double kPathFollowingProfileKffa = 0.05; //.05 //.25 slightly sped up?
     public static double kPathFollowingGoalPosTolerance = 0.75;
     public static double kPathFollowingGoalVelTolerance = 12.0;
     public static double kPathStopSteeringDistance = 9.0;
@@ -110,9 +110,10 @@ public class Constants {
 		public static class PID {
 
 			static final double p = 1.2; // .1
-			static final double d = 0; // 10
-			public final static GZPID Left = new GZPID(p, 0, d, 0, 0);
-			public final static GZPID Right = new GZPID(p, 0, d, 0, 0);
+			static final double d = 10; // 10
+			static final double f = .23;
+			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
+			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
 			public final static GZPID OldLeft = new GZPID(0, .425, 0, 4.25, 0, 0);
 			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);

@@ -102,7 +102,7 @@ public class GZFileMaker {
         }
 
         if (withFile)
-            retval += (folderText.equals("") ? "" : (sim ? "\\" : "/")) + name + fileExtension.val;
+            retval += (folderText.equals("") ? "" : (sim ? "\\" : "")) + name + fileExtension.val;
 
         if (pathValid(retval))
             return retval;

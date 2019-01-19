@@ -1,1 +1,1 @@
-pscp Stats.csv lvuser@roborio-3452-frc.local:/home/lvuser/GZStats/StatsToReplace.csv
+pscp Stats.csv lvuser@10.34.52.2:/home/lvuser/GZStats/StatsToReplace.csv

@@ -10,6 +10,7 @@ import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
@@ -21,8 +22,12 @@ public abstract class GZSubsystem extends Subsystem {
 	// Talons
 	public ArrayList<GZSRX> mTalons = new ArrayList<GZSRX>();
 
+	public ArrayList<GZVictorSPX> mVictors = new ArrayList<GZVictorSPX>();
+
 	// Talons, VictorSPXs, etc.
 	public ArrayList<GZSmartSpeedController> mSmartControllers = new ArrayList<GZSmartSpeedController>();
+
+
 
 	// PWM, Sparks, Etc.
 	public ArrayList<GZSpeedController> mDumbControllers = new ArrayList<GZSpeedController>();

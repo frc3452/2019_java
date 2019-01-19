@@ -1,5 +1,11 @@
 RightEncoderRot,0.0
+ClawChanges,0.0
+IsButtonBoard,0.0
+ClimberDrops,0.0
 LeftEncoderRot,0.0
-OnTime,41.046082
+OnTime,147.2076520000001
 EnabledTime,0.0
+DriveShifts,0.0
+SlideChanges,0.0
+ElevatorRotations,0.0
 Disabled,0.0

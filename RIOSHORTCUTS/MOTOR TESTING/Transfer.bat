@@ -1,1 +1,1 @@
-pscp MotorTestingConfig.csv lvuser@roborio-3452-frc.local:/home/lvuser/
+pscp MotorTestingConfig.csv lvuser@10.34.52.2:/home/lvuser/

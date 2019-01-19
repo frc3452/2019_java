@@ -21,6 +21,8 @@ import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
@@ -59,20 +61,19 @@ public class GZFiles {
 		return mInstance;
 	}
 
-
 	// private PrintStream realOutput = System.out;
 
 	// private class NullOutputString extends OutputStream {
 
-	// 	@Override
-	// 	public void write(int b) {
-	// 	}
+	// @Override
+	// public void write(int b) {
+	// }
 
-	// 	public void write(byte[] b){}
+	// public void write(byte[] b){}
 
-	// 	public void write(byte[] b, int off, int len){}
+	// public void write(byte[] b, int off, int len){}
 
-	// 	public NullOutputString(){}
+	// public NullOutputString(){}
 	// }
 
 	/**
@@ -444,15 +445,53 @@ public class GZFiles {
 						subsystem += talonTable;
 					}
 
+					if (s.mVictors.size() != 0) {
+						subsystem += HTML.header("Victors", 2);
+
+						String victorTable = "";
+						{
+							String header = "";
+							header += HTML.tableRow(HTML.easyHeader("Victor Name", "Device ID",
+									"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version",
+									"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
+
+							victorTable += header;
+						}
+
+						{
+							String tableBody = "";
+							for (GZVictorSPX victor : s.mVictors) {
+								String talonRow = "";
+
+								talonRow += HTML.tableRow(HTML.tableCell(victor.getGZName())
+										+ HTML.tableCell(String.valueOf(victor.getDeviceID()))
+										+ HTML.tableCell("" + victor.getPDPChannel())
+										+ HTML.tableCell("" + victor.getCalculatedBreaker())
+										+ HTML.tableCell("" + victor.getBreaker())
+										+ HTML.tableCell("" + victor.getFirmware())
+										+ HTML.tableCell("" + victor.getTemperatureSensorPort(),
+												victor.hasTemperatureSensor() ? "white" : "red",
+												!victor.hasTemperatureSensor())
+										+ HTML.tableCell(victor.getTemperatureSensor().toString(),
+												(victor.hasTemperatureSensor() ? "white" : "red"),
+												!victor.hasTemperatureSensor())
+										+ HTML.tableCell("" + victor.getMaster()));
+								tableBody += talonRow;
+							}
+							victorTable += tableBody;
+						}
+
+						victorTable = HTML.table(victorTable);
+						subsystem += victorTable;
+					}
+
 					if (s.mDumbControllers.size() != 0) {
 						subsystem += HTML.header("PWM Controllers", 2);
 
 						String pwmTable = "";
 						{
 							String header = "";
-							header += HTML.tableRow(HTML.tableHeader("Name") + HTML.tableHeader("PWM Port")
-									+ HTML.tableHeader("PDP Channel") + HTML.tableHeader("Calculated breaker")
-									+ HTML.tableHeader("Temperature Sensor Port"));
+							header += HTML.tableRow(HTML.easyHeader("Name", "PWM Port", "PDP Channel", "Calculated breaker", "Temperature Sensor Port", "Temperature sensor value (F)"));
 							pwmTable += header;
 						}
 
@@ -465,7 +504,10 @@ public class GZFiles {
 										+ HTML.tableCell("" + controller.getPDPChannel())
 										+ HTML.tableCell("" + controller.getCalculatedBreaker())
 										+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
-												controller.hasTemperatureSensor() ? "white" : "red",
+										controller.hasTemperatureSensor() ? "white" : "red",
+												!controller.hasTemperatureSensor())
+										+ HTML.tableCell(controller.getTemperatureSensor().toString(),
+												(controller.hasTemperatureSensor() ? "white" : "red"),
 												!controller.hasTemperatureSensor()));
 								tableBody += pwmRow;
 							}
@@ -607,7 +649,7 @@ public class GZFiles {
 		Files.copy(source.toPath(), dest.toPath());
 	}
 
-	private String loggingName(boolean returnCurrent) {
+	public String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
 			String retval = (gzoi.isFMS() ? "FIELD_" + (gzoi.isAuto() ? "AUTO_" : "TELE_") : "")
 					+ GZUtil.dateTime(true);

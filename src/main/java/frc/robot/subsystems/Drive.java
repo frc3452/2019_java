@@ -30,7 +30,6 @@ import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
@@ -74,7 +73,6 @@ public class Drive extends GZSubsystem {
 
 	// ~POOFS~//
 	private PathFollower mPathFollower;
-	private Rotation2d mTargetHeading = new Rotation2d();
 	private Path mCurrentPath = null;
 	private RobotState mRobotState = RobotState.getInstance();
 

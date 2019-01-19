@@ -11,6 +11,7 @@ import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
 import frc.robot.commands.drive.DriveAtVelocityForTime;
 import frc.robot.commands.paths.DrivePathGroup;
+import frc.robot.commands.paths.ReversePath2;
 import frc.robot.commands.paths.TestPath;
 import frc.robot.commands.paths.TestPath2;
 import frc.robot.commands.paths.TestPath3;
@@ -129,6 +130,7 @@ public class Auton {
 		commandArray.clear();
 
 		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath2())));
+		commandArray.add(new GZCommand("Test trajectory backwards", new DrivePathGroup(new ReversePath2())));
 
 		// commandArray.add(new GZCommand("Test trajectory",
 				// new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));
