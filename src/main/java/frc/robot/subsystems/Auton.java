@@ -12,6 +12,8 @@ import frc.robot.commands.NoCommand;
 import frc.robot.commands.drive.DriveAtVelocityForTime;
 import frc.robot.commands.paths.DrivePathGroup;
 import frc.robot.commands.paths.TestPath;
+import frc.robot.commands.paths.TestPath2;
+import frc.robot.commands.paths.TestPath3;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.drivers.DigitalSelector;
@@ -126,7 +128,7 @@ public class Auton {
 		}
 		commandArray.clear();
 
-		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath())));
+		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath2())));
 
 		// commandArray.add(new GZCommand("Test trajectory",
 				// new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));

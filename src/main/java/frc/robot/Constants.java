@@ -92,8 +92,9 @@ public class Constants {
 	public static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
 	public static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
                                                      // our speed
-                                                     // in inches per sec
-	public static double kPathFollowingProfileKp = 1000.00;
+													 // in inches per sec
+													 
+	public static double kPathFollowingProfileKp = 1000;
     public static double kPathFollowingProfileKi = 0.00;
     public static double kPathFollowingProfileKv = 0.02;
     public static double kPathFollowingProfileKffv = 1.0;
