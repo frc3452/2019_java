@@ -892,11 +892,11 @@ function getDataString() {
 
 	import java.util.ArrayList;
 	
-	import frc.robot.commands.paths.PathBuilder.Waypoint;
-	import frc.robot.poofs.util.control.Path;
-	import frc.robot.poofs.util.math.RigidTransform2d;
-	import frc.robot.poofs.util.math.Rotation2d;
-	import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.commands.paths.PathBuilder.Waypoint;
+import frc.robot.poofs.util.control.Path;
+import frc.robot.poofs.util.math.RigidTransform2d;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 	
 
 public class ${title} implements PathContainer {
