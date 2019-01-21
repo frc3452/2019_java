@@ -16,5 +16,7 @@ public interface GZSmartSpeedController extends GZSpeedController {
 	public Breaker getBreaker();
 	public Side getSide();
 	public Master getMaster();
-    public void follow(IMotorController masterToFollow);
+	public void follow(IMotorController masterToFollow);
+	
+	public int getFirmware();
 }
