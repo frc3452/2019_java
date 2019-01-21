@@ -9,6 +9,7 @@ import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kFiles;
 import frc.robot.Constants.kOI;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Drive.DriveState;
@@ -36,6 +37,7 @@ public class GZOI extends GZSubsystem {
 
 	private Drive drive = Drive.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
+	private Auton auton = Auton.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -54,8 +56,6 @@ public class GZOI extends GZSubsystem {
 
 	@Override
 	public void loop() {
-		outputSmartDashboard();
-
 		// FLAGS
 		if (isTele())
 			mWasTele = true;
@@ -64,98 +64,119 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
-		// SAFETY DISABLE WITH USERBUTTON
-		if (isFMS())
-			mSafetyDisable = false;
-		else if (mUserButton.update(RobotController.getUserButton()))
-			mSafetyDisable = !mSafetyDisable;
-		Robot.allSubsystems.disable(mSafetyDisable);
-
-		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
-			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
-			op.setXboxController();
-
-		if (isTele()) {
-
-			final boolean queue = op.queueAction.get();
-
-			if (op.hatchPannel1.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (op.hatchPanel2.get())
-				supe.runHeight(Heights.HP_2, queue);
-			else if (op.hatchPanel3.get())
-				supe.runHeight(Heights.HP_3, queue);
-			else if (op.hatchFromFeed.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (op.cargo1.get())
-				supe.runHeight(Heights.Cargo_1, queue);
-			else if (op.cargo2.get())
-				supe.runHeight(Heights.Cargo_2, queue);
-			else if (op.cargo3.get())
-				supe.runHeight(Heights.Cargo_3, queue);
-			else if (op.cargoShip.get())
-				supe.runHeight(Heights.Cargo_Ship, queue);
-			else
-				supe.elevatorNoManual();
-
-			if (op.intakeDown.get())
-				supe.lowerIntake(true);
-			else if (op.intakeUp.get())
-				supe.raiseIntake(true);
-			else
-				supe.intakeDropNoManual();
-
-			if (op.slidesIn.get())
-				supe.retractSlides(true);
-			else if (op.slidesOut.get())
-				supe.extendSlides(true);
-			else
-				supe.slidesNoManual();
-
-			if (op.clawOpen.get())
-				supe.openClaw(true);
-			else if (op.clawClosed.get())
-				supe.closeClaw(true);
-			else
-				supe.clawNoManual();
-
-
-			if (op.stow.updated())
-				supe.runAction(Actions.STOW, queue);
-			else if (op.stowLow.updated())
-				supe.runAction(Actions.STOW_LOW, queue);
-			else if (op.intakeCargo.updated())
-				supe.runAction(Actions.INTAKE_CARGO, queue);
-			else if (op.floorHatchToManip.updated())
-				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-			else if (op.hatchFromFeed.updated())
-				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-
-			// Velocity testing
-			if (driverJoy.isBPressed())
-				bToggled = !bToggled;
-
-			if (bToggled && kDrivetrain.TUNING) {
-				final double high = 1500;
-				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
-				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
-				drive.printVelocity(left);
-				drive.setVelocity(left, right);
-			} else {
-				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-			}
-
-			if (driverJoy.isAPressed())
-				drive.toggleSlowSpeed();
+		
+		if (isDisabled())
+			disabled();
+		else if (auton.isAutoControl()) {
+			if (driverJoy.getButtons(Buttons.A, Buttons.B))
+				auton.controllerStart();
+			else if (driverJoy.getButtons(Buttons.A, Buttons.X))
+				auton.controllerCancel();
+		} else if (isAuto()) {
+			handleOperatorController();
+			handleDriverController();
+			handleRumble();
 		}
 
+	}
+
+	private void handleRumble() {
 		// CONTROLLER RUMBLE
 		if (GZUtil.between(getMatchTime(), 29.1, 30))
 			// ENDGAME
 			rumble(kOI.Rumble.ENDGAME);
 		else
 			rumble(0);
+	}
+
+	private void disabled() {
+		if (isFMS())
+			mSafetyDisable = false;
+		else if (mUserButton.update(RobotController.getUserButton()))
+			mSafetyDisable = !mSafetyDisable;
+		Robot.allSubsystems.disable(mSafetyDisable);
+
+		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+
+		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
+			op.setButtonBoard();
+		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
+			op.setXboxController();
+	}
+
+	private void handleDriverController() {
+		// Velocity testing
+		if (driverJoy.isBPressed())
+			bToggled = !bToggled;
+
+		if (bToggled && kDrivetrain.TUNING) {
+			final double high = 1500;
+			final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
+			final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
+			drive.printVelocity(left);
+			drive.setVelocity(left, right);
+		} else {
+			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		}
+
+		if (driverJoy.isAPressed())
+			drive.toggleSlowSpeed();
+
+	}
+
+	private void handleOperatorController() {
+		final boolean queue = op.queueAction.get();
+
+		if (op.hatchPannel1.get())
+			supe.runHeight(Heights.HP_1, queue);
+		else if (op.hatchPanel2.get())
+			supe.runHeight(Heights.HP_2, queue);
+		else if (op.hatchPanel3.get())
+			supe.runHeight(Heights.HP_3, queue);
+		else if (op.hatchFromFeed.get())
+			supe.runHeight(Heights.HP_1, queue);
+		else if (op.cargo1.get())
+			supe.runHeight(Heights.Cargo_1, queue);
+		else if (op.cargo2.get())
+			supe.runHeight(Heights.Cargo_2, queue);
+		else if (op.cargo3.get())
+			supe.runHeight(Heights.Cargo_3, queue);
+		else if (op.cargoShip.get())
+			supe.runHeight(Heights.Cargo_Ship, queue);
+		else
+			supe.elevatorNoManual();
+
+		if (op.intakeDown.get())
+			supe.lowerIntake(true);
+		else if (op.intakeUp.get())
+			supe.raiseIntake(true);
+		else
+			supe.intakeDropNoManual();
+
+		if (op.slidesIn.get())
+			supe.retractSlides(true);
+		else if (op.slidesOut.get())
+			supe.extendSlides(true);
+		else
+			supe.slidesNoManual();
+
+		if (op.clawOpen.get())
+			supe.openClaw(true);
+		else if (op.clawClosed.get())
+			supe.closeClaw(true);
+		else
+			supe.clawNoManual();
+
+		if (op.stow.updated())
+			supe.runAction(Actions.STOW, queue);
+		else if (op.stowLow.updated())
+			supe.runAction(Actions.STOW_LOW, queue);
+		else if (op.intakeCargo.updated())
+			supe.runAction(Actions.INTAKE_CARGO, queue);
+		else if (op.floorHatchToManip.updated())
+			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+		else if (op.hatchFromFeed.updated())
+			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 	}
 
 	public String getSmallString() {
@@ -217,13 +238,6 @@ public class GZOI extends GZSubsystem {
 
 	public void setSafetyDisable(boolean disable) {
 		this.mSafetyDisable = disable;
-	}
-
-	@Override
-	public void outputSmartDashboard() {
-		// SmartDashboard.putString("Selected Auton",
-		// Auton.getInstance().getAutonString());
-		// SmartDashboard.putString("FIELD DATA", Auton.getInstance().gsm());
 	}
 
 	private static void rumble(double intensity) {

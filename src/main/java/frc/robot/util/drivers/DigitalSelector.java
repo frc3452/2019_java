@@ -12,8 +12,16 @@ public class DigitalSelector {
     private Map<Integer, GZDigitalInput> map = new HashMap<Integer, GZDigitalInput>();
     private String mName;
 
+    public DigitalSelector(int[] portArr) {
+        this("Unspecified", portArr);
+    }
+
     public DigitalSelector(int port1, int port2, int port3, int port4) {
         this("Unspecified", port1, port2, port3, port4);
+    }
+
+    public DigitalSelector(String name, int[] portArr) {
+        this(portArr[0], portArr[1], portArr[2], portArr[3]);
     }
 
     public DigitalSelector(String name, int port1, int port2, int port3, int port4) {
@@ -31,7 +39,7 @@ public class DigitalSelector {
             map.put(4, m4);
         } catch (Exception e) {
             System.out.println("ERROR DigitalSelector" + name + " could not be created!");
-            
+
             m1 = null;
             m2 = null;
             m3 = null;
@@ -41,24 +49,23 @@ public class DigitalSelector {
         }
     }
 
-    public static int get(DigitalSelector a, DigitalSelector b)
-    {
+    public static int get(DigitalSelector a, DigitalSelector b) {
         if (a == null || b == null)
             return -1;
 
         int ret;
-        
+
         int aVal = a.get();
         int bVal = b.get();
 
         if (aVal == -1 || bVal == -1)
             return -1;
-        
-        //First selector is tens place, second selector is ones place 
+
+        // First selector is tens place, second selector is ones place
         ret = aVal * 10;
         ret += bVal;
 
-        //Saftey check, shouldn't be possible but just in case
+        // Saftey check, shouldn't be possible but just in case
         if (ret < 0 || ret > 99)
             return -1;
 
@@ -69,33 +76,33 @@ public class DigitalSelector {
         if (areAnyNull())
             return -1;
 
-        //Datasheet found at http://www.ia.omron.com/data_pdf/cat/a7bs_a7bl_ds_e_6_2_csm25.pdf
+        // Datasheet found at
+        // http://www.ia.omron.com/data_pdf/cat/a7bs_a7bl_ds_e_6_2_csm25.pdf
         if (none())
             return 0;
         else if (are(1))
             return 1;
         else if (are(2))
             return 2;
-        else if (are(1,2))
+        else if (are(1, 2))
             return 3;
         else if (are(3))
             return 4;
-        else if (are(1,3))
+        else if (are(1, 3))
             return 5;
-        else if (are(2,3))
+        else if (are(2, 3))
             return 6;
-        else if (are(1,2,3))
+        else if (are(1, 2, 3))
             return 7;
         else if (are(4))
             return 8;
-        else if (are(1,4))
+        else if (are(1, 4))
             return 9;
 
         return -1;
     }
 
-    private boolean none()
-    {
+    private boolean none() {
         boolean ret = false;
 
         for (DigitalInput i : map.values())
@@ -120,7 +127,7 @@ public class DigitalSelector {
         return ret;
     }
 
-    private boolean areAnyNull(DigitalInput ...list) {
+    private boolean areAnyNull(DigitalInput... list) {
         boolean ret = false;
         for (DigitalInput i : list)
             ret |= i == null;
@@ -129,7 +136,7 @@ public class DigitalSelector {
     }
 
     private boolean areAnyNull() {
-        return areAnyNull(m1,m2,m3,m4);
+        return areAnyNull(m1, m2, m3, m4);
     }
 
     @Override

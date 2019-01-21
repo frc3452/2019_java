@@ -14,6 +14,7 @@ import frc.robot.commands.poofs.DriveTrajectoryCommand;
 import frc.robot.commands.poofs.TrajectoryGenerator;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
+import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 
@@ -43,7 +44,10 @@ public class Auton {
 
 	private static Auton mInstance = null;
 
-	private DigitalSelector mSelector1, mSelector2;
+	private LatchedBoolean mLBWaitOnAutoStart = new LatchedBoolean();
+	private boolean mWaitOnAutoStart = false;
+
+	private DigitalSelector mSelector1 = null, mSelector2 = null;
 
 	public synchronized static Auton getInstance() {
 		if (mInstance == null)
@@ -52,12 +56,11 @@ public class Auton {
 	}
 
 	private Auton() {
-		// mSelector1 = new DigitalSelector("AutonSelector (Tens)", 0, 1, 2, 3);
-		// mSelector2 = new DigitalSelector("AutonSelector (Ones", 4, 5, 6, 7);
-
-		commandArray = null;
-
-		// fillAutonArray();
+		// mSelector1 = new DigitalSelector("AutonSelector
+		// (Tens)",kAuton.AUTO_SELECTOR_1_PORTS);
+		// mSelector2 = new DigitalSelector("AutonSelector (Ones",
+		// kAuton.AUTO_SELECTOR_2_PORTS);
+		fillAutonArray();
 	}
 
 	public int getSelector() {
@@ -76,24 +79,49 @@ public class Auton {
 	 * commands are loaded
 	 */
 	public void autonChooser() {
-		if (commandArray == null)
-			fillAutonArray();
-
 		controllerChooser();
+
+		m_selectorValue = getSelector();
 
 		if (m_controllerOverrideValue != -1) {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue).getCommand();
 		} else {
 			// Check if auton selectors are returning what they should be
-			final int selectorValue = getSelector();
-			if (selectorValue <= 99 && selectorValue >= 1) {
-				autonomousCommand = commandArray.get(selectorValue).getCommand();
+			if (m_selectorValue <= 99 && m_selectorValue >= 1) {
+				autonomousCommand = commandArray.get(m_selectorValue).getCommand();
 			} else {
 				autonomousCommand = defaultCommand.getCommand();
 			}
 		}
 
 		printSelected();
+	}
+
+	public boolean isAutoControl() {
+		if (autonomousCommand == null)
+			return false;
+
+		return autonomousCommand != null && GZOI.getInstance().isAuto() && GZOI.getInstance().isTele();
+	}
+
+	public void toggleAutoWait(boolean updateValue) {
+		if (mLBWaitOnAutoStart.update(updateValue)) {
+			mWaitOnAutoStart = !mWaitOnAutoStart;
+			System.out.println("WARNING Auto start set to " + (mWaitOnAutoStart ? "WAIT" : "NOT WAIT")
+					+ " at the start of SANDSTORM");
+		}
+	}
+
+	public void controllerStart() {
+		if (autonomousCommand == null)
+			return;
+
+		System.out.println("WARNING Controller starting auto!");
+		autonomousCommand.start();
+	}
+
+	public void controllerCancel() {
+		cancelAuton();
 	}
 
 	/**
@@ -120,11 +148,11 @@ public class Auton {
 	}
 
 	public void fillAutonArray() {
-		if (commandArray == null) {
-			GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
-			commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
-		}
-		commandArray.clear();
+		if (commandArray != null)
+			return;
+
+		GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
+		commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
 
 		commandArray.add(new GZCommand("Test trajectory",
 				new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));
@@ -137,16 +165,21 @@ public class Auton {
 	}
 
 	public void startAuton() {
-		fillAutonArray();
-
 		if (autonomousCommand != null) {
-			autonomousCommand.start();
+			if (!mWaitOnAutoStart) {
+				System.out.println("Starting auto...");
+				autonomousCommand.start();
+			} else {
+				System.out.println("WARNING Auto not running!");
+			}
 		}
 	}
 
 	public void cancelAuton() {
 		if (autonomousCommand != null) {
+			System.out.println("WARNING Cancelling auto...");
 			autonomousCommand.cancel();
+			autonomousCommand = null;
 		}
 	}
 
@@ -156,8 +189,6 @@ public class Auton {
 
 	private void printSelected() {
 		// If overriden, print overide
-		m_selectorValue = getSelector();
-
 		if (m_controllerOverrideValue != p_controllerOverrideValue)
 			System.out.println("Auton Controller override: (" + m_controllerOverrideValue + ") "
 					+ commandArray.get(m_controllerOverrideValue).getName());
@@ -168,7 +199,6 @@ public class Auton {
 			}
 		}
 
-		// update values for one time display
 		p_selectorValue = m_selectorValue;
 		p_controllerOverrideValue = m_controllerOverrideValue;
 	}
@@ -184,6 +214,7 @@ public class Auton {
 	}
 
 	// get game message, returns "NOT" if anything incorrect
+	@Deprecated
 	public String gameMessage() {
 		String badValue = gameMsg;
 
@@ -213,16 +244,6 @@ public class Auton {
 	 *
 	 */
 	public enum AV {
-		// SEASON, FOREST_HILLS, CURRENT
+		CURRENT,
 	}
-
-	/**
-	 * Autonomous options enum
-	 * 
-	 * @author max
-	 *
-	 */
-	public enum AO {
-	}
-
 }
