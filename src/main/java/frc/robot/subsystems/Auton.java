@@ -146,16 +146,6 @@ public class Auton {
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 
 		autonChooser();
-////////////////////////////////////////
-		if (buttonNotPressed) {
-			if (joystick button pressed)
-			{
-				buttonNotPressed = false;
-			}
-		} else {
-			start auton
-		}
-
 	}
 
 	public void startAuton() {
