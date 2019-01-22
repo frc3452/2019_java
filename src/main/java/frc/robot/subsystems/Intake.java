@@ -4,8 +4,7 @@ import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZTimer;
-import frc.robot.util.drivers.motorcontrollers.dumbcontrollers.GZSpark;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
@@ -14,7 +13,7 @@ public class Intake extends GZSubsystem {
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
-    private GZSpark mIntakeLeft, mIntakeRight;
+    private GZVictorSPX mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeSol;
 
     public IO mIO = new IO();
@@ -22,8 +21,8 @@ public class Intake extends GZSubsystem {
     private static Intake mInstance = null;
 
     private Intake() {
-        mIntakeLeft = new GZSpark.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
-        mIntakeRight = new GZSpark.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
+        mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
+        mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
         mIntakeSol = new GZSolenoid(kIntake.INTAKE_SOLENOID, this, "Intake Solenoid");
     }
 

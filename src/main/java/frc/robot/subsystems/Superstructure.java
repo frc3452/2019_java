@@ -4,6 +4,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
 import frc.robot.util.GZFlag;
+import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 
@@ -22,17 +23,11 @@ public class Superstructure extends GZSubsystem {
         private boolean mSlides = false;
     }
 
-    private class Flags {
-        private GZFlag HPFromFeed = new GZFlag();
+    private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
 
-        private GZFlag HPFromFloorFlag1 = new GZFlag();
-        private GZFlag HPFromFloorFlag2 = new GZFlag();
-        private GZFlag HPFromFloorFlag3 = new GZFlag();
-        private GZFlag HPFromFloorFlag4 = new GZFlag();
-    }
+    private GZFlagMultiple HPFromFeed = new GZFlagMultiple(5);
 
     private Manual mManual = new Manual();
-    private Flags mFlags = new Flags();
 
     private static Superstructure mInstance = null;
 
@@ -51,7 +46,8 @@ public class Superstructure extends GZSubsystem {
     private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_QUEUED_HEIGHT;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED,
+        GO_TO_QUEUED_HEIGHT;
         // MOVE CARGO ACROSS FLOOR
     }
 
@@ -68,6 +64,11 @@ public class Superstructure extends GZSubsystem {
 
             switch (mAction) {
             case IDLE:
+            case STOW_LOW:
+                if (isStowed())
+                    setHeight(Heights.Home, false);
+                else
+                    stopElevatorMovement(false);
                 break;
             case INTAKE_CARGO:
                 if (intake.isLowered() && elev.nearTarget())
@@ -80,44 +81,59 @@ public class Superstructure extends GZSubsystem {
             case HOLD_CARGO:
                 if (elev.isClawClosed() && elev.isCargoSensorTripped())
                     stow();
+
+                if (elev.isClawClosed() && elev.isCargoSensorTripped() && isStowed())
+                    idle();
                 break;
             case TRNSFR_HP_FROM_FLOOR:
                 setHeight(Heights.HP_Floor_Grab, false);
                 if (elev.nearTarget()) {
-                    if (!mFlags.HPFromFloorFlag1.get() && elev.areSlidesIn() && elev.isClawClosed()) {
+                    if (!HPFromFloor.get(1) && elev.areSlidesIn() && elev.isClawClosed()) {
                         stow();
-                        mFlags.HPFromFloorFlag1.tripFlag();
-                    } else if (!mFlags.HPFromFloorFlag2.get() && intake.isRaised()) {
+                        HPFromFloor.trip(1);
+                    } else if (!HPFromFloor.getNext() && intake.isRaised()) {
                         extendSlides(false);
-                        mFlags.HPFromFloorFlag2.tripFlag();
-                    } else if (!mFlags.HPFromFloorFlag3.get() && elev.areSlidesOut()) {
+                        HPFromFloor.tripNext();
+                    } else if (!HPFromFloor.getNext() && elev.areSlidesOut()) {
                         openClaw(false);
-                        mFlags.HPFromFloorFlag3.tripFlag();
-                    } else if (!mFlags.HPFromFloorFlag4.get() && elev.isClawOpen()) {
+                        HPFromFloor.tripNext();
+                    } else if (!HPFromFloor.getNext() && elev.isClawOpen()) {
                         retractSlides(false);
-                        mFlags.HPFromFloorFlag4.tripFlag();
+                        HPFromFloor.tripNext();
                     }
                 }
-                if (mFlags.HPFromFloorFlag4.get() && elev.areSlidesIn()) {
+                if (HPFromFloor.allFlagsTripped() && elev.areSlidesIn()) {
                     idle();
                 }
                 break;
             case GRAB_HP_FROM_FEED:
                 if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
-
-                    if (!mFlags.HPFromFeed.get()) {
+                    HPFromFeed.trip(1);
+                }
+                if (HPFromFeed.get(1)) {
+                    if (!HPFromFeed.get(2)) {
                         extendSlides(false);
-                        mFlags.HPFromFeed.tripFlag();
-                    } else if (elev.areSlidesOut()) {
+                        HPFromFeed.tripNext();
+                    } else if (!HPFromFeed.getNext() && elev.areSlidesOut()) {
                         openClaw(false);
+                        HPFromFeed.tripNext();
+                    } else if (!HPFromFeed.getNext() && elev.isClawOpen()) {
+                        setHeight(Heights.HP_Feeder_Jog, false);
+                        HPFromFeed.tripNext();
+                    } else if (!HPFromFeed.getNext() && elev.nearTarget()) {
+                        retractSlides(false);
+                        HPFromFeed.tripNext();
                     }
-                    // have automatically retract????
-                } else if (elev.isClawOpen() && mFlags.HPFromFeed.get())
-                    idle();
+                    if (HPFromFeed.allFlagsTripped() && elev.areSlidesIn())
+                        idle();
+                }
                 break;
             }
-
         }
+    }
+
+    private boolean isStowed() {
+        return elev.areSlidesIn() && intake.isRaised();
     }
 
     private void idle() {
@@ -147,7 +163,10 @@ public class Superstructure extends GZSubsystem {
     }
 
     private void queueAction(Actions action) {
-        mQueuedAction = action;
+        if (mQueuedAction != action) {
+            mQueuedAction = action;
+            System.out.println("Queued action " + mQueuedAction);
+        }
     }
 
     public void runQueuedAction() {
@@ -170,9 +189,9 @@ public class Superstructure extends GZSubsystem {
         mAction = action;
         switch (action) {
         case OFF:
+        case IDLE:
             stopElevatorMovement(false);
             break;
-
         case GO_TO_QUEUED_HEIGHT:
             setHeight(mQueuedHeight, true);
             break;
@@ -181,24 +200,19 @@ public class Superstructure extends GZSubsystem {
             setHeight(Heights.Home, false);
             break;
         case STOW:
-            stow();
-            break;
         case STOW_LOW:
             stow();
-            setHeight(Heights.Home, false);
             break;
         case HOLD_CARGO:
             closeClaw(false);
             break;
         case TRNSFR_HP_FROM_FLOOR:
-            mFlags.HPFromFloorFlag1.rst();
-            mFlags.HPFromFloorFlag2.rst();
-            mFlags.HPFromFloorFlag3.rst();
+            HPFromFloor.reset();
             closeClaw(false);
             retractSlides(false);
             break;
         case GRAB_HP_FROM_FEED:
-            mFlags.HPFromFeed.rst();
+            HPFromFeed.reset();
             stow();
             setHeight(Heights.HP_1, false);
             closeClaw(false);
@@ -230,6 +244,7 @@ public class Superstructure extends GZSubsystem {
     public void stow() {
         raiseIntake(false);
         retractSlides(false);
+        stopIntake(false);
     }
 
     private void stopElevatorMovement(boolean manual) {
@@ -299,9 +314,18 @@ public class Superstructure extends GZSubsystem {
 
     public void runIntake(double speed, boolean manual) {
         if (manual) {
+            mManual.mIntake = true;
             intake.runIntake(speed);
         } else if (!mManual.mIntake)
             intake.runIntake(speed);
+    }
+
+    public void stopIntake(boolean manual) {
+        if (manual) {
+            mManual.mIntake = true;
+            intake.stop();
+        } else if (!mManual.mIntake)
+            intake.stop();
     }
 
     public String getStateString() {
