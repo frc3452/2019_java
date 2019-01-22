@@ -73,7 +73,7 @@ public class GZOI extends GZSubsystem {
 				auton.controllerStart();
 			else if (driverJoy.getButtons(Buttons.A, Buttons.X))
 				auton.controllerCancel();
-		} else if (isAuto() || isTele()) { //not running auto command 
+		} else if (isAuto() || isTele()) { //not running auto command and in sandstorm or tele
 			handleOperatorController();
 			handleDriverController();
 			handleRumble();
