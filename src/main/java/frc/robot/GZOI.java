@@ -35,7 +35,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	private Superstructure supe = Superstructure.getInstance();
+	// private Superstructure supe = Superstructure.getInstance();
 
 	private static GZOI mInstance = null;
 
@@ -77,7 +77,6 @@ public class GZOI extends GZSubsystem {
 			op.setXboxController();
 
 		if (isTele()) {
-
 			final boolean queue = op.queueAction.get();
 
 			if (op.hatchPannel1.get())
@@ -131,7 +130,7 @@ public class GZOI extends GZSubsystem {
 				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 			else if (op.hatchFromFeed.updated())
 				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-
+      
 			// Velocity testing
 			if (driverJoy.isBPressed())
 				bToggled = !bToggled;

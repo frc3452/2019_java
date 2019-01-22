@@ -151,7 +151,8 @@ public class Superstructure extends GZSubsystem {
 
     public void runHeight(Heights h, boolean queue) {
         if (queue) {
-            if (mQueuedHeight != h) {
+            if (mQueuedHeight != h)
+            {
                 mQueuedHeight = h;
                 queueAction(Actions.GO_TO_QUEUED_HEIGHT);
                 System.out.println("Queued height: " + mQueuedHeight);
