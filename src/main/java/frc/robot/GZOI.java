@@ -64,16 +64,13 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
-		
-		//Disabled
+		// Disabled
 		if (isDisabled())
 			disabled();
-		else if (auton.isAutoControl()) { //running auto command
-			if (driverJoy.getButtons(Buttons.A, Buttons.B))
-				auton.controllerStart();
-			else if (driverJoy.getButtons(Buttons.A, Buttons.X))
-				auton.controllerCancel();
-		} else if (isAuto() || isTele()) { //not running auto command and in sandstorm or tele
+		else if (auton.isAutoControl()) { // running auto command
+			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
+			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
+		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			handleOperatorController();
 			handleDriverController();
 			handleRumble();

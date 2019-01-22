@@ -7,18 +7,60 @@ public class GZCommand {
 	private String mName;
 	private Command mCommand;
 
+	private boolean mRunning = false;
+
 	public GZCommand(String name, Command command) {
 		this.mName = name;
 		this.mCommand = command;
 	}
-	
-	public String getName()
-	{
+
+	public synchronized boolean start() {
+		isRunning();
+
+		if (mCommand == null)
+			return false;
+
+		if (!mRunning) {
+			mRunning = true;
+			mCommand.start();
+			return true;
+		}
+
+		return false;
+	}
+
+	public synchronized boolean isRunning() {
+		if (mCommand == null)
+			return false;
+
+		if (!mCommand.isRunning() || mCommand.isCompleted() || mCommand.isCanceled()) {
+			mRunning = false;
+			return false;
+		}
+
+		return mRunning;
+	}
+
+	public synchronized boolean cancel() {
+		isRunning();
+
+		if (mCommand == null)
+			return false;
+
+		if (mRunning) {
+			mRunning = false;
+			mCommand.cancel();
+			return true;
+		}
+
+		return false;
+	}
+
+	public String getName() {
 		return mName;
 	}
-	
-	public Command getCommand()
-	{
+
+	public Command getCommand() {
 		return mCommand;
 	}
 }

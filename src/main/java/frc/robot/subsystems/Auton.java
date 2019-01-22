@@ -30,7 +30,7 @@ public class Auton {
 	public ArrayList<GZCommand> commandArray;
 
 	private GZCommand defaultCommand = null;
-	public Command autonomousCommand = null;
+	public GZCommand autonomousCommand = null;
 
 	private int m_controllerOverrideValue = -1;
 	private int p_controllerOverrideValue = m_controllerOverrideValue;
@@ -81,13 +81,13 @@ public class Auton {
 
 		if (m_controllerOverrideValue != -1 && m_controllerOverrideValue > 0
 				&& m_controllerOverrideValue < commandArray.size() - 1) {
-			autonomousCommand = commandArray.get(m_controllerOverrideValue).getCommand();
+			autonomousCommand = commandArray.get(m_controllerOverrideValue);
 		} else {
 			// Check if auton selectors are returning what they should be
 			if (m_selectorValue <= 99 && m_selectorValue >= 1) {
-				autonomousCommand = commandArray.get(m_selectorValue).getCommand();
+				autonomousCommand = commandArray.get(m_selectorValue);
 			} else {
-				autonomousCommand = defaultCommand.getCommand();
+				autonomousCommand = defaultCommand;
 			}
 		}
 
@@ -109,15 +109,17 @@ public class Auton {
 		}
 	}
 
-	public void controllerStart() {
+	public void controllerStart(boolean update) {
 		if (autonomousCommand == null)
 			return;
 
-		System.out.println("WARNING Controller starting auto!");
-		autonomousCommand.start();
+		if (autonomousCommand.start())
+			System.out.println("WARNING Controller starting auto!");
+		else
+			System.out.println("WARNING Could not start controller auto!");
 	}
 
-	public void controllerCancel() {
+	public void controllerCancel(boolean update) {
 		cancelAuton();
 	}
 
@@ -164,8 +166,8 @@ public class Auton {
 	public void startAuton() {
 		if (autonomousCommand != null) {
 			if (!mWaitOnAutoStart) {
-				System.out.println("Starting auto...");
-				autonomousCommand.start();
+				if (autonomousCommand.start())
+					System.out.println("Starting auto...");
 			} else {
 				System.out.println("WARNING Auto not running! Wait toggled!");
 			}
@@ -174,9 +176,10 @@ public class Auton {
 
 	public void cancelAuton() {
 		if (autonomousCommand != null) {
-			System.out.println("WARNING Cancelling auto...");
-			autonomousCommand.cancel();
-			autonomousCommand = null;
+			if (autonomousCommand.cancel())
+				System.out.println("WARNING Cancelling auto...");
+			else
+				System.out.println("WARNING Could not cancel auto!");
 		}
 	}
 
