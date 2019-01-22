@@ -74,16 +74,13 @@ public class Auton {
 		}
 	}
 
-	/**
-	 * Used to pre-populate values for what auto is to be selected before and after
-	 * commands are loaded
-	 */
 	public void autonChooser() {
 		controllerChooser();
 
 		m_selectorValue = getSelector();
 
-		if (m_controllerOverrideValue != -1) {
+		if (m_controllerOverrideValue != -1 && m_controllerOverrideValue > 0
+				&& m_controllerOverrideValue < commandArray.size() - 1) {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue).getCommand();
 		} else {
 			// Check if auton selectors are returning what they should be
@@ -101,7 +98,7 @@ public class Auton {
 		if (autonomousCommand == null)
 			return false;
 
-		return autonomousCommand != null && GZOI.getInstance().isAuto() && GZOI.getInstance().isTele();
+		return autonomousCommand != null && GZOI.getInstance().isAuto();
 	}
 
 	public void toggleAutoWait(boolean updateValue) {
@@ -170,7 +167,7 @@ public class Auton {
 				System.out.println("Starting auto...");
 				autonomousCommand.start();
 			} else {
-				System.out.println("WARNING Auto not running!");
+				System.out.println("WARNING Auto not running! Wait toggled!");
 			}
 		}
 	}
@@ -188,15 +185,14 @@ public class Auton {
 	}
 
 	private void printSelected() {
-		// If overriden, print overide
-		if (m_controllerOverrideValue != p_controllerOverrideValue)
-			System.out.println("Auton Controller override: (" + m_controllerOverrideValue + ") "
-					+ commandArray.get(m_controllerOverrideValue).getName());
-
 		if (m_controllerOverrideValue != -1) {
 			if (m_selectorValue != p_selectorValue) {
 				printSelectors();
 			}
+		} else {
+			if (m_controllerOverrideValue != p_controllerOverrideValue)
+				System.out.println("Auton Controller override: (" + m_controllerOverrideValue + ") "
+						+ commandArray.get(m_controllerOverrideValue).getName());
 		}
 
 		p_selectorValue = m_selectorValue;

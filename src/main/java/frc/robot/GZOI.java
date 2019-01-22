@@ -65,14 +65,15 @@ public class GZOI extends GZSubsystem {
 			mWasTest = true;
 
 		
+		//Disabled
 		if (isDisabled())
 			disabled();
-		else if (auton.isAutoControl()) {
+		else if (auton.isAutoControl()) { //running auto command
 			if (driverJoy.getButtons(Buttons.A, Buttons.B))
 				auton.controllerStart();
 			else if (driverJoy.getButtons(Buttons.A, Buttons.X))
 				auton.controllerCancel();
-		} else if (isAuto()) {
+		} else if (isAuto() || isTele()) { //not running auto command 
 			handleOperatorController();
 			handleDriverController();
 			handleRumble();
