@@ -44,6 +44,8 @@ public class Auton {
 
 	private static Auton mInstance = null;
 
+	private LatchedBoolean mLBAutoStart = new LatchedBoolean();
+	private LatchedBoolean mLBAutoCancel = new LatchedBoolean();
 	private LatchedBoolean mLBWaitOnAutoStart = new LatchedBoolean();
 	private boolean mWaitOnAutoStart = false;
 
@@ -98,7 +100,7 @@ public class Auton {
 		if (autonomousCommand == null)
 			return false;
 
-		return autonomousCommand != null && GZOI.getInstance().isAuto();
+		return autonomousCommand.isRunning() && GZOI.getInstance().isAuto();
 	}
 
 	public void toggleAutoWait(boolean updateValue) {
@@ -113,14 +115,18 @@ public class Auton {
 		if (autonomousCommand == null)
 			return;
 
-		if (autonomousCommand.start())
-			System.out.println("WARNING Controller starting auto!");
-		else
-			System.out.println("WARNING Could not start controller auto!");
+		if (mLBAutoStart.update(update)) {
+			if (autonomousCommand.start())
+				System.out.println("WARNING Controller starting auto!");
+			else
+				System.out.println("WARNING Could not start controller auto!");
+		}
 	}
 
 	public void controllerCancel(boolean update) {
-		cancelAuton();
+		if (mLBAutoCancel.update(update)){
+			cancelAuton();
+		}
 	}
 
 	/**

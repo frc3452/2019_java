@@ -35,7 +35,6 @@ public class GZCommand {
 
 		if (!mCommand.isRunning() || mCommand.isCompleted() || mCommand.isCanceled()) {
 			mRunning = false;
-			return false;
 		}
 
 		return mRunning;
@@ -47,9 +46,9 @@ public class GZCommand {
 		if (mCommand == null)
 			return false;
 
+		mCommand.cancel();
 		if (mRunning) {
 			mRunning = false;
-			mCommand.cancel();
 			return true;
 		}
 
