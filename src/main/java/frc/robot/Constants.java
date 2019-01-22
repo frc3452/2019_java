@@ -94,14 +94,15 @@ public class Constants {
                                                      // our speed
 													 // in inches per sec
 													 
-	public static double kPathFollowingProfileKp = 2.5;
-    public static double kPathFollowingProfileKi = 0.03; //.03
-    public static double kPathFollowingProfileKv = 0.11;
-    public static double kPathFollowingProfileKffv = 1; //1 //4 slightly sped up ?
-    public static double kPathFollowingProfileKffa = 0.05; //.05 //.25 slightly sped up?
-    public static double kPathFollowingGoalPosTolerance = 0.75;
-    public static double kPathFollowingGoalVelTolerance = 12.0;
-    public static double kPathStopSteeringDistance = 9.0;
+	public static double kPathFollowingProfileKp = 50; //2.5 //t
+    public static double kPathFollowingProfileKi = 0.03; //.03 //t
+    public static double kPathFollowingProfileKv = 0.11; //.11 //t
+    public static double kPathFollowingProfileKffv = .5; //1 //4 slightly sped up ?
+    public static double kPathFollowingProfileKffa = 0.025; //.05 //.25 slightly sped up?
+
+	public static double kPathFollowingGoalPosTolerance = 0.75; // .75
+    public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0
+    public static double kPathStopSteeringDistance = 9.0; //9.0
 
 	public static class kDrivetrain {
 
@@ -109,9 +110,11 @@ public class Constants {
 
 		public static class PID {
 
-			static final double p = 1.2; // .1
+			//1.1 15
+
+			static final double p = 1.2; // 1.2 
 			static final double d = 10; // 10
-			static final double f = .23;
+			static final double f = 0; //.23
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 

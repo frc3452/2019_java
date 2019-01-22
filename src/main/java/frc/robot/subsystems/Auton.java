@@ -129,8 +129,8 @@ public class Auton {
 		}
 		commandArray.clear();
 
-		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath2())));
-		commandArray.add(new GZCommand("Test trajectory backwards", new DrivePathGroup(new ReversePath2())));
+		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath())));
+		commandArray.add(new GZCommand("Test trajectory 2", new DrivePathGroup(new TestPath2())));
 
 		// commandArray.add(new GZCommand("Test trajectory",
 				// new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));
