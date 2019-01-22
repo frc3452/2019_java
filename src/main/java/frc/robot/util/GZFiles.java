@@ -552,6 +552,9 @@ public class GZFiles {
 
 		// Analog inputs
 		{
+			if (GZFiles.getInstance().mAllAnalogSensors.size() > 0){
+			body += HTML.header("Analog Inputs", 1, "Green");
+
 			String analogTable = "";
 			String tableHeader = HTML.easyHeader("Subsystem", "Name", "Port");
 			analogTable += tableHeader;
@@ -565,6 +568,7 @@ public class GZFiles {
 			analogTable = HTML.table(analogTable);
 
 			body += analogTable;
+		}
 		}
 
 		try {

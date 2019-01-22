@@ -646,7 +646,6 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
-		outputSmartDashboard();
 		handleStates();
 		in();
 		out();
@@ -765,19 +764,6 @@ public class Drive extends GZSubsystem {
 
 		mIO.left_encoder_total_delta_rotations = L1.getTotalEncoderRotations(getLeftRotations());
 		mIO.right_encoder_total_delta_rotations = R1.getTotalEncoderRotations(getRightRotations());
-	}
-
-	@Override
-	public void outputSmartDashboard() {
-		SmartDashboard.putNumber("NavX Angle", mNavX.getAngle());
-
-		SmartDashboard.putNumber("L1", getLeftRotations());
-		SmartDashboard.putNumber("R1", getRightRotations());
-
-		SmartDashboard.putNumber("L1 Vel", mIO.left_encoder_vel);
-		SmartDashboard.putNumber("R1 Vel", mIO.right_encoder_vel);
-
-		SmartDashboard.putNumber("PercentageCompleted", getPercentageComplete());
 	}
 
 	public void shift() {

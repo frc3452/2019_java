@@ -9,6 +9,7 @@ import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
@@ -23,9 +24,10 @@ public class Robot extends TimedRobot {
 	// public static final GZSubsystemManager allSubsystems = new
 	// GZSubsystemManager(Drive.getInstance(),
 	// RobotStateEstimator.getInstance(), GZOI.getInstance());
+
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), GZOI.getInstance(), Elevator.getInstance(), Intake.getInstance(),
-			Pneumatics.getInstance());
+			RobotStateEstimator.getInstance(), Elevator.getInstance(), Intake.getInstance(), Pneumatics.getInstance(),
+			Superstructure.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
