@@ -17,6 +17,7 @@ import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
@@ -34,6 +35,9 @@ public class GZFiles {
 
 	public ArrayList<ArrayList<Double>> mpL = new ArrayList<>();
 	public ArrayList<ArrayList<Double>> mpR = new ArrayList<>();
+
+	public ArrayList<GZAnalogInput> mAllAnalogSensors = new ArrayList<GZAnalogInput>();
+
 	public int mpDur = 0;
 
 	private FileReader fr;
@@ -431,9 +435,9 @@ public class GZFiles {
 						String canTable = "";
 						{
 							String header = "";
-							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID",
-									"PDP Channel", "Calculated breaker", "Firmware version",
-									"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
+							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "PDP Channel",
+									"Calculated breaker", "Firmware version", "Temperature Sensor Port",
+									"Temperature sensor value (F)", "Master/Follower"));
 
 							canTable += header;
 						}
@@ -511,8 +515,8 @@ public class GZFiles {
 
 						for (GZSolenoid sol : s.mSingleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(),
-									"" + sol.getConstants().module, "" + sol.getConstants().channel));
+							solenoidRow += HTML.easyTableRow(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().channel);
 							singlesTable += solenoidRow;
 						}
 						singlesTable = HTML.table(singlesTable);
@@ -531,9 +535,8 @@ public class GZFiles {
 
 						for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML
-									.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
-											"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
+							solenoidRow += HTML.easyTableRow(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel);
 							doublesTable += solenoidRow;
 						}
 
@@ -545,7 +548,25 @@ public class GZFiles {
 
 				body += subsystem;
 			}
+		} // end of all subsystem loop
+
+		// Analog inputs
+		{
+			String analogTable = "";
+			String tableHeader = HTML.easyHeader("Subsystem", "Name", "Port");
+			analogTable += tableHeader;
+
+			for (GZAnalogInput inputs : GZFiles.getInstance().mAllAnalogSensors) {
+				String row = "";
+				row += HTML.easyTableRow(inputs.getGZSubsystem().toString(), inputs.getGZName(), "" + inputs.getPort());
+				analogTable += row;
+			}
+
+			analogTable = HTML.table(analogTable);
+
+			body += analogTable;
 		}
+
 		try {
 			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
 			HTML.createHTMLFile(file, body);
@@ -703,12 +724,13 @@ public class GZFiles {
 			return "<td>" + f + "</td>";
 		}
 
-		public static String easyTableCell(String... f) {
+		public static String easyTableRow(String... f) {
 			String retval = "";
 
 			for (String s : f) {
 				retval += tableCell(s);
 			}
+			retval = HTML.tableRow(retval);
 			return retval;
 		}
 

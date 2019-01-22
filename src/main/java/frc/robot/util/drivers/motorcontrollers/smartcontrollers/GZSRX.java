@@ -12,6 +12,7 @@ import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
@@ -92,7 +93,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	private double mTotalEncoderRotations = 0;
 	private double mPrevEncoderRotations = 0;
 
-	private AnalogInput mTemperatureSensor = null;
+	private GZAnalogInput mTemperatureSensor = null;
 	private int mTemperatureSensorPort;
 
 	private boolean mLockedOut = false;
@@ -121,7 +122,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 			this.mBreaker = this.mActualBreaker;
 
 		if (this.mTemperatureSensorPort != -1)
-			this.mTemperatureSensor = new AnalogInput(this.mTemperatureSensorPort);
+			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
+					this.mTemperatureSensorPort);
 
 		if (this.mBreaker != this.mActualBreaker)
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
@@ -210,7 +212,6 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	public Breaker getBreaker() {
 		return mBreaker;
 	}
-
 
 	public int getPDPChannel() {
 		return this.mPDPChannel;

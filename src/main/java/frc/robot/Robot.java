@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;

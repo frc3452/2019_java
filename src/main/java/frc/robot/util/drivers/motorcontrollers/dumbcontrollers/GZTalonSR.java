@@ -1,10 +1,10 @@
 package frc.robot.util.drivers.motorcontrollers.dumbcontrollers;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Talon;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class GZTalonSR extends Talon implements GZSpeedController {
@@ -43,9 +43,11 @@ public class GZTalonSR extends Talon implements GZSpeedController {
     private String mName;
     private Breaker mBreaker;
 
+    private GZSubsystem mSubsystem;
+
     private boolean mLockedOut = false;
 
-    private AnalogInput mTemperatureSensor = null;
+    private GZAnalogInput mTemperatureSensor = null;
     private int mTemperatureSensorPort;
 
     private GZTalonSR(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
@@ -55,10 +57,13 @@ public class GZTalonSR extends Talon implements GZSpeedController {
         this.mPDPChannel = PDPChannel;
         this.mTemperatureSensorPort = tempSensorPort;
 
+        this.mSubsystem = subsystem;
+
         this.mBreaker = GZSpeedController.setBreaker(this.mPDPChannel, this);
 
         if (this.mTemperatureSensorPort != -1)
-            this.mTemperatureSensor = new AnalogInput(this.mTemperatureSensorPort);
+			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
+					this.mTemperatureSensorPort);
 
         subsystem.mDumbControllers.add(this);
     }

@@ -33,8 +33,8 @@ public class Elevator extends GZSubsystem {
 
     private GZSolenoid mCarriageSlide, mClaw;
 
-    private ElevatorPIDConfig mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
-    private ElevatorPIDConfig mPreviousMotionMode = ElevatorPIDConfig.CARGO;
+    private boolean mPrevMovingHP = true;
+    private boolean mMovingHP = false;
 
     private static Elevator mInstance = null;
 
@@ -54,7 +54,7 @@ public class Elevator extends GZSubsystem {
         mClaw = new GZSolenoid(kElevator.CLAW, this, "Carriage claw");
         mClaw.set(false);
 
-        mCargoSensor = new GZAnalogInput(kElevator.CARGO_SENSOR_CHANNEL, kElevator.CARGO_SENSOR_LOW_VOLT,
+        mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL, kElevator.CARGO_SENSOR_LOW_VOLT,
                 kElevator.CARGO_SENSOR_HIGH_VOLT);
 
         talonInit();
@@ -78,7 +78,7 @@ public class Elevator extends GZSubsystem {
         configPID(kElevator.PID);
         configPID(kElevator.PID2);
         selectProfileSlot(ElevatorPIDConfig.EMPTY);
-        configAccelInchesPerSec(6 * 12 * .5); // 3 fps
+        configAccelInchesPerSec(3 * 12); // 3 fps
         configCruiseInchesPerSec(6 * 12); // 6 fps
     }
 
@@ -168,31 +168,29 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void setHeight(Heights height) {
-        setHeight(height.inches);
+        setHeight(height.inches, height.moving_hp);
     }
 
-    protected void goHome()
-    {
+    protected void goHome() {
         setHeight(Heights.Home);
-    } 
+    }
 
     protected void setHeight(double heightInInches) {
-            setWantedState(ElevatorState.MOTION_MAGIC);
-            mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * (heightInInches + kElevator.HOME_INCHES);
+        setHeight(heightInInches, false);
     }
 
-    protected void stopMovement()
-    {
-        setHeight(getHeightInches());
+    protected void setHeight(double heightInInches, boolean movingHp) {
+        setWantedState(ElevatorState.MOTION_MAGIC);
+        mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * (heightInInches + kElevator.HOME_INCHES);
+        mMovingHP = movingHp;
+    }
+
+    protected void stopMovement() {
+        setHeight(getHeightInches(), mMovingHP);
     }
 
     protected void jogHeight(double jogHeightInches) {
         setHeight(getHeightInches() + jogHeightInches);
-    }
-
-    protected void setRotations(double rotations) {
-    setWantedState(ElevatorState.MOTION_MAGIC);
-    mIO.desired_output = 4096 * rotations;
     }
 
     private void configAccelInchesPerSec(double inchesPerSecond) {
@@ -222,7 +220,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public double getHeightInches() {
-        return mIO.ticks_position / kElevator.TICKS_PER_INCH;
+        return (mIO.ticks_position / kElevator.TICKS_PER_INCH) + kElevator.HOME_INCHES;
     }
 
     public boolean isCargoSensorTripped() {
@@ -233,16 +231,10 @@ public class Elevator extends GZSubsystem {
      * if we want to do something with multiple pid tuning slots
      */
     private void handlePID() {
-        // if (cargoSensorTripped() && isHome())
-        // {
+        if (mPrevMovingHP != mMovingHP)
+            selectProfileSlot((mMovingHP ? ElevatorPIDConfig.CARGO : ElevatorPIDConfig.EMPTY));
 
-        // }
-
-        if (mCurrentMotionMode != mPreviousMotionMode) {
-            mCurrentMotionMode = ElevatorPIDConfig.EMPTY;
-            selectProfileSlot(mCurrentMotionMode);
-            mPreviousMotionMode = mCurrentMotionMode;
-        }
+        mPrevMovingHP = mMovingHP;
     }
 
     @Override
@@ -268,16 +260,17 @@ public class Elevator extends GZSubsystem {
     protected void openClaw() {
         mClaw.set(false);
     }
+
     protected void closeClaw() {
         mClaw.set(true);
     }
 
     protected void extendSlides() {
-            mCarriageSlide.set(true);
+        mCarriageSlide.set(true);
     }
 
     protected void retractSlides() {
-            mCarriageSlide.set(false);
+        mCarriageSlide.set(false);
     }
 
     public boolean isClawClosed() {
@@ -382,13 +375,11 @@ public class Elevator extends GZSubsystem {
         return mIO.rev_limit_switch; // TODO TUNE
     }
 
-    public int getSlidesTotalCounts()
-    {
+    public int getSlidesTotalCounts() {
         return mCarriageSlide.getChangeCounts();
     }
 
-    public int getClawTotalCounts()
-    {
+    public int getClawTotalCounts() {
         return mClaw.getChangeCounts();
     }
 

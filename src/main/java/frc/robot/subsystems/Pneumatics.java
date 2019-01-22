@@ -5,12 +5,15 @@ import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.GZOI;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public class Pneumatics extends GZSubsystem {
 
     private Compressor mCompressor;
     private GZSolenoid mClimberCrawler;
+
+    private GZAnalogInput mPressureSensor;
     private static Pneumatics mInstance = null;
 
     public static Pneumatics getInstance() {
@@ -23,12 +26,14 @@ public class Pneumatics extends GZSubsystem {
     private Pneumatics() {
         mCompressor = new Compressor(kPneumatics.COMPRESSOR_MODULE);
         mClimberCrawler = new GZSolenoid(kPneumatics.CRAWLER, this, "Climber crawler");
-    }
-    public void dropCrawler(){
-       mClimberCrawler.set(true); 
+        mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT);
     }
 
-    public void raiseCrawler(){
+    public void dropCrawler() {
+        mClimberCrawler.set(true);
+    }
+
+    public void raiseCrawler() {
         mClimberCrawler.set(false);
     }
 
@@ -48,10 +53,9 @@ public class Pneumatics extends GZSubsystem {
 
     }
 
-    public int getDropClimberTotalCounts()
-     {
-         return mClimberCrawler.getChangeCounts();
-     }
+    public int getDropClimberTotalCounts() {
+        return mClimberCrawler.getChangeCounts();
+    }
 
     @Override
     public void stop() {

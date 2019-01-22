@@ -111,6 +111,10 @@ public class Auton {
 		}
 	}
 
+	/**
+	 *  Uses internal LatchedBoolean, starts auton with controller
+	 *  Ignores autonomous waiting
+	 */
 	public void controllerStart(boolean update) {
 		if (autonomousCommand == null)
 			return;
@@ -123,6 +127,9 @@ public class Auton {
 		}
 	}
 
+	/**
+	 * Uses internal LatchedBoolean. Cancels auton 
+	 */
 	public void controllerCancel(boolean update) {
 		if (mLBAutoCancel.update(update)){
 			cancelAuton();
@@ -169,6 +176,9 @@ public class Auton {
 		autonChooser();
 	}
 
+	/**
+	 * Ran once by autonomousInit
+	 */
 	public void startAuton() {
 		if (autonomousCommand != null) {
 			if (!mWaitOnAutoStart) {
@@ -180,6 +190,7 @@ public class Auton {
 		}
 	}
 
+	//Ran on teleopInit
 	public void cancelAuton() {
 		if (autonomousCommand != null) {
 			if (autonomousCommand.cancel())

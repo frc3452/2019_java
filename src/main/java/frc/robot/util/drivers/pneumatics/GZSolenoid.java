@@ -38,7 +38,6 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
 
     private int mChangeCounts = 0;
 
-
     public SolenoidConstants getConstants() {
         return this.mConstants;
     }

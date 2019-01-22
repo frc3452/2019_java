@@ -5,11 +5,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
@@ -65,8 +65,8 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		}
 
 		public GZVictorSPX build() {
-			GZVictorSPX g = new GZVictorSPX(this.mDeviceNumber, this.mSub, this.mName, this.mPDPChannel, this.mBreaker, this.mSide,
-					this.mMaster, this.mTempSensorPort);
+			GZVictorSPX g = new GZVictorSPX(this.mDeviceNumber, this.mSub, this.mName, this.mPDPChannel, this.mBreaker,
+					this.mSide, this.mMaster, this.mTempSensorPort);
 			return g;
 		}
 
@@ -87,14 +87,14 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 
 	private GZSubsystem mSubsystem;
 
-	private AnalogInput mTemperatureSensor = null;
+	private GZAnalogInput mTemperatureSensor = null;
 	private int mTemperatureSensorPort;
 
 	private boolean mLockedOut = false;
 
 	// Constructor for builder
-	private GZVictorSPX(int deviceNumber, GZSubsystem subsystem, String name, int PDPChannel, Breaker breaker, Side side,
-			Master master, int temperatureSensorPort) {
+	private GZVictorSPX(int deviceNumber, GZSubsystem subsystem, String name, int PDPChannel, Breaker breaker,
+			Side side, Master master, int temperatureSensorPort) {
 		super(deviceNumber);
 
 		this.mPDPChannel = PDPChannel;
@@ -114,7 +114,8 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 			this.mBreaker = this.mActualBreaker;
 
 		if (this.mTemperatureSensorPort != -1)
-			this.mTemperatureSensor = new AnalogInput(this.mTemperatureSensorPort);
+			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
+					this.mTemperatureSensorPort);
 
 		if (this.mBreaker != this.mActualBreaker)
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
