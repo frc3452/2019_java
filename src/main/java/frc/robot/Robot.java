@@ -11,6 +11,7 @@ import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
@@ -22,12 +23,12 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// health is generated in, etc
-	public static final GZSubsystemManager allSubsystems = new
-	GZSubsystemManager(Drive.getInstance(),
-	RobotStateEstimator.getInstance(), GZOI.getInstance());
-	// public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-	// 		RobotStateEstimator.getInstance(), GZOI.getInstance(), Elevator.getInstance(), Intake.getInstance(),
-	// 		Pneumatics.getInstance());
+	// public static final GZSubsystemManager allSubsystems = new
+	// GZSubsystemManager(Drive.getInstance(),
+	// RobotStateEstimator.getInstance(), GZOI.getInstance());
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), GZOI.getInstance(), Elevator.getInstance(), Intake.getInstance(),
+			Pneumatics.getInstance(), Superstructure.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();

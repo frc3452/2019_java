@@ -35,7 +35,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	// private Superstructure supe = Superstructure.getInstance();
+	private Superstructure supe = Superstructure.getInstance();
 
 	private static GZOI mInstance = null;
 
