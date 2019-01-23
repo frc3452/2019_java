@@ -1,20 +1,19 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
-import frc.robot.util.GZFileMaker.FileExtensions;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first

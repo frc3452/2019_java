@@ -96,7 +96,7 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
 			op.setButtonBoard();
-		else if (driverJoy.allButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
+		else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
 			op.setXboxController();
 	}
 
@@ -109,7 +109,7 @@ public class GZOI extends GZSubsystem {
 			final double high = 1500;
 			final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
 			final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
-			drive.printVelocity(left);
+			drive.printVelocity(left, right);
 			drive.setVelocity(left, right);
 		} else {
 			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);

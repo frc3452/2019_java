@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Notifier;
+import frc.robot.Constants;
 import frc.robot.GZOI;
 import frc.robot.Robot;
+import frc.robot.Constants.kFiles;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;

@@ -116,7 +116,7 @@ public class TestModeRunner {
     }
 
     public void update() {
-        if (GZOI.driverJoy.allButtons(Buttons.BACK, Buttons.START)) {
+        if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
         } else if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
             isEnabled = false;
