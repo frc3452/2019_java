@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Notifier;
-import frc.robot.Constants;
-import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
@@ -60,12 +58,29 @@ public class GZFiles {
 		return mInstance;
 	}
 
+	// private PrintStream realOutput = System.out;
+
+	// private class NullOutputString extends OutputStream {
+
+	// @Override
+	// public void write(int b) {
+	// }
+
+	// public void write(byte[] b){}
+
+	// public void write(byte[] b, int off, int len){}
+
+	// public NullOutputString(){}
+	// }
+
 	/**
 	 * hardware initialization
 	 * 
 	 * @author max
 	 */
 	private GZFiles() {
+		// System.setOut(new PrintStream(new NullOutputString()));
+
 		try {
 			final Folder f = new Folder("RIOSHORTCUTS");
 			GZFiles.copyFolder(f, false, f, true);
@@ -472,9 +487,7 @@ public class GZFiles {
 						String pwmTable = "";
 						{
 							String header = "";
-							header += HTML.tableRow(HTML.tableHeader("Name") + HTML.tableHeader("PWM Port")
-									+ HTML.tableHeader("PDP Channel") + HTML.tableHeader("Calculated breaker")
-									+ HTML.tableHeader("Temperature Sensor Port"));
+							header += HTML.tableRow(HTML.easyHeader("Name", "PWM Port", "PDP Channel", "Calculated breaker", "Temperature Sensor Port", "Temperature sensor value (F)"));
 							pwmTable += header;
 						}
 
@@ -487,7 +500,10 @@ public class GZFiles {
 										+ HTML.tableCell("" + controller.getPDPChannel())
 										+ HTML.tableCell("" + controller.getCalculatedBreaker())
 										+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
-												controller.hasTemperatureSensor() ? "white" : "red",
+										controller.hasTemperatureSensor() ? "white" : "red",
+												!controller.hasTemperatureSensor())
+										+ HTML.tableCell(controller.getTemperatureSensor().toString(),
+												(controller.hasTemperatureSensor() ? "white" : "red"),
 												!controller.hasTemperatureSensor()));
 								tableBody += pwmRow;
 							}
@@ -570,7 +586,7 @@ public class GZFiles {
 		}
 
 		try {
-			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
+			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), FileExtensions.HTML, false, true);
 			HTML.createHTMLFile(file, body);
 
 			try {
@@ -648,7 +664,7 @@ public class GZFiles {
 		Files.copy(source.toPath(), dest.toPath());
 	}
 
-	private String loggingName(boolean returnCurrent) {
+	public String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
 			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_") : "")
 					+ GZUtil.dateTime(true);

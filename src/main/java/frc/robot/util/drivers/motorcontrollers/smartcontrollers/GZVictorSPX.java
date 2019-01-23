@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
@@ -72,11 +73,6 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 
 	}
 
-	public final static int TIMEOUT = 10;
-	public static final int LONG_TIMEOUT = 100;
-	public final static int FIRMWARE = 1024; // 778 //1025
-	private final static AlertLevel mFirmwareLevel = AlertLevel.WARNING;
-
 	private Breaker mBreaker;
 	private Breaker mActualBreaker;
 	private Side mSide;
@@ -122,6 +118,7 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 					+ " overridden to breaker " + this.mBreaker + ", plugged into " + this.mActualBreaker);
 
 		subsystem.mSmartControllers.add(this);
+		subsystem.mVictors.add(this);
 	}
 
 	/**
@@ -185,7 +182,7 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 	}
 
 	public Double getAmperage() {
-		return this.getOutputCurrent();
+		return GZPDP.getInstance().getCurrent(getPDPChannel());
 	}
 
 	public double getVoltage() {
@@ -201,49 +198,6 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		return this.getDeviceID();
 	}
 
-	public static void logError(ErrorCode errorCode, GZSubsystem subsystem, AlertLevel level, String message) {
-		if (errorCode != ErrorCode.OK)
-			Health.getInstance().addAlert(subsystem, level, message);
-	}
-
-	public abstract static class TestLogError {
-
-		private GZSubsystem subsystem;
-		private AlertLevel level;
-		private String message;
-		private int retries;
-
-		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message, int retries) {
-			this.subsystem = subsystem;
-			this.level = level;
-			this.message = message;
-			this.retries = retries;
-			test();
-		}
-
-		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message) {
-			this(subsystem, level, message, -1);
-		}
-
-		public abstract ErrorCode error();
-
-		public void test() {
-			boolean success = false;
-			if (this.level == AlertLevel.WARNING)
-				retries = 3;
-			else
-				retries = 6;
-
-			for (int i = 0; i < retries && !success; i++) {
-				if (error() == ErrorCode.OK)
-					success = true;
-			}
-
-			if (!success)
-				Health.getInstance().addAlert(this.subsystem, this.level, this.message);
-		}
-	}
-
 	public int getFirmware() {
 		// once we get the firmware version
 
@@ -256,7 +210,7 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 				mFirmware = firm;
 
 			if (counter > 0)
-				System.out.println("Trying to get firmware for Talon " + this.getGZName() + ": try " + counter);
+				System.out.println("Trying to get firmware for Controller " + this.getGZName() + ": try " + counter);
 			counter++;
 		} while (counter <= 3 && mFirmware == -1);
 
@@ -266,8 +220,8 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 	public void checkFirmware() {
 		int firm = this.getFirmware();
 
-		if (firm != FIRMWARE) {
-			Health.getInstance().addAlert(this.mSubsystem, mFirmwareLevel,
+		if (firm != GZSRX.FIRMWARE) {
+			Health.getInstance().addAlert(this.mSubsystem, GZSRX.FIRMWARE_ALERT_LEVEL,
 					"Talon " + this.getGZName() + " firmware is " + firm + ", should be " + FIRMWARE);
 		}
 	}

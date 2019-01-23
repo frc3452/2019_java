@@ -75,10 +75,10 @@ public class Lights extends GZSubsystem {
 
 		if (!gzOI.isSafetyDisabled()) {
 
-			if (GZOI.driverJoy.getButtons(Buttons.A, Buttons.B, Buttons.BACK))
+			if (GZOI.driverJoy.allButtons(Buttons.A, Buttons.B, Buttons.BACK))
 				readyForMatch = true;
 
-			if (GZOI.driverJoy.getButtons(Buttons.A, Buttons.B, Buttons.START))
+			if (GZOI.driverJoy.allButtons(Buttons.A, Buttons.B, Buttons.START))
 				readyForMatch = false;
 
 			if (gzOI.isTele()) {

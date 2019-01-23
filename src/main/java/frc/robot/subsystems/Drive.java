@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
@@ -14,28 +15,26 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
-import frc.robot.poofs.DriveMotionPlanner;
+import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
-import frc.robot.poofs.geometry.Pose2d;
-import frc.robot.poofs.geometry.Pose2dWithCurvature;
-import frc.robot.poofs.geometry.Rotation2d;
-import frc.robot.poofs.trajectory.TrajectoryIterator;
-import frc.robot.poofs.trajectory.timing.TimedState;
-import frc.robot.poofs.util.DriveSignal;
+import frc.robot.poofs.util.control.Lookahead;
+import frc.robot.poofs.util.control.Path;
+import frc.robot.poofs.util.control.PathFollower;
+import frc.robot.poofs.util.drivers.NavX;
+import frc.robot.poofs.util.math.RigidTransform2d;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
@@ -43,14 +42,12 @@ import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
-import frc.robot.util.drivers.GZAHRS;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
-import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
@@ -65,20 +62,138 @@ public class Drive extends GZSubsystem {
 	private GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
 
 	// GYRO
-	private GZAHRS mNavX;
+	private NavX mNavX;
 
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
 	private double mPercentageComplete = 0;
 	private double mLeft_target = 0, mRight_target = 0;
 
-	// POOFS
-	private DriveMotionPlanner mMotionPlanner;
-	private boolean mOverrideTrajectory = false;
-	private Rotation2d mGyroOffset = Rotation2d.fromDegrees(0);
-	// ~POOFS
-
 	private static Drive mInstance = null;
+
+	// ~POOFS~//
+	private PathFollower mPathFollower;
+	private Path mCurrentPath = null;
+	private RobotState mRobotState = RobotState.getInstance();
+
+	public synchronized void setGyroAngle(Rotation2d angle) {
+		mNavX.reset();
+		mNavX.setAngleAdjustment(angle);
+	}
+
+	private synchronized void updateVelocitySetpoint(double left_inches_per_sec, double right_inches_per_sec) {
+		final double max_desired = Math.max(Math.abs(left_inches_per_sec), Math.abs(right_inches_per_sec));
+		final double scale = max_desired > Constants.kDriveHighGearMaxSetpoint
+				? Constants.kDriveHighGearMaxSetpoint / max_desired
+				: 1.0;
+		mIO.left_desired_output = (inchesPerSecondToRpm(left_inches_per_sec * scale));
+		mIO.right_desired_output = -(inchesPerSecondToRpm(right_inches_per_sec * scale));
+	}
+
+	public synchronized boolean hasPassedMarker(String marker) {
+		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
+			return mPathFollower.hasPassedMarker(marker);
+		} else {
+			System.out.println("Robot is not in path following mode");
+			return false;
+		}
+	}
+
+	private void updatePathFollower() {
+		RigidTransform2d robot_pose = mRobotState.getLatestFieldToVehicle().getValue();
+		// System.out.println(robot_pose.getTranslation().toString());
+		Twist2d command = mPathFollower.update(Timer.getFPGATimestamp(), robot_pose,
+				RobotState.getInstance().getDistanceDriven(), RobotState.getInstance().getPredictedVelocity().dx);
+		if (!mPathFollower.isFinished()) {
+			Kinematics.DriveVelocity setpoint = Kinematics.inverseKinematics(command);
+			updateVelocitySetpoint(setpoint.left, setpoint.right);
+		} else {
+			updateVelocitySetpoint(0, 0);
+		}
+	}
+
+	public synchronized void setWantDrivePath(Path path, boolean reversed) {
+		if (mCurrentPath != path || mState != DriveState.PATH_FOLLOWING) {
+			RobotState.getInstance().resetDistanceDriven();
+			mPathFollower = new PathFollower(path, reversed, new PathFollower.Parameters(
+					new Lookahead(Constants.kMinLookAhead, Constants.kMaxLookAhead, Constants.kMinLookAheadSpeed,
+							Constants.kMaxLookAheadSpeed),
+					Constants.kInertiaSteeringGain, Constants.kPathFollowingProfileKp,
+					Constants.kPathFollowingProfileKi, Constants.kPathFollowingProfileKv,
+					Constants.kPathFollowingProfileKffv, Constants.kPathFollowingProfileKffa,
+					Constants.kPathFollowingMaxVel, Constants.kPathFollowingMaxAccel,
+					Constants.kPathFollowingGoalPosTolerance, Constants.kPathFollowingGoalVelTolerance,
+					Constants.kPathStopSteeringDistance));
+			setWantedState(DriveState.PATH_FOLLOWING);
+			mCurrentPath = path;
+		} else {
+			// stop();
+			// setVelocitySetpoint(0, 0);
+		}
+	}
+
+	public synchronized boolean isDoneWithPath() {
+		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
+			return mPathFollower.isFinished();
+		} else {
+			System.out.println("Robot is not in path following mode");
+			return true;
+		}
+	}
+
+	public synchronized void forceDoneWithPath() {
+		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
+			mPathFollower.forceFinish();
+		} else {
+			System.out.println("Robot is not in path following mode");
+		}
+	}
+
+	private static Double rotationsToInches(double rotations) {
+		return rotations * (kDrivetrain.WHEEL_DIAMATER_IN * Math.PI);
+	}
+
+    private static double rpmToInchesPerSecond(double rpm) {
+        return rotationsToInches(rpm) / 60;
+    }
+
+	public double getLeftVelocityInchesPerSec() {
+        return rpmToInchesPerSecond(Units.ticks_to_rotations(mIO.left_encoder_vel));
+    }
+
+    public double getRightVelocityInchesPerSec() {
+        return rpmToInchesPerSecond(Units.ticks_to_rotations(-mIO.right_encoder_vel));
+    }
+
+	public double getLeftDistanceInches() {
+		Double ret = rotationsToInches(getLeftRotations());
+		if (ret.isNaN())
+			return 0.0;
+
+		return ret;
+	}
+
+	public double getRightDistanceInches() {
+		Double ret = rotationsToInches(getRightRotations());
+		if (ret.isNaN())
+			return 0.0;
+
+		return ret;
+	}
+
+	public synchronized Rotation2d getGyroAngle() {
+		return mNavX.getYaw();
+	}
+
+	private static double inchesPerSecondToRpm(double inches_per_second) {
+		return inchesToRotations(inches_per_second) * 60;
+	}
+
+	private static double inchesToRotations(double inches) {
+		return inches / (kDrivetrain.WHEEL_DIAMATER_IN * Math.PI);
+	}
+
+	// ~POOFS~//
 
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
@@ -102,7 +217,7 @@ public class Drive extends GZSubsystem {
 		R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
 		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
 
-		mNavX = new GZAHRS(SPI.Port.kMXP);
+		mNavX = new NavX(SPI.Port.kMXP);
 
 		// mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
 		// mShifter.set(false);
@@ -127,165 +242,25 @@ public class Drive extends GZSubsystem {
 		mNavX.reset();
 
 		checkFirmware();
-
-		mMotionPlanner = new DriveMotionPlanner();
 	}
 
 	// POOFS
-	/**
-	 * Configures talons for velocity control
-	 */
-	public synchronized void setVelocity(DriveSignal signal, DriveSignal feedforward) {
-		if (setWantedState(DriveState.PATH_FOLLOWING)) {
-			mIO.left_desired_output = signal.getLeft();
-			mIO.right_desired_output = signal.getRight();
-			mIO.left_feedforward = feedforward.getLeft();
-			mIO.right_feedforward = feedforward.getRight();
-		}
-	}
-
 	public synchronized void setVelocity(double left, double right) {
 		setWantedState(DriveState.VELOCITY);
 		mIO.left_desired_output = left;
 		mIO.right_desired_output = right;
 	}
 
-	public void overrideTrajectory(boolean value) {
-		mOverrideTrajectory = value;
-	}
-
-	private static double radiansPerSecondToTicksPer100ms(double rad_s) {
-		return rad_s / (Math.PI * 2.0) * 4096.0 / 10.0;
-	}
-
-	private void updatePathFollower() {
-		if (mState == DriveState.PATH_FOLLOWING) {
-			final double now = Timer.getFPGATimestamp();
-
-			DriveMotionPlanner.Output output = mMotionPlanner.update(now,
-					RobotState.getInstance().getFieldToVehicle(now));
-
-			// DriveSignal signal = new DriveSignal(demand.left_feedforward_voltage / 12.0,
-			// demand.right_feedforward_voltage / 12.0);
-
-			mIO.error = mMotionPlanner.error();
-			mIO.path_setpoint = mMotionPlanner.setpoint();
-
-			if (!mOverrideTrajectory) {
-				setVelocity(
-						new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
-								radiansPerSecondToTicksPer100ms(output.right_velocity)),
-						new DriveSignal(output.left_feedforward_voltage / 12.0,
-								output.right_feedforward_voltage / 12.0));
-
-				mIO.left_accel = radiansPerSecondToTicksPer100ms(output.left_accel) / 1000.0;
-				mIO.right_accel = radiansPerSecondToTicksPer100ms(output.right_accel) / 1000.0;
-			} else {
-				setVelocity(DriveSignal.BRAKE, DriveSignal.BRAKE);
-				mIO.left_accel = mIO.right_accel = 0.0;
-			}
-		} else {
-			DriverStation.reportError("Drive is not in path following state", false);
-		}
-	}
-
-	public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory) {
-		if (mMotionPlanner != null) {
-			mOverrideTrajectory = false;
-			mMotionPlanner.reset();
-			mMotionPlanner.setTrajectory(trajectory);
-			setWantedState(DriveState.PATH_FOLLOWING);
-			handleStates(); // run this a little bit out of loop just to get us into path following state as
-							// quickly as possible
-		}
-	}
-
 	public String getSmallString() {
 		return "DRV";
-	}
-
-	public boolean isDoneWithTrajectory() {
-		if (mMotionPlanner == null || mState != DriveState.PATH_FOLLOWING) {
-			return false;
-		}
-		return mMotionPlanner.isDone() || mOverrideTrajectory;
-	}
-
-	public void printOdometry() {
-		System.out.println(getOdometry().toString() + "\t\t" + mNavX.getYaw());
-	}
-
-	private Pose2d getOdometry() {
-		return RobotState.getInstance().getOdometry();
-	}
-
-	public double getOdometryX() {
-		return getOdometry().getTranslation().x();
-	}
-
-	public double getOdometryY() {
-		return getOdometry().getTranslation().y();
-	}
-
-	public double getOdometryAngle() {
-		return getOdometry().getRotation().getDegrees();
-	}
-
-	public double getLeftLinearVelocity() {
-		return rotationsToInches(mIO.left_encoder_vel * 10.0 / 4096);
-	}
-
-	public double getRightLinearVelocity() {
-		return rotationsToInches(mIO.right_encoder_vel * 10.0 / 4096);
-	}
-
-	public double getLeftEncoderDistance() {
-		Double ret = rotationsToInches(getLeftRotations());
-		if (ret.isNaN())
-			return 0.0;
-
-		return ret;
-	}
-
-	public double getRightEncoderDistance() {
-		Double ret = rotationsToInches(getRightRotations());
-		if (ret.isNaN())
-			return 0.0;
-
-		return ret;
-	}
-
-	private static Double rotationsToInches(double rotations) {
-		return rotations * (Constants.kPoofs.kDriveWheelDiameterInches * Math.PI);
-	}
-
-	public synchronized Rotation2d getHeading() {
-		return mIO.gyro_heading;
-	}
-
-	public synchronized void setHeading(Rotation2d heading) {
-		mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mNavX.getYaw()));
-
-		mIO.gyro_heading = heading;
-	}
-
-	// ~POOFS
-
-	public void addPDPTestingMotors() {
-		// PDPChannelChecker.CheckerConfig config = new
-		// PDPChannelChecker.CheckerConfig(this, 1.2, 1);
-		// ArrayList<GZSpeedController> controllers = new
-		// ArrayList<GZSpeedController>();
-		// controllers.addAll(Arrays.asList(L1, L2, L3, L4, R1, R2, R3, R4));
-
-		// PDPChannelChecker.getInstance().addGroup(new
-		// PDPChannelChecker.CheckerMotorGroup("Drive", controllers, config));
 	}
 
 	private synchronized void out() {
 		switch (mState) {
 		case PATH_FOLLOWING:
-			updatePathFollower();
+			if (mPathFollower != null) {
+				updatePathFollower();
+			}
 			break;
 		case OPEN_LOOP_DRIVER:
 			arcade(GZOI.driverJoy);
@@ -319,15 +294,17 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public void printVelocity(double tar) {
-		System.out.println(L1.getSelectedSensorVelocity() + "\t\t\t" + R1.getSelectedSensorVelocity() + "\t\t\t" + tar);
+	private final DecimalFormat df = new DecimalFormat("#0.000");
+
+	public void printVelocity(double tar, double tar2) {
+		System.out.println(df.format(tar) + "\t" + df.format(tar2));
 	}
 
 	public GZPID getGainsFromFile(boolean left) {
 		GZPID ret;
 
 		try {
-			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), ValidFileExtension.CSV, false, false);
+			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
 			Scanner scnr = new Scanner(new FileReader(file.getFile()));
 			double p, i, d, f, iZone;
 
@@ -363,27 +340,6 @@ public class Drive extends GZSubsystem {
 			@Override
 			public String val() {
 				return Drive.getInstance().mIO.leftEncoderValid.toString();
-			}
-		};
-
-		new LogItem("X-ODO") {
-			@Override
-			public String val() {
-				return "" + getOdometryX();
-			}
-		};
-
-		new LogItem("Y-ODO") {
-			@Override
-			public String val() {
-				return "" + getOdometryY();
-			}
-		};
-
-		new LogItem("RT-ODO") {
-			@Override
-			public String val() {
-				return "" + getOdometryAngle();
 			}
 		};
 
@@ -656,12 +612,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	public static class IO {
-		public Pose2d error;
-		public TimedState<Pose2dWithCurvature> path_setpoint;
-		// in
-
-		// POOFS
-		private Rotation2d gyro_heading = Rotation2d.identity();
 
 		private double left_feedforward = 0, right_feedforward = 0;
 		private double left_accel = 0, right_accel = 0;
@@ -729,10 +679,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void in() {
-		// POOFS
-		mIO.gyro_heading = Rotation2d.fromDegrees(mNavX.getYaw()).rotateBy(mGyroOffset);
-		// ~POOFS
-
 		this.mModifyPercent = (mIsSlow ? .5 : 1); // .5
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
@@ -956,7 +902,15 @@ public class Drive extends GZSubsystem {
 	/**
 	 * notifier object for running MotionProfileBuffer
 	 */
-	private Notifier processMotionProfile=new Notifier(new Runnable(){@Override public void run(){{L1.processMotionProfileBuffer();R1.processMotionProfileBuffer();}}});
+	private Notifier processMotionProfile = new Notifier(new Runnable() {
+		@Override
+		public void run() {
+			{
+				L1.processMotionProfileBuffer();
+				R1.processMotionProfileBuffer();
+			}
+		}
+	});
 
 	/**
 	 * Used to turn on/off runnable for motion profiling
@@ -1188,14 +1142,6 @@ public class Drive extends GZSubsystem {
 
 	public Boolean isSlow() {
 		return mIsSlow;
-	}
-
-	public synchronized Double getGyroAngle() {
-		return mNavX.getAngle();
-	}
-
-	public synchronized double getGyroFusedHeading() {
-		return mNavX.getFusedHeading();
 	}
 
 	public String getStateString() {

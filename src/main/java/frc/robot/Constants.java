@@ -2,7 +2,7 @@ package frc.robot;
 
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
 import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
@@ -82,22 +82,48 @@ public class Constants {
 		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", 5, 6,7, 8);
 	}
 
-	public static class kCamera {
-	}
+    public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
+	public static double kPathFollowingMaxVel = 120.0; // inches per second
+	public static double kSegmentCompletionTolerance = 0.1; // inches
+	public static double kTrackWidthInches = 26.655;
+	public static double kTrackScrubFactor = 0.924;
+	public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
+
+
+	//Path constants
+	public static double kMinLookAhead = 12.0; // inches
+    public static double kMinLookAheadSpeed = 9.0; // inches per second
+    public static double kMaxLookAhead = 24.0; // inches
+    public static double kMaxLookAheadSpeed = 120.0; // inches per second
+    public static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
+	public static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
+	public static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
+                                                     // our speed
+													 // in inches per sec
+													 
+	public static double kPathFollowingProfileKp = 50; //2.5 //t
+    public static double kPathFollowingProfileKi = 0.03; //.03 //t
+    public static double kPathFollowingProfileKv = 0.11; //.11 //t
+    public static double kPathFollowingProfileKffv = .5; //1 //4 slightly sped up ?
+    public static double kPathFollowingProfileKffa = 0.025; //.05 //.25 slightly sped up?
+
+	public static double kPathFollowingGoalPosTolerance = 0.75; // .75
+    public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0
+    public static double kPathStopSteeringDistance = 9.0; //9.0
 
 	public static class kDrivetrain {
 
-		public static final boolean TUNING = true;
+		public static final boolean TUNING = false;
 
 		public static class PID {
 
-			static final double p = .3; // .1
-			static final double d = 3; // 10
-			public final static GZPID Left = new GZPID(p, 0, d, 0, 0);
-			public final static GZPID Right = new GZPID(p, 0, d, 0, 0);
+			//1.1 15
 
-			// public final static GZPID Left = new GZPID(0, 2.7, 0, 2.7 * 25, .235, 0);
-			// public final static GZPID Right = new GZPID(0, 2.7, 0, 2.7 * 25, .239, 0);
+			static final double p = 1.2; // 1.2 
+			static final double d = 10; // 10
+			static final double f = 0; //.23
+			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
+			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
 			public final static GZPID OldLeft = new GZPID(0, .425, 0, 4.25, 0, 0);
 			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);
@@ -197,9 +223,12 @@ public class Constants {
 		public static final double kRobotLinearInertia = 60.0; // kg TODO tune
 		public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
 		public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
-		public static final double kDriveVIntercept = 1.055; // V
-		public static final double kDriveKv = 0.4; // V per rad/s
-		public static final double kDriveKa = 0.1; // V per rad/s^2
+		
+		static double mod = 1.0;
+
+		public static final double kDriveVIntercept = 1.055 * mod; // V
+		public static final double kDriveKv = 0.135 * mod; // V per rad/s //.135
+		public static final double kDriveKa = 0.012 * mod; // V per rad/s^2 //.012
 
 		public static final double kPathKX = 4.0; // units/s per unit of error
 		public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -229,7 +258,7 @@ public class Constants {
 		public final static boolean MP_USB = true; // if on usb, folder is 3452/MotionProfiles/MP1.csv
 
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
-				ValidFileExtension.CSV, false, false);
+				FileExtensions.CSV, false, false);
 
 		public final static Folder STATS_FILE_FOLDER = new Folder("GZStats");
 		public final static String STATS_FILE_NAME = "Stats";

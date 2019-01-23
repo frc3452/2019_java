@@ -9,9 +9,12 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
-import frc.robot.commands.drive.DriveAtVelocityForTime;
-import frc.robot.commands.poofs.DriveTrajectoryCommand;
-import frc.robot.commands.poofs.TrajectoryGenerator;
+import frc.robot.commands.paths.DrivePathGroup;
+import frc.robot.commands.paths.L_R_CRGO_SHIP_3;
+import frc.robot.commands.paths.TestPath;
+import frc.robot.commands.paths.TestPath2;
+import frc.robot.commands.paths.TestPath4;
+import frc.robot.commands.paths.TestPath5;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -140,7 +143,7 @@ public class Auton {
 	 * override
 	 */
 	private void controllerChooser() {
-		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
+		if (GZOI.driverJoy.allButtons(Buttons.LB, Buttons.RB)) {
 
 			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
 				m_controllerOverrideValue++;
@@ -165,10 +168,19 @@ public class Auton {
 		GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
 		commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
 
-		commandArray.add(new GZCommand("Test trajectory",
-				new DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(), true)));
+		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath())));
+		commandArray.add(new GZCommand("Test trajectory 2", new DrivePathGroup(new TestPath2())));
+		commandArray.add(new GZCommand("Yes", new DrivePathGroup(new L_R_CRGO_SHIP_3())));
+		commandArray.add(new GZCommand("Test trajectory 4", new DrivePathGroup(new TestPath4())));
+		commandArray.add(new GZCommand("Test trajectory 5", new DrivePathGroup(new TestPath5())));
 
-		commandArray.add(new GZCommand("Test velocity", new DriveAtVelocityForTime(1024, 1024, 6)));
+		// commandArray.add(new GZCommand("Test trajectory",
+		// new
+		// DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(),
+		// true)));
+
+		// commandArray.add(new GZCommand("Test velocity", new
+		// DriveAtVelocityForTime(1024, 1024, 6)));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

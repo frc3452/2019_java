@@ -2,16 +2,16 @@ package frc.robot.util;
 
 import java.io.File;
 
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 
 public class GZFile {
     private final String mName;
     private final GZFiles.Folder mFolder;
     private final boolean mUsb, mWrite;
-    private final ValidFileExtension mFileExtension;
+    private final FileExtensions mFileExtension;
     private final File mFile;
 
-    public GZFile(String name, GZFiles.Folder folder, ValidFileExtension extension, boolean usb, boolean write, File f) {
+    public GZFile(String name, GZFiles.Folder folder, FileExtensions extension, boolean usb, boolean write, File f) {
         this.mName = name;
         this.mFolder = folder;
         this.mFileExtension = extension;
@@ -28,7 +28,7 @@ public class GZFile {
         return this.mFolder;
     }
 
-    public ValidFileExtension getFileExtension() {
+    public FileExtensions getFileExtension() {
         return this.mFileExtension;
     }
     

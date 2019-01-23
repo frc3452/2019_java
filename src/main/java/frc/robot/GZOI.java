@@ -96,7 +96,7 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
 			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
+		else if (driverJoy.allButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
 			op.setXboxController();
 	}
 
@@ -140,13 +140,6 @@ public class GZOI extends GZSubsystem {
 			supe.runHeight(Heights.Cargo_Ship, queue);
 		else
 			supe.elevatorNoManual();
-
-		if (controller.intakeDown.get())
-			supe.lowerIntake(true);
-		else if (controller.intakeUp.get())
-			supe.raiseIntake(true);
-		else
-			supe.intakeDropNoManual();
 
 		if (controller.slidesIn.get())
 			supe.retractSlides(true);

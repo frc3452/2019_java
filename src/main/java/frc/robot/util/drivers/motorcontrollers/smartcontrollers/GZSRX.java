@@ -75,11 +75,6 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 	}
 
-	public final static int TIMEOUT = 10;
-	public static final int LONG_TIMEOUT = 100;
-	public final static int FIRMWARE = 1024; // 778 //1025
-	private final static AlertLevel mFirmwareLevel = AlertLevel.WARNING;
-
 	private Breaker mBreaker;
 	private Breaker mActualBreaker;
 	private Side mSide;
@@ -347,7 +342,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		int firm = this.getFirmware();
 
 		if (firm != FIRMWARE) {
-			Health.getInstance().addAlert(this.mSubsystem, mFirmwareLevel,
+			Health.getInstance().addAlert(this.mSubsystem, GZSmartSpeedController.FIRMWARE_ALERT_LEVEL,
 					"Talon " + this.getGZName() + " firmware is " + firm + ", should be " + FIRMWARE);
 		}
 	}

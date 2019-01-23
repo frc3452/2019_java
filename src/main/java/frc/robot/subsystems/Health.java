@@ -7,7 +7,7 @@ import java.util.Map;
 
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
 import frc.robot.util.GZSubsystem;
@@ -131,7 +131,7 @@ public class Health {
 			}
 
 			try {
-				GZFile htmlFile = GZFileMaker.getFile("Health", new Folder(""), ValidFileExtension.HTML, false, true);
+				GZFile htmlFile = GZFileMaker.getFile("Health", new Folder(""), FileExtensions.HTML, false, true);
 				HTML.createHTMLFile(htmlFile, body);
 			} catch (Exception e) {
 				System.out.println("WARNING Could not write health file!");
