@@ -4,18 +4,22 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
 
@@ -33,6 +37,8 @@ public class GZOI extends GZSubsystem {
 
 	private static GZOI mInstance = null;
 
+	private GZTimer t = new GZTimer();
+
 	public static GZOI getInstance() {
 		if (mInstance == null)
 			mInstance = new GZOI();
@@ -41,6 +47,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
+		t.startTimer();
 	}
 
 	boolean bToggled = false;
@@ -62,8 +69,8 @@ public class GZOI extends GZSubsystem {
 			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
-			// handleSuperStructureControl(driverJoy);
-			// handleSuperStructureControl(op);
+			handleSuperStructureControl(driverJoy);
+			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
 		}
@@ -111,10 +118,8 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.isAPressed())
 			drive.toggleSlowSpeed();
-
 	}
 
-	/** 
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
@@ -168,7 +173,7 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.updated())
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-	}*/
+	}
 
 	public String getSmallString() {
 		// no motors, so not really used but

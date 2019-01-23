@@ -21,10 +21,10 @@ public class DriverController extends DeepSpaceController {
 
         this.intakeDown = new GZButton(this, () -> this.getRawButton(-1));
         this.intakeUp = new GZButton(this, () -> this.getRawButton(-1));
-        this.slidesIn = new GZButton(this, () -> this.getRawButton(-1));
-        this.slidesOut = new GZButton(this, () -> this.getRawButton(-1));
-        this.clawOpen = new GZButton(this, () -> this.getRawButton(-1));
-        this.clawClosed = new GZButton(this, () -> this.getRawButton(-1));
+        this.slidesIn = new GZButton(this, () -> this.getRawButton(1));
+        this.slidesOut = new GZButton(this, () -> this.getRawButton(4));
+        this.clawOpen = new GZButton(this, () -> this.getRawButton(3));
+        this.clawClosed = new GZButton(this, () -> this.getRawButton(2));
 
         this.stow = new GZButton(this, () -> this.getRawButton(-1));
         this.stowLow = new GZButton(this, () -> this.getRawButton(-1));

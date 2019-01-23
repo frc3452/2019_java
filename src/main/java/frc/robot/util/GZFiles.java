@@ -51,8 +51,6 @@ public class GZFiles {
 
 	private boolean isLogging = false;
 
-	private GZOI gzoi = GZOI.getInstance();
-
 	private static GZFiles mInstance = null;
 
 	public static synchronized GZFiles getInstance() {
@@ -652,7 +650,7 @@ public class GZFiles {
 
 	private String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (gzoi.isFMS() ? "FIELD_" + (gzoi.isAuto() ? "AUTO_" : "TELE_") : "")
+			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_") : "")
 					+ GZUtil.dateTime(true);
 
 			prevLog = retval;

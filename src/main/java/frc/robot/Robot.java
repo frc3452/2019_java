@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.subsystems.Auton;
@@ -27,7 +29,7 @@ public class Robot extends TimedRobot {
 
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
 			RobotStateEstimator.getInstance(), Elevator.getInstance(), Intake.getInstance(), Pneumatics.getInstance(),
-			Superstructure.getInstance(), GZOI.getInstance());
+			GZOI.getInstance(), Superstructure.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
