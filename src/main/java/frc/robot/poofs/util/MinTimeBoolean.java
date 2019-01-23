@@ -1,8 +1,10 @@
 package frc.robot.poofs.util;
 
+import frc.robot.util.LatchedBoolean;
+
 /**
- * This boolean enforces a minimum time for the value to be true.  It captures a rising edge and enforces
- * based on timestamp.
+ * This boolean enforces a minimum time for the value to be true. It captures a
+ * rising edge and enforces based on timestamp.
  */
 public class MinTimeBoolean {
     private LatchedBoolean mLatchedBoolean;

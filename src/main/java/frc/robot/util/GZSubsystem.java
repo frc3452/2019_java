@@ -181,8 +181,4 @@ public abstract class GZSubsystem extends Subsystem {
 	// Zero sensors
 	public void zeroSensors() {
 	}
-
-	// Write values to smart dashboard
-	public void outputSmartDashboard() {
-	}
 }

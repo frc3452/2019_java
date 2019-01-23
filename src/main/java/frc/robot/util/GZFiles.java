@@ -17,8 +17,10 @@ import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
@@ -33,6 +35,9 @@ public class GZFiles {
 
 	public ArrayList<ArrayList<Double>> mpL = new ArrayList<>();
 	public ArrayList<ArrayList<Double>> mpR = new ArrayList<>();
+
+	public ArrayList<GZAnalogInput> mAllAnalogSensors = new ArrayList<GZAnalogInput>();
+
 	public int mpDur = 0;
 
 	private FileReader fr;
@@ -45,8 +50,6 @@ public class GZFiles {
 	private boolean hasPrintedProfileRecordFailed = false;
 
 	private boolean isLogging = false;
-
-	private GZOI gzoi = GZOI.getInstance();
 
 	private static GZFiles mInstance = null;
 
@@ -367,7 +370,7 @@ public class GZFiles {
 		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
 			if (s.hasAir() || s.hasMotors()) {
 
-				String subsystem = HTML.header(s.toString(), 1);
+				String subsystem = HTML.header(s.toString(), 1, "Green");
 				if (s.hasMotors()) {
 
 					// if has tallons
@@ -424,6 +427,45 @@ public class GZFiles {
 						subsystem += talonTable;
 					}
 
+					if (s.mSmartControllers.size() - s.mTalons.size() > 0) {
+						subsystem += HTML.header("CAN Controllers", 2);
+
+						String canTable = "";
+						{
+							String header = "";
+							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "PDP Channel",
+									"Calculated breaker", "Firmware version", "Temperature Sensor Port",
+									"Temperature sensor value (F)", "Master/Follower"));
+
+							canTable += header;
+						}
+
+						{
+							String tableBody = "";
+							for (GZSmartSpeedController canController : s.mSmartControllers) {
+
+								String talonRow = "";
+								talonRow += HTML.tableRow(HTML.tableCell(canController.getGZName())
+										+ HTML.tableCell(String.valueOf(canController.getPort()))
+										+ HTML.tableCell("" + canController.getPDPChannel())
+										+ HTML.tableCell("" + canController.getCalculatedBreaker())
+										+ HTML.tableCell("" + canController.getFirmware())
+										+ HTML.tableCell("" + canController.getTemperatureSensorPort(),
+												canController.hasTemperatureSensor() ? "white" : "red",
+												!canController.hasTemperatureSensor())
+										+ HTML.tableCell(canController.getTemperatureSensor().toString(),
+												(canController.hasTemperatureSensor() ? "white" : "red"),
+												!canController.hasTemperatureSensor())
+										+ HTML.tableCell("" + canController.getMaster()));
+								tableBody += talonRow;
+							}
+							canTable += tableBody;
+						}
+
+						canTable = HTML.table(canTable);
+						subsystem += canTable;
+					}
+
 					if (s.mDumbControllers.size() != 0) {
 						subsystem += HTML.header("PWM Controllers", 2);
 
@@ -462,7 +504,6 @@ public class GZFiles {
 
 					// If has single solenoids
 					if (s.mSingleSolenoids.size() != 0) {
-						subsystem += HTML.header("Single solenoids", 3);
 						String singlesTable = "";
 						{
 							String singlesHeader = "";
@@ -472,8 +513,8 @@ public class GZFiles {
 
 						for (GZSolenoid sol : s.mSingleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML.tableRow(HTML.easyTableCell(sol.getGZName(),
-									"" + sol.getConstants().module, "" + sol.getConstants().channel));
+							solenoidRow += HTML.easyTableRow(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().channel);
 							singlesTable += solenoidRow;
 						}
 						singlesTable = HTML.table(singlesTable);
@@ -482,7 +523,6 @@ public class GZFiles {
 
 					// If has double solenoids
 					if (s.mDoubleSolenoids.size() != 0) {
-						subsystem += HTML.paragraph("Double solenoids");
 						String doublesTable = "";
 						{
 							String doublesHeader = "";
@@ -493,9 +533,8 @@ public class GZFiles {
 
 						for (GZDoubleSolenoid sol : s.mDoubleSolenoids) {
 							String solenoidRow = "";
-							solenoidRow += HTML
-									.tableRow(HTML.easyTableCell(sol.getGZName(), "" + sol.getConstants().module,
-											"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel));
+							solenoidRow += HTML.easyTableRow(sol.getGZName(), "" + sol.getConstants().module,
+									"" + sol.getConstants().fwd_channel, "" + sol.getConstants().rev_channel);
 							doublesTable += solenoidRow;
 						}
 
@@ -507,7 +546,29 @@ public class GZFiles {
 
 				body += subsystem;
 			}
+		} // end of all subsystem loop
+
+		// Analog inputs
+		{
+			if (GZFiles.getInstance().mAllAnalogSensors.size() > 0){
+			body += HTML.header("Analog Inputs", 1, "Green");
+
+			String analogTable = "";
+			String tableHeader = HTML.easyHeader("Subsystem", "Name", "Port");
+			analogTable += tableHeader;
+
+			for (GZAnalogInput inputs : GZFiles.getInstance().mAllAnalogSensors) {
+				String row = "";
+				row += HTML.easyTableRow(inputs.getGZSubsystem().toString(), inputs.getGZName(), "" + inputs.getPort());
+				analogTable += row;
+			}
+
+			analogTable = HTML.table(analogTable);
+
+			body += analogTable;
 		}
+		}
+
 		try {
 			GZFile file = GZFileMaker.getFile("HardwareReport", new Folder(), ValidFileExtension.HTML, false, true);
 			HTML.createHTMLFile(file, body);
@@ -589,7 +650,7 @@ public class GZFiles {
 
 	private String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (gzoi.isFMS() ? "FIELD_" + (gzoi.isAuto() ? "AUTO_" : "TELE_") : "")
+			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_") : "")
 					+ GZUtil.dateTime(true);
 
 			prevLog = retval;
@@ -665,12 +726,13 @@ public class GZFiles {
 			return "<td>" + f + "</td>";
 		}
 
-		public static String easyTableCell(String... f) {
+		public static String easyTableRow(String... f) {
 			String retval = "";
 
 			for (String s : f) {
 				retval += tableCell(s);
 			}
+			retval = HTML.tableRow(retval);
 			return retval;
 		}
 

@@ -73,8 +73,6 @@ public class Lights extends GZSubsystem {
 	public void loop() {
 		GZOI gzOI = GZOI.getInstance();
 
-		outputSmartDashboard();
-
 		if (!gzOI.isSafetyDisabled()) {
 
 			if (GZOI.driverJoy.getButtons(Buttons.A, Buttons.B, Buttons.BACK))

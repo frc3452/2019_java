@@ -30,7 +30,6 @@ public class Superstructure extends GZSubsystem {
     private Manual mManual = new Manual();
 
     private static Superstructure mInstance = null;
-
     public static Superstructure getInstance() {
         if (mInstance == null)
             mInstance = new Superstructure();

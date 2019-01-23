@@ -1,34 +1,31 @@
 package frc.robot;
 
-import javax.lang.model.util.ElementScanner6;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kFiles;
-import frc.robot.Constants.kOI;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kOI;
+import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Drive.DriveState;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
-import frc.robot.util.GZFiles;
 import frc.robot.util.GZLog;
-import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
-import frc.robot.util.drivers.buttonboard.OperatorController;
+import frc.robot.util.drivers.controllers.DeepSpaceController;
+import frc.robot.util.drivers.controllers.DriverController;
+import frc.robot.util.drivers.controllers.OperatorController;
 
 public class GZOI extends GZSubsystem {
-	public static GZJoystick driverJoy = new GZJoystick(0);
-	public static OperatorController op = new OperatorController(1);
-
+	public static DriverController driverJoy = new DriverController();
+	public static OperatorController op = new OperatorController();
 	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
@@ -36,8 +33,11 @@ public class GZOI extends GZSubsystem {
 
 	private Drive drive = Drive.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
+	private Auton auton = Auton.getInstance();
 
 	private static GZOI mInstance = null;
+
+	private GZTimer t = new GZTimer();
 
 	public static GZOI getInstance() {
 		if (mInstance == null)
@@ -47,15 +47,13 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
-		driverJoy = new GZJoystick(0);
+		t.startTimer();
 	}
 
 	boolean bToggled = false;
 
 	@Override
 	public void loop() {
-		outputSmartDashboard();
-
 		// FLAGS
 		if (isTele())
 			mWasTele = true;
@@ -64,97 +62,116 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
-		// SAFETY DISABLE WITH USERBUTTON
-		if (isFMS())
-			mSafetyDisable = false;
-		else if (mUserButton.update(RobotController.getUserButton()))
-			mSafetyDisable = !mSafetyDisable;
-		Robot.allSubsystems.disable(mSafetyDisable);
-
-		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
-			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
-			op.setXboxController();
-
-		if (isTele()) {
-			final boolean queue = op.queueAction.get();
-
-			if (op.hatchPannel1.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (op.hatchPanel2.get())
-				supe.runHeight(Heights.HP_2, queue);
-			else if (op.hatchPanel3.get())
-				supe.runHeight(Heights.HP_3, queue);
-			else if (op.hatchFromFeed.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (op.cargo1.get())
-				supe.runHeight(Heights.Cargo_1, queue);
-			else if (op.cargo2.get())
-				supe.runHeight(Heights.Cargo_2, queue);
-			else if (op.cargo3.get())
-				supe.runHeight(Heights.Cargo_3, queue);
-			else if (op.cargoShip.get())
-				supe.runHeight(Heights.Cargo_Ship, queue);
-			else
-				supe.elevatorNoManual();
-
-			if (op.intakeDown.get())
-				supe.lowerIntake(true);
-			else if (op.intakeUp.get())
-				supe.raiseIntake(true);
-			else
-				supe.intakeDropNoManual();
-
-			if (op.slidesIn.get())
-				supe.retractSlides(true);
-			else if (op.slidesOut.get())
-				supe.extendSlides(true);
-			else
-				supe.slidesNoManual();
-
-			if (op.clawOpen.get())
-				supe.openClaw(true);
-			else if (op.clawClosed.get())
-				supe.closeClaw(true);
-			else
-				supe.clawNoManual();
-
-
-			if (op.stow.updated())
-				supe.runAction(Actions.STOW, queue);
-			else if (op.stowLow.updated())
-				supe.runAction(Actions.STOW_LOW, queue);
-			else if (op.intakeCargo.updated())
-				supe.runAction(Actions.INTAKE_CARGO, queue);
-			else if (op.floorHatchToManip.updated())
-				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-			else if (op.hatchFromFeed.updated())
-				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-      
-			// Velocity testing
-			if (driverJoy.isBPressed())
-				bToggled = !bToggled;
-
-			if (bToggled && kDrivetrain.TUNING) {
-				final double high = 1500;
-				final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
-				final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
-				drive.printVelocity(left);
-				drive.setVelocity(left, right);
-			} else {
-				drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-			}
-
-			if (driverJoy.isAPressed())
-				drive.toggleSlowSpeed();
+		// Disabled
+		if (isDisabled())
+			disabled();
+		else if (auton.isAutoControl()) { // running auto command
+			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
+			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
+		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
+			handleSuperStructureControl(driverJoy);
+			handleSuperStructureControl(op);
+			handleDriverController();
+			handleRumble();
 		}
+	}
 
+	private void handleRumble() {
 		// CONTROLLER RUMBLE
 		if (GZUtil.between(getMatchTime(), 29.1, 30))
 			// ENDGAME
 			rumble(kOI.Rumble.ENDGAME);
 		else
 			rumble(0);
+	}
+
+	private void disabled() {
+		if (isFMS())
+			mSafetyDisable = false;
+		else if (mUserButton.update(RobotController.getUserButton()))
+			mSafetyDisable = !mSafetyDisable;
+		Robot.allSubsystems.disable(mSafetyDisable);
+
+		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+
+		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
+			op.setButtonBoard();
+		else if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.Y))
+			op.setXboxController();
+	}
+
+	private void handleDriverController() {
+		// Velocity testing
+		if (driverJoy.getButtonLatched(Buttons.B))
+			bToggled = !bToggled;
+
+		if (bToggled && kDrivetrain.TUNING) {
+			final double high = 1500;
+			final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
+			final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
+			drive.printVelocity(left);
+			drive.setVelocity(left, right);
+		} else {
+			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			}
+    
+		if (driverJoy.getButtonLatched(Buttons.A))
+			drive.toggleSlowSpeed();
+	}
+
+	private void handleSuperStructureControl(DeepSpaceController controller) {
+		final boolean queue = controller.queueAction.get();
+
+		if (controller.hatchPannel1.get())
+			supe.runHeight(Heights.HP_1, queue);
+		else if (controller.hatchPanel2.get())
+			supe.runHeight(Heights.HP_2, queue);
+		else if (controller.hatchPanel3.get())
+			supe.runHeight(Heights.HP_3, queue);
+		else if (controller.hatchFromFeed.get())
+			supe.runHeight(Heights.HP_1, queue);
+		else if (controller.cargo1.get())
+			supe.runHeight(Heights.Cargo_1, queue);
+		else if (controller.cargo2.get())
+			supe.runHeight(Heights.Cargo_2, queue);
+		else if (controller.cargo3.get())
+			supe.runHeight(Heights.Cargo_3, queue);
+		else if (controller.cargoShip.get())
+			supe.runHeight(Heights.Cargo_Ship, queue);
+		else
+			supe.elevatorNoManual();
+
+		if (controller.intakeDown.get())
+			supe.lowerIntake(true);
+		else if (controller.intakeUp.get())
+			supe.raiseIntake(true);
+		else
+			supe.intakeDropNoManual();
+
+		if (controller.slidesIn.get())
+			supe.retractSlides(true);
+		else if (controller.slidesOut.get())
+			supe.extendSlides(true);
+		else
+			supe.slidesNoManual();
+
+		if (controller.clawOpen.get())
+			supe.openClaw(true);
+		else if (controller.clawClosed.get())
+			supe.closeClaw(true);
+		else
+			supe.clawNoManual();
+
+		if (controller.stow.updated())
+			supe.runAction(Actions.STOW, queue);
+		else if (controller.stowLow.updated())
+			supe.runAction(Actions.STOW_LOW, queue);
+		else if (controller.intakeCargo.updated())
+			supe.runAction(Actions.INTAKE_CARGO, queue);
+		else if (controller.floorHatchToManip.updated())
+			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+		else if (controller.hatchFromFeed.updated())
+			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 	}
 
 	public String getSmallString() {
@@ -216,13 +233,6 @@ public class GZOI extends GZSubsystem {
 
 	public void setSafetyDisable(boolean disable) {
 		this.mSafetyDisable = disable;
-	}
-
-	@Override
-	public void outputSmartDashboard() {
-		// SmartDashboard.putString("Selected Auton",
-		// Auton.getInstance().getAutonString());
-		// SmartDashboard.putString("FIELD DATA", Auton.getInstance().gsm());
 	}
 
 	private static void rumble(double intensity) {

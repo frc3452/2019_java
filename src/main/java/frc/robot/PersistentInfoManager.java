@@ -20,7 +20,6 @@ import frc.robot.util.GZNotifier;
 import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.PersistentInfo;
-import frc.robot.util.drivers.buttonboard.OperatorController;
 
 public class PersistentInfoManager {
 
@@ -117,7 +116,6 @@ public class PersistentInfoManager {
 
         @Override
         public void readSetting() {
-
         }
     };
 
@@ -149,12 +147,12 @@ public class PersistentInfoManager {
 
     private PersistentInfo mIsButtonBoard = new PersistentInfo(0.0) {
         public void update() {
-            this.setValue((GZOI.getInstance().op.isButtonBoard() ? 0.0 : 1.0));
+            this.setValue(GZOI.op.isButtonBoard() ? 0.0 : 1.0);
         }
 
         @Override
         public void readSetting() {
-            GZOI.getInstance().op.setButtonBoard(this.getValue() == 0);
+            GZOI.op.setButtonBoard(this.getValue() == 0);
         }
     };
 

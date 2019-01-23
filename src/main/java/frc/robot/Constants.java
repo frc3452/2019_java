@@ -5,6 +5,7 @@ import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
+import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 
 /**
@@ -22,8 +23,8 @@ public class Constants {
 		public static final int ELEVATOR_MOTOR_ID = 0;
 		public static final boolean E_1_INVERT = false;
 
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(1, 1.5, 1.5);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0,0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0,1, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
@@ -45,39 +46,40 @@ public class Constants {
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static enum Heights {
-			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46), Cargo_1(27.5),
-			Cargo_2(55.5), Cargo_3(83.5), HP_Feeder_Jog(HP_1, 2);
+			Home(HOME_INCHES), HP_Floor_Grab(17, true), HP_1(19, true), HP_2(47, true), HP_3(75, true), Cargo_Ship(46),
+			Cargo_1(27.5), Cargo_2(55.5), Cargo_3(83.5), HP_Feeder_Jog(HP_1, 2, true);
 
 			public final double inches;
+			public final boolean moving_hp;
+
+			private Heights(double inches, boolean movingHatchPanel) {
+				this.inches = inches;
+				this.moving_hp = movingHatchPanel;
+			}
 
 			private Heights(double inches) {
-				this.inches = inches;
+				this(inches, false);
 			}
 
 			private Heights(Heights h) {
 				this(h.inches);
 			}
 
-			private Heights(Heights h, double jog)
-			{
-				this(h.inches + jog);
+			private Heights(Heights h, double jog) {
+				this(h, jog, false);
+			}
+
+			private Heights(Heights h, double jog, boolean movingHatchPanel) {
+				this(h.inches + jog, movingHatchPanel);
 			}
 		}
 	}
 
 	public static class kAuton {
-		public final static double GYRO_TURN_SPEED = .25;
-
-		public final static double CORRECTION = 0.025;
-
 		public final static int SAFTEY_SWITCH = 96;
 
-		public final static int[] AUTO_SELECTOR_1_PORTS = { 0, 1, 2, 3 };
-		public final static int[] AUTO_SELECTOR_2_PORTS = { 4, 5, 6, 7 };
-
-		public final static int AUTO_VARIANCE = 15;
-
-		public final static String DEFAULT_NAME = "NO COMMAND";
+		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", 1,2,3,4);
+		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", 5, 6,7, 8);
 	}
 
 	public static class kCamera {
@@ -123,7 +125,7 @@ public class Constants {
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
 
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(2, .5, .5);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0,3, .5, .5);
 	}
 
 	public static class kPDP {
@@ -156,9 +158,7 @@ public class Constants {
 	}
 
 	public static class kClimber {
-		public static final int FRONT_MOTOR_ID = 0;
-		public static final int BACK_MOTOR_ID = 0;
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(3, 1.5, 1.5);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1,0, 1.5, 1.5);
 
 		public static final boolean CLIMBER_FRONT_INVERT = false;
 		public static final boolean CLIMBER_BACK_INVERT = true;
@@ -173,13 +173,14 @@ public class Constants {
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 1;
 		public static final int INTAKE_RIGHT = 2;
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(4, 1.5, 1.5);
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1,1, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(5, 1.5, 1);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1,2, 1.5, 1);
+		public static final int PRESSURE_GUAGE_PORT = 1;
 	}
 
 	public static class kPoofs {

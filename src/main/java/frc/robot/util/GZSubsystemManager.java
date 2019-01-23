@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,10 +34,6 @@ public class GZSubsystemManager {
 
 	public List<GZSubsystem> getSubsystems() {
 		return mAllSystems;
-	}
-
-	public void outputSmartDashboard() {
-		// mAllSystems.forEach((s) -> s.outputSmartDashboard());
 	}
 
 	public void stop() {
