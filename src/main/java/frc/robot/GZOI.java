@@ -37,8 +37,6 @@ public class GZOI extends GZSubsystem {
 
 	private static GZOI mInstance = null;
 
-	private GZTimer t = new GZTimer();
-
 	public static GZOI getInstance() {
 		if (mInstance == null)
 			mInstance = new GZOI();
@@ -47,7 +45,6 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
-		t.startTimer();
 	}
 
 	boolean bToggled = false;
