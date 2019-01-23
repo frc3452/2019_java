@@ -27,7 +27,11 @@ import frc.robot.util.drivers.GZJoystick.Buttons;
  */
 public class Auton {
 
-	public ArrayList<GZCommand> commandArray;
+	public enum AV {
+		CURRENT,
+	}
+
+	public ArrayList<GZCommand> commandArray = null;
 
 	private GZCommand defaultCommand = null;
 	public GZCommand autonomousCommand = null;
@@ -38,8 +42,6 @@ public class Auton {
 	private int m_selectorValue = 0;
 	private int p_selectorValue = -1;
 
-	private final String gameMsg = "NOT";
-
 	public GZTimer matchTimer = new GZTimer("AutonTimer");
 
 	private static Auton mInstance = null;
@@ -49,7 +51,7 @@ public class Auton {
 	private LatchedBoolean mLBWaitOnAutoStart = new LatchedBoolean();
 	private boolean mWaitOnAutoStart = false;
 
-	private DigitalSelector mSelector1 = null, mSelector2 = null;
+	private DigitalSelector mSelectorOnes = null, mSelectorTens = null;
 
 	public synchronized static Auton getInstance() {
 		if (mInstance == null)
@@ -58,15 +60,13 @@ public class Auton {
 	}
 
 	private Auton() {
-		// mSelector1 = new DigitalSelector("AutonSelector
-		// (Tens)",kAuton.AUTO_SELECTOR_1_PORTS);
-		// mSelector2 = new DigitalSelector("AutonSelector (Ones",
-		// kAuton.AUTO_SELECTOR_2_PORTS);
+		mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
+		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		fillAutonArray();
 	}
 
 	public int getSelector() {
-		return DigitalSelector.get(mSelector1, mSelector2);
+		return DigitalSelector.get(mSelectorOnes, mSelectorTens);
 	}
 
 	public void crash() {
@@ -81,12 +81,11 @@ public class Auton {
 
 		m_selectorValue = getSelector();
 
-		if (m_controllerOverrideValue != -1 && m_controllerOverrideValue > 0
-				&& m_controllerOverrideValue < commandArray.size() - 1) {
+		if (m_controllerOverrideValue != -1) {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue);
 		} else {
 			// Check if auton selectors are returning what they should be
-			if (m_selectorValue <= 99 && m_selectorValue >= 1) {
+			if (m_selectorValue <= 99 && m_selectorValue >= 0) {
 				autonomousCommand = commandArray.get(m_selectorValue);
 			} else {
 				autonomousCommand = defaultCommand;
@@ -112,8 +111,8 @@ public class Auton {
 	}
 
 	/**
-	 *  Uses internal LatchedBoolean, starts auton with controller
-	 *  Ignores autonomous waiting
+	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
+	 * waiting
 	 */
 	public void controllerStart(boolean update) {
 		if (autonomousCommand == null)
@@ -128,10 +127,10 @@ public class Auton {
 	}
 
 	/**
-	 * Uses internal LatchedBoolean. Cancels auton 
+	 * Uses internal LatchedBoolean. Cancels auton
 	 */
 	public void controllerCancel(boolean update) {
-		if (mLBAutoCancel.update(update)){
+		if (mLBAutoCancel.update(update)) {
 			cancelAuton();
 		}
 	}
@@ -190,13 +189,13 @@ public class Auton {
 		}
 	}
 
-	//Ran on teleopInit
+	// Ran on teleopInit
 	public void cancelAuton() {
 		if (autonomousCommand != null) {
 			if (autonomousCommand.cancel())
 				System.out.println("WARNING Cancelling auto...");
 			else
-				System.out.println("WARNING Could not cancel auto!");
+				System.out.println("WARNING Command cancelled, but apparently already stopped.");
 		}
 	}
 
@@ -232,7 +231,7 @@ public class Auton {
 	// get game message, returns "NOT" if anything incorrect
 	@Deprecated
 	public String gameMessage() {
-		String badValue = gameMsg;
+		String badValue = "NOT";
 
 		String f = DriverStation.getInstance().getGameSpecificMessage();
 
@@ -251,15 +250,5 @@ public class Auton {
 
 		// Length incorrect
 		return badValue;
-	}
-
-	/**
-	 * Autonomous versions enum
-	 * 
-	 * @author max
-	 *
-	 */
-	public enum AV {
-		CURRENT,
 	}
 }

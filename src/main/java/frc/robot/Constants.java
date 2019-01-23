@@ -5,6 +5,7 @@ import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.ValidFileExtension;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
+import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 
 /**
@@ -75,18 +76,10 @@ public class Constants {
 	}
 
 	public static class kAuton {
-		public final static double GYRO_TURN_SPEED = .25;
-
-		public final static double CORRECTION = 0.025;
-
 		public final static int SAFTEY_SWITCH = 96;
 
-		public final static int[] AUTO_SELECTOR_1_PORTS = { 0, 1, 2, 3 };
-		public final static int[] AUTO_SELECTOR_2_PORTS = { 4, 5, 6, 7 };
-
-		public final static int AUTO_VARIANCE = 15;
-
-		public final static String DEFAULT_NAME = "NO COMMAND";
+		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", 1,2,3,4);
+		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", 5, 6,7, 8);
 	}
 
 	public static class kCamera {

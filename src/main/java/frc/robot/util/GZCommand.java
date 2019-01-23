@@ -15,6 +15,8 @@ public class GZCommand {
 	}
 
 	public synchronized boolean start() {
+
+		//Update our boolean from the Scheduler
 		isRunning();
 
 		if (mCommand == null)
@@ -41,6 +43,7 @@ public class GZCommand {
 	}
 
 	public synchronized boolean cancel() {
+		//Update value from the scheduler
 		isRunning();
 
 		if (mCommand == null)

@@ -1,5 +1,7 @@
 package frc.robot.util.drivers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,31 +9,29 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class DigitalSelector {
 
+    private final int port1, port2, port3, port4;
     private GZDigitalInput m1 = null, m2 = null, m3 = null, m4 = null;
 
     private Map<Integer, GZDigitalInput> map = new HashMap<Integer, GZDigitalInput>();
     private String mName;
 
-    public DigitalSelector(int[] portArr) {
-        this("Unspecified", portArr);
+    public DigitalSelector(DigitalSelectorConstants constants) {
+        this(constants.name, constants.port1, constants.port2, constants.port3, constants.port4);
     }
 
-    public DigitalSelector(int port1, int port2, int port3, int port4) {
-        this("Unspecified", port1, port2, port3, port4);
-    }
-
-    public DigitalSelector(String name, int[] portArr) {
-        this(portArr[0], portArr[1], portArr[2], portArr[3]);
-    }
-
-    public DigitalSelector(String name, int port1, int port2, int port3, int port4) {
+    private DigitalSelector(String name, int port1, int port2, int port3, int port4) {
         mName = name;
 
+        this.port1 = port1;
+        this.port2 = port2;
+        this.port3 = port3;
+        this.port4 = port4;
+
         try {
-            m1 = new GZDigitalInput(port1);
-            m2 = new GZDigitalInput(port2);
-            m3 = new GZDigitalInput(port3);
-            m4 = new GZDigitalInput(port4);
+            m1 = new GZDigitalInput(this.port1);
+            m2 = new GZDigitalInput(this.port2);
+            m3 = new GZDigitalInput(this.port3);
+            m4 = new GZDigitalInput(this.port4);
 
             map.put(1, m1);
             map.put(2, m2);
@@ -49,21 +49,19 @@ public class DigitalSelector {
         }
     }
 
-    public static int get(DigitalSelector a, DigitalSelector b) {
-        if (a == null || b == null)
+    public static int get(DigitalSelector tensSelector, DigitalSelector onesSelector) {
+        if (tensSelector == null || onesSelector == null)
             return -1;
 
         int ret;
 
-        int aVal = a.get();
-        int bVal = b.get();
+        int tensValue = tensSelector.get();
+        int onesValue = onesSelector.get();
 
-        if (aVal == -1 || bVal == -1)
+        if (tensValue == -1 || onesValue == -1)
             return -1;
 
-        // First selector is tens place, second selector is ones place
-        ret = aVal * 10;
-        ret += bVal;
+        ret = (tensValue * 10) + onesValue;
 
         // Saftey check, shouldn't be possible but just in case
         if (ret < 0 || ret > 99)
@@ -142,5 +140,33 @@ public class DigitalSelector {
     @Override
     public String toString() {
         return mName;
+    }
+
+    public static class DigitalSelectorConstants {
+        private final static int PORT_MIN = 0;
+        private final static int PORT_MAX = 9;
+
+        public final String name;
+        public final int port1, port2, port3, port4;
+
+        public DigitalSelectorConstants(String name, int port1, int port2, int port3, int port4) {
+            this.name = name;
+            this.port1 = port1;
+            this.port2 = port2;
+            this.port3 = port3;
+            this.port4 = port4;
+
+            ArrayList<Integer> ports = new ArrayList<Integer>();
+            ports.addAll(Arrays.asList(this.port1, this.port2, this.port3, this.port4));
+
+            int portNum = 1;
+            for (int port : ports) {
+                if (port < PORT_MIN || port > PORT_MAX)
+                    throw new IllegalArgumentException("Port " + portNum + " cannot be on port " + port1 + ". (Must be between "
+                            + PORT_MIN + " and " + PORT_MAX + ")");
+                portNum++;
+            }
+
+        }
     }
 }
