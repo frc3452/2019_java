@@ -117,7 +117,7 @@ public class TestModeRunner {
     public void update() {
         if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
-        } else if (GZOI.driverJoy.isLClickPressed()) {
+        } else if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
             isEnabled = false;
         }
 
@@ -178,7 +178,7 @@ public class TestModeRunner {
 
         // SELECT PRESSED
         boolean selectPressed = false;
-        if (inMenu != -1 && GZOI.driverJoy.isAPressed()) {
+        if (inMenu != -1 && GZOI.driverJoy.getButtonLatched(Buttons.A)) {
             optionsList.get(inMenu).getOptions().get(posInMenu).toggleSelected();
             selectPressed = true;
         }
@@ -192,7 +192,7 @@ public class TestModeRunner {
             print(message);
         }
 
-        if (GZOI.driverJoy.isYPressed()) {
+        if (GZOI.driverJoy.getButtonLatched(Buttons.Y)) {
             for (OptionList o : optionsList)
                 if (o.isSelected())
                     o.run();

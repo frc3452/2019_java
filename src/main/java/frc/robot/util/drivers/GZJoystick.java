@@ -12,10 +12,7 @@ import frc.robot.util.LatchedBoolean;
 public class GZJoystick extends Joystick {
 
 	private DPad mUp, mDown, mRight, mLeft;
-	private LatchedBoolean a = new LatchedBoolean(), b = new LatchedBoolean(), x = new LatchedBoolean(),
-			y = new LatchedBoolean(), lb = new LatchedBoolean(), rb = new LatchedBoolean(), back = new LatchedBoolean(),
-			start = new LatchedBoolean(), lclick = new LatchedBoolean(), rclick = new LatchedBoolean(),
-			dUp = new LatchedBoolean(), dDown = new LatchedBoolean(), dLeft = new LatchedBoolean(),
+	private LatchedBoolean dUp = new LatchedBoolean(), dDown = new LatchedBoolean(), dLeft = new LatchedBoolean(),
 			dRight = new LatchedBoolean();
 
 	private double mDeadband = .04;
@@ -94,44 +91,9 @@ public class GZJoystick extends Joystick {
 		return this.getRawButton(b.val);
 	}
 
-	public Boolean isAPressed() {
-		return a.update(this.getButton(Buttons.A));
-	}
-
-	public Boolean isBPressed() {
-		return b.update(this.getButton(Buttons.B));
-	}
-
-	public Boolean isXPressed() {
-		return x.update(this.getButton(Buttons.X));
-	}
-
-	public Boolean isYPressed() {
-		return y.update(this.getButton(Buttons.Y));
-	}
-
-	public Boolean isLBPressed() {
-		return lb.update(this.getButton(Buttons.LB));
-	}
-
-	public Boolean isRBPressed() {
-		return rb.update(this.getButton(Buttons.RB));
-	}
-
-	public Boolean isBackPressed() {
-		return back.update(this.getButton(Buttons.BACK));
-	}
-
-	public Boolean isStartPressed() {
-		return start.update(this.getButton(Buttons.START));
-	}
-
-	public Boolean isLClickPressed() {
-		return lclick.update(this.getButton(Buttons.LEFT_CLICK));
-	}
-
-	public Boolean isRClickPressed() {
-		return rclick.update(this.getButton(Buttons.RIGHT_CLICK));
+	public Boolean getButtonLatched(Buttons b)
+	{
+		return this.getRawButtonPressed(b.val);
 	}
 
 	public Boolean isDUpPressed() {

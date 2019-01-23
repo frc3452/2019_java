@@ -74,7 +74,6 @@ public class GZOI extends GZSubsystem {
 			handleDriverController();
 			handleRumble();
 		}
-
 	}
 
 	private void handleRumble() {
@@ -103,7 +102,7 @@ public class GZOI extends GZSubsystem {
 
 	private void handleDriverController() {
 		// Velocity testing
-		if (driverJoy.isBPressed())
+		if (driverJoy.getButtonLatched(Buttons.B))
 			bToggled = !bToggled;
 
 		if (bToggled && kDrivetrain.TUNING) {
@@ -116,7 +115,7 @@ public class GZOI extends GZSubsystem {
 			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
 		}
 
-		if (driverJoy.isAPressed())
+		if (driverJoy.getButtonLatched(Buttons.A))
 			drive.toggleSlowSpeed();
 	}
 
