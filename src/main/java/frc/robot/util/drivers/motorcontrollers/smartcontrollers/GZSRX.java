@@ -238,6 +238,13 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		setUsingRemoteSensorOnTalon(sub, t, 0);
 	}
 
+	public String getRemoteSensorName() {
+		if (usingRemoteSensor())
+			return mRemoteSensorTalon.getGZName();
+
+		return "N/A";
+	}
+
 	public void setUsingRemoteSensorOnTalon(GZSubsystem sub, GZSRX t, int pidSlot) {
 		mRemoteSensorTalon = t;
 		logError(

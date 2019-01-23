@@ -87,7 +87,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-		public static final boolean TUNING = false;
+		public static final boolean TUNING = true;
 
 		public static class PID {
 
@@ -108,7 +108,7 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public final static boolean L_INVERT = true;
+		public final static boolean L_INVERT = false;
 		public final static boolean R_INVERT = true;
 
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.025;

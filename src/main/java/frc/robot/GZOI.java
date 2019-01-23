@@ -113,8 +113,8 @@ public class GZOI extends GZSubsystem {
 			drive.setVelocity(left, right);
 		} else {
 			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-		}
-
+			}
+    
 		if (driverJoy.getButtonLatched(Buttons.A))
 			drive.toggleSlowSpeed();
 	}
