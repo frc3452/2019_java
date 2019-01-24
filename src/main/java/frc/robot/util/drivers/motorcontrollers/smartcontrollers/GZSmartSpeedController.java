@@ -20,6 +20,10 @@ public interface GZSmartSpeedController extends GZSpeedController {
 		MASTER, FOLLOWER, NO_INFO;
 	}
 
+	public static enum SmartController {
+		TALON, VICTORSPX,
+	}
+
 	public Breaker getBreaker();
 	public Side getSide();
 	public Master getMaster();
@@ -32,5 +36,7 @@ public interface GZSmartSpeedController extends GZSpeedController {
 
 	public int getPDPChannel();
 	public Breaker getCalculatedBreaker();
+
+	public SmartController getControllerType();
 	
 }

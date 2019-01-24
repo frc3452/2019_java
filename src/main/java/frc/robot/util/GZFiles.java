@@ -21,6 +21,7 @@ import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.SmartController;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
@@ -450,7 +451,7 @@ public class GZFiles {
 						String canTable = "";
 						{
 							String header = "";
-							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "PDP Channel",
+							header += HTML.tableRow(HTML.easyHeader("Name", "Device ID", "PDP Channel",
 									"Calculated breaker", "Firmware version", "Temperature Sensor Port",
 									"Temperature sensor value (F)", "Master/Follower"));
 
@@ -460,21 +461,22 @@ public class GZFiles {
 						{
 							String tableBody = "";
 							for (GZSmartSpeedController canController : s.mSmartControllers) {
-
-								String talonRow = "";
-								talonRow += HTML.tableRow(HTML.tableCell(canController.getGZName())
-										+ HTML.tableCell(String.valueOf(canController.getPort()))
-										+ HTML.tableCell("" + canController.getPDPChannel())
-										+ HTML.tableCell("" + canController.getCalculatedBreaker())
-										+ HTML.tableCell("" + canController.getFirmware())
-										+ HTML.tableCell("" + canController.getTemperatureSensorPort(),
-												canController.hasTemperatureSensor() ? "white" : "red",
-												!canController.hasTemperatureSensor())
-										+ HTML.tableCell(canController.getTemperatureSensor().toString(),
-												(canController.hasTemperatureSensor() ? "white" : "red"),
-												!canController.hasTemperatureSensor())
-										+ HTML.tableCell("" + canController.getMaster()));
-								tableBody += talonRow;
+								if (canController.getControllerType() != SmartController.TALON) {
+									String talonRow = "";
+									talonRow += HTML.tableRow(HTML.tableCell(canController.getGZName())
+											+ HTML.tableCell(String.valueOf(canController.getPort()))
+											+ HTML.tableCell("" + canController.getPDPChannel())
+											+ HTML.tableCell("" + canController.getCalculatedBreaker())
+											+ HTML.tableCell("" + canController.getFirmware())
+											+ HTML.tableCell("" + canController.getTemperatureSensorPort(),
+													canController.hasTemperatureSensor() ? "white" : "red",
+													!canController.hasTemperatureSensor())
+											+ HTML.tableCell(canController.getTemperatureSensor().toString(),
+													(canController.hasTemperatureSensor() ? "white" : "red"),
+													!canController.hasTemperatureSensor())
+											+ HTML.tableCell("" + canController.getMaster()));
+									tableBody += talonRow;
+								}
 							}
 							canTable += tableBody;
 						}
@@ -489,7 +491,8 @@ public class GZFiles {
 						String pwmTable = "";
 						{
 							String header = "";
-							header += HTML.tableRow(HTML.easyHeader("Name", "PWM Port", "PDP Channel", "Calculated breaker", "Temperature Sensor Port", "Temperature sensor value (F)"));
+							header += HTML.tableRow(HTML.easyHeader("Name", "PWM Port", "PDP Channel",
+									"Calculated breaker", "Temperature Sensor Port", "Temperature sensor value (F)"));
 							pwmTable += header;
 						}
 
@@ -502,7 +505,7 @@ public class GZFiles {
 										+ HTML.tableCell("" + controller.getPDPChannel())
 										+ HTML.tableCell("" + controller.getCalculatedBreaker())
 										+ HTML.tableCell("" + controller.getTemperatureSensorPort(),
-										controller.hasTemperatureSensor() ? "white" : "red",
+												controller.hasTemperatureSensor() ? "white" : "red",
 												!controller.hasTemperatureSensor())
 										+ HTML.tableCell(controller.getTemperatureSensor().toString(),
 												(controller.hasTemperatureSensor() ? "white" : "red"),
@@ -541,6 +544,7 @@ public class GZFiles {
 
 					// If has double solenoids
 					if (s.mDoubleSolenoids.size() != 0) {
+						subsystem += HTML.paragraph("");
 						String doublesTable = "";
 						{
 							String doublesHeader = "";
@@ -568,23 +572,24 @@ public class GZFiles {
 
 		// Analog inputs
 		{
-			if (GZFiles.getInstance().mAllAnalogSensors.size() > 0){
-			body += HTML.header("Analog Inputs", 1, "Green");
+			if (GZFiles.getInstance().mAllAnalogSensors.size() > 0) {
+				body += HTML.header("Analog Inputs", 1, "Green");
 
-			String analogTable = "";
-			String tableHeader = HTML.easyHeader("Subsystem", "Name", "Port");
-			analogTable += tableHeader;
+				String analogTable = "";
+				String tableHeader = HTML.easyHeader("Subsystem", "Name", "Port");
+				analogTable += tableHeader;
 
-			for (GZAnalogInput inputs : GZFiles.getInstance().mAllAnalogSensors) {
-				String row = "";
-				row += HTML.easyTableRow(inputs.getGZSubsystem().toString(), inputs.getGZName(), "" + inputs.getPort());
-				analogTable += row;
+				for (GZAnalogInput inputs : GZFiles.getInstance().mAllAnalogSensors) {
+					String row = "";
+					row += HTML.easyTableRow(inputs.getGZSubsystem().toString(), inputs.getGZName(),
+							"" + inputs.getPort());
+					analogTable += row;
+				}
+
+				analogTable = HTML.table(analogTable);
+
+				body += analogTable;
 			}
-
-			analogTable = HTML.table(analogTable);
-
-			body += analogTable;
-		}
 		}
 
 		try {
@@ -668,8 +673,8 @@ public class GZFiles {
 
 	public String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_") : "")
-					+ GZUtil.dateTime(true);
+			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_")
+					: "") + GZUtil.dateTime(true);
 
 			prevLog = retval;
 			return retval;

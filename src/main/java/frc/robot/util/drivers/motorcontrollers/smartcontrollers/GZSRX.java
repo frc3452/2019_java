@@ -127,6 +127,10 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		subsystem.mTalons.add(this);
 		subsystem.mSmartControllers.add(this);
 	}
+	
+	public SmartController getControllerType(){
+		return SmartController.TALON;
+	}
 
 	/**
 	 * TO ONLY BE USED FOR TESTING

@@ -131,6 +131,11 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		}
 	}
 
+		
+	public SmartController getControllerType(){
+		return SmartController.VICTORSPX;
+	}
+
 	public void set(ControlMode mode, double demand0, DemandType demand1Type, double demand1) {
 		if (!mLockedOut)
 			super.set(mode, demand0, demand1Type, demand1);

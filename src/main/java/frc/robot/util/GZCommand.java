@@ -9,13 +9,20 @@ public class GZCommand {
 
 	private boolean mRunning = false;
 
+	private GZFlag mHasRun = new GZFlag();
+
 	public GZCommand(String name, Command command) {
 		this.mName = name;
 		this.mCommand = command;
 	}
 
-	public synchronized boolean start() {
+	public synchronized boolean hasRun()
+	{
+		return mHasRun.get();
+	}
 
+	public synchronized boolean start() {
+			
 		//Update our boolean from the Scheduler
 		isRunning();
 
@@ -25,6 +32,7 @@ public class GZCommand {
 		if (!mRunning) {
 			mRunning = true;
 			mCommand.start();
+			mHasRun.tripFlag();
 			return true;
 		}
 

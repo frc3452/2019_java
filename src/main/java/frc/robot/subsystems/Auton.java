@@ -102,7 +102,7 @@ public class Auton {
 		if (autonomousCommand == null)
 			return false;
 
-		return autonomousCommand.isRunning() && GZOI.getInstance().isAuto();
+		return (autonomousCommand.isRunning() || !autonomousCommand.hasRun()) && GZOI.getInstance().isAuto();
 	}
 
 	public void toggleAutoWait(boolean updateValue) {
