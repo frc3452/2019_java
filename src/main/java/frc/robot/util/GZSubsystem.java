@@ -14,7 +14,6 @@ import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedCont
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
-import frc.robot.util.drivers.pneumatics.IGZSolenoid;
 
 public abstract class GZSubsystem extends Subsystem {
 
@@ -32,7 +31,6 @@ public abstract class GZSubsystem extends Subsystem {
 	// PWM, Sparks, Etc.
 	public ArrayList<GZSpeedController> mDumbControllers = new ArrayList<GZSpeedController>();
 
-	public ArrayList<IGZSolenoid> mAllSolenoids = new ArrayList<IGZSolenoid>();
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
 
@@ -157,7 +155,7 @@ public abstract class GZSubsystem extends Subsystem {
 
 	public void superLoop()
 	{
-		for (IGZSolenoid s : mAllSolenoids)
+		for (GZSolenoid s : mSingleSolenoids)
 			s.shouldForceOutputOff();
 
 		loop();

@@ -4,8 +4,9 @@ import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
+import frc.robot.util.drivers.IGZHardware;
 
-public class GZSolenoid extends Solenoid implements IGZSolenoid {
+public class GZSolenoid extends Solenoid implements IGZHardware {
 
     public enum SolenoidState {
         TRANSITION, EXTENDED, RETRACTED;
@@ -52,7 +53,6 @@ public class GZSolenoid extends Solenoid implements IGZSolenoid {
         this.mExtendedTimer.start();
         this.mRetractedTimer.start();
         this.mSub.mSingleSolenoids.add(this);
-        this.mSub.mAllSolenoids.add(this);
     }
 
     public int getChangeCounts() {
@@ -60,7 +60,7 @@ public class GZSolenoid extends Solenoid implements IGZSolenoid {
     }
 
     public void shouldForceOutputOff() {
-        mForcedOff = this.mSub.isSafetyDisabled() || GZOI.getInstance().isDisabled();
+        mForcedOff = this.mSub.isSafetyDisabled() && GZOI.getInstance().isDisabled();
 
         if (mForcedOff)
             runSolenoid(false, true);

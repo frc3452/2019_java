@@ -42,5 +42,7 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton floorHatchToManip;
     public GZButton hatchFromFeed;
 
+    public GZButton it;
+
     protected ArrayList<GZButton> allButtons = new ArrayList<GZButton>();
 }
