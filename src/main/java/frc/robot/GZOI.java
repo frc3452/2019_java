@@ -18,6 +18,7 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
@@ -26,9 +27,15 @@ import frc.robot.util.drivers.controllers.OperatorController;
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController();
 	public static OperatorController op = new OperatorController();
-	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
+
+	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.KEY_LOW_VOLT,
+			kOI.KEY_HIGH_VOLT);
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
+
+	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
+
+	private boolean mPrevSafteyDisable = false;
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
@@ -59,6 +66,19 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
+
+		// SAFTEY DISABLED
+		if (isFMS())
+			mSafetyDisable = false;
+		else if (getSafteyKey())
+			mSafetyDisable = true;
+		else if (mUserButton.update(RobotController.getUserButton()))
+			mSafetyDisable = !mSafetyDisable;
+
+		if (mSafetyDisable != mPrevSafteyDisable)
+			Robot.allSubsystems.disable(mSafetyDisable);
+		mPrevSafteyDisable = mSafetyDisable;
+
 		// Disabled
 		if (isDisabled())
 			disabled();
@@ -83,12 +103,6 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void disabled() {
-		if (isFMS())
-			mSafetyDisable = false;
-		else if (mUserButton.update(RobotController.getUserButton()))
-			mSafetyDisable = !mSafetyDisable;
-		Robot.allSubsystems.disable(mSafetyDisable);
-
 		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
 		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
@@ -110,8 +124,8 @@ public class GZOI extends GZSubsystem {
 			drive.setVelocity(left, right);
 		} else {
 			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-			}
-    
+		}
+
 		if (driverJoy.getButtonLatched(Buttons.A))
 			drive.toggleSlowSpeed();
 	}
@@ -210,6 +224,13 @@ public class GZOI extends GZSubsystem {
 		GZLog.addAverageLeft("PDP-VOLT-AVG");
 	}
 
+	/**
+	 * A physical key on the robot to shut off 
+	 */
+	public boolean getSafteyKey() {
+		return mKey.isWithinRange();
+	}
+
 	public boolean hasMotors() {
 		return false;
 	}
@@ -221,7 +242,7 @@ public class GZOI extends GZSubsystem {
 	public void addPDPTestingMotors() {
 	}
 
-	public void setSafetyDisable(boolean disable) {
+	public void safetyDisable(boolean disable) {
 		this.mSafetyDisable = disable;
 	}
 

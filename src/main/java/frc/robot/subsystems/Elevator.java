@@ -297,18 +297,13 @@ public class Elevator extends GZSubsystem {
     private void handleStates() {
         boolean neutral = false;
 
-        boolean lockSolenoids = false;
-
         if (mWantedState == ElevatorState.NEUTRAL) {
             neutral = true;
-        } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
+        } else if (this.isSafetyDisabled()) {
             neutral = true;
-            lockSolenoids = true;
         } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
         }
-
-        this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
             switchToState(ElevatorState.NEUTRAL);

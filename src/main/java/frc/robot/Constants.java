@@ -284,5 +284,9 @@ public class Constants {
 			public final static double ENDGAME = .6;
 
 		}
+
+		public static final int LOCK_OUT_KEY = 0;
+		public static final double KEY_HIGH_VOLT = 0;
+		public static final double KEY_LOW_VOLT = 0;
 	}
 }

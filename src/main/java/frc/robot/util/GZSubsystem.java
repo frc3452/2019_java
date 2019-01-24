@@ -3,6 +3,7 @@ package frc.robot.util;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.MotorChecker.AmperageChecker;
@@ -13,6 +14,7 @@ import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedCont
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.IGZSolenoid;
 
 public abstract class GZSubsystem extends Subsystem {
 
@@ -27,23 +29,12 @@ public abstract class GZSubsystem extends Subsystem {
 	// Talons, VictorSPXs, etc.
 	public ArrayList<GZSmartSpeedController> mSmartControllers = new ArrayList<GZSmartSpeedController>();
 
-
-
 	// PWM, Sparks, Etc.
 	public ArrayList<GZSpeedController> mDumbControllers = new ArrayList<GZSpeedController>();
 
+	public ArrayList<IGZSolenoid> mAllSolenoids = new ArrayList<IGZSolenoid>();
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
-
-	private boolean areSolenoidsLocked = false;
-
-	protected void lockSolenoids(boolean lock) {
-		this.areSolenoidsLocked = lock;
-	}
-
-	public boolean areSolenoidsLocked() {
-		return this.areSolenoidsLocked;
-	}
 
 	public void printState() {
 		System.out.println(getStateString());
@@ -159,12 +150,20 @@ public abstract class GZSubsystem extends Subsystem {
 	}
 
 	public Boolean isSafetyDisabled() {
-		return mIsDisabled;
+		return mIsDisabled && GZOI.getInstance().isFMS();
 	}
 
 	public abstract void addLoggingValues();
 
-	public abstract void loop();
+	public void superLoop()
+	{
+		for (IGZSolenoid s : mAllSolenoids)
+			s.shouldForceOutputOff();
+
+		loop();
+	}
+
+	protected abstract void loop();
 
 	// Each subsystem is able to report its current state as a string
 	public abstract String getStateString();

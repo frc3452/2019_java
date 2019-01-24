@@ -1,11 +1,11 @@
 package frc.robot.util.drivers.pneumatics;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
-import frc.robot.util.drivers.IGZHardware;
 
-public class GZSolenoid extends Solenoid implements IGZHardware {
+public class GZSolenoid extends Solenoid implements IGZSolenoid {
 
     public enum SolenoidState {
         TRANSITION, EXTENDED, RETRACTED;
@@ -37,6 +37,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     private GZTimer mRetractedTimer = new GZTimer();
 
     private int mChangeCounts = 0;
+    private boolean mForcedOff = false;
 
     public SolenoidConstants getConstants() {
         return this.mConstants;
@@ -51,19 +52,32 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         this.mExtendedTimer.start();
         this.mRetractedTimer.start();
         this.mSub.mSingleSolenoids.add(this);
-    }
-
-    public boolean isLocked() {
-        return this.mSub.areSolenoidsLocked();
+        this.mSub.mAllSolenoids.add(this);
     }
 
     public int getChangeCounts() {
         return mChangeCounts;
     }
 
+    public void shouldForceOutputOff() {
+        mForcedOff = this.mSub.isSafetyDisabled() || GZOI.getInstance().isDisabled();
+
+        if (mForcedOff)
+            runSolenoid(false, true);
+    }
+
+    // when safteydisabled don't allow change
+    // when disabled disabled push to default position
     @Override
     public void set(boolean on) {
-        if (on == super.get() || this.isLocked())
+        runSolenoid(on, false);
+    }
+
+    private void runSolenoid(boolean on, boolean override) {
+        if (!override && (mForcedOff || this.mSub.isSafetyDisabled()))
+            return;
+
+        if (on == super.get())
             return;
 
         super.set(on);
@@ -86,7 +100,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
             return SolenoidState.EXTENDED;
         else if (!super.get() && mRetractedTimer.get() > this.mConstants.retractTime)
             return SolenoidState.RETRACTED;
-        
+
         return SolenoidState.TRANSITION;
     }
 

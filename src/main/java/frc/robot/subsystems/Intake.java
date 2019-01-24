@@ -103,15 +103,11 @@ public class Intake extends GZSubsystem {
     private void handleStates() {
         boolean neutral = false;
 
-        boolean lockSolenoids = false;
         if (mWantedState == IntakeState.NEUTRAL) {
             neutral = true;
-        } else if (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()) {
+        } else if (this.isSafetyDisabled()) {
             neutral = true;
-            lockSolenoids = true;
         }
-
-        this.lockSolenoids(lockSolenoids);
 
         if (neutral) {
 

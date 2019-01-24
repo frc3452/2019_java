@@ -395,11 +395,21 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public double getLeftOutputPercentage()
+	{
+		return L1.getOutputPercentage();
+	}
+
+	public double getRightOutputPercentage()
+	{
+		return R1.getOutputPercentage();
+	}
+
 	public synchronized void handleStates() {
 		GZOI gzOI = GZOI.getInstance();
 
 		boolean neutral = false;
-		neutral |= this.isSafetyDisabled() && !gzOI.isFMS();
+		neutral |= this.isSafetyDisabled();
 		neutral |= mWantedState == DriveState.NEUTRAL;
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
 		// neutral |= getShifterState() == SolenoidState.TRANSITION;
@@ -923,172 +933,6 @@ public class Drive extends GZSubsystem {
 		else
 			processMotionProfile.startPeriodic(time);
 	}
-
-	public synchronized void getMotionProfileStatus(boolean left, MotionProfileStatus statusToFill) {
-		if (left)
-			L1.getMotionProfileStatus(statusToFill);
-		else
-			R1.getMotionProfileStatus(statusToFill);
-	}
-
-	/**
-	 * push motion profiles to drive train talons
-	 * 
-	 * @since 4-22-2018
-	 */
-	public synchronized void motionProfileToTalons(double[][] mpL, double[][] mpR, Integer mpDur) {
-
-		if (mpL.length != mpR.length)
-			System.out.println("ERROR MOTION-PROFILE-SIZING ISSUE:\t\t" + mpL.length + "\t\t" + mpR.length);
-
-		processMotionProfileBuffer((double) mpDur / (1000 * 2));
-
-		TrajectoryPoint rightPoint = new TrajectoryPoint();
-		TrajectoryPoint leftPoint = new TrajectoryPoint();
-
-		// set talon srx
-		L1.configMotionProfileTrajectoryPeriod(mpDur, 10);
-		R1.configMotionProfileTrajectoryPeriod(mpDur, 10);
-		L1.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, mpDur, 10);
-		R1.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, mpDur, 10);
-
-		L1.clearMotionProfileTrajectories();
-		R1.clearMotionProfileTrajectories();
-
-		// generate and push each mp point
-		if (mpL.length == mpR.length) {
-			for (int i = 0; i < mpL.length; i++) {
-
-				leftPoint.position = mpL[i][0] * 4096;
-				leftPoint.velocity = mpL[i][1] * 4096;
-
-				rightPoint.position = mpR[i][0] * -4096;
-				rightPoint.velocity = mpR[i][1] * -4096;
-
-				leftPoint.timeDur = GZFiles.getInstance().mpDur;
-				rightPoint.timeDur = GZFiles.getInstance().mpDur;
-
-				leftPoint.headingDeg = 0;
-				rightPoint.headingDeg = 0;
-
-				leftPoint.profileSlotSelect0 = 0;
-				rightPoint.profileSlotSelect0 = 0;
-
-				leftPoint.profileSlotSelect1 = 0;
-				rightPoint.profileSlotSelect1 = 0;
-
-				leftPoint.zeroPos = false;
-				rightPoint.zeroPos = false;
-
-				if (i == 0) {
-					leftPoint.zeroPos = true;
-					rightPoint.zeroPos = true;
-				}
-
-				leftPoint.isLastPoint = false;
-				rightPoint.isLastPoint = false;
-
-				if ((i + 1) == mpL.length) {
-					leftPoint.isLastPoint = true;
-					rightPoint.isLastPoint = true;
-				}
-
-				L1.pushMotionProfileTrajectory(leftPoint);
-				R1.pushMotionProfileTrajectory(rightPoint);
-			}
-			System.out.println("Motion profile pushed to Talons");
-		} else {
-			System.out.println("Motion profile lists not same size!!!");
-		}
-	}
-
-	/**
-	 * Used to process and push <b>parsed</b> motion profiles to drivetrain talons
-	 * 
-	 * @author max
-	 * @since 4-22-2018
-	 */
-	public synchronized void motionProfileToTalons() {
-		if (GZFiles.getInstance().mpL.size() != GZFiles.getInstance().mpR.size())
-			System.out.println("ERROR MOTION-PROFILE-SIZING ISSUE:\t\t" + GZFiles.getInstance().mpL.size() + "\t\t"
-					+ GZFiles.getInstance().mpR.size());
-
-		processMotionProfileBuffer((double) GZFiles.getInstance().mpDur / (1000 * 2));
-
-		TrajectoryPoint rightPoint = new TrajectoryPoint();
-		TrajectoryPoint leftPoint = new TrajectoryPoint();
-
-		// set talon srx
-		L1.configMotionProfileTrajectoryPeriod(GZFiles.getInstance().mpDur, 10);
-		R1.configMotionProfileTrajectoryPeriod(GZFiles.getInstance().mpDur, 10);
-		L1.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, GZFiles.getInstance().mpDur, 10);
-		R1.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, GZFiles.getInstance().mpDur, 10);
-
-		L1.clearMotionProfileTrajectories();
-		R1.clearMotionProfileTrajectories();
-
-		// generate and push each mp point
-		if (GZFiles.getInstance().mpL.size() != GZFiles.getInstance().mpR.size()) {
-			System.out.println("Motion profile lists not same size!!!");
-		} else {
-			for (int i = 0; i < GZFiles.getInstance().mpL.size(); i++) {
-
-				leftPoint.position = GZFiles.getInstance().mpL.get(i).get(0) * 4096;
-				leftPoint.velocity = GZFiles.getInstance().mpL.get(i).get(1) * 4096;
-
-				rightPoint.position = GZFiles.getInstance().mpR.get(i).get(0) * -4096;
-				rightPoint.velocity = GZFiles.getInstance().mpR.get(i).get(1) * -4096;
-
-				leftPoint.timeDur = GZFiles.getInstance().mpDur;
-				rightPoint.timeDur = GZFiles.getInstance().mpDur;
-
-				// leftPoint.timeDur = GetTrajectoryDuration(GZFiles.getInstance().mpDur);
-				// rightPoint.timeDur = GetTrajectoryDuration(GZFiles.getInstance().mpDur);
-
-				leftPoint.headingDeg = 0;
-				rightPoint.headingDeg = 0;
-
-				leftPoint.profileSlotSelect0 = 0;
-				rightPoint.profileSlotSelect0 = 0;
-
-				leftPoint.profileSlotSelect1 = 0;
-				rightPoint.profileSlotSelect1 = 0;
-
-				leftPoint.zeroPos = false;
-				rightPoint.zeroPos = false;
-
-				if (i == 0) {
-					leftPoint.zeroPos = true;
-					rightPoint.zeroPos = true;
-				}
-
-				leftPoint.isLastPoint = false;
-				rightPoint.isLastPoint = false;
-
-				if ((i + 1) == GZFiles.getInstance().mpL.size()) {
-					leftPoint.isLastPoint = true;
-					rightPoint.isLastPoint = true;
-				}
-
-				L1.pushMotionProfileTrajectory(leftPoint);
-				R1.pushMotionProfileTrajectory(rightPoint);
-			}
-			System.out.println("Motion profile pushed to Talons");
-		}
-
-	}
-
-	// @SuppressWarnings("static-access")
-	// private synchronized TrajectoryDuration GetTrajectoryDuration(int durationMs)
-	// {
-	// TrajectoryDuration retval = TrajectoryDuration.Trajectory_Duration_0ms;
-	// retval = retval.valueOf(durationMs);
-
-	// if (retval.value != durationMs)
-	// System.out.println("ERROR Invalid trajectory duration: " + durationMs);
-
-	// return retval;
-	// }
 
 	public synchronized void enableFollower() {
 		for (GZSmartSpeedController c : mSmartControllers) {

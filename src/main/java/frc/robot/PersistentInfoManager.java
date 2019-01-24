@@ -77,7 +77,7 @@ public class PersistentInfoManager {
         }
 
         public void readSetting() {
-            GZOI.getInstance().setSafetyDisable(this.getValue() == 1.0);
+            GZOI.getInstance().safetyDisable(this.getValue() == 1.0);
         }
     };
 

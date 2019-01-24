@@ -57,7 +57,7 @@ public class Superstructure extends GZSubsystem {
     // ACTIONS
     @Override
     public void loop() {
-        if (mAction == Actions.OFF || (this.isSafetyDisabled() && !GZOI.getInstance().isFMS()))
+        if (mAction == Actions.OFF || this.isSafetyDisabled())
             stop();
         else {
 

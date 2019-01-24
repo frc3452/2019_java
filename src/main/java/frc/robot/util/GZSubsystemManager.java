@@ -9,16 +9,11 @@ public class GZSubsystemManager {
 
 	private final List<GZSubsystem> mAllSystems;
 
-	public GZSubsystemManager(GZSubsystem ...allSubsystems) {
+	public GZSubsystemManager(GZSubsystem... allSubsystems) {
 		mAllSystems = Arrays.asList(allSubsystems);
 	}
 
-	private GZNotifier looper_ = new GZNotifier(new Runnable() {
-		@Override
-		public void run() {
-			loop();
-		}
-	});
+	private GZNotifier looper_ = new GZNotifier(() -> loop());
 
 	public void startLooping() {
 		looper_.startPeriodic(.02);
@@ -29,7 +24,7 @@ public class GZSubsystemManager {
 	}
 
 	public void loop() {
-		mAllSystems.forEach((s) -> s.loop());
+		mAllSystems.forEach((s) -> s.superLoop());
 	}
 
 	public List<GZSubsystem> getSubsystems() {

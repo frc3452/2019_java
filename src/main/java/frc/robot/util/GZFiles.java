@@ -13,9 +13,10 @@ import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.Constants;
+import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
-import frc.robot.Constants.kFiles;
+import frc.robot.subsystems.Drive;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
@@ -34,8 +35,8 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid;
  */
 public class GZFiles {
 
-	public ArrayList<ArrayList<Double>> mpL = new ArrayList<>();
-	public ArrayList<ArrayList<Double>> mpR = new ArrayList<>();
+	public ArrayList<Double> mpL = new ArrayList<>();
+	public ArrayList<Double> mpR = new ArrayList<>();
 
 	public ArrayList<GZAnalogInput> mAllAnalogSensors = new ArrayList<GZAnalogInput>();
 
@@ -107,21 +108,11 @@ public class GZFiles {
 
 			// loop through each line
 			while (scnr.hasNextLine()) {
-				ArrayList<Double> temp = new ArrayList<>();
-
 				st = scnr.nextLine();
-
 				String[] ar = st.split(",");
 
-				temp.add(Double.parseDouble(ar[0]));
-				temp.add(Double.parseDouble(ar[1]));
-				mpL.add(temp);
-
-				temp = new ArrayList<>();
-
-				temp.add(Double.parseDouble(ar[2]));
-				temp.add(Double.parseDouble(ar[3]));
-				mpR.add(temp);
+				mpL.add(Double.parseDouble(ar[0]));
+				mpR.add(Double.parseDouble(ar[1]));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,8 +138,7 @@ public class GZFiles {
 	private void printListValues() {
 		try {
 			for (int i = 0; i < mpL.size(); i++) {
-				System.out.println(mpL.get(i).get(0) + "\t" + mpL.get(i).get(1) + "\t" + mpR.get(i).get(0) + "\t"
-						+ mpR.get(i).get(1) + "\t" + mpDur);
+				System.out.println(mpL.get(i) + "\t" + mpR.get(i) + "\t" + mpDur);
 			}
 
 		} catch (Exception e) {
@@ -166,9 +156,9 @@ public class GZFiles {
 		try {
 			if (isStartup) {
 				// on startup, write header
-				bw.write("leftPos,leftSpeed,rightPos,rightSpeed,");
+				bw.write("leftPercentage,rightPercentage,");
 				bw.write("\r\n");
-				bw.write(String.valueOf(Constants.kFiles.RECORDING_MOTION_PROFILE_MS) + ",0,0,0,");
+				bw.write(String.valueOf(Constants.kFiles.RECORDING_MOTION_PROFILE_MS) + ",-1,");
 				bw.write("\r\n");
 				profileRecord.startPeriodic((double) Constants.kFiles.RECORDING_MOTION_PROFILE_MS / 1000);
 			} else {
@@ -192,19 +182,12 @@ public class GZFiles {
 		@Override
 		public void run() {
 			try {
-				// populate position and speed values
-				// WRITE PROFILES IN TICKS,
-				double leftPos = 0;
-				double leftSpeed = 0;
-
-				double rightPos = 0;
-				double rightSpeed = 0;
+				double leftPercent = Drive.getInstance().getLeftOutputPercentage();
+				double rightPercent = Drive.getInstance().getRightOutputPercentage();
 
 				// write values
-				bw.write(String.valueOf(leftPos + ","));
-				bw.write(String.valueOf(leftSpeed + ","));
-				bw.write(String.valueOf(rightPos + ","));
-				bw.write(String.valueOf(rightSpeed + ","));
+				bw.write(String.valueOf(leftPercent + ","));
+				bw.write(String.valueOf(rightPercent + ","));
 				bw.write("\r\n");
 
 			} catch (Exception e) {
@@ -247,7 +230,7 @@ public class GZFiles {
 	/**
 	 * notifier object for running profile recorder
 	 */
-	private Notifier logging = new Notifier(new Runnable() {
+	private GZNotifier logging = new GZNotifier(new Runnable() {
 		@Override
 		public void run() {
 			try {
