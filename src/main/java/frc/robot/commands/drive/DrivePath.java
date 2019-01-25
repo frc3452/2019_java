@@ -7,9 +7,12 @@
 
 package frc.robot.commands.drive;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.commands.paths.PathContainer;
+import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Path;
+import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.subsystems.Drive;
 
 public class DrivePath extends Command {
@@ -36,6 +39,7 @@ public class DrivePath extends Command {
   }
 
   protected void end() {
+    System.out.println("Drive done");
   }
 
   protected void interrupted() {

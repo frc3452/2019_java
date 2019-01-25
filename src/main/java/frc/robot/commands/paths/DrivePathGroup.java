@@ -13,7 +13,10 @@ import frc.robot.commands.drive.ResetPoseFromPath;
 
 public class DrivePathGroup extends CommandGroup {
   public DrivePathGroup(PathContainer pathContainer) {
+
     addSequential(new ResetPoseFromPath(pathContainer));
+
+    
     addSequential(new DrivePath(pathContainer));
   }
 }

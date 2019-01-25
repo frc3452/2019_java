@@ -16,54 +16,43 @@ public class GZCommand {
 		this.mCommand = command;
 	}
 
-	public synchronized boolean hasRun()
-	{
+	public synchronized boolean hasRun() {
 		return mHasRun.get();
 	}
 
-	public synchronized boolean start() {
-			
-		//Update our boolean from the Scheduler
+	public synchronized void start() {
+
+		// Update our boolean from the Scheduler
 		isRunning();
 
 		if (mCommand == null)
-			return false;
+			return;
 
-		if (!mRunning) {
-			mRunning = true;
-			mCommand.start();
-			mHasRun.tripFlag();
-			return true;
-		}
-
-		return false;
+		mRunning = true;
+		mCommand.start();
+		mHasRun.tripFlag();
 	}
 
 	public synchronized boolean isRunning() {
-		if (mCommand == null)
-			return false;
+		// if (mCommand == null)
+		// 	return false;
 
-		if (!mCommand.isRunning() || mCommand.isCompleted() || mCommand.isCanceled()) {
-			mRunning = false;
-		}
+		// if (!mCommand.isRunning() || mCommand.isCompleted() || mCommand.isCanceled()) {
+		// 	mRunning = false;
+		// }
 
 		return mRunning;
 	}
 
-	public synchronized boolean cancel() {
-		//Update value from the scheduler
+	public synchronized void cancel() {
+		// Update value from the scheduler
 		isRunning();
 
 		if (mCommand == null)
-			return false;
+			return;
 
 		mCommand.cancel();
-		if (mRunning) {
-			mRunning = false;
-			return true;
-		}
-
-		return false;
+		mRunning = false;
 	}
 
 	public String getName() {

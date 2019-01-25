@@ -5,16 +5,11 @@ import java.util.Collections;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
 import frc.robot.commands.paths.DrivePathGroup;
-import frc.robot.commands.paths.L_R_CRGO_SHIP_3;
-import frc.robot.commands.paths.TestPath;
-import frc.robot.commands.paths.TestPath2;
-import frc.robot.commands.paths.TestPath4;
-import frc.robot.commands.paths.TestPath5;
+import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -63,8 +58,8 @@ public class Auton {
 	}
 
 	private Auton() {
-		mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
-		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
+		// mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
+		// mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		fillAutonArray();
 	}
 
@@ -88,7 +83,7 @@ public class Auton {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue);
 		} else {
 			// Check if auton selectors are returning what they should be
-			if (m_selectorValue <= 99 && m_selectorValue >= 0) {
+			if (m_selectorValue <= commandArray.size() && m_selectorValue >= 0) {
 				autonomousCommand = commandArray.get(m_selectorValue);
 			} else {
 				autonomousCommand = defaultCommand;
@@ -122,10 +117,9 @@ public class Auton {
 			return;
 
 		if (mLBAutoStart.update(update)) {
-			if (autonomousCommand.start())
-				System.out.println("WARNING Controller starting auto!");
-			else
-				System.out.println("WARNING Could not start controller auto!");
+			autonomousCommand.start();
+			System.out.println("WARNING Controller starting auto!");
+
 		}
 	}
 
@@ -165,14 +159,23 @@ public class Auton {
 		if (commandArray != null)
 			return;
 
-		GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
-		commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
+		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new TestPath())));
-		commandArray.add(new GZCommand("Test trajectory 2", new DrivePathGroup(new TestPath2())));
-		commandArray.add(new GZCommand("Yes", new DrivePathGroup(new L_R_CRGO_SHIP_3())));
-		commandArray.add(new GZCommand("Test trajectory 4", new DrivePathGroup(new TestPath4())));
-		commandArray.add(new GZCommand("Test trajectory 5", new DrivePathGroup(new TestPath5())));
+		// GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
+		// commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
+
+		commandArray.add(new GZCommand("Straight curve left", new DrivePathGroup(new Straight_Curve_Left())));
+
+		// commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new
+		// TestPath())));
+		// commandArray.add(new GZCommand("Test trajectory 2", new DrivePathGroup(new
+		// TestPath2())));
+		// commandArray.add(new GZCommand("Yes", new DrivePathGroup(new
+		// L_R_CRGO_SHIP_3())));
+		// commandArray.add(new GZCommand("Test trajectory 4", new DrivePathGroup(new
+		// TestPath4())));
+		// commandArray.add(new GZCommand("Test trajectory 5", new DrivePathGroup(new
+		// TestPath5())));
 
 		// commandArray.add(new GZCommand("Test trajectory",
 		// new
@@ -192,22 +195,21 @@ public class Auton {
 	 */
 	public void startAuton() {
 		if (autonomousCommand != null) {
-			if (!mWaitOnAutoStart) {
-				if (autonomousCommand.start())
-					System.out.println("Starting auto...");
-			} else {
+			if (mWaitOnAutoStart) {
 				System.out.println("WARNING Auto not running! Wait toggled!");
+			} else {
+				autonomousCommand.start();
+				System.out.println("Starting auto...");
 			}
+
 		}
 	}
 
 	// Ran on teleopInit
 	public void cancelAuton() {
 		if (autonomousCommand != null) {
-			if (autonomousCommand.cancel())
-				System.out.println("WARNING Cancelling auto...");
-			else
-				System.out.println("WARNING Command cancelled, but apparently already stopped.");
+			autonomousCommand.cancel();
+			System.out.println("WARNING Cancelling auto...");
 		}
 	}
 
@@ -216,7 +218,7 @@ public class Auton {
 	}
 
 	private void printSelected() {
-		if (m_controllerOverrideValue != -1) {
+		if (m_controllerOverrideValue == -1) {
 			if (m_selectorValue != p_selectorValue) {
 				printSelectors();
 			}

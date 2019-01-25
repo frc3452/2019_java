@@ -20,10 +20,15 @@ public class Robot extends TimedRobot {
 	private GZFiles files = GZFiles.getInstance();
 
 	// This order is crucial! it determines what order logging is added, what order
-	// health is generated in, etc
+	// // health is generated in, etc
+	// public static final GZSubsystemManager allSubsystems = new
+	// GZSubsystemManager(Drive.getInstance(),
+	// RobotStateEstimator.getInstance(), Elevator.getInstance(),
+	// Intake.getInstance(), Pneumatics.getInstance(),
+	// GZOI.getInstance(), Superstructure.getInstance());
+
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), Elevator.getInstance(), Intake.getInstance(), Pneumatics.getInstance(),
-			GZOI.getInstance(), Superstructure.getInstance());
+			RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
