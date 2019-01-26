@@ -173,6 +173,13 @@ public class GZUtil {
 		return temp;
 	}
 
+	public static String getDate()
+	{
+		String ret;
+		ret = new SimpleDateFormat("yyyy.MM.dd").format(new Date());
+		return ret;
+	}
+
 	public static double celsiusToFahrenheit(double celsius) {
 		double fahrenheit = (5.0 / 9) * celsius + 32;
 		return fahrenheit;

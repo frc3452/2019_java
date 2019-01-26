@@ -101,7 +101,7 @@ public class Constants {
                                                      // our speed
 													 // in inches per sec
 													 
-	public static double kPathFollowingProfileKp = 2.5; //2.5 //50
+	public static double kPathFollowingProfileKp = 3 ; //2.5 //50
     public static double kPathFollowingProfileKi = 0.03; //.03 
     public static double kPathFollowingProfileKv = 0.11; //.11
     public static double kPathFollowingProfileKffv = 5; //1 //.5
@@ -116,9 +116,9 @@ public class Constants {
 		public static final boolean TUNING = false;
 
 		public static class PID {
-			static final double p = 1.2; // 1.2 
+			static final double p = .9; // 1.2 
 			static final double d = 20; // 10
-			static final double f = 0; //.23
+			static final double f = .78; //.23
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 

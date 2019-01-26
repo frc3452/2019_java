@@ -9,7 +9,7 @@ public interface GZSmartSpeedController extends GZSpeedController {
 
 	public final static int TIMEOUT = 10;
 	public static final int LONG_TIMEOUT = 100;
-	public final static int FIRMWARE = 1025;
+	public final static int FIRMWARE = 1035;
 	public final static AlertLevel FIRMWARE_ALERT_LEVEL = AlertLevel.WARNING;
 
     public static enum Side {

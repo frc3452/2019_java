@@ -14,6 +14,7 @@ import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.GZUtil;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -37,8 +38,8 @@ public class Robot extends TimedRobot {
 	private PersistentInfoManager infoManager = PersistentInfoManager.getInstance();
 
 	// LOGGING CONTROL
-	private final boolean logging = true, logToUsb = false;
-	private final Folder loggingLocation = new Folder("Logging/Offseason");
+	private final boolean logging = true, logToUsb = true;
+	private final Folder loggingLocation = new Folder("Logging/Offseason/" + GZUtil.getDate());
 
 	@Override
 	public void robotInit() {

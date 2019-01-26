@@ -1,15 +1,17 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
 import frc.robot.commands.paths.DrivePathGroup;
 import frc.robot.commands.paths.Straight_Curve_Left;
+import frc.robot.commands.paths.Straight_Curve_Left_Back;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -164,26 +166,15 @@ public class Auton {
 		// GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
 		// commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
 
+		// Command c = new CommandGroup() {
+		// 	{
+		// 		addSequential(new DrivePathGroup(new Straight_Curve_Left()));
+		// 		// addSequential(new DrivePathGroup(new Straight_Curve_Left_Back()));
+		// 	}
+		// };
+
 		commandArray.add(new GZCommand("Straight curve left", new DrivePathGroup(new Straight_Curve_Left())));
 
-		// commandArray.add(new GZCommand("Test trajectory", new DrivePathGroup(new
-		// TestPath())));
-		// commandArray.add(new GZCommand("Test trajectory 2", new DrivePathGroup(new
-		// TestPath2())));
-		// commandArray.add(new GZCommand("Yes", new DrivePathGroup(new
-		// L_R_CRGO_SHIP_3())));
-		// commandArray.add(new GZCommand("Test trajectory 4", new DrivePathGroup(new
-		// TestPath4())));
-		// commandArray.add(new GZCommand("Test trajectory 5", new DrivePathGroup(new
-		// TestPath5())));
-
-		// commandArray.add(new GZCommand("Test trajectory",
-		// new
-		// DriveTrajectoryCommand(TrajectoryGenerator.getInstance().getTestTrajectoryStraight(),
-		// true)));
-
-		// commandArray.add(new GZCommand("Test velocity", new
-		// DriveAtVelocityForTime(1024, 1024, 6)));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

@@ -8,7 +8,7 @@ import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 
-public class Straight_Curve_Left implements PathContainer {
+public class Straight_Curve_Left_Back implements PathContainer {
 
     @Override
     public Path buildPath() {
@@ -16,22 +16,20 @@ public class Straight_Curve_Left implements PathContainer {
       
         final double speed = 80;
 
+        sWaypoints.add(new Waypoint(232, 103, 15, speed));
+        sWaypoints.add(new Waypoint(232, 48, 30, speed));
         sWaypoints.add(new Waypoint(20, 48, 0, 0));
-        sWaypoints.add(new Waypoint(120, 48, 0, 80));
-        sWaypoints.add(new Waypoint(232, 43, 40, 80));
-        sWaypoints.add(new Waypoint(232, 103, 1, 80));
-        sWaypoints.add(new Waypoint(232, 190, 0, 80));
-
+        
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
     @Override
     public RigidTransform2d getStartPose() {
-        return new RigidTransform2d(new Translation2d(20, 48), Rotation2d.fromDegrees(0));
+        return new RigidTransform2d(new Translation2d(232, 116), Rotation2d.fromDegrees(-90));
     }
 
     @Override
     public boolean isReversed() {
-        return false;
+        return true;
     }
 }

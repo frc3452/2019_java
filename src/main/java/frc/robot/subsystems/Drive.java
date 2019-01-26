@@ -278,10 +278,8 @@ public class Drive extends GZSubsystem {
 		}
 
 		if (mState == DriveState.PATH_FOLLOWING) {
-			L1.set(ControlMode.Velocity, mIO.left_output, DemandType.ArbitraryFeedForward,
-					mIO.left_feedforward + kDrivetrain.PID.Left.D * mIO.left_accel / 1023.0);
-			R1.set(ControlMode.Velocity, mIO.right_output, DemandType.ArbitraryFeedForward,
-					mIO.right_feedforward + kDrivetrain.PID.Right.D * mIO.right_accel / 1023.0);
+			L1.set(ControlMode.Velocity, mIO.left_output);
+			R1.set(ControlMode.Velocity, mIO.right_output);
 		} else {
 			L1.set(mState.controlMode, mIO.left_output);
 			R1.set(mState.controlMode, mIO.right_output);
