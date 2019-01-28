@@ -15,7 +15,8 @@ var image;
 var imageFlipped;
 var wto;
 
-var startingPositions = [[22, 205],[22,117], [64, 205], [64, 162], [64, 119]];
+var lastSetStartingPosition = 0;
+var startingPositions = [[22, 205], [22, 117], [64, 205], [64, 162], [64, 119]];
 var startLeftY = 276;
 var startCenterY = 157;
 var startRightY = 48;
@@ -972,19 +973,29 @@ function flipField() {
 }
 
 
-
 function changeStartPoint() {
 	var x = parseInt($($($($('tbody').children()[0]).children()[0]).children()).val());
 	var y = parseInt($($($($('tbody').children()[0]).children()[1]).children()).val());
 
-	console.log("Starting point thing happening: " + x + "\t" + y);
+	var valueToSetTo = lastSetStartingPosition + 1;
+	if (valueToSetTo > startingPositions.length - 1)
+		valueToSetTo = 0;
+
+	lastSetStartingPosition = valueToSetTo;
+	setStartingPositionPoint(startingPositions[valueToSetTo][0], startingPositions[valueToSetTo][1]);
+	return;
+}
+
+function changeStartPointV1() {
+	var x = parseInt($($($($('tbody').children()[0]).children()[0]).children()).val());
+	var y = parseInt($($($($('tbody').children()[0]).children()[1]).children()).val());
+
 	for (var i = 0; i < startingPositions.length; i++) {
 		if (x == startingPositions[i][0] && y == startingPositions[i][1]) {
 			var valueToSetTo = i + 1;
 			if (i >= startingPositions.length - 1)
 				valueToSetTo = 0;
 
-			console.log("Position to set to" + "\t" + (valueToSetTo));
 			setStartingPositionPoint(startingPositions[valueToSetTo][0], startingPositions[valueToSetTo][1]);
 			return;
 		}
@@ -992,7 +1003,7 @@ function changeStartPoint() {
 }
 
 function setStartingPositionPoint(x, y) {
-	console.log('setting x y to ' + "\t" + x + "\t" + y);
+	console.log('setting starting position to ' + "\t[" + x + "]\t[" + y + "]");
 	$($($($('tbody').children()[0]).children()[0]).children()).val(x);
 	$($($($('tbody').children()[0]).children()[1]).children()).val(y);
 	update();
