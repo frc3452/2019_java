@@ -108,15 +108,12 @@ public class GZUtil {
 		return value;
 	}
 
-	public static double degrees(Translation2d point1, Translation2d point2)
+	public static double distanceBetween(Translation2d point1, Translation2d point2)
 	{
-		double xDelta = point2.x() - point1.x();
-		double yDelta = point2.y() - point1.y();
+		double a = point1.x() - point2.x();
+		double b = point1.y() - point2.y();
 
-		if (xDelta == 0)
-			return 0;
-
-		return Math.toDegrees(Math.tan(xDelta/yDelta));
+		return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 	}
 
 	public static Object deepClone(Object object) {

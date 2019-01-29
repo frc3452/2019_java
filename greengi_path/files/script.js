@@ -835,12 +835,9 @@ ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
-    private boolean isToDriveInReverse() {
+	@Override
+    public boolean isReversed() {
         return ${isReversed}; 
-	}
-	
-	public boolean isReversed() {
-		return (isFlipped() ? !isToDriveInReverse() : isToDriveInReverse());
 	}
 }`;
 	return str;
@@ -899,13 +896,11 @@ function getDataString() {
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
 	var str = `package frc.robot.commands.paths;
+	import java.util.ArrayList;
 
-import java.util.ArrayList;
+	import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
+	import frc.robot.commands.drive.pathfollowing.PathContainer;
 	
-import frc.robot.commands.drive.pathfollowing.PathBuilder;
-import frc.robot.commands.drive.pathfollowing.PathContainer;
-import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.poofs.util.control.Path;
 
 public class ${title} extends PathContainer {
     
@@ -916,12 +911,9 @@ ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
-    private boolean isToDriveInReverse() {
+	@Override
+    public boolean isReversed() {
         return ${isReversed}; 
-	}
-	
-	public boolean isReversed() {
-		return (isFlipped() ? !isToDriveInReverse() : isToDriveInReverse());
 	}
 }`;
 	return str;

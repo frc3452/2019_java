@@ -13,30 +13,24 @@ public abstract class PathContainer {
     public static PathContainer getReversed(PathContainer other)
     {
         PathContainer ret = new PathContainer(){
-        
             @Override
             public boolean isReversed() {
                 return !other.isReversed();
             }
-        
-            @Override
-            public Rotation2d getStartRotation() {
-                return other.buildPath().getEndPosition().direction();
-            }
         };
 
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
-
+        
         //Flip waypoints
-        for (int i = other.sWaypoints.size() - 1; i >= 0; i--)
-            flippedPoints.add(other.sWaypoints.get(i));
+        for (int i = other.sWaypoints.size() - 1; i >= 0; i--){
+            flippedPoints.add(new Waypoint(other.sWaypoints.get(i)));
+        }
 
         //Apply speeds in first direction to flipped path
         for (int i = 0; i < flippedPoints.size(); i++)
         {
             flippedPoints.get(i).speed = other.sWaypoints.get(i).speed;
         }
-
         ret.sWaypoints = flippedPoints;
         return ret;
     }
@@ -44,10 +38,14 @@ public abstract class PathContainer {
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
     
     public abstract boolean isReversed();
-    public abstract Rotation2d getStartRotation();
 
     public Path buildPath() {
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
+    }
+
+
+    private Rotation2d getStartRotation() {
+        return Rotation2d.fromDegrees(0);
     }
 
     public RigidTransform2d getStartPose() {
@@ -57,13 +55,11 @@ public abstract class PathContainer {
                 getStartRotation());
     }
 
-    public void print()
+    public PathContainer print()
     {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());
-        System.out.println("Starting rotation: " + this.getStartRotation().toString());
         System.out.println("Starting position: " + this.getStartPose().toString());
-        System.out.println("RAWISFJSID: " + this.buildPath().getEndAngle());
 
         System.out.println("|X-Y| |Radius| |Speed|");
         int counter = 1;
@@ -72,10 +68,11 @@ public abstract class PathContainer {
             System.out.println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
         }
 
-        System.out.println("TO STRING");
+        // System.out.println("TO STRING");
         // System.out.println(this.buildPath().toString());
 
         System.out.println("\n");
+        return this;
     }
     
 }

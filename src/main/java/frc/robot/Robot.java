@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		System.out.println("DUH ANGLE: " + GZUtil.degrees(new Translation2d(0, 0), new Translation2d(-90, -90)));
+		System.out.println("DUH DIS: " + GZUtil.distanceBetween(new Translation2d(0, 0), new Translation2d(-90, -90)));
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();

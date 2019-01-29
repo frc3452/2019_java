@@ -35,21 +35,29 @@ public class Path {
     }
 
 
-    final DecimalFormat df = new DecimalFormat("#0.00");
-    public Rotation2d getEndAngle()
-    {
-        double totalDegrees = 0;
-        for (int i = 1; i < segments.size() - 1;i++)
-        {
-            Translation2d start = segments.get(i-1).getStart();
-            Translation2d end = segments.get(i).getEnd();
+    // public Rotation2d getEndAngle()
+    // {
+    //     double totalDegrees = 0;
+    //     for (int i = 0; i + 1 < segments.size() - 1; i++)
+    //     {
+    //         PathSegment cLeg = segments.get(i);
+    //         PathSegment bLeg = segments.get(i+1);
 
-            double degrees = GZUtil.degrees(start, end);
-            System.out.println(start.toString() + "\t" + end.toString() + "\t" + degrees);
-            totalDegrees += degrees;
-        }
-        return Rotation2d.fromDegrees(totalDegrees);
-    }
+    //         double c, b, a;
+
+    //         c = GZUtil.distanceBetween(cLeg.getStart(), cLeg.getEnd());
+    //         b = GZUtil.distanceBetween(cLeg.getEnd(), bLeg.getEnd());
+    //         a = GZUtil.distanceBetween(cLeg.getStart(), bLeg.getEnd());
+
+    //         // a^2 = b^2 + c^2 - 2bc * cosA
+    //         double temp = (Math.pow(a, 2) - Math.pow(b, 2) - Math.pow(c, 2)) / (2 * b * c);
+    //         double angle = Math.toDegrees(Math.acos(temp));
+    //         System.out.println(a + "\t" + b + "\t" + c + "\t" + temp + "\t" + angle);
+            
+    //         totalDegrees += angle;
+    //     }
+    //     return Rotation2d.fromDegrees(totalDegrees);
+    // }
 
     public Path() {
         segments = new ArrayList<PathSegment>();

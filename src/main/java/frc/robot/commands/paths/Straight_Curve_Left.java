@@ -25,11 +25,6 @@ public class Straight_Curve_Left extends PathContainer {
     }
     
     @Override
-    public Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
-
-    @Override
     public boolean isReversed() {
         return false;
     }
