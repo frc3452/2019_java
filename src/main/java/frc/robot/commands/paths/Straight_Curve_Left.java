@@ -5,6 +5,7 @@ import frc.robot.commands.drive.pathfollowing.PathBuilder;
 import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.commands.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.util.control.Path;
+import frc.robot.poofs.util.math.Rotation2d;
 
 public class Straight_Curve_Left extends PathContainer {
 
@@ -23,6 +24,11 @@ public class Straight_Curve_Left extends PathContainer {
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
     
+    @Override
+    public Rotation2d getStartRotation() {
+        return Rotation2d.fromDegrees(0);
+    }
+
     @Override
     public boolean isReversed() {
         return false;

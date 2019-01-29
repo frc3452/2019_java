@@ -834,11 +834,14 @@ function getReducedDataString() {
 ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
-    
-    @Override
-    public boolean isReversed() {
+
+    private boolean isToDriveInReverse() {
         return ${isReversed}; 
-    }
+	}
+	
+	public boolean isReversed() {
+		return (isFlipped() ? !isToDriveInReverse() : isToDriveInReverse());
+	}
 }`;
 	return str;
 }
@@ -913,10 +916,13 @@ ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
-    @Override
-    public boolean isReversed() {
+    private boolean isToDriveInReverse() {
         return ${isReversed}; 
-    }
+	}
+	
+	public boolean isReversed() {
+		return (isFlipped() ? !isToDriveInReverse() : isToDriveInReverse());
+	}
 }`;
 	return str;
 }

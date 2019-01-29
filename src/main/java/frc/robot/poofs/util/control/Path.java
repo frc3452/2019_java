@@ -1,12 +1,15 @@
 package frc.robot.poofs.util.control;
 
-import frc.robot.Constants;
-import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.poofs.util.motion.MotionState;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import frc.robot.Constants;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.poofs.util.motion.MotionState;
+import frc.robot.util.GZUtil;
 
 /**
  * Class representing the robot's autonomous path.
@@ -21,13 +24,31 @@ public class Path {
     PathSegment prevSegment;
     HashSet<String> mMarkersCrossed = new HashSet<String>();
 
-    public void extrapolateLast() {
+    public Path extrapolateLast() {
         PathSegment last = segments.get(segments.size() - 1);
         last.extrapolateLookahead(true);
+        return this;
     }
 
     public Translation2d getEndPosition() {
         return segments.get(segments.size() - 1).getEnd();
+    }
+
+
+    final DecimalFormat df = new DecimalFormat("#0.00");
+    public Rotation2d getEndAngle()
+    {
+        double totalDegrees = 0;
+        for (int i = 1; i < segments.size() - 1;i++)
+        {
+            Translation2d start = segments.get(i-1).getStart();
+            Translation2d end = segments.get(i).getEnd();
+
+            double degrees = GZUtil.degrees(start, end);
+            System.out.println(start.toString() + "\t" + end.toString() + "\t" + degrees);
+            totalDegrees += degrees;
+        }
+        return Rotation2d.fromDegrees(totalDegrees);
     }
 
     public Path() {

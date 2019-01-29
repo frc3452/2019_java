@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
+import frc.robot.commands.drive.pathfollowing.PathContainer;
 import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -63,7 +63,13 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Straight_Path())));
+		commandArray.add(new GZCommand("No", new NoCommand()));
+
+		new Straight_Path().print();
+		PathContainer.getReversed(new Straight_Path()).print();
+		// commandArray.add(new GZCommand(new ResetPoseDrivePath(new Straight_Path())));
+		// commandArray
+				// .add(new GZCommand("Reversed", new ResetPoseDrivePath(PathContainer.getReversed(new Straight_Path()))));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

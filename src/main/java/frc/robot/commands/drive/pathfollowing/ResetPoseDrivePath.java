@@ -8,28 +8,36 @@
 package frc.robot.commands.drive.pathfollowing;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import frc.robot.commands.WaitCommand;
+import frc.robot.util.GZUtil;
 
 public class ResetPoseDrivePath extends CommandGroup {
 
   private final PathContainer mPathContainer;
+
+  private static final double DEFAULT_DELAY = 1;
 
   public ResetPoseDrivePath(PathContainer pathContainer) {
     this(pathContainer, false);
   }
 
   public ResetPoseDrivePath(PathContainer pathContainer, boolean andBack) {
+    this(pathContainer, andBack, DEFAULT_DELAY);
+  }
+
+  public ResetPoseDrivePath(PathContainer pathContainer, boolean andBack, double delay) {
     mPathContainer = pathContainer;
 
-    addPath();
+    addPath(mPathContainer);
     if (andBack) {
-      mPathContainer.flip();
-      addPath();
+      addSequential(new WaitCommand(delay));
+      addPath(PathContainer.getReversed(mPathContainer));
     }
   }
 
-  private void addPath() {
-    addSequential(new ResetPoseFromPath(mPathContainer));
-    addSequential(new DrivePath(mPathContainer));
+  private void addPath(PathContainer container) {
+    addSequential(new ResetPoseFromPath(container));
+    addSequential(new DrivePath(container));
   }
 
   public PathContainer getPathContainer() {

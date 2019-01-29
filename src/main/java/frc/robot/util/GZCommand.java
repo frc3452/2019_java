@@ -20,7 +20,7 @@ public class GZCommand {
 	public GZCommand(ResetPoseDrivePath path)
 	{
 		this.mName = path.getPathContainer().getClass().getSimpleName();
-		this.mCommand = path.getGroup();
+		this.mCommand = path;
 	}
 
 	public synchronized boolean hasRun() {

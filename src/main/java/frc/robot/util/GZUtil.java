@@ -1,11 +1,16 @@
 package frc.robot.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.kTempSensor;
+import frc.robot.poofs.util.math.Translation2d;
 
 public class GZUtil {
 
@@ -102,6 +107,32 @@ public class GZUtil {
 		}
 		return value;
 	}
+
+	public static double degrees(Translation2d point1, Translation2d point2)
+	{
+		double xDelta = point2.x() - point1.x();
+		double yDelta = point2.y() - point1.y();
+
+		if (xDelta == 0)
+			return 0;
+
+		return Math.toDegrees(Math.tan(xDelta/yDelta));
+	}
+
+	public static Object deepClone(Object object) {
+		try {
+		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		  ObjectOutputStream oos = new ObjectOutputStream(baos);
+		  oos.writeObject(object);
+		  ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		  ObjectInputStream ois = new ObjectInputStream(bais);
+		  return ois.readObject();
+		}
+		catch (Exception e) {
+		  e.printStackTrace();
+		  return null;
+		}
+	  }
 
 	public static boolean between(double value, double low, double high) {
 		if (value >= low && value <= high)
