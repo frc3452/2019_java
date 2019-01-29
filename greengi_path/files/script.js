@@ -432,7 +432,7 @@ function addPoint(x, y, radius) {
 	});
 }
 
-function update() {
+function myUpdate(toGetFromFile) {
 	if ($("table tr").length > 1) {
 		var idx = parseInt($('tbody').children().length) - 1;
 		if ($($($($('tbody').children()[idx]).children()[2]).children()).val() !== 0) {
@@ -440,23 +440,31 @@ function update() {
 		}
 	}
 
-	waypoints = [];
-	$('tbody').children('tr').each(function () {
-		var x = parseInt($($($(this).children()).children()[0]).val());
-		//console.log(x);
-		var y = parseInt($($($(this).children()).children()[1]).val());
-		var radius = parseInt($($($(this).children()).children()[2]).val());
-		var speed = parseInt($($($(this).children()).children()[3]).val());
-		if (isNaN(radius) || isNaN(speed)) {
-			radius = 0;
-			speed = 0;
-		}
-		var marker = ($($($(this).children()).children()[4]).val())
-		var comment = ($($($(this).children()).children()[5]).val())
-		waypoints.push(new Waypoint(new Translation2d(x, y), speed, radius, marker, comment));
-	});
+	if (toGetFromFile) {
+		waypoints = [];
+		$('tbody').children('tr').each(function () {
+			var x = parseInt($($($(this).children()).children()[0]).val());
+			//console.log(x);
+			var y = parseInt($($($(this).children()).children()[1]).val());
+			var radius = parseInt($($($(this).children()).children()[2]).val());
+			var speed = parseInt($($($(this).children()).children()[3]).val());
+			if (isNaN(radius) || isNaN(speed)) {
+				radius = 0;
+				speed = 0;
+			}
+			var marker = ($($($(this).children()).children()[4]).val())
+			var comment = ($($($(this).children()).children()[5]).val())
+			waypoints.push(new Waypoint(new Translation2d(x, y), speed, radius, marker, comment));
+		});
+	}
+
 	drawPoints();
 	drawRobot();
+
+}
+
+function update() {
+	myUpdate(true);
 }
 
 function drawRobot() {
@@ -676,7 +684,6 @@ function importData() {
 	});
 	update();
 }
-
 //JSON Functions
 // function importData() {
 // 	$('#upl').click();
@@ -819,20 +826,15 @@ function getReducedDataString() {
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
-	var str = `public class ${title} implements PathContainer {
+	var str = `public class ${title} extends PathContainer {
     
     @Override
     public Path buildPath() {
-        ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
+        this.sWaypoints = new ArrayList<Waypoint>();
 ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
     
-    @Override
-    public RigidTransform2d getStartPose() {
-        return new RigidTransform2d(${startPoint}, Rotation2d.fromDegrees(${deg})); 
-    }
-
     @Override
     public boolean isReversed() {
         return ${isReversed}; 
@@ -897,25 +899,18 @@ function getDataString() {
 
 import java.util.ArrayList;
 	
-import frc.robot.commands.paths.PathBuilder.Waypoint;
+import frc.robot.commands.drive.pathfollowing.PathBuilder;
+import frc.robot.commands.drive.pathfollowing.PathContainer;
+import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.poofs.util.control.Path;
-import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
-	
 
-public class ${title} implements PathContainer {
+public class ${title} extends PathContainer {
     
     @Override
     public Path buildPath() {
-        ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
+        this.sWaypoints = new ArrayList<Waypoint>();
 ${pathInit}
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
-    }
-    
-    @Override
-    public RigidTransform2d getStartPose() {
-        return new RigidTransform2d(${startPoint}, Rotation2d.fromDegrees(${deg})); 
     }
 
     @Override
@@ -926,6 +921,22 @@ ${pathInit}
 	return str;
 }
 
+function flipPath() {
+	console.log('FLIPPING PATH!');
+	var newWaypoints = [];
+
+	for (var i = waypoints.length - 1; i >= 0; i--)
+		newWaypoints.push(waypoints[i]);
+
+	console.log('old waypoints');
+	console.log(waypoints);
+	console.log('new waypoints');
+	waypoints = newWaypoints;
+	console.log(waypoints);
+
+	myUpdate(false);
+	console.log('updated');
+}
 function exportData() {
 	update();
 	var title = ($("#title").val().length > 0) ? $("#title").val() : "UntitledPath";
@@ -943,7 +954,8 @@ function showData() {
 
 function copyToClipBoard() {
 	const data = document.createElement("textarea");
-	data.value = getReducedDataString();
+	// data.value = getReducedDataString(); 
+	data.value = getDataString();
 	document.body.appendChild(data);
 	data.select();
 	document.execCommand("copy");
