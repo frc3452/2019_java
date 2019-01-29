@@ -4,14 +4,12 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.NoCommand;
-import frc.robot.commands.paths.DrivePathGroup;
-import frc.robot.commands.paths.Straight_Curve_Left;
-import frc.robot.commands.paths.Straight_Curve_Left_Back;
+import frc.robot.commands.drive.pathfollowing.PathContainer;
+import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -59,6 +57,23 @@ public class Auton {
 		return mInstance;
 	}
 
+	public void fillAutonArray() {
+		if (commandArray != null)
+			return;
+
+		commandArray = new ArrayList<GZCommand>();
+
+		commandArray.add(new GZCommand("No", new NoCommand()));
+
+		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Straight_Path(), true)));
+		commandArray
+				.add(new GZCommand("Reversed", new ResetPoseDrivePath(PathContainer.getReversed(new Straight_Path()))));
+
+		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
+
+		autonChooser();
+	}
+
 	private Auton() {
 		// mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
 		// mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
@@ -99,7 +114,8 @@ public class Auton {
 		if (autonomousCommand == null)
 			return false;
 
-		return (autonomousCommand.isRunning() || !autonomousCommand.hasRun()) && GZOI.getInstance().isAuto();
+		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
+				&& GZOI.getInstance().isAuto();
 	}
 
 	public void toggleAutoWait(boolean updateValue) {
@@ -155,30 +171,6 @@ public class Auton {
 			if (m_controllerOverrideValue > commandArray.size() - 1)
 				m_controllerOverrideValue = 0;
 		}
-	}
-
-	public void fillAutonArray() {
-		if (commandArray != null)
-			return;
-
-		commandArray = new ArrayList<GZCommand>();
-
-		// GZCommand noCommand = new GZCommand("NO AUTO", new NoCommand());
-		// commandArray = new ArrayList<GZCommand>(Collections.nCopies(100, noCommand));
-
-		// Command c = new CommandGroup() {
-		// 	{
-		// 		addSequential(new DrivePathGroup(new Straight_Curve_Left()));
-		// 		// addSequential(new DrivePathGroup(new Straight_Curve_Left_Back()));
-		// 	}
-		// };
-
-		commandArray.add(new GZCommand("Straight curve left", new DrivePathGroup(new Straight_Curve_Left())));
-
-
-		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
-
-		autonChooser();
 	}
 
 	/**

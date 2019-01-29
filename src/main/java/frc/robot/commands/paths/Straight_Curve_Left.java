@@ -1,18 +1,17 @@
 package frc.robot.commands.paths;
-
 import java.util.ArrayList;
 
-import frc.robot.commands.paths.PathBuilder.Waypoint;
+import frc.robot.commands.drive.pathfollowing.PathBuilder;
+import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.commands.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.util.control.Path;
-import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 
-public class Straight_Curve_Left implements PathContainer {
+public class Straight_Curve_Left extends PathContainer {
 
     @Override
     public Path buildPath() {
-        ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
+        this.sWaypoints = new ArrayList<Waypoint>();
       
         final double speed = 80;
 
@@ -24,12 +23,7 @@ public class Straight_Curve_Left implements PathContainer {
 
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
-
-    @Override
-    public RigidTransform2d getStartPose() {
-        return new RigidTransform2d(new Translation2d(20, 48), Rotation2d.fromDegrees(0));
-    }
-
+    
     @Override
     public boolean isReversed() {
         return false;

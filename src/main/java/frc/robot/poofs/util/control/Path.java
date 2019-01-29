@@ -1,12 +1,15 @@
 package frc.robot.poofs.util.control;
 
-import frc.robot.Constants;
-import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.poofs.util.motion.MotionState;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import frc.robot.Constants;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.poofs.util.motion.MotionState;
+import frc.robot.util.GZUtil;
 
 /**
  * Class representing the robot's autonomous path.
@@ -21,14 +24,40 @@ public class Path {
     PathSegment prevSegment;
     HashSet<String> mMarkersCrossed = new HashSet<String>();
 
-    public void extrapolateLast() {
+    public Path extrapolateLast() {
         PathSegment last = segments.get(segments.size() - 1);
         last.extrapolateLookahead(true);
+        return this;
     }
 
     public Translation2d getEndPosition() {
         return segments.get(segments.size() - 1).getEnd();
     }
+
+
+    // public Rotation2d getEndAngle()
+    // {
+    //     double totalDegrees = 0;
+    //     for (int i = 0; i + 1 < segments.size() - 1; i++)
+    //     {
+    //         PathSegment cLeg = segments.get(i);
+    //         PathSegment bLeg = segments.get(i+1);
+
+    //         double c, b, a;
+
+    //         c = GZUtil.distanceBetween(cLeg.getStart(), cLeg.getEnd());
+    //         b = GZUtil.distanceBetween(cLeg.getEnd(), bLeg.getEnd());
+    //         a = GZUtil.distanceBetween(cLeg.getStart(), bLeg.getEnd());
+
+    //         // a^2 = b^2 + c^2 - 2bc * cosA
+    //         double temp = (Math.pow(a, 2) - Math.pow(b, 2) - Math.pow(c, 2)) / (2 * b * c);
+    //         double angle = Math.toDegrees(Math.acos(temp));
+    //         System.out.println(a + "\t" + b + "\t" + c + "\t" + temp + "\t" + angle);
+            
+    //         totalDegrees += angle;
+    //     }
+    //     return Rotation2d.fromDegrees(totalDegrees);
+    // }
 
     public Path() {
         segments = new ArrayList<PathSegment>();

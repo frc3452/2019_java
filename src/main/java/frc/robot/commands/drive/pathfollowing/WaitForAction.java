@@ -5,41 +5,31 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.drive;
+package frc.robot.commands.drive.pathfollowing;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.commands.paths.PathContainer;
-import frc.robot.poofs.RobotState;
-import frc.robot.poofs.util.control.Path;
-import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.subsystems.Drive;
 
-public class DrivePath extends Command {
+public class WaitForAction extends Command {
 
-  private PathContainer mPathContainer;
-  private Path mPath;
   private Drive drive = Drive.getInstance();
+  private final String mMarker;
 
-  public DrivePath(PathContainer p) {
-    requires(drive);
-    mPathContainer = p;
-    mPath = mPathContainer.buildPath();
+  public WaitForAction(String marker) {
+    mMarker = marker;
   }
 
   protected void initialize() {
-    drive.setWantDrivePath(mPath, mPathContainer.isReversed());
   }
 
   protected void execute() {
   }
 
   protected boolean isFinished() {
-    return drive.isDoneWithPath();
+    return drive.hasPassedMarker(mMarker);
   }
 
   protected void end() {
-    System.out.println("Drive done");
   }
 
   protected void interrupted() {
