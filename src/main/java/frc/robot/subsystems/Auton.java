@@ -6,9 +6,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
+import frc.robot.commands.MarkerCommandGroup;
 import frc.robot.commands.NoCommand;
-import frc.robot.commands.drive.pathfollowing.PathContainer;
 import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.commands.paths.Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -63,11 +64,9 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.add(new GZCommand("No", new NoCommand()));
-
-		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Straight_Path(), true)));
-		commandArray
-				.add(new GZCommand("Reversed", new ResetPoseDrivePath(PathContainer.getReversed(new Straight_Path()))));
+		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path().print(), true)));
+		commandArray.add(new GZCommand("Drive around", new ResetPoseDrivePath(new Curve_Left().print(), true)));
+		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

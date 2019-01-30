@@ -10,12 +10,12 @@ package frc.robot.commands.drive.pathfollowing;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.Drive;
 
-public class WaitForAction extends Command {
+public class WaitForMarker extends Command {
 
   private Drive drive = Drive.getInstance();
   private final String mMarker;
 
-  public WaitForAction(String marker) {
+  public WaitForMarker(String marker) {
     mMarker = marker;
   }
 

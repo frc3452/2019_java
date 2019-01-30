@@ -828,17 +828,21 @@ function getReducedDataString() {
 	var deg = isReversed ? 180 : 0;
 	var str = `public class ${title} extends PathContainer {
     
-    @Override
-    public Path buildPath() {
-        this.sWaypoints = new ArrayList<Waypoint>();
-${pathInit}
-        return PathBuilder.buildPathFromWaypoints(sWaypoints);
-    }
+  
+	public ${title}() {
+			this.sWaypoints = new ArrayList<Waypoint>();
+	${pathInit}
+		}
 
 	@Override
     public boolean isReversed() {
         return ${isReversed}; 
 	}
+
+	@Override
+    public Rotation2d getStartRotation() {
+        return Rotation2d.fromDegrees(0);
+    }
 }`;
 	return str;
 }
@@ -896,25 +900,29 @@ function getDataString() {
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
 	var str = `package frc.robot.commands.paths;
-	import java.util.ArrayList;
 
-	import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
-	import frc.robot.commands.drive.pathfollowing.PathContainer;
-	
+import java.util.ArrayList;
+
+import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.commands.drive.pathfollowing.PathContainer;
+import frc.robot.poofs.util.math.Rotation2d;
 
 public class ${title} extends PathContainer {
     
-    @Override
-    public Path buildPath() {
+    public ${title}() {
         this.sWaypoints = new ArrayList<Waypoint>();
 ${pathInit}
-        return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
 	@Override
     public boolean isReversed() {
         return ${isReversed}; 
 	}
+
+	@Override
+    public Rotation2d getStartRotation() {
+        return Rotation2d.fromDegrees(0);
+    }
 }`;
 	return str;
 }

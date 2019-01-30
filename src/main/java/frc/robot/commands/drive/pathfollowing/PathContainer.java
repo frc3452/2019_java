@@ -17,8 +17,16 @@ public abstract class PathContainer {
             public boolean isReversed() {
                 return !other.isReversed();
             }
+
+            @Override
+            public Rotation2d getStartRotation()
+            {
+                return other.buildPath().getEndAngle();
+            }
         };
 
+
+        ret.getStartRotation();
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
         
         //Flip waypoints
@@ -43,10 +51,7 @@ public abstract class PathContainer {
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
-
-    private Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
+    public abstract Rotation2d getStartRotation();
 
     public RigidTransform2d getStartPose() {
         final Waypoint firstPoint = sWaypoints.get(0);
@@ -60,6 +65,7 @@ public abstract class PathContainer {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());
         System.out.println("Starting position: " + this.getStartPose().toString());
+        System.out.println("Ending position: " + this.buildPath().getEndPosition());
 
         System.out.println("|X-Y| |Radius| |Speed|");
         int counter = 1;
@@ -67,9 +73,6 @@ public abstract class PathContainer {
         {
             System.out.println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
         }
-
-        // System.out.println("TO STRING");
-        // System.out.println(this.buildPath().toString());
 
         System.out.println("\n");
         return this;

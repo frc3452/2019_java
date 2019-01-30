@@ -101,11 +101,11 @@ public class Constants {
                                                      // our speed
 													 // in inches per sec
 													 
-	public static double kPathFollowingProfileKp = 3 ; //2.5 //50
+	public static double kPathFollowingProfileKp = 5; //2.5 //50
     public static double kPathFollowingProfileKi = 0.03; //.03 
     public static double kPathFollowingProfileKv = 0.11; //.11
-    public static double kPathFollowingProfileKffv = 5; //1 //.5
-    public static double kPathFollowingProfileKffa = 0.025; //.05 //.025
+	public static double kPathFollowingProfileKffv = 6; //1 //.5
+    public static double kPathFollowingProfileKffa = 0.01; //.05 //.025
 
 	public static double kPathFollowingGoalPosTolerance = 0.75; // .75
     public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0

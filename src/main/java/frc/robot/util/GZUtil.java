@@ -10,6 +10,8 @@ import java.util.Date;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.kTempSensor;
+import frc.robot.poofs.util.control.PathSegment;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 
 public class GZUtil {
@@ -106,6 +108,38 @@ public class GZUtil {
 			return -1.0;
 		}
 		return value;
+	}
+
+	public static Rotation2d angleOfPathSegment(PathSegment segment)
+	{
+		return angleBetweenPoints(segment.getStart(), segment.getEnd());
+	}
+
+	public static Rotation2d angleBetweenPoints(Translation2d point1, Translation2d point2)
+	{	
+		Rotation2d ret = Rotation2d.identity();
+
+		double yDelta = point1.y() - point2.y();
+		double xDelta = point1.x() - point2.x();
+
+		if (xDelta == 0) {
+			if (point2.y() > point1.y())
+				ret = Rotation2d.fromDegrees(270);
+			else
+				ret = Rotation2d.fromDegrees(90);
+		} else if (yDelta == 0) {
+			if (point2.x() > point1.x())
+				ret = Rotation2d.fromDegrees(0);
+			else
+				ret = Rotation2d.fromDegrees(180);
+		} else
+			ret = Rotation2d.fromDegrees(Math.toDegrees(Math.atan(yDelta / xDelta)));
+		
+		//if x delta 0, if point2 above point1 angle is 270, point2 is below angle is 90
+		//if y delta 0, if point2 in front of point1 angle is 0, if point2 is behind 180
+
+
+		return ret;
 	}
 
 	public static double distanceBetween(Translation2d point1, Translation2d point2)

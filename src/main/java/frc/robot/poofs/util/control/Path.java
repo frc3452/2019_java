@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import frc.robot.Constants;
+import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.motion.MotionState;
@@ -30,15 +31,25 @@ public class Path {
         return this;
     }
 
-    public Translation2d getEndPosition() {
+    public Translation2d getEndTranslation() {
         return segments.get(segments.size() - 1).getEnd();
     }
 
+    public Rotation2d getEndAngle() 
+    {
+        Rotation2d angle = GZUtil.angleOfPathSegment(segments.get(segments.size() - 1));
+        return angle;
+    }
+
+    public RigidTransform2d getEndPosition()
+    {
+        return new RigidTransform2d(getEndTranslation(), getEndAngle());
+    }
 
     // public Rotation2d getEndAngle()
     // {
     //     double totalDegrees = 0;
-    //     for (int i = 0; i + 1 < segments.size() - 1; i++)
+    //     for (int i = 0; (i + 1) < segments.size() - 1; i++)
     //     {
     //         PathSegment cLeg = segments.get(i);
     //         PathSegment bLeg = segments.get(i+1);

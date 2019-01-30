@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
@@ -40,7 +41,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		System.out.println("DUH DIS: " + GZUtil.distanceBetween(new Translation2d(0, 0), new Translation2d(-90, -90)));
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
