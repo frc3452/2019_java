@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
@@ -104,7 +105,7 @@ public class GZOI extends GZSubsystem {
 	private void disabled() {
 		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
-		if (driverJoy.getButtons(Buttons.LB, Buttons.RB, Buttons.LEFT_CLICK, Buttons.X))
+		if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.X))
 			op.setButtonBoard();
 		else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
 			op.setXboxController();
@@ -205,6 +206,13 @@ public class GZOI extends GZSubsystem {
 			}
 		};
 		GZLog.addAverageLeft("PDP-VOLT-AVG");
+
+		new LogItem("DRIVE-STATE") {
+			@Override
+			public String val() {
+				return Drive.getInstance().getStateString();
+			}
+		};
 	}
 
 	/**
@@ -222,16 +230,13 @@ public class GZOI extends GZSubsystem {
 		return false;
 	}
 
-	public void addPDPTestingMotors() {
-	}
-
-	public void safetyDisable(boolean disable) {
+	public void setSafteyDisableForAllSystems(boolean disable) {
 		this.mSafetyDisable = disable;
 	}
 
 	private static void rumble(double intensity) {
 		driverJoy.rumble(intensity);
-		// opJoy.rumble(intensity);
+		op.rumble(intensity);
 	}
 
 	public boolean isFMS() {

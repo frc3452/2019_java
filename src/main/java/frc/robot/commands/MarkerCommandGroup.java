@@ -7,7 +7,7 @@ import frc.robot.commands.paths.Marker_Path;
 
 public class MarkerCommandGroup extends CommandGroup {
   public MarkerCommandGroup() {
-    addParallel(new ResetPoseDrivePath(new Marker_Path().print(), true));
+    addParallel(new ResetPoseDrivePath(new Marker_Path(), true));
 				addSequential(new CommandGroup()
 				{
 					{

@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.util.LatchedBoolean;
 
 public class OperatorController extends DeepSpaceController {
+    private boolean firstSet = false;
+
     private boolean isButtonBoard = true;
     private boolean p_isButtonBoard = false;
 
@@ -45,7 +47,7 @@ public class OperatorController extends DeepSpaceController {
     public void setButtonBoard(boolean isButtonBoard) {
         this.isButtonBoard = isButtonBoard;
 
-        if (this.isButtonBoard != this.p_isButtonBoard) {
+        if (this.isButtonBoard != this.p_isButtonBoard || !firstSet) {
             System.out.println("WARNING Operator controller selected: "
                     + (this.isButtonBoard ? "Button board" : "Xbox controller"));
             for (GZButton b : allButtons)
@@ -53,6 +55,7 @@ public class OperatorController extends DeepSpaceController {
         }
 
         p_isButtonBoard = this.isButtonBoard;
+        firstSet = true;
     }
 
     public void setButtonBoard() {

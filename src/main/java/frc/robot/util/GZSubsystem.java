@@ -148,7 +148,7 @@ public abstract class GZSubsystem extends Subsystem {
 	}
 
 	public Boolean isSafetyDisabled() {
-		return mIsDisabled && GZOI.getInstance().isFMS();
+		return mIsDisabled && !GZOI.getInstance().isFMS();
 	}
 
 	public abstract void addLoggingValues();

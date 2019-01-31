@@ -253,6 +253,11 @@ public class Superstructure extends GZSubsystem {
             elev.stopMovement();
     }
 
+    public synchronized void setHeight(Heights h)
+    {
+        setHeight(h, false);
+    }
+
     private synchronized void setHeight(Heights h, boolean manual) {
         if (manual) {
             mManual.mElevator = true;

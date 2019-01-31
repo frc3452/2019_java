@@ -47,16 +47,16 @@ public class GZSubsystemManager {
 		if (printHeader)
 			System.out.println("~~~SUBSYSTEMS DISABLED~~~");
 
-		for (int i = 0; i < mAllSystems.size() - 1; i++)
-			System.out.println(mAllSystems.get(i).getName() + ": " + mAllSystems.get(i).isSafetyDisabled());
+		for (GZSubsystem s : mAllSystems)
+			System.out.println(s.getName() + ": " + s.isSafetyDisabled());
 	}
 
 	public void printStates(boolean printHeader) {
 		if (printHeader)
 			System.out.println("~~~SUBSYSTEM STATES~~~");
 
-		for (int i = 0; i < mAllSystems.size() - 1; i++)
-			System.out.println(mAllSystems.get(i).getName() + ": " + mAllSystems.get(i).getStateString());
+		for (GZSubsystem s : mAllSystems)
+			System.out.println(s.getName() + ": " + s.getStateString());
 
 	}
 

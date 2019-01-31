@@ -15,7 +15,7 @@ public class ResetPoseDrivePath extends CommandGroup {
 
   private final PathContainer mPathContainer;
 
-  private static final double DEFAULT_DELAY = 1;
+  private static final double DEFAULT_DELAY = 8;
 
   public ResetPoseDrivePath(PathContainer pathContainer) {
     this(pathContainer, false);
@@ -28,16 +28,13 @@ public class ResetPoseDrivePath extends CommandGroup {
   public ResetPoseDrivePath(PathContainer pathContainer, boolean andBack, double delay) {
     mPathContainer = pathContainer;
 
-    addPath(mPathContainer);
+    addSequential(new ResetPoseFromPath(mPathContainer));
+    addSequential(new DrivePath(mPathContainer));
+
     if (andBack) {
       addSequential(new WaitCommand(delay));
-      addPath(PathContainer.getReversed(mPathContainer));
+      addSequential(new DrivePath(PathContainer.getReversed(mPathContainer)));
     }
-  }
-
-  private void addPath(PathContainer container) {
-    addSequential(new ResetPoseFromPath(container));
-    addSequential(new DrivePath(container));
   }
 
   public PathContainer getPathContainer() {

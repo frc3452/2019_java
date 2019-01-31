@@ -23,8 +23,8 @@ public class Constants {
 		public static final int ELEVATOR_MOTOR_ID = 0;
 		public static final boolean E_1_INVERT = false;
 
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0,0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0,1, 1.5, 1.5);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
@@ -78,47 +78,52 @@ public class Constants {
 	public static class kAuton {
 		public final static int SAFTEY_SWITCH = 96;
 
-		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", 1,2,3,4);
-		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", 5, 6,7, 8);
+		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", 1, 2,
+				3, 4);
+		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", 5, 6,
+				7, 8);
 	}
 
-    public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
+	public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
 	public static double kPathFollowingMaxVel = 120.0; // inches per second
 	public static double kSegmentCompletionTolerance = 0.1; // inches
 	public static double kTrackWidthInches = 26.655;
 	public static double kTrackScrubFactor = 0.924;
 	public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
-
-	//Path constants
+	// Path constants
 	public static double kMinLookAhead = 12.0; // inches
-    public static double kMinLookAheadSpeed = 9.0; // inches per second
-    public static double kMaxLookAhead = 24.0; // inches
-    public static double kMaxLookAheadSpeed = 120.0; // inches per second
-    public static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
+	public static double kMinLookAheadSpeed = 9.0; // inches per second
+	public static double kMaxLookAhead = 24.0; // inches
+	public static double kMaxLookAheadSpeed = 120.0; // inches per second
+	public static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
 	public static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
 	public static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
-                                                     // our speed
-													 // in inches per sec
-													 
-	public static double kPathFollowingProfileKp = 5; //2.5 //50
-    public static double kPathFollowingProfileKi = 0.03; //.03 
-    public static double kPathFollowingProfileKv = 0.11; //.11
-	public static double kPathFollowingProfileKffv = 6; //1 //.5
-    public static double kPathFollowingProfileKffa = 0.01; //.05 //.025
+														// our speed
+														// in inches per sec
+
+	public static double kPathFollowingProfileKp = 10; // 2.5
+	// public static double kPathFollowingProfileKp = 3; // 2.5
+	public static double kPathFollowingProfileKi = 0.03; // .03
+	public static double kPathFollowingProfileKv = 0.11; // .11
+	// public static double kPathFollowingProfileKffv = 5; //1
+	public static double kPathFollowingProfileKffv = 5; // 1
+	// public static double kPathFollowingProfileKffa = 0.025; //.05
+	public static double kPathFollowingProfileKffa = 0.025 * 1; // .05
 
 	public static double kPathFollowingGoalPosTolerance = 0.75; // .75
-    public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0
-    public static double kPathStopSteeringDistance = 9.0; //9.0
+	public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0
+	public static double kPathStopSteeringDistance = 9.0; // 9.0
 
 	public static class kDrivetrain {
 
 		public static final boolean TUNING = false;
 
 		public static class PID {
-			static final double p = .9; // 1.2 
-			static final double d = 20; // 10
-			static final double f = .78; //.23
+			static final double p = .9; // .9
+			static final double d = 20; // 20
+			static final double f = 1.47; // 1.47
+			// static final double f = .78; // .78
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -134,7 +139,7 @@ public class Constants {
 		public final static boolean L_INVERT = false;
 		public final static boolean R_INVERT = true;
 
-		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.025;
+		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.01;
 
 		// Wasserman: Peak should be half of continuous with duration of 50ms
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
@@ -148,7 +153,7 @@ public class Constants {
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
 
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0,3, .5, .5);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, .5, .5);
 	}
 
 	public static class kPDP {
@@ -156,8 +161,6 @@ public class Constants {
 		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
 
 		public static final int ELEVATOR_MOTOR = 0;
-
-		public static final int CLIMBER_FRONT = 0;
 
 		public static final int INTAKE_LEFT = 0;
 		public static final int INTAKE_RIGHT = 0;
@@ -181,7 +184,7 @@ public class Constants {
 	}
 
 	public static class kClimber {
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1,0, 1.5, 1.5);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
 
 		public static final boolean CLIMBER_FRONT_INVERT = false;
 		public static final boolean CLIMBER_BACK_INVERT = true;
@@ -196,64 +199,20 @@ public class Constants {
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 1;
 		public static final int INTAKE_RIGHT = 2;
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1,1, 1.5, 1.5);
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1,2, 1.5, 1);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 1.5, 1);
 		public static final int PRESSURE_GUAGE_PORT = 1;
-	}
-
-	public static class kPoofs {
-		// PROBABLY GOTTA BE BIG TUNED
-		// public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-		// public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
-		// public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO
-		// tune
-		// public static final double kDriveVIntercept = 1.055; // V
-		// public static final double kDriveKv = 0.135; // V per rad/s //.135
-		// public static final double kDriveKa = 0.012; // V per rad/s^2 //.012
-		// ~BIG TUNE
-
-		public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-		public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
-		public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
-		
-		static double mod = 1.0;
-
-		public static final double kDriveVIntercept = 1.055 * mod; // V
-		public static final double kDriveKv = 0.135 * mod; // V per rad/s //.135
-		public static final double kDriveKa = 0.012 * mod; // V per rad/s^2 //.012
-
-		public static final double kPathKX = 4.0; // units/s per unit of error
-		public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
-		public static final double kPathMinLookaheadDistance = 24.0; // inches
-
-		public static final double kEpsilon = 1e-12;
-
-		public static final double kLidarXOffset = -3.3211;
-		public static final double kLidarYOffset = 0;
-		public static final double kLidarYawAngleDegrees = 0;
-
-		public static final double kDriveWheelTrackWidthInches = 25.5;
-		public static final double kDriveWheelDiameterInches = 6;
-		public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-		public static final double kTrackScrubFactor = 1.0;
 	}
 
 	public static class kFiles {
 		private kFiles() {
 		}
-
 		public static final boolean FAKE_PDP = false;
-
-		public final static String MP_NAME = "MP1";
-		public final static Folder MP_FOLDER = new Folder("MotionProfiles"); // if on rio, folder is
-																				// MotionProfiles/MP1.csv
-		public final static boolean MP_USB = true; // if on usb, folder is 3452/MotionProfiles/MP1.csv
-
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
 				FileExtensions.CSV, false, false);
 
@@ -265,25 +224,15 @@ public class Constants {
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
 		public final static double LOGGING_SPEED = .125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";
-
-		public final static double PDPChannelCheckerWaitTime = 1;
-
-		public final static double COPY_WAIT_TIME = 5;
 	}
 
 	public static class kOI {
 		public class Rumble {
-
-			public final static double INTAKE = .3;
-			public final static double ELEVATOR_SPEED_OVERRIDE_DRIVE = .45;
-			public final static double ELEVATOR_SPEED_OVERRIDE_OP = ELEVATOR_SPEED_OVERRIDE_DRIVE - .2;
-			public final static double ELEVATOR_LIMIT_OVERRIDE = .45;
 			public final static double ENDGAME = .6;
-
 		}
 
 		public static final int LOCK_OUT_KEY = 3;
-		public static final double KEY_HIGH_VOLT = 0;
 		public static final double KEY_LOW_VOLT = 0;
+		public static final double KEY_HIGH_VOLT = 1;
 	}
 }

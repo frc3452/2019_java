@@ -13,6 +13,8 @@ import frc.robot.Constants.kTempSensor;
 import frc.robot.poofs.util.control.PathSegment;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.util.GZFileMaker.FileExtensions;
+import frc.robot.util.GZFiles.Folder;
 
 public class GZUtil {
 
@@ -233,6 +235,21 @@ public class GZUtil {
 		else
 			temp = new SimpleDateFormat("yyyy.MM.dd.HH.mm").format(new Date());
 		return temp;
+	}
+
+	public static GZFile getDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write) throws Exception
+	{
+		return GZFileMaker.getFile(dateTime(true), new Folder(folder.get(usb) + "/" + getDate()), extension, usb, write);
+	}
+
+	public static GZFile getSafeDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write)
+	{
+		try {
+			return getDateFile(extension, folder, usb, write);
+		} catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	public static String getDate()

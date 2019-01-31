@@ -65,6 +65,11 @@ public class NavX {
         return mYawDegrees;
     }
 
+    public synchronized double getFusedHeading()
+    {
+        return mAHRS.getFusedHeading();
+    }
+
     public Rotation2d getYaw() {
         return mAngleAdjustment.rotateBy(Rotation2d.fromDegrees(getRawYawDegrees()));
     }

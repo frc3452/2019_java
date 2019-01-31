@@ -17,9 +17,6 @@ var wto;
 
 var lastSetStartingPosition = 0;
 var startingPositions = [[22, 205], [22, 117], [64, 205], [64, 162], [64, 119]];
-var startLeftY = 276;
-var startCenterY = 157;
-var startRightY = 48;
 
 var maxSpeed = 120;
 var maxSpeedColor = [0, 255, 0];
@@ -27,9 +24,9 @@ var minSpeed = 0;
 var minSpeedColor = [255, 0, 0];
 var pathFillColor = "rgba(150, 150, 150, 0.5)";
 
-const wheelDiameter = 5;	//Wheel Diameter in inches
+const wheelDiameter = 6;	//Wheel Diameter in inches
 const accelValue = 10; 	//Inches/second^2
-const maxVelocity = 20; //Inches/second
+const maxVelocity = 30; //Inches/second
 const timeStep = 0.01;	//Time step in seconds
 const encoderTicksPerRev = 4096;
 
@@ -432,6 +429,26 @@ function addPoint(x, y, radius) {
 	});
 }
 
+function evaluateWaypoints()
+{
+	$('tbody').children('tr').each(function () {
+		var x = parseInt(eval($($($(this).children()).children()[0]).val()));
+		
+		var y = parseInt(eval($($($(this).children()).children()[1]).val()));
+		var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
+		var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
+		if (isNaN(radius) || isNaN(speed)) {
+			radius = 0;
+			speed = 0;
+		}
+		
+		$($($(this).children()).children()[0]).val(x);
+		$($($(this).children()).children()[1]).val(y);
+		$($($(this).children()).children()[2]).val(radius);
+		$($($(this).children()).children()[3]).val(speed);
+	});
+}
+
 function myUpdate(toGetFromFile) {
 	if ($("table tr").length > 1) {
 		var idx = parseInt($('tbody').children().length) - 1;
@@ -443,11 +460,10 @@ function myUpdate(toGetFromFile) {
 	if (toGetFromFile) {
 		waypoints = [];
 		$('tbody').children('tr').each(function () {
-			var x = parseInt($($($(this).children()).children()[0]).val());
-			//console.log(x);
-			var y = parseInt($($($(this).children()).children()[1]).val());
-			var radius = parseInt($($($(this).children()).children()[2]).val());
-			var speed = parseInt($($($(this).children()).children()[3]).val());
+			var x = parseInt(eval($($($(this).children()).children()[0]).val()));
+			var y = parseInt(eval($($($(this).children()).children()[1]).val()));
+			var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
+			var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
 			if (isNaN(radius) || isNaN(speed)) {
 				radius = 0;
 				speed = 0;
@@ -580,7 +596,7 @@ function importData() {
 			let searchReversed1 = "public boolean isReversed() {";
 			let searchReversed2 = "}";
 			let searchName1 = "public class";
-			let searchName2 = "implements";
+			let searchName2 = "extends";
 			let searchAdaption1 = "PathAdapter.";
 			let searchAdaption2 = "(";
 			$("#title").val(c.split(searchName1)[1].split(searchName2)[0].trim());

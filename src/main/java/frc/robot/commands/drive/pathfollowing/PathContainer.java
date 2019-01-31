@@ -34,13 +34,34 @@ public abstract class PathContainer {
             flippedPoints.add(new Waypoint(other.sWaypoints.get(i)));
         }
 
-        //Apply speeds in first direction to flipped path
+        double minSpeed = 3452;
+        //Find slowest nonzero speed
+        for (Waypoint p : other.sWaypoints)
+        {
+            if (p.speed != 0 && p.speed <= minSpeed)
+            {
+                minSpeed = p.speed;
+            }
+        }
+
+        if (minSpeed == 3452)
+        {
+            System.out.println("ERROR Could not find nonzero speed for path " + other.getClass().getSimpleName());
+            return null;
+        }    
+        
+        //Apply speed
         for (int i = 0; i < flippedPoints.size(); i++)
         {
-            flippedPoints.get(i).speed = other.sWaypoints.get(i).speed;
+            flippedPoints.get(i).speed = minSpeed;
         }
         ret.sWaypoints = flippedPoints;
         return ret;
+    }
+
+    public PathContainer getReversed()
+    {
+        return getReversed(this);
     }
 
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();

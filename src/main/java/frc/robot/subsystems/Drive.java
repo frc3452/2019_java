@@ -5,15 +5,11 @@ import java.text.DecimalFormat;
 import java.util.Scanner;
 
 import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motion.MotionProfileStatus;
-import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
@@ -35,7 +31,6 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
-import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
@@ -43,6 +38,7 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZJoystick;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
@@ -70,6 +66,11 @@ public class Drive extends GZSubsystem {
 	private double mLeft_target = 0, mRight_target = 0;
 
 	private static Drive mInstance = null;
+
+	private double curvatureDriveQuickStopThreshold = .2;
+	private double curvatureDriveQuickStopAlpha = .1;
+	private double curvatureDriveQuickStopAccumulator;
+
 
 	// ~POOFS~//
 	private PathFollower mPathFollower;
@@ -153,17 +154,17 @@ public class Drive extends GZSubsystem {
 		return rotations * (kDrivetrain.WHEEL_DIAMATER_IN * Math.PI);
 	}
 
-    private static double rpmToInchesPerSecond(double rpm) {
-        return rotationsToInches(rpm) / 60;
-    }
+	private static double rpmToInchesPerSecond(double rpm) {
+		return rotationsToInches(rpm) / 60;
+	}
 
 	public double getLeftVelocityInchesPerSec() {
-        return rpmToInchesPerSecond(Units.ticks_to_rotations(mIO.left_encoder_vel));
-    }
+		return rpmToInchesPerSecond(Units.ticks_to_rotations(mIO.left_encoder_vel));
+	}
 
-    public double getRightVelocityInchesPerSec() {
-        return rpmToInchesPerSecond(Units.ticks_to_rotations(-mIO.right_encoder_vel));
-    }
+	public double getRightVelocityInchesPerSec() {
+		return rpmToInchesPerSecond(Units.ticks_to_rotations(-mIO.right_encoder_vel));
+	}
 
 	public double getLeftDistanceInches() {
 		Double ret = rotationsToInches(getLeftRotations());
@@ -362,7 +363,7 @@ public class Drive extends GZSubsystem {
 		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
 		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
 		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
-		CLIMB(false, ControlMode.PercentOutput);
+		CLIMB(false, ControlMode.PercentOutput), SERVO_ANGLE(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -392,13 +393,11 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public double getLeftOutputPercentage()
-	{
+	public double getLeftOutputPercentage() {
 		return L1.getOutputPercentage();
 	}
 
-	public double getRightOutputPercentage()
-	{
+	public double getRightOutputPercentage() {
 		return R1.getOutputPercentage();
 	}
 
@@ -551,6 +550,8 @@ public class Drive extends GZSubsystem {
 		switch (newState) {
 		case CLIMB:
 			enableDriveLimits();
+			// Superstructure.getInstance().stow();
+			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;
 		case PATH_FOLLOWING:
 			brake(true);
@@ -745,8 +746,12 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
 		final double move = joy.getLeftAnalogY() * elv;
+		arcadeNoState(move, rotate, true);
 
-		arcadeNoState(move, rotate);
+		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
+		// final double move = joy.getLeftAnalogY() * elv;
+		// cheesyNoState(move, rotate, joy.getButton(Buttons.RB));
+		
 	}
 
 	// called in DEMO state
@@ -754,8 +759,21 @@ public class Drive extends GZSubsystem {
 		arcadeNoState(joy.getLeftAnalogY(), (joy.getRightAnalogX() * .85));
 	}
 
-	private synchronized void arcadeNoState(double move, double rotate) {
-		double[] temp = arcadeToLR(move * mModifyPercent, rotate * mModifyPercent);
+	private synchronized void arcadeNoState(double move, double rotate)
+	{
+		arcadeNoState(move, rotate, false);
+	}
+
+	private synchronized void arcadeNoState(double move, double rotate, boolean squaredInputs) {
+		double[] temp = arcadeToLR(move * mModifyPercent, rotate * mModifyPercent, squaredInputs);
+
+		mIO.left_desired_output = temp[0];
+		mIO.right_desired_output = temp[1];
+	}
+
+	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn)
+	{
+		double[] temp = curvatureDrive(move, rotate, quickTurn);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
@@ -817,6 +835,72 @@ public class Drive extends GZSubsystem {
 
 		return retval;
 	}
+
+
+	public double[] curvatureDrive(double xSpeed, double zRotation, boolean isQuickTurn) {
+		xSpeed = GZUtil.limit(xSpeed);
+		// xSpeed = applyDeadband(xSpeed, m_deadband);
+	
+		zRotation = GZUtil.limit(zRotation);
+		// zRotation = applyDeadband(zRotation, m_deadband);
+	
+		double angularPower;
+		boolean overPower;
+	
+		if (isQuickTurn) {
+		  if (Math.abs(xSpeed) < curvatureDriveQuickStopThreshold) {
+			curvatureDriveQuickStopAccumulator = (1 - curvatureDriveQuickStopAlpha) * curvatureDriveQuickStopAccumulator
+				+ curvatureDriveQuickStopAlpha * GZUtil.limit(zRotation) * 2;
+		  }
+		  overPower = true;
+		  angularPower = zRotation;
+		} else {
+		  overPower = false;
+		  angularPower = Math.abs(xSpeed) * zRotation - curvatureDriveQuickStopAccumulator;
+	
+		  if (curvatureDriveQuickStopAccumulator > 1) {
+			curvatureDriveQuickStopAccumulator -= 1;
+		  } else if (curvatureDriveQuickStopAccumulator < -1) {
+			curvatureDriveQuickStopAccumulator += 1;
+		  } else {
+			curvatureDriveQuickStopAccumulator = 0.0;
+		  }
+		}
+	
+		double leftMotorOutput = xSpeed + angularPower;
+		double rightMotorOutput = xSpeed - angularPower;
+	
+		// If rotation is overpowered, reduce both outputs to within acceptable range
+		if (overPower) {
+		  if (leftMotorOutput > 1.0) {
+			rightMotorOutput -= leftMotorOutput - 1.0;
+			leftMotorOutput = 1.0;
+		  } else if (rightMotorOutput > 1.0) {
+			leftMotorOutput -= rightMotorOutput - 1.0;
+			rightMotorOutput = 1.0;
+		  } else if (leftMotorOutput < -1.0) {
+			rightMotorOutput -= leftMotorOutput + 1.0;
+			leftMotorOutput = -1.0;
+		  } else if (rightMotorOutput < -1.0) {
+			leftMotorOutput -= rightMotorOutput + 1.0;
+			rightMotorOutput = -1.0;
+		  }
+		}
+	
+		// Normalize the wheel speeds
+		double maxMagnitude = Math.max(Math.abs(leftMotorOutput), Math.abs(rightMotorOutput));
+		if (maxMagnitude > 1.0) {
+		  leftMotorOutput /= maxMagnitude;
+		  rightMotorOutput /= maxMagnitude;
+		}
+	
+
+		double temp[] = { 0, 0 };
+		temp[0] = leftMotorOutput;
+		temp[1] = (rightMotorOutput * -1);
+		return temp;
+	  }
+	
 
 	public double getModifier() {
 		return 1;

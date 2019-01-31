@@ -9,6 +9,7 @@ import frc.robot.GZOI;
 import frc.robot.commands.MarkerCommandGroup;
 import frc.robot.commands.NoCommand;
 import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.commands.paths.Around_The_Shop;
 import frc.robot.commands.paths.Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
@@ -62,10 +63,14 @@ public class Auton {
 		if (commandArray != null)
 			return;
 
+		//TODO remove
+		m_controllerOverrideValue = 1;
+
 		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path().print(), true)));
-		commandArray.add(new GZCommand("Drive around", new ResetPoseDrivePath(new Curve_Left().print(), true)));
+		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path(), true)));
+		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Around_The_Shop(), true)));
+		commandArray.add(new GZCommand("Drive around", new ResetPoseDrivePath(new Curve_Left())));
 		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());

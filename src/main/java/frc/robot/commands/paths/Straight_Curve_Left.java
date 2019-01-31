@@ -12,7 +12,7 @@ public class Straight_Curve_Left extends PathContainer {
         sWaypoints.add(new Waypoint(120, 48, 0, 80));
         sWaypoints.add(new Waypoint(232, 43, 40, 80));
         sWaypoints.add(new Waypoint(232, 103, 1, 80));
-        sWaypoints.add(new Waypoint(232, 190, 0, 80));
+        sWaypoints.add(new Waypoint(232, 190, 0, 0));
     }
 
     @Override
