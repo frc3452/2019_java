@@ -63,7 +63,7 @@ public class Auton {
 		if (commandArray != null)
 			return;
 
-		//TODO remove
+		// TODO remove
 		m_controllerOverrideValue = 1;
 
 		commandArray = new ArrayList<GZCommand>();

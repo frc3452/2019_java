@@ -71,7 +71,6 @@ public class Drive extends GZSubsystem {
 	private double curvatureDriveQuickStopAlpha = .1;
 	private double curvatureDriveQuickStopAccumulator;
 
-
 	// ~POOFS~//
 	private PathFollower mPathFollower;
 	private Path mCurrentPath = null;
@@ -249,6 +248,7 @@ public class Drive extends GZSubsystem {
 		setWantedState(DriveState.VELOCITY);
 		mIO.left_desired_output = left;
 		mIO.right_desired_output = right;
+		System.out.println(left + "\t" + right);
 	}
 
 	public String getSmallString() {
@@ -751,7 +751,7 @@ public class Drive extends GZSubsystem {
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
 		// cheesyNoState(move, rotate, joy.getButton(Buttons.RB));
-		
+
 	}
 
 	// called in DEMO state
@@ -759,8 +759,7 @@ public class Drive extends GZSubsystem {
 		arcadeNoState(joy.getLeftAnalogY(), (joy.getRightAnalogX() * .85));
 	}
 
-	private synchronized void arcadeNoState(double move, double rotate)
-	{
+	private synchronized void arcadeNoState(double move, double rotate) {
 		arcadeNoState(move, rotate, false);
 	}
 
@@ -771,8 +770,7 @@ public class Drive extends GZSubsystem {
 		mIO.right_desired_output = temp[1];
 	}
 
-	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn)
-	{
+	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn) {
 		double[] temp = curvatureDrive(move, rotate, quickTurn);
 
 		mIO.left_desired_output = temp[0];
@@ -836,71 +834,69 @@ public class Drive extends GZSubsystem {
 		return retval;
 	}
 
-
 	public double[] curvatureDrive(double xSpeed, double zRotation, boolean isQuickTurn) {
 		xSpeed = GZUtil.limit(xSpeed);
 		// xSpeed = applyDeadband(xSpeed, m_deadband);
-	
+
 		zRotation = GZUtil.limit(zRotation);
 		// zRotation = applyDeadband(zRotation, m_deadband);
-	
+
 		double angularPower;
 		boolean overPower;
-	
+
 		if (isQuickTurn) {
-		  if (Math.abs(xSpeed) < curvatureDriveQuickStopThreshold) {
-			curvatureDriveQuickStopAccumulator = (1 - curvatureDriveQuickStopAlpha) * curvatureDriveQuickStopAccumulator
-				+ curvatureDriveQuickStopAlpha * GZUtil.limit(zRotation) * 2;
-		  }
-		  overPower = true;
-		  angularPower = zRotation;
+			if (Math.abs(xSpeed) < curvatureDriveQuickStopThreshold) {
+				curvatureDriveQuickStopAccumulator = (1 - curvatureDriveQuickStopAlpha)
+						* curvatureDriveQuickStopAccumulator
+						+ curvatureDriveQuickStopAlpha * GZUtil.limit(zRotation) * 2;
+			}
+			overPower = true;
+			angularPower = zRotation;
 		} else {
-		  overPower = false;
-		  angularPower = Math.abs(xSpeed) * zRotation - curvatureDriveQuickStopAccumulator;
-	
-		  if (curvatureDriveQuickStopAccumulator > 1) {
-			curvatureDriveQuickStopAccumulator -= 1;
-		  } else if (curvatureDriveQuickStopAccumulator < -1) {
-			curvatureDriveQuickStopAccumulator += 1;
-		  } else {
-			curvatureDriveQuickStopAccumulator = 0.0;
-		  }
+			overPower = false;
+			angularPower = Math.abs(xSpeed) * zRotation - curvatureDriveQuickStopAccumulator;
+
+			if (curvatureDriveQuickStopAccumulator > 1) {
+				curvatureDriveQuickStopAccumulator -= 1;
+			} else if (curvatureDriveQuickStopAccumulator < -1) {
+				curvatureDriveQuickStopAccumulator += 1;
+			} else {
+				curvatureDriveQuickStopAccumulator = 0.0;
+			}
 		}
-	
+
 		double leftMotorOutput = xSpeed + angularPower;
 		double rightMotorOutput = xSpeed - angularPower;
-	
+
 		// If rotation is overpowered, reduce both outputs to within acceptable range
 		if (overPower) {
-		  if (leftMotorOutput > 1.0) {
-			rightMotorOutput -= leftMotorOutput - 1.0;
-			leftMotorOutput = 1.0;
-		  } else if (rightMotorOutput > 1.0) {
-			leftMotorOutput -= rightMotorOutput - 1.0;
-			rightMotorOutput = 1.0;
-		  } else if (leftMotorOutput < -1.0) {
-			rightMotorOutput -= leftMotorOutput + 1.0;
-			leftMotorOutput = -1.0;
-		  } else if (rightMotorOutput < -1.0) {
-			leftMotorOutput -= rightMotorOutput + 1.0;
-			rightMotorOutput = -1.0;
-		  }
+			if (leftMotorOutput > 1.0) {
+				rightMotorOutput -= leftMotorOutput - 1.0;
+				leftMotorOutput = 1.0;
+			} else if (rightMotorOutput > 1.0) {
+				leftMotorOutput -= rightMotorOutput - 1.0;
+				rightMotorOutput = 1.0;
+			} else if (leftMotorOutput < -1.0) {
+				rightMotorOutput -= leftMotorOutput + 1.0;
+				leftMotorOutput = -1.0;
+			} else if (rightMotorOutput < -1.0) {
+				leftMotorOutput -= rightMotorOutput + 1.0;
+				rightMotorOutput = -1.0;
+			}
 		}
-	
+
 		// Normalize the wheel speeds
 		double maxMagnitude = Math.max(Math.abs(leftMotorOutput), Math.abs(rightMotorOutput));
 		if (maxMagnitude > 1.0) {
-		  leftMotorOutput /= maxMagnitude;
-		  rightMotorOutput /= maxMagnitude;
+			leftMotorOutput /= maxMagnitude;
+			rightMotorOutput /= maxMagnitude;
 		}
-	
 
 		double temp[] = { 0, 0 };
 		temp[0] = leftMotorOutput;
 		temp[1] = (rightMotorOutput * -1);
 		return temp;
-	  }
-	
+	}
 
 	public double getModifier() {
 		return 1;

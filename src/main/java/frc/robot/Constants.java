@@ -102,28 +102,24 @@ public class Constants {
 														// our speed
 														// in inches per sec
 
-	public static double kPathFollowingProfileKp = 10; // 2.5
-	// public static double kPathFollowingProfileKp = 3; // 2.5
-	public static double kPathFollowingProfileKi = 0.03; // .03
-	public static double kPathFollowingProfileKv = 0.11; // .11
-	// public static double kPathFollowingProfileKffv = 5; //1
-	public static double kPathFollowingProfileKffv = 5; // 1
-	// public static double kPathFollowingProfileKffa = 0.025; //.05
-	public static double kPathFollowingProfileKffa = 0.025 * 1; // .05
+	public static double kPathFollowingProfileKp = 5.00;
+	public static double kPathFollowingProfileKi = 0.03;
+	public static double kPathFollowingProfileKv = 0.02;
+	public static double kPathFollowingProfileKffv = 1.0;
+	public static double kPathFollowingProfileKffa = 0.05;
 
-	public static double kPathFollowingGoalPosTolerance = 0.75; // .75
-	public static double kPathFollowingGoalVelTolerance = 12.0; // 12.0
-	public static double kPathStopSteeringDistance = 9.0; // 9.0
+	public static double kPathFollowingGoalPosTolerance = 0.75;
+	public static double kPathFollowingGoalVelTolerance = 12.0;
+	public static double kPathStopSteeringDistance = 9.0;
 
 	public static class kDrivetrain {
 
 		public static final boolean TUNING = false;
 
 		public static class PID {
-			static final double p = .9; // .9
-			static final double d = 20; // 20
-			static final double f = 1.47; // 1.47
-			// static final double f = .78; // .78
+			static final double p = 1.15; // .9
+			static final double d = 2.3; // 20
+			static final double f = 0.6; // 1.47
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -212,6 +208,7 @@ public class Constants {
 	public static class kFiles {
 		private kFiles() {
 		}
+
 		public static final boolean FAKE_PDP = false;
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
 				FileExtensions.CSV, false, false);

@@ -105,6 +105,9 @@ public class GZOI extends GZSubsystem {
 	private void disabled() {
 		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
+		if (driverJoy.getButtons(Buttons.LB, Buttons.Y))
+			auton.crash();
+
 		if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.X))
 			op.setButtonBoard();
 		else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
@@ -112,15 +115,30 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleDriverController() {
+
 		// Velocity testing
 		if (driverJoy.getButtonLatched(Buttons.B))
 			bToggled = !bToggled;
 
 		if (bToggled && kDrivetrain.TUNING) {
-			final double high = 1500;
-			final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high, high, -1, 1);
-			final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high, high, -1, 1);
-			drive.printVelocity(left, right);
+			final double high = 1500 * 1.5;
+
+			double temp[] = Drive.getInstance().arcadeToLR(driverJoy.getLeftAnalogY(),
+					.65 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()));
+			double left = temp[0];
+			double right = -temp[1];
+
+			left = GZUtil.applyDeadband(left, 0.03);
+			right = GZUtil.applyDeadband(right, 0.03);
+			
+			left = GZUtil.scaleBetween(left, -high, high, -1, 1);
+			right = -GZUtil.scaleBetween(right, -high, high, -1, 1);
+			// final double high = 1500;
+			// final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high,
+			// high, -1, 1);
+			// final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high,
+			// high, -1, 1);
+
 			drive.setVelocity(left, right);
 		} else {
 			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
