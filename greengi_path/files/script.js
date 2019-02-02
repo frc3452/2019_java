@@ -17,7 +17,7 @@ var imageFlipped;
 var wto;
 
 var lastSetStartingPosition = 0;
-var startingPositions = [[22, 205], [22, 117], [64, 205], [67, 205], [67, 119]];
+var startingPositions = [[22, 205], [22, 117], [67, 205], [67, 162], [67, 119]];
 
 var maxSpeed = 120;
 var maxSpeedColor = [0, 255, 0];
@@ -1013,11 +1013,6 @@ ${pathInit}
     public boolean isReversed() {
         return ${isReversed}; 
 	}
-
-	// @Override
-    // public Rotation2d getStartRotation() {
-    //     return Rotation2d.fromDegrees(0);
-    // }
 }`;
 
 	// str = str.replace(/[\u00bb\u00bf]/g, '');

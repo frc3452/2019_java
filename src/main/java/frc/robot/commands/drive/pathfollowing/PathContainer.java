@@ -20,10 +20,10 @@ public abstract class PathContainer {
 
             @Override
             public Rotation2d getStartRotation() {
-                return other.buildPath().getEndAngle();
+                return other.getEndRotation();
             }
         };
- 
+
         ret.getStartRotation();
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
 
@@ -65,9 +65,12 @@ public abstract class PathContainer {
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
-    public Rotation2d getStartRotation()
-    {
-        return buildPath().getStartAngle();
+    public Rotation2d getStartRotation() {
+        return buildPath().getStartAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
+    }
+
+    public Rotation2d getEndRotation() {
+        return buildPath().getEndAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
     }
 
     public RigidTransform2d getStartPose() {
@@ -75,20 +78,25 @@ public abstract class PathContainer {
 
         return new RigidTransform2d(new Translation2d(firstPoint.position.x(), firstPoint.position.y()),
                 getStartRotation());
+    }
 
+    public RigidTransform2d getEndPose() {
+        final Waypoint lastPoint = sWaypoints.get(sWaypoints.size() - 1);
+
+        return new RigidTransform2d(new Translation2d(lastPoint.position.x(), lastPoint.position.y()),
+                getEndRotation());
     }
 
     public PathContainer print() {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());
-        System.out.println("Starting position: " + this.getStartPose().toString());
-        System.out.println("Ending position: " + this.buildPath().getEndPosition());
+        System.out.println("Starting position: " + this.getStartPose());
+        System.out.println("Ending position: " + this.getEndPose());
 
         System.out.println("|X-Y| |Radius| |Speed|");
         int counter = 1;
         for (Waypoint o : sWaypoints) {
-            System.out
-                    .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
+            System.out.println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
         }
 
         // System.out.println(this.buildPath().toString());

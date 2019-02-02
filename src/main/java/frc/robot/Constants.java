@@ -87,7 +87,7 @@ public class Constants {
 	public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
 	public static double kPathFollowingMaxVel = 120.0; // inches per second
 	public static double kSegmentCompletionTolerance = 0.1; // inches
-	public static double kTrackWidthInches = 26.655;
+	public static double kTrackWidthInches = 25.5;
 	public static double kTrackScrubFactor = 0.924;
 	public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
