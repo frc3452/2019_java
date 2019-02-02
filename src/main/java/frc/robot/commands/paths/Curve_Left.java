@@ -18,8 +18,4 @@ public class Curve_Left extends PathContainer {
         return false;
     }
 
-    @Override 
-    public Rotation2d getStartRotation() { 
-        return Rotation2d.fromDegrees(0); 
-    }
 }

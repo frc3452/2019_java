@@ -23,8 +23,4 @@ public class Around_The_Shop extends PathContainer {
         return false;
     }
 
-    @Override
-    public Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
 }

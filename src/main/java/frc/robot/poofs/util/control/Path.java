@@ -35,6 +35,12 @@ public class Path {
         return segments.get(segments.size() - 1).getEnd();
     }
 
+    public Rotation2d getStartAngle()
+    {
+        Rotation2d angle = GZUtil.angleOfPathSegment(segments.get(0));
+        return angle;
+    }
+
     public Rotation2d getEndAngle() 
     {
         Rotation2d angle = GZUtil.angleOfPathSegment(segments.get(segments.size() - 1));

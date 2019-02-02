@@ -17,9 +17,4 @@ public class Straight_Path extends PathContainer {
     public boolean isReversed() {
         return false;
     }
-
-    @Override
-    public Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
 }

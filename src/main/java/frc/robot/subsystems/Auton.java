@@ -4,13 +4,19 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.MarkerCommandGroup;
 import frc.robot.commands.NoCommand;
+import frc.robot.commands.drive.pathfollowing.DrivePath;
 import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.commands.paths.Around_The_Shop;
-import frc.robot.commands.paths.Curve_Left;
+import frc.robot.commands.paths.Cargo_Ship;
+import frc.robot.commands.paths.Cargo_Ship_2;
+import frc.robot.commands.paths.Cargo_Ship_3;
+import frc.robot.commands.paths.Cargo_Ship_4;
+import frc.robot.commands.paths.Left_To_Rocket_L;
+import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -68,9 +74,19 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path(), true)));
-		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Around_The_Shop(), true)));
-		commandArray.add(new GZCommand("Drive around", new ResetPoseDrivePath(new Curve_Left())));
+		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
+		commandArray.add(new GZCommand("Help", new CommandGroup() {
+			{
+				addSequential(new ResetPoseDrivePath(new Cargo_Ship()));
+				addSequential(new DrivePath(new Cargo_Ship_2()));
+				addSequential(new DrivePath(new Cargo_Ship_3()));
+				addSequential(new DrivePath(new Cargo_Ship_3().getReversed()));
+				addSequential(new DrivePath(new Cargo_Ship_4()));
+			}
+		}));
+
+		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Left_To_Rocket_L())));
+		commandArray.add(new GZCommand("Straight curve left", new ResetPoseDrivePath(new Straight_Curve_Left())));
 		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());

@@ -15,7 +15,7 @@ public class ResetPoseDrivePath extends CommandGroup {
 
   private final PathContainer mPathContainer;
 
-  private static final double DEFAULT_DELAY = 8;
+  private static final double DEFAULT_DELAY = 4;
 
   public ResetPoseDrivePath(PathContainer pathContainer) {
     this(pathContainer, false);

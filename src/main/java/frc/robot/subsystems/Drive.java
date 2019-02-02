@@ -86,8 +86,8 @@ public class Drive extends GZSubsystem {
 		final double scale = max_desired > Constants.kDriveHighGearMaxSetpoint
 				? Constants.kDriveHighGearMaxSetpoint / max_desired
 				: 1.0;
-		mIO.left_desired_output = (inchesPerSecondToRpm(left_inches_per_sec * scale));
-		mIO.right_desired_output = -(inchesPerSecondToRpm(right_inches_per_sec * scale));
+		mIO.left_desired_output = rpmToTicksPer100ms((inchesPerSecondToRpm(left_inches_per_sec * scale)));
+		mIO.right_desired_output = -rpmToTicksPer100ms(inchesPerSecondToRpm(right_inches_per_sec * scale));
 	}
 
 	public synchronized boolean hasPassedMarker(String marker) {
@@ -183,6 +183,10 @@ public class Drive extends GZSubsystem {
 
 	public synchronized Rotation2d getGyroAngle() {
 		return mNavX.getYaw();
+	}
+
+	private static double rpmToTicksPer100ms(double rpm) {
+		return rpm * (1.0/60.0) * 4096.0 * (1.0/10.0);
 	}
 
 	private static double inchesPerSecondToRpm(double inches_per_second) {
@@ -746,7 +750,7 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
 		final double move = joy.getLeftAnalogY() * elv;
-		arcadeNoState(move, rotate, true);
+		arcadeNoState(move, rotate, false);
 
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
