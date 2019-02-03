@@ -82,6 +82,7 @@ public class Auton {
 		commandArray = new ArrayList<GZCommand>();
 
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
+		// commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
 			{

@@ -11,7 +11,7 @@ public class CS_3 extends PathContainer {
         sWaypoints.add(new Waypoint(214, 214, 0, 0));
         sWaypoints.add(new Waypoint(179, 229, 20, 60));
         sWaypoints.add(new Waypoint(122, 298, 20, 60));
-        sWaypoints.add(new Waypoint(49, 298, 20, 60));
+        sWaypoints.add(new Waypoint(49, 298, 1, 60));
         sWaypoints.add(new Waypoint(16, 298, 0, 30));
     }
 

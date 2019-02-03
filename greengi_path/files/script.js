@@ -376,20 +376,32 @@ function clear() {
 		ctx.drawImage(image, 0, 0, width, height);
 }
 
-function setAngle(row)
-{
+function setAngle(row) {
+	
+	var allRows = $('tbody').children('tr'); 
+	var length = allRows.length;
+	console.log(length);
+
+	var foundRow = -1;
+	for (var i = 0; i < length && foundRow == -1; i++) {
+		if ($('tbody').children('tr')[i] == row) {
+			foundRow = i;
+			console.log("ROW FOUND: " + i);
+		}
+	}
+	
+	
+	return;
 	var table = document.getElementById('myTable');
 	// console.log($('tbody').rows.length);
-	console.log(table.rows[1].cells[0].innerHTML);
+	console.log(table.rows[1]);
 	return;
 	console.log(row);
 
 	var g = $('tbody  > tr');
 
-	for (var i = 0; i < g.length; i++)
-	{
-		if (g[i] == row)
-		{
+	for (var i = 0; i < g.length; i++) {
+		if (g[i] == row) {
 			console.log(i);
 			console.log(g[i]);
 		}
@@ -924,8 +936,7 @@ function newPathTwoPoints() {
 	length = $('tbody').children('tr').length - 1;
 	console.log("Length: " + length);
 
-	for (var i = 1; i < length; i++)
-	{
+	for (var i = 1; i < length; i++) {
 		document.getElementById("myTable").deleteRow(1);
 	}
 
@@ -1028,22 +1039,6 @@ ${pathInit}
 	return str;
 }
 
-function flipPath() {
-	console.log('FLIPPING PATH!');
-	var newWaypoints = [];
-
-	for (var i = waypoints.length - 1; i >= 0; i--)
-		newWaypoints.push(waypoints[i]);
-
-	console.log('old waypoints');
-	console.log(waypoints);
-	console.log('new waypoints');
-	waypoints = newWaypoints;
-	console.log(waypoints);
-
-	myUpdate(false);
-	console.log('updated');
-}
 function exportData() {
 	update();
 	var title = ($("#title").val().length > 0) ? $("#title").val() : "UntitledPath";
@@ -1142,10 +1137,86 @@ function oldChangeStartPoint() {
 	}
 	update();
 }
-
 function canvasClick(canvas, evt) {
 	var mPos = getMousePos(canvas, evt);
 	addPoint(mPos.x, mPos.y);
+
+}
+
+function storeNearestCoordinate(canvas, evt)
+{
+	var mPos = getMousePos(canvas, evt);
+	coordToScoot = findNearestCoord(mPos.x, mPos.y);
+}
+
+function findNearestCoord(x, y)
+{
+	var rows = document.getElementById("myTable").rows;
+
+	var distance = [];
+	for (var i = 0; i < rows.length; i++)
+	{
+		var tempX = rows[i].cells[0].innerHTML;
+		var tempY = rows[i].cells[1].innerHTML;
+
+		tempX = innerHTMLToNumber(tempX);
+		tempY = innerHTMLToNumber(tempY);
+
+		var tempDistance = Math.sqrt(Math.pow(x - tempX,2) + Math.pow(y - tempY,2));
+		distance.push(tempDistance);
+	}
+
+	var minDistance = 3452;
+	var minDistanceSlot = -1;
+	for (var i = 0; i < distance.length; i++)
+	{
+		if (distance[i] < minDistance)
+		{
+			minDistance = distance[i];
+			minDistanceSlot = i;
+		}
+	}
+
+	if (minDistance == 3452)
+		return -1;
+
+	return minDistanceSlot;
+}
+
+function canvasDrag(canvas, evt)
+{
+	var mPos = getMousePos(canvas,evt);
+
+	movePoint(coordToScoot - 1, mPos.x, mPos.y);
+	// update();
+}
+
+function innerHTMLToNumber(innerHTML)
+{
+	var cell = innerHTML.split('"')[1];
+	return parseInt(cell);
+}
+
+function numberToInnerHTML(number)
+{
+	var ret = "";
+
+	ret = '<input value="' + number + '">';
+
+	return ret;
+}
+
+function movePoint(pointNumber, newX, newY)
+{
+	if (newX != 0 && newY != 0)
+	{
+		var row = document.getElementById("myTable").rows[pointNumber + 1];
+		row.cells[0].innerHTML = numberToInnerHTML(newX);
+		row.cells[1].innerHTML = numberToInnerHTML(newY);
+	}
+		
+	// console.log($('tbody').children('tr')[pointNumber]);
+
 }
 
 function getMousePos(canvas, evt) {
@@ -1153,9 +1224,16 @@ function getMousePos(canvas, evt) {
 
 	var scaleX = width / fieldWidth / 1.5;
 	var scaleY = height / fieldHeight / 1.5;
+	var xRet = (evt.clientX - rect.left) / scaleX;
+	var yRet = (rect.height - (evt.clientY - rect.top)) / scaleY;
+
+	if (xRet < 0 || yRet < 0)
+		{xRet = 0;
+			yRet = 0;}
+
 	return {
-		x: (evt.clientX - rect.left) / scaleX,   // scale mouse coordinates after they have
-		y: (rect.height - (evt.clientY - rect.top)) / scaleY	// been adjusted to be relative to element
+		x: xRet,   // scale mouse coordinates after they have
+		y: yRet	// been adjusted to be relative to element
 	}
 }
 

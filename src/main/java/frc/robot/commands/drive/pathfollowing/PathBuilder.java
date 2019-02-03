@@ -19,7 +19,7 @@ public class PathBuilder {
     private static final double kEpsilon = 1E-9;
     private static final double kReallyBigNumber = 1E9;
 
-    public static Path buildPathFromWaypoints(List<Waypoint> w) {
+    public static synchronized Path buildPathFromWaypoints(List<Waypoint> w) {
         Path p = new Path();
         if (w.size() < 2)
             throw new Error("Path must contain at least 2 waypoints");
@@ -37,7 +37,7 @@ public class PathBuilder {
         return p;
     }
 
-    private static Waypoint getPoint(List<Waypoint> w, int i) {
+    private static synchronized Waypoint getPoint(List<Waypoint> w, int i) {
         if (i > w.size())
             return w.get(w.size() - 1);
         return w.get(i);
