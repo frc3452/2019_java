@@ -874,16 +874,15 @@ function logWaypoints() {
 
 
 function newPathTwoPoints() {
-	
+
 	var length = $('tbody').children('tr').length;
-	console.log(length);
-	
+
 	var points = [];
 
+	//Push waypoints to points array
 	var counter = 0;
 	$('tbody').children('tr').each(function () {
-		if (counter > length - 3)
-		{
+		if (counter > length - 3) {
 			var x = parseInt(eval($($($(this).children()).children()[0]).val()));
 			var y = parseInt(eval($($($(this).children()).children()[1]).val()));
 			var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
@@ -899,47 +898,33 @@ function newPathTwoPoints() {
 		counter++;
 	});
 
-	
+	console.log("Length: " + length);
+	for (var i = points.length - 1; i >= 0; i--) {
+		addRawPoint(points[i].position.x, points[i].position.y, points[i].radius, points[i].speed);
+		console.log("Adding point " + i);
+	}
 
+	length = $('tbody').children('tr').length - 1;
+	console.log("Length: " + length);
 
-	return;
-	$('tbody').children('tr').each(function () {
-		var x = parseInt(eval($($($(this).children()).children()[0]).val()));
-		var y = parseInt(eval($($($(this).children()).children()[1]).val()));
-		var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
-		var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
-		if (isNaN(radius) || isNaN(speed)) {
-			radius = 0;
-			speed = 0;
-		}
-		var marker = ($($($(this).children()).children()[4]).val())
-		var comment = ($($($(this).children()).children()[5]).val())
-		waypoints.push(new Waypoint(new Translation2d(x, y), speed, radius, marker, comment));
-	});
+	for (var i = 1; i < length; i++)
+	{
+		document.getElementById("myTable").deleteRow(1);
+	}
 
+	update();
+}
 
-	points.push(waypoints[waypoints.length - 1]);
-	points.push(waypoints[waypoints.length - 2]);
+function addRawPoint(x, y, radius, speed) {
+	$("tbody").append("<tr>"
+		+ "<td><input value='" + (x) + "'></td>"
+		+ "<td><input value='" + (y) + "'></td>"
+		+ "<td><input value='" + (radius) + "'></td>"
+		+ "<td><input value='" + (speed) + "'></td>"
+		+ "<td class='marker'><input placeholder='Marker'></td>"
+		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td></tr>"
+	);
 
-	init();
-
-	logWaypoints();
-
-	waypoints.length = 0;
-
-	logWaypoints();
-
-	waypoints.push(new Waypoint(points[0].x, points[0].y, points[0].radius));
-	waypoints.push(new Waypoint(points[1].x, points[1].y, points[1].radius));
-
-	waypoints[0].speed = points[0].speed;
-	waypoints[1].speed = points[1].speed;
-
-	logWaypoints();
-
-	myUpdate(false);
-
-	console.log("ASD");
 }
 
 function getDataString() {

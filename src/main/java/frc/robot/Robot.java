@@ -1,7 +1,11 @@
 package frc.robot;
 
+import com.sun.jdi.event.Event;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
@@ -12,6 +16,7 @@ import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 
 public class Robot extends TimedRobot {
@@ -31,13 +36,14 @@ public class Robot extends TimedRobot {
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
-	private Drive drive = Drive.getInstance();
 
 	private PersistentInfoManager infoManager = PersistentInfoManager.getInstance();
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
 	private final Folder loggingLocation = new Folder("Logging/Offseason/" + GZUtil.getDate());
+
+	private final GZTimer timer = new GZTimer();
 
 	@Override
 	public void robotInit() {
@@ -55,6 +61,7 @@ public class Robot extends TimedRobot {
 		allSubsystems.startLooping();
 
 		files.writeHardwareReport();
+		timer.startTimer();
 	}
 
 	@Override

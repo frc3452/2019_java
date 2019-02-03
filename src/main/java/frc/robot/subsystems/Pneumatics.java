@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.GZOI;
 import frc.robot.Constants.kPneumatics;
+import frc.robot.Constants.kSolenoids;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
@@ -25,7 +26,7 @@ public class Pneumatics extends GZSubsystem {
 
     private Pneumatics() {
         mCompressor = new Compressor(kPneumatics.COMPRESSOR_MODULE);
-        mClimberCrawler = new GZSolenoid(kPneumatics.CRAWLER, this, "Climber crawler");
+        mClimberCrawler = new GZSolenoid(kSolenoids.CRAWLER, this, "Climber crawler");
         mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT);
     }
 

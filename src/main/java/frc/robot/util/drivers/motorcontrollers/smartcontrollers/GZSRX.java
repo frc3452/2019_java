@@ -260,7 +260,9 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 	public boolean isEncoderValid() {
 		if (usingRemoteSensor())
+		{
 			return mRemoteSensorTalon.encoderPresent();
+		}
 
 		return this.encoderPresent();
 	}

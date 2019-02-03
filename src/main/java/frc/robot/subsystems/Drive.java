@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
@@ -367,7 +368,7 @@ public class Drive extends GZSubsystem {
 		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
 		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
 		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
-		CLIMB(false, ControlMode.PercentOutput), SERVO_ANGLE(false, ControlMode.PercentOutput);
+		CLIMB(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -536,6 +537,12 @@ public class Drive extends GZSubsystem {
 			s.checkFirmware();
 	}
 
+	private void handleLimitSwitches()
+	{
+		disableDriveLimits();
+		enableDriveLimits();
+	}
+
 	private void enableDriveLimits() {
 		if (mState == DriveState.CLIMB) {
 			L1.overrideLimitSwitchesEnable(true); // TODO TUNE
@@ -553,7 +560,6 @@ public class Drive extends GZSubsystem {
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case CLIMB:
-			enableDriveLimits();
 			// Superstructure.getInstance().stow();
 			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;
@@ -591,7 +597,6 @@ public class Drive extends GZSubsystem {
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
-			disableDriveLimits();
 			break;
 		case PATH_FOLLOWING:
 			mIO.left_feedforward = 0;

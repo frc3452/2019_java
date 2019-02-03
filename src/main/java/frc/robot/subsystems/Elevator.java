@@ -11,14 +11,17 @@ import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kPDP;
-import frc.robot.GZOI;
+import frc.robot.Constants.kSolenoids;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
@@ -49,13 +52,13 @@ public class Elevator extends GZSubsystem {
     private Elevator() {
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
 
-        mCarriageSlide = new GZSolenoid(kElevator.SLIDES, this, "Carriage slides");
+        mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
         mCarriageSlide.set(false);
-        mClaw = new GZSolenoid(kElevator.CLAW, this, "Carriage claw");
+        mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
         mClaw.set(false);
 
-        mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL, kElevator.CARGO_SENSOR_LOW_VOLT,
-                kElevator.CARGO_SENSOR_HIGH_VOLT);
+        mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
+                kElevator.CARGO_SENSOR_LOW_VOLT, kElevator.CARGO_SENSOR_HIGH_VOLT);
 
         talonInit();
 
@@ -407,7 +410,9 @@ public class Elevator extends GZSubsystem {
     }
 
     public synchronized void enableFollower() {
-        // controller_2.follow(controller_1);
+        for (GZSmartSpeedController s : mSmartControllers)
+            if (s.getMaster() == Master.FOLLOWER)
+                s.follow(mElevator1);
     }
 
     @Override
