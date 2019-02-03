@@ -123,9 +123,9 @@ public class Constants {
 		public static final boolean TUNING = true;
 
 		public static class PID {
-			static final double p = 1.15; // .9
-			static final double d = 2.3; // 20
-			static final double f = 0.6; // 1.47
+			static final double p = 0; // .9
+			static final double d = 0; // 20
+			static final double f = 0; // 1.47
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -138,7 +138,7 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public final static boolean L_INVERT = false;
+		public final static boolean L_INVERT = true;
 		public final static boolean R_INVERT = true;
 
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.01;
@@ -158,8 +158,8 @@ public class Constants {
 	}
 
 	public static class kPDP {
-		public final static int DRIVE_L_1 = 10, DRIVE_L_2 = 11, DRIVE_L_3 = 12, DRIVE_L_4 = 13;
-		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
+		public final static int DRIVE_L_1 = 1, DRIVE_L_2 = 2, DRIVE_L_3 = 3, DRIVE_L_4 = 4;
+		public final static int DRIVE_R_1 = 11, DRIVE_R_2 = 12, DRIVE_R_3 = 13, DRIVE_R_4 = 14;
 
 		public static final int ELEVATOR_MOTOR = 0;
 
@@ -182,18 +182,6 @@ public class Constants {
 		public final static int PURPLE = 55;
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
-	}
-
-	public static class kClimber {
-
-		public static final boolean CLIMBER_FRONT_INVERT = false;
-		public static final boolean CLIMBER_BACK_INVERT = true;
-
-		public static final double OPEN_RAMP_TIME = 0;
-
-		public static final int AMP_CONTINUOUS = 40;
-		public static final int AMP_PEAK = 20;
-		public static final int AMP_TIME = 50;
 	}
 
 	public static class kIntake {
@@ -231,7 +219,7 @@ public class Constants {
 		}
 
 		public static final int LOCK_OUT_KEY = 3;
-		public static final double KEY_LOW_VOLT = 0;
-		public static final double KEY_HIGH_VOLT = 1;
+		public static final double KEY_LOW_VOLT = -1;
+		public static final double KEY_HIGH_VOLT = -2;
 	}
 }

@@ -43,27 +43,24 @@ public class Robot extends TimedRobot {
 	private final boolean logging = true, logToUsb = true;
 	private final Folder loggingLocation = new Folder("Logging/Offseason/" + GZUtil.getDate());
 
-	private final GZTimer timer = new GZTimer();
-
 	@Override
 	public void robotInit() {
 		infoManager.toString();
-
+		
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
-
+		
 		// Gen health file
 		health.generateHealth();
-
+		
 		allSubsystems.addLoggingValues();
-
+		
 		allSubsystems.startLooping();
-
+		
 		files.writeHardwareReport();
-		timer.startTimer();
 	}
-
+	
 	@Override
 	public void robotPeriodic() {
 	}
@@ -75,33 +72,33 @@ public class Robot extends TimedRobot {
 		allSubsystems.stop();
 		log(false);
 	}
-
+	
 	@Override
 	public void disabledPeriodic() {
 		auton.autonChooser();
 	}
-
+	
 	private void enabledInits() {
 		infoManager.robotEnabled();
 		allSubsystems.enableFollower();
 		log(true);
 	}
-
+	
 	@Override
 	public void autonomousInit() {
 		enabledInits();
-
+		
 		// timer start
 		auton.matchTimer.oneTimeStartTimer();
-
+		
 		auton.startAuton();
 	}
-
+	
 	@Override
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
 	}
-
+	
 	@Override
 	public void teleopInit() {
 		auton.cancelAuton();

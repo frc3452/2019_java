@@ -2,21 +2,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.DriveState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZAnalogInput;
@@ -130,7 +125,7 @@ public class GZOI extends GZSubsystem {
 
 			left = GZUtil.applyDeadband(left, 0.03);
 			right = GZUtil.applyDeadband(right, 0.03);
-			
+
 			left = GZUtil.scaleBetween(left, -high, high, -1, 1);
 			right = -GZUtil.scaleBetween(right, -high, high, -1, 1);
 			// final double high = 1500;

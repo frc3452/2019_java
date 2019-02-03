@@ -623,6 +623,7 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
+		handleLimitSwitches();
 		handleStates();
 		in();
 		out();

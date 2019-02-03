@@ -142,11 +142,6 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		}
 	}
 
-	public void set(ControlMode mode, double demand0, DemandType demand1Type, double demand1) {
-		if (!mLockedOut)
-			super.set(mode, demand0, demand1Type, demand1);
-	}
-
 	@Override
 	public void set(ControlMode mode, double value) {
 		set(mode, value, false);
