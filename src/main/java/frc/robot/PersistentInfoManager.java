@@ -249,12 +249,12 @@ public class PersistentInfoManager {
                     mSettingsMap.get(split[0]).setValue(Double.valueOf(split[1]));
                 } else {
                     // Map doesn't have setting
-                    System.out.println("ERROR Could not read setting " + split[0] + ".");
+                    System.out.println("ERROR Could not read setting {" + split[0] + "}");
 
                     // For some reason a value is in the file and not in the map, so something isn't
                     // right in the first place
                     // Trip the flag incase so we don't accidentally overwrite any data
-                    mReadFailed.tripFlag();
+                    // mReadFailed.tripFlag();
                 }
             }
 

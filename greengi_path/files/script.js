@@ -6,8 +6,9 @@ var width = 1656; //pixels
 var height = 823; //pixels
 var fieldWidth = 652; // in inches
 var fieldHeight = 324; // in inches
-var robotWidth = 32.75; //inches //32.75
-var robotHeight = 37.5; //inches //37.5
+var robotWidth = 34.5; //inches //32.75
+var robotHeight = 38.5; //inches //37.5
+const halfL = robotHeight / 2.0;
 var pointRadius = 5;
 var turnRadius = 30;
 var kEpsilon = 1E-9;
@@ -16,7 +17,7 @@ var imageFlipped;
 var wto;
 
 var lastSetStartingPosition = 0;
-var startingPositions = [[22, 205], [22, 117], [64, 205], [64, 162], [64, 119]];
+var startingPositions = [[22, 205], [22, 117], [67, 205], [67, 162], [67, 119]];
 
 var maxSpeed = 120;
 var maxSpeedColor = [0, 255, 0];
@@ -337,6 +338,7 @@ function convertNativeUnitsPer100msToInchesPerSecond(ips) {
 }
 
 function init() {
+	console.log(new Date());
 	$("#field").css("width", (width / 1.5) + "px");
 	$("#field").css("height", (height / 1.5) + "px");
 	ctx = document.getElementById('field').getContext('2d')
@@ -429,11 +431,10 @@ function addPoint(x, y, radius) {
 	});
 }
 
-function evaluateWaypoints()
-{
+function evaluateWaypoints() {
 	$('tbody').children('tr').each(function () {
 		var x = parseInt(eval($($($(this).children()).children()[0]).val()));
-		
+
 		var y = parseInt(eval($($($(this).children()).children()[1]).val()));
 		var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
 		var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
@@ -441,7 +442,7 @@ function evaluateWaypoints()
 			radius = 0;
 			speed = 0;
 		}
-		
+
 		$($($(this).children()).children()[0]).val(x);
 		$($($(this).children()).children()[1]).val(y);
 		$($($(this).children()).children()[2]).val(radius);
@@ -863,6 +864,69 @@ function getReducedDataString() {
 	return str;
 }
 
+
+function logWaypoints() {
+	console.log("Waypoints length: " + waypoints.length);
+	for (var i = 0; i < waypoints.length - 1; i++) {
+		console.log(i + "\t" + waypoints[0].position.x + "\t" + waypoints[0].position.y + "\t" + waypoints[0].radius + "\t" + waypoints[0].speed);
+	}
+}
+
+
+function newPathTwoPoints() {
+
+	var length = $('tbody').children('tr').length;
+
+	var points = [];
+
+	//Push waypoints to points array
+	var counter = 0;
+	$('tbody').children('tr').each(function () {
+		if (counter > length - 3) {
+			var x = parseInt(eval($($($(this).children()).children()[0]).val()));
+			var y = parseInt(eval($($($(this).children()).children()[1]).val()));
+			var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
+			var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
+			if (isNaN(radius) || isNaN(speed)) {
+				radius = 0;
+				speed = 0;
+			}
+			var marker = ($($($(this).children()).children()[4]).val())
+			var comment = ($($($(this).children()).children()[5]).val())
+			points.push(new Waypoint(new Translation2d(x, y), speed, radius, marker, comment));
+		}
+		counter++;
+	});
+
+	console.log("Length: " + length);
+	for (var i = points.length - 1; i >= 0; i--) {
+		addRawPoint(points[i].position.x, points[i].position.y, points[i].radius, points[i].speed);
+		console.log("Adding point " + i);
+	}
+
+	length = $('tbody').children('tr').length - 1;
+	console.log("Length: " + length);
+
+	for (var i = 1; i < length; i++)
+	{
+		document.getElementById("myTable").deleteRow(1);
+	}
+
+	update();
+}
+
+function addRawPoint(x, y, radius, speed) {
+	$("tbody").append("<tr>"
+		+ "<td><input value='" + (x) + "'></td>"
+		+ "<td><input value='" + (y) + "'></td>"
+		+ "<td><input value='" + (radius) + "'></td>"
+		+ "<td><input value='" + (speed) + "'></td>"
+		+ "<td class='marker'><input placeholder='Marker'></td>"
+		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td></tr>"
+	);
+
+}
+
 function getDataString() {
 	var title = ($("#title").val().length > 0) ? $("#title").val() : "UntitledPath";
 	var pathInit = "";
@@ -934,12 +998,16 @@ ${pathInit}
     public boolean isReversed() {
         return ${isReversed}; 
 	}
-
-	@Override
-    public Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
 }`;
+
+	// str = str.replace(/[\u00bb\u00bf]/g, '');
+	// str = str.replace("\u00bb",'');
+	// str = str.replace("\u00bf",'');
+
+	// str = str.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '')
+
+	// str = str.replace(/[\u00bb]/g,'');
+
 	return str;
 }
 
@@ -978,6 +1046,10 @@ function copyToClipBoard() {
 	const data = document.createElement("textarea");
 	// data.value = getReducedDataString(); 
 	data.value = getDataString();
+
+	// console.log(data.value);
+	// console.log(document.body);
+
 	document.body.appendChild(data);
 	data.select();
 	document.execCommand("copy");

@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
@@ -367,7 +368,7 @@ public class Drive extends GZSubsystem {
 		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
 		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
 		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
-		CLIMB(false, ControlMode.PercentOutput), SERVO_ANGLE(false, ControlMode.PercentOutput);
+		CLIMB(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -536,6 +537,12 @@ public class Drive extends GZSubsystem {
 			s.checkFirmware();
 	}
 
+	private void handleLimitSwitches()
+	{
+		disableDriveLimits();
+		enableDriveLimits();
+	}
+
 	private void enableDriveLimits() {
 		if (mState == DriveState.CLIMB) {
 			L1.overrideLimitSwitchesEnable(true); // TODO TUNE
@@ -553,7 +560,6 @@ public class Drive extends GZSubsystem {
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case CLIMB:
-			enableDriveLimits();
 			// Superstructure.getInstance().stow();
 			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;
@@ -591,7 +597,6 @@ public class Drive extends GZSubsystem {
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
-			disableDriveLimits();
 			break;
 		case PATH_FOLLOWING:
 			mIO.left_feedforward = 0;
@@ -618,6 +623,7 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
+		handleLimitSwitches();
 		handleStates();
 		in();
 		out();
@@ -754,8 +760,7 @@ public class Drive extends GZSubsystem {
 
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
-		// cheesyNoState(move, rotate, joy.getButton(Buttons.RB));
-
+		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ), !joy.getButton(Buttons.RB));
 	}
 
 	// called in DEMO state
@@ -775,7 +780,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn) {
-		double[] temp = curvatureDrive(move, rotate, quickTurn);
+		double[] temp = cheesyToLR(move, rotate, quickTurn);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
@@ -838,7 +843,7 @@ public class Drive extends GZSubsystem {
 		return retval;
 	}
 
-	public double[] curvatureDrive(double xSpeed, double zRotation, boolean isQuickTurn) {
+	public double[] cheesyToLR(double xSpeed, double zRotation, boolean isQuickTurn) {
 		xSpeed = GZUtil.limit(xSpeed);
 		// xSpeed = applyDeadband(xSpeed, m_deadband);
 

@@ -1,7 +1,11 @@
 package frc.robot;
 
+import com.sun.jdi.event.Event;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
@@ -12,6 +16,7 @@ import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 
 public class Robot extends TimedRobot {
@@ -31,7 +36,6 @@ public class Robot extends TimedRobot {
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
-	private Drive drive = Drive.getInstance();
 
 	private PersistentInfoManager infoManager = PersistentInfoManager.getInstance();
 
@@ -41,20 +45,22 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		infoManager.toString();
+		
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
-
+		
 		// Gen health file
 		health.generateHealth();
-
+		
 		allSubsystems.addLoggingValues();
-
+		
 		allSubsystems.startLooping();
-
+		
 		files.writeHardwareReport();
 	}
-
+	
 	@Override
 	public void robotPeriodic() {
 	}
@@ -66,33 +72,33 @@ public class Robot extends TimedRobot {
 		allSubsystems.stop();
 		log(false);
 	}
-
+	
 	@Override
 	public void disabledPeriodic() {
 		auton.autonChooser();
 	}
-
+	
 	private void enabledInits() {
 		infoManager.robotEnabled();
 		allSubsystems.enableFollower();
 		log(true);
 	}
-
+	
 	@Override
 	public void autonomousInit() {
 		enabledInits();
-
+		
 		// timer start
 		auton.matchTimer.oneTimeStartTimer();
-
+		
 		auton.startAuton();
 	}
-
+	
 	@Override
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
 	}
-
+	
 	@Override
 	public void teleopInit() {
 		auton.cancelAuton();

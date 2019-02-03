@@ -19,12 +19,18 @@ public class Constants {
 	public static class kLoop {
 	}
 
+	public static class kSolenoids {
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 1.5, 1.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 1.5, 1.5);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, .5, .5);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 1.5, 1);
+	}
+
 	public static class kElevator {
 		public static final int ELEVATOR_MOTOR_ID = 0;
 		public static final boolean E_1_INVERT = false;
-
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 1.5, 1.5);
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
@@ -86,8 +92,7 @@ public class Constants {
 
 	public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
 	public static double kPathFollowingMaxVel = 120.0; // inches per second
-	public static double kSegmentCompletionTolerance = 0.1; // inches
-	public static double kTrackWidthInches = 26.655;
+	public static double kTrackWidthInches = 25.5;
 	public static double kTrackScrubFactor = 0.924;
 	public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
@@ -99,8 +104,8 @@ public class Constants {
 	public static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
 	public static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
 	public static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
-														// our speed
-														// in inches per sec
+	// our speed
+	// in inches per sec
 
 	public static double kPathFollowingProfileKp = 5.00;
 	public static double kPathFollowingProfileKi = 0.03;
@@ -108,6 +113,7 @@ public class Constants {
 	public static double kPathFollowingProfileKffv = 1.0;
 	public static double kPathFollowingProfileKffa = 0.05;
 
+	public static double kSegmentCompletionTolerance = 0.1; // inches
 	public static double kPathFollowingGoalPosTolerance = 0.75;
 	public static double kPathFollowingGoalVelTolerance = 12.0;
 	public static double kPathStopSteeringDistance = 9.0;
@@ -117,9 +123,9 @@ public class Constants {
 		public static final boolean TUNING = true;
 
 		public static class PID {
-			static final double p = 1.15; // .9
-			static final double d = 2.3; // 20
-			static final double f = 0.6; // 1.47
+			static final double p = 0; // .9
+			static final double d = 0; // 20
+			static final double f = 0; // 1.47
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -132,7 +138,7 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public final static boolean L_INVERT = false;
+		public final static boolean L_INVERT = true;
 		public final static boolean R_INVERT = true;
 
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.01;
@@ -149,12 +155,11 @@ public class Constants {
 
 		public final static double NEUTRAL_DEADBAND = 0.025;
 
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, .5, .5);
 	}
 
 	public static class kPDP {
-		public final static int DRIVE_L_1 = 10, DRIVE_L_2 = 11, DRIVE_L_3 = 12, DRIVE_L_4 = 13;
-		public final static int DRIVE_R_1 = 5, DRIVE_R_2 = 4, DRIVE_R_3 = 3, DRIVE_R_4 = 2;
+		public final static int DRIVE_L_1 = 1, DRIVE_L_2 = 2, DRIVE_L_3 = 3, DRIVE_L_4 = 4;
+		public final static int DRIVE_R_1 = 11, DRIVE_R_2 = 12, DRIVE_R_3 = 13, DRIVE_R_4 = 14;
 
 		public static final int ELEVATOR_MOTOR = 0;
 
@@ -179,29 +184,14 @@ public class Constants {
 		public final static int YELLOW = 330;
 	}
 
-	public static class kClimber {
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
-
-		public static final boolean CLIMBER_FRONT_INVERT = false;
-		public static final boolean CLIMBER_BACK_INVERT = true;
-
-		public static final double OPEN_RAMP_TIME = 0;
-
-		public static final int AMP_CONTINUOUS = 40;
-		public static final int AMP_PEAK = 20;
-		public static final int AMP_TIME = 50;
-	}
-
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 1;
 		public static final int INTAKE_RIGHT = 2;
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
 		public static final double INTAKE_SPEED = 0;
 	}
 
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 0;
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 1.5, 1);
 		public static final int PRESSURE_GUAGE_PORT = 1;
 	}
 
@@ -229,7 +219,7 @@ public class Constants {
 		}
 
 		public static final int LOCK_OUT_KEY = 3;
-		public static final double KEY_LOW_VOLT = 0;
-		public static final double KEY_HIGH_VOLT = 1;
+		public static final double KEY_LOW_VOLT = -1;
+		public static final double KEY_HIGH_VOLT = -2;
 	}
 }

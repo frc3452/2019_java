@@ -38,8 +38,7 @@ public class GZUtil {
 		return x;
 	}
 
-	public static Double round(double value)
-	{
+	public static Double round(double value) {
 		return roundTo(value, 2);
 	}
 
@@ -48,7 +47,7 @@ public class GZUtil {
 			double ret = (double) Math.round(value * Math.pow(10, place)) / Math.pow(10, place);
 			return ret;
 		} catch (Exception e) {
-			return Double.NaN; //just incase some dumb divided by 0 on accident kinda thing
+			return Double.NaN; // just incase some dumb divided by 0 on accident kinda thing
 		}
 	}
 
@@ -112,17 +111,21 @@ public class GZUtil {
 		return value;
 	}
 
-	public static Rotation2d angleOfPathSegment(PathSegment segment)
-	{
+	public static Rotation2d angleOfPathSegment(PathSegment segment) {
 		return angleBetweenPoints(segment.getStart(), segment.getEnd());
 	}
 
-	public static Rotation2d angleBetweenPoints(Translation2d point1, Translation2d point2)
-	{	
+	public static Rotation2d angleBetweenPoints(Translation2d point1, Translation2d point2) {
 		Rotation2d ret = Rotation2d.identity();
 
 		double yDelta = point1.y() - point2.y();
 		double xDelta = point1.x() - point2.x();
+
+		if (xDelta == 0 && yDelta == 0) {
+			System.out.println(
+					"Translations " + point1.toString() + " and " + point2.toString() + " are in the same place!");
+			return null;
+		}
 
 		if (xDelta == 0) {
 			if (point2.y() > point1.y())
@@ -134,18 +137,21 @@ public class GZUtil {
 				ret = Rotation2d.fromDegrees(0);
 			else
 				ret = Rotation2d.fromDegrees(180);
-		} else
+		} else {
 			ret = Rotation2d.fromDegrees(Math.toDegrees(Math.atan(yDelta / xDelta)));
-		
-		//if x delta 0, if point2 above point1 angle is 270, point2 is below angle is 90
-		//if y delta 0, if point2 in front of point1 angle is 0, if point2 is behind 180
+			if (point2.y() < point1.y())
+				ret = ret.rotateBy(Rotation2d.fromDegrees(180));
+		}
 
+		// if x delta 0, if point2 above point1 angle is 270, point2 is below angle is
+		// 90
+		// if y delta 0, if point2 in front of point1 angle is 0, if point2 is behind
+		// 180
 
 		return ret;
 	}
 
-	public static double distanceBetween(Translation2d point1, Translation2d point2)
-	{
+	public static double distanceBetween(Translation2d point1, Translation2d point2) {
 		double a = point1.x() - point2.x();
 		double b = point1.y() - point2.y();
 
@@ -154,18 +160,17 @@ public class GZUtil {
 
 	public static Object deepClone(Object object) {
 		try {
-		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		  ObjectOutputStream oos = new ObjectOutputStream(baos);
-		  oos.writeObject(object);
-		  ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-		  ObjectInputStream ois = new ObjectInputStream(bais);
-		  return ois.readObject();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(object);
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			return ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		catch (Exception e) {
-		  e.printStackTrace();
-		  return null;
-		}
-	  }
+	}
 
 	public static boolean between(double value, double low, double high) {
 		if (value >= low && value <= high)
@@ -185,7 +190,7 @@ public class GZUtil {
 		}
 		return result;
 	}
-	
+
 	public static double applyDeadband(double value, double deadband) {
 		if (Math.abs(value) > deadband) {
 			if (value > 0.0) {
@@ -237,23 +242,21 @@ public class GZUtil {
 		return temp;
 	}
 
-	public static GZFile getDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write) throws Exception
-	{
-		return GZFileMaker.getFile(dateTime(true), new Folder(folder.get(usb) + "/" + getDate()), extension, usb, write);
+	public static GZFile getDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write)
+			throws Exception {
+		return GZFileMaker.getFile(dateTime(true), new Folder(folder.get(usb) + "/" + getDate()), extension, usb,
+				write);
 	}
 
-	public static GZFile getSafeDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write)
-	{
+	public static GZFile getSafeDateFile(FileExtensions extension, Folder folder, boolean usb, boolean write) {
 		try {
 			return getDateFile(extension, folder, usb, write);
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public static String getDate()
-	{
+	public static String getDate() {
 		String ret;
 		ret = new SimpleDateFormat("yyyy.MM.dd").format(new Date());
 		return ret;

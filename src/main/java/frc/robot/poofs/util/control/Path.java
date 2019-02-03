@@ -52,30 +52,6 @@ public class Path {
         return new RigidTransform2d(getEndTranslation(), getEndAngle());
     }
 
-    // public Rotation2d getEndAngle()
-    // {
-    //     double totalDegrees = 0;
-    //     for (int i = 0; (i + 1) < segments.size() - 1; i++)
-    //     {
-    //         PathSegment cLeg = segments.get(i);
-    //         PathSegment bLeg = segments.get(i+1);
-
-    //         double c, b, a;
-
-    //         c = GZUtil.distanceBetween(cLeg.getStart(), cLeg.getEnd());
-    //         b = GZUtil.distanceBetween(cLeg.getEnd(), bLeg.getEnd());
-    //         a = GZUtil.distanceBetween(cLeg.getStart(), bLeg.getEnd());
-
-    //         // a^2 = b^2 + c^2 - 2bc * cosA
-    //         double temp = (Math.pow(a, 2) - Math.pow(b, 2) - Math.pow(c, 2)) / (2 * b * c);
-    //         double angle = Math.toDegrees(Math.acos(temp));
-    //         System.out.println(a + "\t" + b + "\t" + c + "\t" + temp + "\t" + angle);
-            
-    //         totalDegrees += angle;
-    //     }
-    //     return Rotation2d.fromDegrees(totalDegrees);
-    // }
-
     public Path() {
         segments = new ArrayList<PathSegment>();
     }

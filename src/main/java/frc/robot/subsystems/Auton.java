@@ -9,12 +9,19 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.commands.MarkerCommandGroup;
 import frc.robot.commands.NoCommand;
+import frc.robot.commands.WaitCommand;
 import frc.robot.commands.drive.pathfollowing.DrivePath;
 import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.commands.paths.CS_1;
+import frc.robot.commands.paths.CS_2;
+import frc.robot.commands.paths.CS_3;
+import frc.robot.commands.paths.CS_4;
+import frc.robot.commands.paths.CS_5;
 import frc.robot.commands.paths.Cargo_Ship;
 import frc.robot.commands.paths.Cargo_Ship_2;
 import frc.robot.commands.paths.Cargo_Ship_3;
 import frc.robot.commands.paths.Cargo_Ship_4;
+import frc.robot.commands.paths.L;
 import frc.robot.commands.paths.Left_To_Rocket_L;
 import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
@@ -75,13 +82,32 @@ public class Auton {
 		commandArray = new ArrayList<GZCommand>();
 
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
+		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
+		{
+			{
+				final double waitTime = .1;
+				addSequential(new ResetPoseDrivePath(new CS_1()));
+				addSequential(new WaitCommand(waitTime));
+				addSequential(new DrivePath(new CS_2()));
+				addSequential(new WaitCommand(waitTime));
+				addSequential(new DrivePath(new CS_3()));
+				addSequential(new WaitCommand(.2));
+				addSequential(new DrivePath(new CS_4()));
+				addSequential(new WaitCommand(waitTime));
+				addSequential(new DrivePath(new CS_5()));
+				addSequential(new WaitCommand(waitTime));
+			}
+		}));
+
+
+		commandArray.add(new GZCommand(new ResetPoseDrivePath(new L())));
 		commandArray.add(new GZCommand("Help", new CommandGroup() {
 			{
-				addSequential(new ResetPoseDrivePath(new Cargo_Ship()));
-				addSequential(new DrivePath(new Cargo_Ship_2()));
-				addSequential(new DrivePath(new Cargo_Ship_3()));
-				addSequential(new DrivePath(new Cargo_Ship_3().getReversed()));
-				addSequential(new DrivePath(new Cargo_Ship_4()));
+				addSequential(new ResetPoseDrivePath(new Cargo_Ship().print()));
+				addSequential(new DrivePath(new Cargo_Ship_2().print()));
+				addSequential(new DrivePath(new Cargo_Ship_3().print()));
+				addSequential(new DrivePath(new Cargo_Ship_3().getReversed().print()));
+				addSequential(new DrivePath(new Cargo_Ship_4().print()));
 			}
 		}));
 

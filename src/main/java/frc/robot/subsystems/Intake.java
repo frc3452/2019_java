@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
+import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
@@ -23,7 +24,7 @@ public class Intake extends GZSubsystem {
     private Intake() {
         mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
         mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
-        mIntakeSol = new GZSolenoid(kIntake.INTAKE_SOLENOID, this, "Intake Solenoid");
+        mIntakeSol = new GZSolenoid(kSolenoids.INTAKE_SOLENOID, this, "Intake Solenoid");
     }
 
     public static Intake getInstance() {

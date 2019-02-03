@@ -2,21 +2,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.DriveState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZTimer;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZAnalogInput;
@@ -121,16 +116,16 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (bToggled && kDrivetrain.TUNING) {
-			final double high = 1500 * 1.5;
+			final double high = 1500 * 2;
 
 			double temp[] = Drive.getInstance().arcadeToLR(driverJoy.getLeftAnalogY(),
-					.65 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()));
+					.65 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()), driverJoy.getButton(Buttons.RB));
 			double left = temp[0];
 			double right = -temp[1];
 
 			left = GZUtil.applyDeadband(left, 0.03);
 			right = GZUtil.applyDeadband(right, 0.03);
-			
+
 			left = GZUtil.scaleBetween(left, -high, high, -1, 1);
 			right = -GZUtil.scaleBetween(right, -high, high, -1, 1);
 			// final double high = 1500;
