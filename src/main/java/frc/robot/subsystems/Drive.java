@@ -759,8 +759,7 @@ public class Drive extends GZSubsystem {
 
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
-		// cheesyNoState(move, rotate, joy.getButton(Buttons.RB));
-
+		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ), !joy.getButton(Buttons.RB));
 	}
 
 	// called in DEMO state
@@ -780,7 +779,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn) {
-		double[] temp = curvatureDrive(move, rotate, quickTurn);
+		double[] temp = cheesyToLR(move, rotate, quickTurn);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
@@ -843,7 +842,7 @@ public class Drive extends GZSubsystem {
 		return retval;
 	}
 
-	public double[] curvatureDrive(double xSpeed, double zRotation, boolean isQuickTurn) {
+	public double[] cheesyToLR(double xSpeed, double zRotation, boolean isQuickTurn) {
 		xSpeed = GZUtil.limit(xSpeed);
 		// xSpeed = applyDeadband(xSpeed, m_deadband);
 

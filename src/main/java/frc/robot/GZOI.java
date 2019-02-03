@@ -121,10 +121,10 @@ public class GZOI extends GZSubsystem {
 			bToggled = !bToggled;
 
 		if (bToggled && kDrivetrain.TUNING) {
-			final double high = 1500 * 1.5;
+			final double high = 1500 * 2;
 
 			double temp[] = Drive.getInstance().arcadeToLR(driverJoy.getLeftAnalogY(),
-					.65 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()));
+					.65 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()), driverJoy.getButton(Buttons.RB));
 			double left = temp[0];
 			double right = -temp[1];
 

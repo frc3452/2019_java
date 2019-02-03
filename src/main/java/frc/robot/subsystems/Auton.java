@@ -85,16 +85,17 @@ public class Auton {
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
 			{
+				final double waitTime = .1;
 				addSequential(new ResetPoseDrivePath(new CS_1()));
-				addSequential(new WaitCommand(.3));
+				addSequential(new WaitCommand(waitTime));
 				addSequential(new DrivePath(new CS_2()));
-				addSequential(new WaitCommand(.3));
+				addSequential(new WaitCommand(waitTime));
 				addSequential(new DrivePath(new CS_3()));
-				addSequential(new WaitCommand(5));
+				addSequential(new WaitCommand(.2));
 				addSequential(new DrivePath(new CS_4()));
-				addSequential(new WaitCommand(.3));
+				addSequential(new WaitCommand(waitTime));
 				addSequential(new DrivePath(new CS_5()));
-				addSequential(new WaitCommand(.3));
+				addSequential(new WaitCommand(waitTime));
 			}
 		}));
 

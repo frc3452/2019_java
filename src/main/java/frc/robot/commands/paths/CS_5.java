@@ -9,8 +9,8 @@ public class CS_5 extends PathContainer {
     public CS_5() {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(283, 277, 1, 0));
-        sWaypoints.add(new Waypoint(283, 243, 15, 45));
-        sWaypoints.add(new Waypoint(283, 209, 0, 35));
+        sWaypoints.add(new Waypoint(283, 243, 1, 45));
+        sWaypoints.add(new Waypoint(283, 209, 1, 35));
     }
 
     @Override
