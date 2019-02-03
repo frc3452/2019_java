@@ -377,8 +377,8 @@ function clear() {
 }
 
 function setAngle(row) {
-	
-	var allRows = $('tbody').children('tr'); 
+
+	var allRows = $('tbody').children('tr');
 	var length = allRows.length;
 	console.log(length);
 
@@ -389,8 +389,8 @@ function setAngle(row) {
 			console.log("ROW FOUND: " + i);
 		}
 	}
-	
-	
+
+
 	return;
 	var table = document.getElementById('myTable');
 	// console.log($('tbody').rows.length);
@@ -1143,35 +1143,30 @@ function canvasClick(canvas, evt) {
 
 }
 
-function storeNearestCoordinate(canvas, evt)
-{
+function storeNearestCoordinate(canvas, evt) {
 	var mPos = getMousePos(canvas, evt);
 	coordToScoot = findNearestCoord(mPos.x, mPos.y);
 }
 
-function findNearestCoord(x, y)
-{
+function findNearestCoord(x, y) {
 	var rows = document.getElementById("myTable").rows;
 
 	var distance = [];
-	for (var i = 0; i < rows.length; i++)
-	{
+	for (var i = 0; i < rows.length; i++) {
 		var tempX = rows[i].cells[0].innerHTML;
 		var tempY = rows[i].cells[1].innerHTML;
 
 		tempX = innerHTMLToNumber(tempX);
 		tempY = innerHTMLToNumber(tempY);
 
-		var tempDistance = Math.sqrt(Math.pow(x - tempX,2) + Math.pow(y - tempY,2));
+		var tempDistance = Math.sqrt(Math.pow(x - tempX, 2) + Math.pow(y - tempY, 2));
 		distance.push(tempDistance);
 	}
 
 	var minDistance = 3452;
 	var minDistanceSlot = -1;
-	for (var i = 0; i < distance.length; i++)
-	{
-		if (distance[i] < minDistance)
-		{
+	for (var i = 0; i < distance.length; i++) {
+		if (distance[i] < minDistance) {
 			minDistance = distance[i];
 			minDistanceSlot = i;
 		}
@@ -1183,22 +1178,22 @@ function findNearestCoord(x, y)
 	return minDistanceSlot;
 }
 
-function canvasDrag(canvas, evt)
-{
-	var mPos = getMousePos(canvas,evt);
+function canvasDrag(canvas, evt) {
+	//$("#isReversed").is(':checked');
+	if ($("#allowDrag").is(':checked')) {
+		var mPos = getMousePos(canvas, evt);
 
-	movePoint(coordToScoot - 1, mPos.x, mPos.y);
-	// update();
+		movePoint(coordToScoot - 1, mPos.x, mPos.y);
+		// update();
+	}
 }
 
-function innerHTMLToNumber(innerHTML)
-{
+function innerHTMLToNumber(innerHTML) {
 	var cell = innerHTML.split('"')[1];
 	return parseInt(cell);
 }
 
-function numberToInnerHTML(number)
-{
+function numberToInnerHTML(number) {
 	var ret = "";
 
 	ret = '<input value="' + number + '">';
@@ -1206,15 +1201,13 @@ function numberToInnerHTML(number)
 	return ret;
 }
 
-function movePoint(pointNumber, newX, newY)
-{
-	if (newX != 0 && newY != 0)
-	{
+function movePoint(pointNumber, newX, newY) {
+	if (newX != 0 && newY != 0) {
 		var row = document.getElementById("myTable").rows[pointNumber + 1];
 		row.cells[0].innerHTML = numberToInnerHTML(newX);
 		row.cells[1].innerHTML = numberToInnerHTML(newY);
 	}
-		
+
 	// console.log($('tbody').children('tr')[pointNumber]);
 
 }
@@ -1227,9 +1220,10 @@ function getMousePos(canvas, evt) {
 	var xRet = (evt.clientX - rect.left) / scaleX;
 	var yRet = (rect.height - (evt.clientY - rect.top)) / scaleY;
 
-	if (xRet < 0 || yRet < 0)
-		{xRet = 0;
-			yRet = 0;}
+	if (xRet < 0 || yRet < 0) {
+		xRet = 0;
+		yRet = 0;
+	}
 
 	return {
 		x: xRet,   // scale mouse coordinates after they have
