@@ -376,15 +376,30 @@ function clear() {
 		ctx.drawImage(image, 0, 0, width, height);
 }
 
-var f;
-// function create() {
-// 	var a = new Waypoint(new Translation2d(30,30), 0,0,0)
-// 	var b = new Waypoint(new Translation2d(230,30), 0,30,0)
-// 	var c = new Waypoint(new Translation2d(230,230), 0,0,0)
-// 	var d = new Line(a, b);
-// 	var e = new Line(b, c);
-// 	f = new Arc(d, e);
-// }
+function setAngle(row)
+{
+	var table = document.getElementById('myTable');
+	// console.log($('tbody').rows.length);
+	console.log(table.rows[1].cells[0].innerHTML);
+	return;
+	console.log(row);
+
+	var g = $('tbody  > tr');
+
+	for (var i = 0; i < g.length; i++)
+	{
+		if (g[i] == row)
+		{
+			console.log(i);
+			console.log(g[i]);
+		}
+	}
+
+	return;
+	var rows = $('myTable').get(0).rows;
+	console.log(rows);
+	return;
+}
 
 function addPoint(x, y, radius) {
 	var prev;
@@ -418,7 +433,9 @@ function addPoint(x, y, radius) {
 		+ "<td><input value='" + (radius) + "'></td>"
 		+ "<td><input value='60'></td>"
 		+ "<td class='marker'><input placeholder='Marker'></td>"
-		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td></tr>"
+		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td>"
+		+ "<td><button onclick='setAngle($(this).parent().parent()[0]);'>Set angle</button></td>"
+		// + "<td><button onclick='setAngle(this)'>Set Angle</button></td></tr>"
 	);
 	update();
 	$('input').unbind("change paste keyup");
