@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -92,7 +93,7 @@ public class Constants {
 
 	public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
 	public static double kPathFollowingMaxVel = 120.0; // inches per second
-	public static double kTrackWidthInches = 25.5;
+	public static double kTrackWidthInches = PathAdapter.getTrackWidthInches();
 	public static double kTrackScrubFactor = 0.924;
 	public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
@@ -133,7 +134,7 @@ public class Constants {
 			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);
 		}
 
-		public final static double WHEEL_DIAMATER_IN = 6;
+		public final static double WHEEL_DIAMATER_IN = PathAdapter.getWheelDiameterInches();
 
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
