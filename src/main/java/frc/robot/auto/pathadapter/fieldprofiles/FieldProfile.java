@@ -9,8 +9,6 @@ public class FieldProfile {
     private static final double mFieldWith = mCenterLineY * 2.0;
     private static final double mMidFieldLineX = 324;
 
-    public FieldValues<Double> mHABLevel3ToWall;
-
     public FieldValues<Double> mHABLevel3ToFeederStation;
 
     public FieldValues<Double> mCargoShipTeam1BayToCenterLine;
@@ -22,22 +20,22 @@ public class FieldProfile {
     public FieldValues<Double> mCargoShipTeam3BayToSideWall;
 
     public FieldValues<Double> mRocketCenterTapeToDriverStation;
+    public FieldValues<Double> mRocketCenterTapeToWall;
 
     public FieldValues<Double> mCargoShipTapeLineToWall;
     public FieldValues<Double> mCargoShipTapeLineToFaceOfHAB;
 
-    //TODO CHECK IF MEASUREMENTS ARE TO EDGE OF TAPE OR MIDDLE, ADJUST ACCORDINGLY
+    // TODO CHECK IF MEASUREMENTS ARE TO EDGE OF TAPE OR MIDDLE, ADJUST ACCORDINGLY
     public Translation2d getFeederStation(Alliance a, boolean left) {
         Translation2d ret = Translation2d.identity();
         final double x = 0;
-        final double y = ((left ? 1 : -1) * mHABLevel3ToFeederStation.get(a, left) + mCenterLineY);
+        final double y = ((left ? 1 : -1) * mHABLevel3ToFeederStation.get(a, left) + mCenterLineY + (left ? 1 : -1));
         ret.setX(x);
         ret.setY(y);
         return ret;
     }
 
-
-    public Translation2d getRocketBay1(Alliance a, boolean left) {
+    public Translation2d getCargoBay1(Alliance a, boolean left) {
         Translation2d ret = Translation2d.identity();
         final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left) - 1;
         final double y;
@@ -51,15 +49,42 @@ public class FieldProfile {
         return ret;
     }
 
-    public Translation2d getRocketBay2(Alliance a, boolean left) {
+    public Translation2d getCargoBay2(Alliance a, boolean left) {
         Translation2d ret = Translation2d.identity();
-        final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left) - mCargoShipTeam2BayToTeam1Bay.get(a, left);
+        final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left)
+                - mCargoShipTeam2BayToTeam1Bay.get(a, left) - 1;
         final double y;
         if (left) {
             y = mFieldWith - mCargoShipTeam2BayToSideWall.get(a, left);
         } else {
             y = mCargoShipTeam2BayToSideWall.get(a, left);
         }
+        ret.setX(x);
+        ret.setY(y);
+        return ret;
+    }
+
+    public Translation2d getCargoBay3(Alliance a, boolean left) {
+        Translation2d ret = Translation2d.identity();
+        final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left)
+                - mCargoShipTeam2BayToTeam1Bay.get(a, left) - mCargoShipTeam3BayToTeam2Bay.get(a, left) - 1;
+        final double y;
+        if (left) {
+            y = mFieldWith - mCargoShipTeam3BayToSideWall.get(a, left);
+        } else {
+            y = mCargoShipTeam3BayToSideWall.get(a, left);
+        }
+        ret.setX(x);
+        ret.setY(y);
+        return ret;
+    }
+
+    //NEED IMAGE FOR
+    public Translation2d getRocketTapeFacingInwards(Alliance a, boolean left) {
+        Translation2d ret = Translation2d.identity();
+        final double x = mRocketCenterTapeToDriverStation.get(a, left);
+        final double y = Double.NaN;
+        // final double y = mRocketCenterTapeToWall.get(a, left) * (left ? -1 : 1   ));
         ret.setX(x);
         ret.setY(y);
         return ret;
