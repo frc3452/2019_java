@@ -1183,7 +1183,7 @@ function canvasDrag(canvas, evt) {
 	if ($("#allowDrag").is(':checked')) {
 		var mPos = getMousePos(canvas, evt);
 
-		movePoint(coordToScoot - 1, mPos.x, mPos.y);
+		movePoint(coordToScoot - 1, Math.round(mPos.x), Math.round(mPos.y));
 		// update();
 	}
 }

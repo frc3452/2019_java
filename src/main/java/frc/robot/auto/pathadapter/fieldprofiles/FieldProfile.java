@@ -1,33 +1,68 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.poofs.util.math.Translation2d;
+
 public class FieldProfile {
-    public double mBlueLeftHABLevel3ToWall;
-    public double mBlueRightHABLevel3ToWall;
-    public double mRedLeftHABLevel3ToWall;
-    public double mRedRightHABLevel3ToWall;
 
-    public double mBlueLeftHABLevel3ToFeederStation;
-    public double mBlueRightHABLevel3ToFeederStation;
-    public double mRedLeftHABLevel3ToFeederStation;
-    public double mRedRightHABLevel3ToFeederStation;
+    private static final double mCenterLineY = 162;
+    private static final double mFieldWith = mCenterLineY * 2.0;
+    private static final double mMidFieldLineX = 324;
 
-    public double mBlueLeftCargoShipTeam1BayToCenterLine;
-    public double mBlueRightCargoShipTeam1BayToCenterLine;
-    public double mRedLeftCargoShipTeam1BayToCenterLine;
-    public double mRedRightCargoShipTeam1BayToCenterLine;
+    public FieldValues<Double> mHABLevel3ToWall;
 
-    public double mCargoShipTeam2BayToTeam1Bay;
-    public double mCargoShipTeam3BayToTeam2Bay;
+    public FieldValues<Double> mHABLevel3ToFeederStation;
 
-    public double mCargoShipTeam1BayToSideWall;
-    public double mCargoShipTeam2BayToSideWall;
-    public double mCargoShipTeam3BayToSideWall;
+    public FieldValues<Double> mCargoShipTeam1BayToCenterLine;
+    public FieldValues<Double> mCargoShipTeam2BayToTeam1Bay;
+    public FieldValues<Double> mCargoShipTeam3BayToTeam2Bay;
 
-    public double mRocketCenterTapeToDriverStation;
+    public FieldValues<Double> mCargoShipTeam1BayToSideWall;
+    public FieldValues<Double> mCargoShipTeam2BayToSideWall;
+    public FieldValues<Double> mCargoShipTeam3BayToSideWall;
 
-    public double mCargoShipTapeLineToWall;
-    public double mCargoShipTapeLineToFaceOfHAB;
+    public FieldValues<Double> mRocketCenterTapeToDriverStation;
 
-    // public Translation2d get
+    public FieldValues<Double> mCargoShipTapeLineToWall;
+    public FieldValues<Double> mCargoShipTapeLineToFaceOfHAB;
+
+    //TODO CHECK IF MEASUREMENTS ARE TO EDGE OF TAPE OR MIDDLE, ADJUST ACCORDINGLY
+    public Translation2d getFeederStation(Alliance a, boolean left) {
+        Translation2d ret = Translation2d.identity();
+        final double x = 0;
+        final double y = ((left ? 1 : -1) * mHABLevel3ToFeederStation.get(a, left) + mCenterLineY);
+        ret.setX(x);
+        ret.setY(y);
+        return ret;
+    }
+
+
+    public Translation2d getRocketBay1(Alliance a, boolean left) {
+        Translation2d ret = Translation2d.identity();
+        final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left) - 1;
+        final double y;
+        if (left) {
+            y = mFieldWith - mCargoShipTeam1BayToSideWall.get(a, left);
+        } else {
+            y = mCargoShipTeam1BayToSideWall.get(a, left);
+        }
+        ret.setX(x);
+        ret.setY(y);
+        return ret;
+    }
+
+    public Translation2d getRocketBay2(Alliance a, boolean left) {
+        Translation2d ret = Translation2d.identity();
+        final double x = mMidFieldLineX - mCargoShipTeam1BayToCenterLine.get(a, left) - mCargoShipTeam2BayToTeam1Bay.get(a, left);
+        final double y;
+        if (left) {
+            y = mFieldWith - mCargoShipTeam2BayToSideWall.get(a, left);
+        } else {
+            y = mCargoShipTeam2BayToSideWall.get(a, left);
+        }
+        ret.setX(x);
+        ret.setY(y);
+        return ret;
+    }
 
 }
