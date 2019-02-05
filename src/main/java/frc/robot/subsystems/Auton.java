@@ -21,8 +21,10 @@ import frc.robot.commands.paths.Cargo_Ship;
 import frc.robot.commands.paths.Cargo_Ship_2;
 import frc.robot.commands.paths.Cargo_Ship_3;
 import frc.robot.commands.paths.Cargo_Ship_4;
+import frc.robot.commands.paths.Hard_Curve;
 import frc.robot.commands.paths.L;
 import frc.robot.commands.paths.Left_To_Rocket_L;
+import frc.robot.commands.paths.Sharp_curve;
 import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
@@ -81,8 +83,11 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
+	
+
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		// commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
+		commandArray.add(new GZCommand("Sharp curve", new ResetPoseDrivePath(new Sharp_curve())));
+		commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
 			{
@@ -99,8 +104,9 @@ public class Auton {
 				addSequential(new WaitCommand(waitTime));
 			}
 		}));
+	
 
-
+	
 		commandArray.add(new GZCommand(new ResetPoseDrivePath(new L())));
 		commandArray.add(new GZCommand("Help", new CommandGroup() {
 			{
@@ -115,6 +121,7 @@ public class Auton {
 		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Left_To_Rocket_L())));
 		commandArray.add(new GZCommand("Straight curve left", new ResetPoseDrivePath(new Straight_Curve_Left())));
 		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
+		
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 
