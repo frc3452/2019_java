@@ -12,18 +12,19 @@ public class FieldProfile {
     public FieldValues<Double> mHABLevel3ToFeederStation;
 
     public FieldValues<Double> mCargoShipTeam1BayToCenterLine;
-    public FieldValues<Double> mCargoShipTeam2BayToTeam1Bay;
-    public FieldValues<Double> mCargoShipTeam3BayToTeam2Bay;
-
     public FieldValues<Double> mCargoShipTeam1BayToSideWall;
+
+    public FieldValues<Double> mCargoShipTeam2BayToCenterLine;
     public FieldValues<Double> mCargoShipTeam2BayToSideWall;
+
+    public FieldValues<Double> mCargoShipTeam3BayToCenterLine;
     public FieldValues<Double> mCargoShipTeam3BayToSideWall;
 
-    public FieldValues<Double> mRocketCenterTapeToDriverStation;
-    public FieldValues<Double> mRocketCenterTapeToWall;
+    public FieldValues<Double> mRocketEdgeToDriverStation;
+    public FieldValues<Double> mRocketFaceToWall;
 
-    public FieldValues<Double> mCargoShipTapeLineToWall;
-    public FieldValues<Double> mCargoShipTapeLineToFaceOfHAB;
+    public FieldValues<Double> mCargoShipCenterOfTapeToCenterLine;
+    public FieldValues<Double> mCargoShipFaceToEdgeOfPlatform;
 
     // TODO CHECK IF MEASUREMENTS ARE TO EDGE OF TAPE OR MIDDLE, ADJUST ACCORDINGLY
     public Translation2d getFeederStation(Alliance a, boolean left) {
@@ -80,11 +81,16 @@ public class FieldProfile {
     }
 
     //NEED IMAGE FOR
-    public Translation2d getRocketTapeFacingInwards(Alliance a, boolean left) {
+    public Translation2d getRocket(Alliance a, boolean left) {
         Translation2d ret = Translation2d.identity();
-        final double x = mRocketCenterTapeToDriverStation.get(a, left);
-        final double y = Double.NaN;
-        // final double y = mRocketCenterTapeToWall.get(a, left) * (left ? -1 : 1   ));
+        final double x = mRocketEdgeToDriverStation.get(a, left) + 1;
+        final double y;
+        if (left)
+        {
+            y = mFieldWith - mRocketFaceToWall.get(a, left);
+        } else {
+            y = 0;
+        }
         ret.setX(x);
         ret.setY(y);
         return ret;
