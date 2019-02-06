@@ -49,10 +49,10 @@ public class GZFlagMultiple {
     }
 
     public boolean get(int flag) {
-        lastGet = flag;
-
         if (isFlagInvalid(flag))
             return false;
+
+        lastGet = flag;
 
         return mFlags.get(flag - 1).get();
     }
@@ -66,8 +66,7 @@ public class GZFlagMultiple {
         return false;
     }
 
-    public void reset()
-    {
+    public void reset() {
         mFlags.clear();
         for (int i = 0; i < numOfFlags; i++)
             mFlags.add(new GZFlag());

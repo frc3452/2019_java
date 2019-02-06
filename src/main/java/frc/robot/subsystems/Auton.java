@@ -25,6 +25,7 @@ import frc.robot.commands.paths.Hard_Curve;
 import frc.robot.commands.paths.L;
 import frc.robot.commands.paths.Left_To_Rocket_L;
 import frc.robot.commands.paths.Sharp_curve;
+import frc.robot.commands.paths.Sharp_curve_2;
 import frc.robot.commands.paths.Straight_Curve_Left;
 import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
@@ -86,7 +87,7 @@ public class Auton {
 	
 
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Sharp curve", new ResetPoseDrivePath(new Sharp_curve())));
+		commandArray.add(new GZCommand("Sharp curve 2", new ResetPoseDrivePath(new Sharp_curve_2())));
 		commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
