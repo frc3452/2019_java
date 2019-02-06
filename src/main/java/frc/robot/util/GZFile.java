@@ -32,7 +32,6 @@ public class GZFile {
         return this.mFileExtension;
     }
     
-
     public boolean isOnUsb() {
         return this.mUsb;
     }

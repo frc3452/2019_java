@@ -153,7 +153,7 @@ public class MotorChecker {
                                     waitTimeSec, outputPercentage, reverseAfterGroup);
 
                             for (int i = 8; i < split.length; i++) {
-                                for (GZSpeedController controller : subsystem.mTalons)
+                                for (GZSpeedController controller : subsystem.mSmartControllers)
                                     if (controller.getGZName().equals(split[i]))
                                         controllers.add(controller);
 

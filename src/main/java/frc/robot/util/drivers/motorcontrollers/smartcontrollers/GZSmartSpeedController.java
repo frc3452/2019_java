@@ -34,9 +34,6 @@ public interface GZSmartSpeedController extends GZSpeedController {
 
 	public int getPort();
 
-	public int getPDPChannel();
-	public Breaker getCalculatedBreaker();
-
 	public SmartController getControllerType();
 	
 }
