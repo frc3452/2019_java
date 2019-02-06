@@ -8,9 +8,11 @@ import frc.robot.poofs.util.math.Rotation2d;
 public class Sharp_curve_2 extends PathContainer {
     public Sharp_curve_2() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(57, 163, 0, 0));
-        sWaypoints.add(new Waypoint(120, 163, 0, 40));
-        sWaypoints.add(new Waypoint(156, 163, 0, 10));
+        sWaypoints.add(new Waypoint(67, 162, 0, 60));
+        sWaypoints.add(new Waypoint(135, 162, 15, 60));
+        sWaypoints.add(new Waypoint(127, 196, 15, 60));
+        sWaypoints.add(new Waypoint(155, 188, 15, 60));
+        sWaypoints.add(new Waypoint(177, 177, 0, 60));
     }
 
     @Override
