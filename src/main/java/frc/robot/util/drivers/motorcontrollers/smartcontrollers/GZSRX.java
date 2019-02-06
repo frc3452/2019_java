@@ -1,13 +1,15 @@
 package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
@@ -93,7 +95,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 	private boolean mLockedOut = false;
 
-	private GZSRX mRemoteSensorTalon = null;
+	private GZSRX mRemoteEncoderTalon = null;
+	private GZSRX mRemoteLimitSwitchTalon = null;
 
 	// Constructor for builder
 	private GZSRX(int deviceNumber, GZSubsystem subsystem, String name, int PDPChannel, Breaker breaker, Side side,
@@ -127,8 +130,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		subsystem.mTalons.add(this);
 		subsystem.mSmartControllers.add(this);
 	}
-	
-	public SmartController getControllerType(){
+
+	public SmartController getControllerType() {
 		return SmartController.TALON;
 	}
 
@@ -228,35 +231,48 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
 
-	public void setUsingRemoteSensorOnTalon(GZSubsystem sub, GZSRX t) {
-		setUsingRemoteSensorOnTalon(sub, t, 0);
+	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX t, LimitSwitchNormal normal) {
+		mRemoteEncoderTalon = t;
+
+		logError(
+				() -> this.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
+						mRemoteEncoderTalon.getPort()),
+				sub, AlertLevel.ERROR, "Could not configure forward limit switch source for Talon " + this.getGZName());
+
+		logError(() -> 
+				this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
+						mRemoteEncoderTalon.getPort()),
+				sub, AlertLevel.ERROR, "Could not configure reverse limit switch source for Talon " + this.getGZName());
+	}
+
+	public void setUsingRemoteEncoderOnTalon(GZSubsystem sub, GZSRX t) {
+		setUsingRemoteEncoderOnTalon(sub, t, 0);
 	}
 
 	public String getRemoteSensorName() {
-		if (usingRemoteSensor())
-			return mRemoteSensorTalon.getGZName();
+		if (usingRemoteEncoder())
+			return mRemoteEncoderTalon.getGZName();
 
 		return "N/A";
 	}
 
-	public void setUsingRemoteSensorOnTalon(GZSubsystem sub, GZSRX t, int pidSlot) {
-		mRemoteSensorTalon = t;
+	public void setUsingRemoteEncoderOnTalon(GZSubsystem sub, GZSRX t, int pidSlot) {
+		mRemoteEncoderTalon = t;
 		logError(
-				this.configRemoteFeedbackFilter(mRemoteSensorTalon.getDeviceID(),
+				() -> this.configRemoteFeedbackFilter(mRemoteEncoderTalon.getDeviceID(),
 						RemoteSensorSource.TalonSRX_SelectedSensor, 0, TIMEOUT),
 				sub, AlertLevel.ERROR, "Could not configure " + this.getGZName() + "'s remote sensor feedback filter!");
-		logError(this.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, pidSlot, TIMEOUT), sub,
+		logError(() -> this.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, pidSlot, TIMEOUT), sub,
 				AlertLevel.ERROR, "Could not select " + this.getGZName() + "'s remote sensor!");
 	}
 
-	public boolean usingRemoteSensor() {
-		return mRemoteSensorTalon != null;
+	public boolean usingRemoteEncoder() {
+		return mRemoteEncoderTalon != null;
 	}
 
 	public boolean isEncoderValid() {
-		if (usingRemoteSensor())
-		{
-			return mRemoteSensorTalon.encoderPresent();
+		if (usingRemoteEncoder()) {
+			return mRemoteEncoderTalon.encoderPresent();
 		}
 
 		return this.encoderPresent();
@@ -267,8 +283,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public void zero() {
-		if (usingRemoteSensor())
-			mRemoteSensorTalon.zeroSensor();
+		if (usingRemoteEncoder())
+			mRemoteEncoderTalon.zeroSensor();
 		else
 			this.zeroSensor();
 	}
@@ -280,44 +296,6 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	public static void logError(ErrorCode errorCode, GZSubsystem subsystem, AlertLevel level, String message) {
 		if (errorCode != ErrorCode.OK)
 			Health.getInstance().addAlert(subsystem, level, message);
-	}
-
-	public abstract static class TestLogError {
-
-		private GZSubsystem subsystem;
-		private AlertLevel level;
-		private String message;
-		private int retries;
-
-		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message, int retries) {
-			this.subsystem = subsystem;
-			this.level = level;
-			this.message = message;
-			this.retries = retries;
-			test();
-		}
-
-		public TestLogError(GZSubsystem subsystem, AlertLevel level, String message) {
-			this(subsystem, level, message, -1);
-		}
-
-		public abstract ErrorCode error();
-
-		public void test() {
-			boolean success = false;
-			if (this.level == AlertLevel.WARNING)
-				retries = 3;
-			else
-				retries = 6;
-
-			for (int i = 0; i < retries && !success; i++) {
-				if (error() == ErrorCode.OK)
-					success = true;
-			}
-
-			if (!success)
-				Health.getInstance().addAlert(this.subsystem, this.level, this.message);
-		}
 	}
 
 	public int getFirmware() {
@@ -346,6 +324,30 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 			Health.getInstance().addAlert(this.mSubsystem, GZSmartSpeedController.FIRMWARE_ALERT_LEVEL,
 					"Talon " + this.getGZName() + " firmware is " + firm + ", should be " + FIRMWARE);
 		}
+	}
+
+	public static boolean logError(Supplier<ErrorCode> errorCode, GZSubsystem subsystem, AlertLevel level,
+			String message, int retries) {
+		boolean success = false;
+		if (level == AlertLevel.WARNING)
+			retries = 3;
+		else
+			retries = 6;
+
+		for (int i = 0; i < retries && !success; i++) {
+			if (errorCode.get() == ErrorCode.OK)
+				success = true;
+		}
+
+		if (!success)
+			Health.getInstance().addAlert(subsystem, level, message);
+
+		return success;
+	}
+
+	public static boolean logError(Supplier<ErrorCode> errorCode, GZSubsystem subsystem, AlertLevel level,
+			String message) {
+		return logError(errorCode, subsystem, level, message, 0);
 	}
 
 }

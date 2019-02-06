@@ -41,13 +41,13 @@ public abstract class GZSubsystem extends Subsystem {
 	public abstract String getSmallString();
 
 	public void addLoggingValuesTalons() {
-		for (GZSRX s : mTalons) {
+		for (GZSmartSpeedController s : mSmartControllers) {
 			final String name = getSmallString() + "-" + s.getGZName() + "-";
 
 			// Amperage
 			new LogItem(name + "AMP") {
 				public String val() {
-					return "" + s.getOutputCurrent();
+					return "" + s.getAmperage();
 				}
 			};
 
@@ -91,6 +91,18 @@ public abstract class GZSubsystem extends Subsystem {
 			};
 
 			GZLog.addAverageLeft(name + "AMP-AVG");
+
+
+			if (s.hasTemperatureSensor()) {
+				new LogItem(name + "TEMP") {
+
+					public String val() {
+						return String.valueOf(s.getTemperatureSensor());
+					}
+				};
+
+				GZLog.addAverageLeft(name + "TEMP-AVG");
+			}
 		}
 
 		for (GZSpeedController s : mDumbControllers) {

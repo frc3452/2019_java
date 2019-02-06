@@ -396,10 +396,10 @@ public class GZFiles {
 								final String remoteSensor = "Using " + talon.getRemoteSensorName() + "'s sensor";
 								String encoderCell = "";
 								final String encoderCellColor;
-								if (talon.isEncoderValid() && talon.usingRemoteSensor()) {
+								if (talon.isEncoderValid() && talon.usingRemoteEncoder()) {
 									encoderCell = remoteSensor;
 									encoderCellColor = "yellow";
-								} else if (talon.isEncoderValid() && !talon.usingRemoteSensor())
+								} else if (talon.isEncoderValid() && !talon.usingRemoteEncoder())
 									encoderCellColor = "green";
 								else
 									encoderCellColor = "white";
