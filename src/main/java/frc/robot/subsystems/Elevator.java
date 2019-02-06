@@ -112,12 +112,8 @@ public class Elevator extends GZSubsystem {
     private void talonInit() {
         for (GZSRX s : mTalons) {
 
-            new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not factory reset " + s.getGZName()) {
-                @Override
-                public ErrorCode error() {
-                    return s.configFactoryDefault(GZSRX.LONG_TIMEOUT);
-                }
-            };
+            GZSRX.logError(() -> s.configFactoryDefault(GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR,
+                    "Could not factory reset " + s.getGZName());
 
             s.setNeutralMode(NeutralMode.Brake);
 
@@ -132,13 +128,8 @@ public class Elevator extends GZSubsystem {
             GZSRX.logError(s.configPeakCurrentDuration(Constants.kElevator.AMP_TIME, GZSRX.TIMEOUT), this,
                     AlertLevel.WARNING, "Could not set current-limit duration for " + s.getGZName());
 
-            new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not set up encoder") {
-                public ErrorCode error() {
-                    return mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-                            GZSRX.LONG_TIMEOUT);
-                }
-            };
-
+            GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+                    GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
             mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
             s.enableCurrentLimit(true);

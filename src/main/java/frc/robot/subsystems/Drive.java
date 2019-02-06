@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
@@ -187,7 +188,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private static double rpmToTicksPer100ms(double rpm) {
-		return rpm * (1.0/60.0) * 4096.0 * (1.0/10.0);
+		return rpm * (1.0 / 60.0) * 4096.0 * (1.0 / 10.0);
 	}
 
 	private static double inchesPerSecondToRpm(double inches_per_second) {
@@ -232,7 +233,7 @@ public class Drive extends GZSubsystem {
 
 		// im gonna kill the electrical team if they ever make
 		// me do remote sensors again
-		L1.setUsingRemoteSensorOnTalon(this, R3);
+		L1.setUsingRemoteEncoderOnTalon(this, R3);
 		zeroEncoders();
 
 		enableFollower();
@@ -439,20 +440,18 @@ public class Drive extends GZSubsystem {
 			// s.setSafetyEnabled(true);
 			// s.setExpiration(999);
 
-			new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not factory reset Talon " + name) {
-				@Override
-				public ErrorCode error() {
-					return s.configFactoryDefault(GZSRX.LONG_TIMEOUT);
-				}
-			};
+			GZSRX.logError(() -> s.configFactoryDefault(GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR,
+					"Could not factory reset Talon " + name);
 			s.setInverted((s.getSide() == Side.LEFT) ? kDrivetrain.L_INVERT : kDrivetrain.R_INVERT);
 
 			s.enableVoltageCompensation(true);
 
 			// CURRENT LIMIT
 			GZSRX.logError(
-					s.configContinuousCurrentLimit(s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_CONTINUOUS
-							: kDrivetrain.AMP_30_CONTINUOUS, GZSRX.TIMEOUT),
+					() -> s.configContinuousCurrentLimit(
+							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_CONTINUOUS
+									: kDrivetrain.AMP_30_CONTINUOUS,
+							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current-limit continuous for Talon " + name);
 
 			GZSRX.logError(
@@ -462,48 +461,33 @@ public class Drive extends GZSubsystem {
 					this, AlertLevel.WARNING, "Could not set current-limit peak for Talon " + name);
 
 			GZSRX.logError(
-					s.configPeakCurrentDuration(
+					() -> s.configPeakCurrentDuration(
 							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TIME : kDrivetrain.AMP_30_TIME,
 							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current limit time for Talon " + name);
 
 			s.enableCurrentLimit(true);
 
-			GZSRX.logError(s.configOpenloopRamp(kDrivetrain.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
+			GZSRX.logError(() -> s.configOpenloopRamp(kDrivetrain.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
 					AlertLevel.WARNING, "Could not set open loop ramp time for Talon " + name);
 
-			GZSRX.logError(s.configNeutralDeadband(kDrivetrain.NEUTRAL_DEADBAND, GZSRX.TIMEOUT), this,
+			GZSRX.logError(() -> s.configNeutralDeadband(kDrivetrain.NEUTRAL_DEADBAND, GZSRX.TIMEOUT), this,
 					AlertLevel.WARNING, "Could not set Neutral Deadband for Talon " + name);
 
 			s.setSubsystem("Drive train");
 
 			if (s.getMaster() == Master.MASTER) {
 
-				new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not setup " + s.getSide() + " encoder") {
+				GZSRX.logError(
+						() -> s.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, GZSRX.TIMEOUT),
+						this, AlertLevel.ERROR, "Could not setup " + s.getSide() + " encoder");
+				GZSRX.logError(() -> s.setSelectedSensorPosition(0, 0, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
+						"Could not zero " + s.getSide() + " encoder");
 
-					@Override
-					public ErrorCode error() {
-						return s.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-								GZSRX.TIMEOUT);
-					}
-				};
-
-				new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not zero " + s.getSide() + " encoder") {
-
-					@Override
-					public ErrorCode error() {
-						return s.setSelectedSensorPosition(0, 0, GZSRX.TIMEOUT);
-					}
-				};
-
-				new GZSRX.TestLogError(this, AlertLevel.ERROR, "Could not set up " + s.getSide() + " limit switch") {
-
-					@Override
-					public ErrorCode error() {
-						return s.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-								LimitSwitchNormal.NormallyClosed);
-					}
-				};
+				GZSRX.logError(
+						() -> s.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+								LimitSwitchNormal.NormallyClosed),
+						this, AlertLevel.ERROR, "Could not set up " + s.getSide() + " fwd limit switch");
 
 				if (!s.isEncoderValid())
 					Health.getInstance().addAlert(this, AlertLevel.ERROR, s.getSide() + " encoder not found");
@@ -537,8 +521,7 @@ public class Drive extends GZSubsystem {
 			s.checkFirmware();
 	}
 
-	private void handleLimitSwitches()
-	{
+	private void handleLimitSwitches() {
 		disableDriveLimits();
 		enableDriveLimits();
 	}
@@ -760,7 +743,8 @@ public class Drive extends GZSubsystem {
 
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
-		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ), !joy.getButton(Buttons.RB));
+		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ),
+		// !joy.getButton(Buttons.RB));
 	}
 
 	// called in DEMO state
