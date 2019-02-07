@@ -187,6 +187,12 @@ public class Elevator extends GZSubsystem {
         setHeight(getHeightInches() + jogHeightInches);
     }
 
+    public void manual (double speedPercent) {
+        if (setWantedState(ElevatorState.MANUAL)) {
+        mIO.desired_output = speedPercent;
+        }
+    }
+
     private void configAccelInchesPerSec(double inchesPerSecond) {
         configAccel(inchesPerSecondToNativeUnits(inchesPerSecond));
     }

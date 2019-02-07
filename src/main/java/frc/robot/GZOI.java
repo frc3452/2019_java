@@ -7,6 +7,7 @@ import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
@@ -85,6 +86,7 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
+			// handleElevatorTesting();
 		}
 	}
 
@@ -109,6 +111,10 @@ public class GZOI extends GZSubsystem {
 			op.setXboxController();
 	}
 
+	private void handleElevatorTesting() {
+		Elevator.getInstance().manual(op.getRightAnalogY() * .2);
+	}
+
 	private void handleDriverController() {
 
 		// Velocity testing
@@ -128,11 +134,6 @@ public class GZOI extends GZSubsystem {
 
 			left = GZUtil.scaleBetween(left, -high, high, -1, 1);
 			right = -GZUtil.scaleBetween(right, -high, high, -1, 1);
-			// final double high = 1500;
-			// final double left = GZUtil.scaleBetween(driverJoy.getLeftAnalogY(), -high,
-			// high, -1, 1);
-			// final double right = -GZUtil.scaleBetween(driverJoy.getRightAnalogY(), -high,
-			// high, -1, 1);
 
 			drive.setVelocity(left, right);
 		} else {
