@@ -81,8 +81,6 @@ public class Drive extends GZSubsystem {
 
 	private boolean mDrivingOpenLoop = true;
 
-	// ~POOFS~//
-
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
 			mInstance = new Drive();
