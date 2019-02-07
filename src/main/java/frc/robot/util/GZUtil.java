@@ -2,11 +2,13 @@ package frc.robot.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.Constants.kTempSensor;
@@ -20,6 +22,35 @@ public class GZUtil {
 
 	private GZUtil() {
 	}
+
+	public static GZPID getGainsFromFile(GZFile file, int line) {
+		GZPID ret;
+
+		try {
+			GZFile myFile = GZFileMaker.getFile(file, file.isOnUsb(), false);
+			Scanner scnr = new Scanner(new FileReader(myFile.getFile()));
+			double p, i, d, f, iZone;
+
+			if (line > 1)
+				for (int loop = 0; loop < line; loop++)
+					scnr.nextLine();
+
+			String[] arr = scnr.nextLine().split(",");
+			scnr.close();
+
+			p = Double.parseDouble(arr[0]);
+			i = Double.parseDouble(arr[1]);
+			d = Double.parseDouble(arr[2]);
+			f = Double.parseDouble(arr[3]);
+			iZone = Double.parseDouble(arr[4]);
+			ret = new GZPID(p, i, d, f, (int) iZone);
+		} catch (Exception e) {
+			ret = new GZPID(0, 0, 0, 0, 0);
+		}
+
+		return ret;
+	}
+
 
 	public static String[] letters = { "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
 			"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI",

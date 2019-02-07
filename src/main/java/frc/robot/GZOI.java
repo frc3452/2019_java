@@ -51,8 +51,6 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 	}
 
-	boolean bToggled = false;
-
 	@Override
 	public void loop() {
 		// FLAGS
@@ -117,31 +115,13 @@ public class GZOI extends GZSubsystem {
 
 	private void handleDriverController() {
 
-		// Velocity testing
 		if (driverJoy.getButtonLatched(Buttons.B))
-			bToggled = !bToggled;
+			drive.toggleOpenLoop();
 
-		if (bToggled && kDrivetrain.TUNING) {
-			final double high = 1500 * 1.5;
-
-			double temp[] = Drive.getInstance().arcadeToLR(driverJoy.getLeftAnalogY(),
-					.45 * (driverJoy.getRightTrigger() - driverJoy.getLeftTrigger()), driverJoy.getButton(Buttons.RB));
-			double left = temp[0];
-			double right = -temp[1];
-
-			left = GZUtil.applyDeadband(left, 0.03);
-			right = GZUtil.applyDeadband(right, 0.03);
-
-			left = GZUtil.scaleBetween(left, -high, high, -1, 1);
-			right = -GZUtil.scaleBetween(right, -high, high, -1, 1);
-
-			drive.setVelocity(left, right);
-		} else {
-			drive.setWantedState(DriveState.OPEN_LOOP_DRIVER);
-		}
-
-		if (driverJoy.getButtonLatched(Buttons.A))
+			if (driverJoy.getButtonLatched(Buttons.A))
 			drive.toggleSlowSpeed();
+
+		drive.handleDriving(driverJoy);
 	}
 
 	private void handleSuperStructureControl(DeepSpaceController controller) {

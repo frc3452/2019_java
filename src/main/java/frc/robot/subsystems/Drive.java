@@ -73,10 +73,67 @@ public class Drive extends GZSubsystem {
 	private double curvatureDriveQuickStopAlpha = .1;
 	private double curvatureDriveQuickStopAccumulator;
 
-	// ~POOFS~//
+	private GZFile mPIDConfigFile = null;
+
 	private PathFollower mPathFollower;
 	private Path mCurrentPath = null;
 	private RobotState mRobotState = RobotState.getInstance();
+
+	private boolean mDrivingOpenLoop = true;
+
+	// ~POOFS~//
+
+	public synchronized static Drive getInstance() {
+		if (mInstance == null)
+			mInstance = new Drive();
+		return mInstance;
+	}
+
+	public void printNavX() {
+		System.out.println(this.mNavX.toString());
+	}
+
+	private Drive() {
+		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
+		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
+		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
+		L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT).build();
+
+		R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT).build();
+		R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT).build();
+		R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
+		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
+
+		mNavX = new NavX(SPI.Port.kMXP);
+
+		// mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
+		// mShifter.set(false);
+		try {
+			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
+		} catch (Exception e) {
+		}
+
+		brake(false);
+
+		talonInit();
+
+		// im gonna kill the electrical team if they ever make
+		// me do remote sensors again
+		L1.setUsingRemoteEncoderOnTalon(this, R3);
+		zeroEncoders();
+
+		enableFollower();
+
+		in();
+		if (getFrontBottomLimit() && getFrontTopLimit())
+			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO front limit switches tripped!");
+		if (getRearBottomLimit() && getRearTopLimit())
+			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO rear limit switches tripped!");
+
+		mNavX.reset();
+
+		checkFirmware();
+	}
 
 	public synchronized void setGyroAngle(Rotation2d angle) {
 		mNavX.reset();
@@ -96,7 +153,7 @@ public class Drive extends GZSubsystem {
 		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
 			return mPathFollower.hasPassedMarker(marker);
 		} else {
-			System.out.println("Robot is not in path following mode");
+			System.out.println("Robot is not in path following mode, cannot determine if marker passed");
 			return false;
 		}
 	}
@@ -138,7 +195,7 @@ public class Drive extends GZSubsystem {
 		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
 			return mPathFollower.isFinished();
 		} else {
-			System.out.println("Robot is not in path following mode");
+			System.out.println("Robot is not in path following mode, cannot determine if done.");
 			return true;
 		}
 	}
@@ -147,7 +204,7 @@ public class Drive extends GZSubsystem {
 		if (mState == DriveState.PATH_FOLLOWING && mPathFollower != null) {
 			mPathFollower.forceFinish();
 		} else {
-			System.out.println("Robot is not in path following mode");
+			System.out.println("Robot is not in path following mode, cannot force path done.");
 		}
 	}
 
@@ -199,62 +256,11 @@ public class Drive extends GZSubsystem {
 		return inches / (kDrivetrain.WHEEL_DIAMATER_IN * Math.PI);
 	}
 
-	// ~POOFS~//
-
-	public synchronized static Drive getInstance() {
-		if (mInstance == null)
-			mInstance = new Drive();
-		return mInstance;
-	}
-
-	public void printNavX() {
-		System.out.println(this.mNavX.toString());
-	}
-
-	private Drive() {
-		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
-		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
-		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
-		L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT).build();
-
-		R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT).build();
-		R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT).build();
-		R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
-		R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
-
-		mNavX = new NavX(SPI.Port.kMXP);
-
-		// mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
-		// mShifter.set(false);
-
-		brake(false);
-
-		talonInit();
-
-		// im gonna kill the electrical team if they ever make
-		// me do remote sensors again
-		L1.setUsingRemoteEncoderOnTalon(this, R3);
-		zeroEncoders();
-
-		enableFollower();
-
-		in();
-		if (getFrontBottomLimit() && getFrontTopLimit())
-			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO front limit switches tripped!");
-		if (getRearBottomLimit() && getRearTopLimit())
-			Health.getInstance().addAlert(this, AlertLevel.ERROR, "Both PTO rear limit switches tripped!");
-
-		mNavX.reset();
-
-		checkFirmware();
-	}
-
-	// POOFS
 	public synchronized void setVelocity(double left, double right) {
 		setWantedState(DriveState.VELOCITY);
 		mIO.left_desired_output = left;
 		mIO.right_desired_output = right;
-		System.out.println(left + "\t" + right);
+		// System.out.println(left + "\t" + right);
 	}
 
 	public String getSmallString() {
@@ -293,8 +299,8 @@ public class Drive extends GZSubsystem {
 		}
 
 		if (kDrivetrain.TUNING) {
-			setPID(L1, getGainsFromFile(true));
-			setPID(R1, getGainsFromFile(true)); // both top line
+			setPID(L1, getGainsFromFile(0));
+			setPID(R1, getGainsFromFile(0)); // both top line
 		}
 	}
 
@@ -304,31 +310,8 @@ public class Drive extends GZSubsystem {
 		System.out.println(df.format(tar) + "\t" + df.format(tar2));
 	}
 
-	public GZPID getGainsFromFile(boolean left) {
-		GZPID ret;
-
-		try {
-			GZFile file = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
-			Scanner scnr = new Scanner(new FileReader(file.getFile()));
-			double p, i, d, f, iZone;
-
-			if (!left)
-				scnr.nextLine();
-
-			String[] arr = scnr.nextLine().split(",");
-			scnr.close();
-
-			p = Double.parseDouble(arr[0]);
-			i = Double.parseDouble(arr[1]);
-			d = Double.parseDouble(arr[2]);
-			f = Double.parseDouble(arr[3]);
-			iZone = Double.parseDouble(arr[4]);
-			ret = new GZPID(p, i, d, f, (int) iZone);
-		} catch (Exception e) {
-			ret = new GZPID(0, 0, 0, 0, 0);
-		}
-
-		return ret;
+	private GZPID getGainsFromFile(int line) {
+		return GZUtil.getGainsFromFile(mPIDConfigFile, line);
 	}
 
 	@Override
@@ -522,22 +505,10 @@ public class Drive extends GZSubsystem {
 	}
 
 	private void handleLimitSwitches() {
-		disableDriveLimits();
-		enableDriveLimits();
-	}
-
-	private void enableDriveLimits() {
-		if (mState == DriveState.CLIMB) {
-			L1.overrideLimitSwitchesEnable(true); // TODO TUNE
-			R1.overrideLimitSwitchesEnable(true);
-		}
-	}
-
-	private void disableDriveLimits() {
-		if (mState != DriveState.CLIMB) {
-			L1.overrideLimitSwitchesEnable(false);
-			R1.overrideLimitSwitchesEnable(false);
-		}
+		final boolean set = mState == DriveState.CLIMB;
+		L1.overrideLimitSwitchesEnable(set);
+		R1.overrideLimitSwitchesEnable(set);
+		// TODO TUNE
 	}
 
 	private synchronized void onStateStart(DriveState newState) {
@@ -560,7 +531,6 @@ public class Drive extends GZSubsystem {
 			break;
 		case NEUTRAL:
 			// brake(false);
-			disableDriveLimits();
 			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
 			break;
 		case OPEN_LOOP:
@@ -580,10 +550,6 @@ public class Drive extends GZSubsystem {
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
-			break;
-		case PATH_FOLLOWING:
-			mIO.left_feedforward = 0;
-			mIO.right_feedforward = 0;
 			break;
 		case MOTION_MAGIC:
 			encoderDone();
@@ -613,10 +579,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	public static class IO {
-
-		private double left_feedforward = 0, right_feedforward = 0;
-		private double left_accel = 0, right_accel = 0;
-		// ~POOFS
 
 		public IO() {
 			left_encoder_total_delta_rotations = 0;
@@ -680,7 +642,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void in() {
-		this.mModifyPercent = (mIsSlow ? .5 : 1); // .5
+		this.mModifyPercent = (mIsSlow ? .5 : 1);
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();
@@ -697,8 +659,8 @@ public class Drive extends GZSubsystem {
 			mIO.left_encoder_ticks = (double) L1.getSelectedSensorPosition(0);
 			mIO.left_encoder_vel = (double) L1.getSelectedSensorVelocity(0);
 		} else {
-			mIO.left_encoder_ticks = 0.0;
-			mIO.left_encoder_vel = 0.0;
+			mIO.left_encoder_ticks = Double.NaN;
+			mIO.left_encoder_vel = Double.NaN;
 		}
 
 		if (mIO.rightEncoderValid) {
@@ -727,7 +689,30 @@ public class Drive extends GZSubsystem {
 		// return mShifter.getSolenoidState();
 	}
 
-	// called in OPEN_LOOP_DRIVER state
+	public synchronized void handleDriving(GZJoystick joy) {
+		if (usingOpenLoop())
+			arcade(joy);
+		else
+			arcadeClosedLoop(joy);
+	}
+
+	private synchronized void arcadeClosedLoop(GZJoystick joy) {
+
+		final double rot = .45 * (joy.getRightTrigger() - joy.getLeftTrigger());
+		double temp[] = Drive.getInstance().arcadeToLR(joy.getLeftAnalogY(), rot, joy.getButton(Buttons.RB));
+		double left = temp[0];
+		double right = -temp[1];
+
+		left = GZUtil.applyDeadband(left, kDrivetrain.CLOSED_LOOP_JOYSTICK_DEADBAND);
+		right = GZUtil.applyDeadband(right, kDrivetrain.CLOSED_LOOP_JOYSTICK_DEADBAND);
+
+		left = GZUtil.scaleBetween(left, -kDrivetrain.CLOSED_LOOP_TOP_TICKS, kDrivetrain.CLOSED_LOOP_TOP_TICKS, -1, 1);
+		right = -GZUtil.scaleBetween(right, -kDrivetrain.CLOSED_LOOP_TOP_TICKS, kDrivetrain.CLOSED_LOOP_TOP_TICKS, -1,
+				1);
+
+		setVelocity(left, right);
+	}
+
 	private synchronized void arcade(GZJoystick joy) {
 		double turnScalar;
 		// if (Elevator.getInstance().isLimiting())
@@ -740,7 +725,6 @@ public class Drive extends GZSubsystem {
 		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
 		final double move = joy.getLeftAnalogY() * elv;
 		arcadeNoState(move, rotate, false);
-
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
 		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ),
@@ -1043,6 +1027,18 @@ public class Drive extends GZSubsystem {
 	public int getTotalShiftCounts() {
 		return 0;
 		// return mShifter.getChangeCounts();
+	}
+
+	public synchronized void setUsingOpenLoop(boolean useOpenLoop) {
+		mDrivingOpenLoop = useOpenLoop;
+	}
+
+	public synchronized void toggleOpenLoop() {
+		setUsingOpenLoop(!usingOpenLoop());
+	}
+
+	public synchronized boolean usingOpenLoop() {
+		return mDrivingOpenLoop;
 	}
 
 	public synchronized void toggleSlowSpeed() {

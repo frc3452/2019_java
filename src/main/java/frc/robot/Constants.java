@@ -20,12 +20,12 @@ public class Constants {
 	}
 
 	public static class kSolenoids {
+		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 1.5, 1.5);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 1.5, 1.5);
 		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, .5, .5);
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 1.5, 1);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
 	}
 
 	public static class kElevator {
@@ -52,7 +52,7 @@ public class Constants {
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static enum Heights {
-			Home(HOME_INCHES), HP_Floor_Grab(17, true), HP_1(19, true), HP_2(47, true), HP_3(75, true), Cargo_Ship(46),
+			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19, true), HP_2(47, true), HP_3(75, true), Cargo_Ship(46),
 			Cargo_1(27.5), Cargo_2(55.5), Cargo_3(83.5), HP_Feeder_Jog(HP_1, 2, true);
 
 			public final double inches;
@@ -138,14 +138,17 @@ public class Constants {
 
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
-
+		
+		//2019 Robot
 		
 		// public final static boolean L_INVERT = true;
 		// public final static boolean R_INVERT = true;
+		
+		//2018 Practice
 		public final static boolean L_INVERT = false;
 		public final static boolean R_INVERT = true;
 
-		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0.01;
+		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0;
 
 		// Wasserman: Peak should be half of continuous with duration of 50ms
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
@@ -157,8 +160,10 @@ public class Constants {
 
 		public final static double ELEV_TURN_SCALAR = 1.67; // 1.67
 
-		public final static double NEUTRAL_DEADBAND = 0.025;
+		public final static double NEUTRAL_DEADBAND = 0.01;
 
+		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
+		public static final double CLOSED_LOOP_TOP_TICKS = 2250;
 	}
 
 	public static class kPDP {
