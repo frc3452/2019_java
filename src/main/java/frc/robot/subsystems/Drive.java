@@ -275,6 +275,9 @@ public class Drive extends GZSubsystem {
 		case OPEN_LOOP_DRIVER:
 			arcade(GZOI.driverJoy);
 			break;
+		case CLOSED_LOOP_DRIVER:
+			arcadeClosedLoop(GZOI.driverJoy);
+			break;
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
 			break;
@@ -347,10 +350,10 @@ public class Drive extends GZSubsystem {
 
 	public enum DriveState {
 		OPEN_LOOP(false, ControlMode.PercentOutput), OPEN_LOOP_DRIVER(false, ControlMode.PercentOutput),
-		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
-		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
-		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
-		CLIMB(false, ControlMode.PercentOutput);
+		CLOSED_LOOP_DRIVER(true, ControlMode.Velocity), DEMO(false, ControlMode.PercentOutput),
+		NEUTRAL(false, ControlMode.Disabled), MOTION_MAGIC(true, ControlMode.MotionMagic),
+		MOTION_PROFILE(true, ControlMode.MotionProfile), PATH_FOLLOWING(true, ControlMode.Velocity),
+		VELOCITY(true, ControlMode.Velocity), CLIMB(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -527,6 +530,9 @@ public class Drive extends GZSubsystem {
 		case MOTION_PROFILE:
 			brake(true);
 			break;
+		case CLOSED_LOOP_DRIVER:
+			brake(false);
+			break;
 		case NEUTRAL:
 			// brake(false);
 			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
@@ -687,11 +693,27 @@ public class Drive extends GZSubsystem {
 		// return mShifter.getSolenoidState();
 	}
 
+	public synchronized double getLeftSpeed() {
+		return L1.getMotorOutputPercent();
+	}
+
+	public synchronized double getRightSpeed() {
+		return R1.getMotorOutputPercent();
+	}
+
+	public synchronized boolean driveOutputLessThan(double speed) {
+		speed = Math.abs(speed);
+
+		return getLeftSpeed() < speed && getRightSpeed() < speed;
+	}
+
 	public synchronized void handleDriving(GZJoystick joy) {
-		if (usingOpenLoop())
-			arcade(joy);
+		// if (usingOpenLoop() || !mIO.encodersValid)
+		System.out.println(driveOutputLessThan(.2));
+		if (driveOutputLessThan(.2))
+			setWantedState(DriveState.OPEN_LOOP_DRIVER);
 		else
-			arcadeClosedLoop(joy);
+			setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {

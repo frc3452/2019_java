@@ -154,7 +154,7 @@ public class Constants {
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
 		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
-		public final static double OPEN_LOOP_RAMP_TIME = 0.125;
+		public final static double OPEN_LOOP_RAMP_TIME = .125;
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
 
@@ -163,7 +163,7 @@ public class Constants {
 		public final static double NEUTRAL_DEADBAND = 0.01;
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
-		public static final double CLOSED_LOOP_TOP_TICKS = 2250;
+		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * .8;
 	}
 
 	public static class kPDP {

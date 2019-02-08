@@ -22,7 +22,7 @@ import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
 
 public class GZOI extends GZSubsystem {
-	public static DriverController driverJoy = new DriverController();
+	public static DriverController driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
 
 	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.KEY_LOW_VOLT,
