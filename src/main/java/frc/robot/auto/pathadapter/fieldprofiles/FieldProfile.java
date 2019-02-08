@@ -56,9 +56,7 @@ public class FieldProfile {
         //If on right, y value less than centerLine
         final double y = mCenterLineY + (left ? 1 : -1) * mCargoShipFaceToMidLine.get(a,left);
 
-        Translation2d ret = new Translation2d(x, y);
-        return ret;
+        Translation2d trans2d = new Translation2d(x, y);
+        return trans2d;
     }
-
-
 }
