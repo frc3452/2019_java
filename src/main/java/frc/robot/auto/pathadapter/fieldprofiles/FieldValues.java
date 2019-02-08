@@ -30,6 +30,14 @@ public class FieldValues<T> {
         return this.mRedRight;
     }
 
+    public T getLeft(Alliance a) {
+        return get(a, true);
+    }
+
+    public T getRight(Alliance a) {
+        return get(a, false);
+    }
+
     public T getBlueLeft() {
         return this.mBlueLeft;
     }
@@ -52,7 +60,7 @@ public class FieldValues<T> {
         default:
             return get(Alliance.Red, left);
         }
-        
+
     }
 
 }
