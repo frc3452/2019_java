@@ -1007,12 +1007,12 @@ function getDataString() {
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
-	var str = `package frc.robot.commands.paths;
+	var str = `package frc.robot.auto.commands.paths;
 
 import java.util.ArrayList;
 
-import frc.robot.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.commands.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.commands.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.util.math.Rotation2d;
 
 public class ${title} extends PathContainer {
@@ -1183,7 +1183,7 @@ function canvasDrag(canvas, evt) {
 	if ($("#allowDrag").is(':checked')) {
 		var mPos = getMousePos(canvas, evt);
 
-		movePoint(coordToScoot - 1, mPos.x, mPos.y);
+		movePoint(coordToScoot - 1, Math.round(mPos.x), Math.round(mPos.y));
 		// update();
 	}
 }

@@ -7,27 +7,26 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
-import frc.robot.commands.MarkerCommandGroup;
-import frc.robot.commands.NoCommand;
-import frc.robot.commands.WaitCommand;
-import frc.robot.commands.drive.pathfollowing.DrivePath;
-import frc.robot.commands.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.commands.paths.CS_1;
-import frc.robot.commands.paths.CS_2;
-import frc.robot.commands.paths.CS_3;
-import frc.robot.commands.paths.CS_4;
-import frc.robot.commands.paths.CS_5;
-import frc.robot.commands.paths.Cargo_Ship;
-import frc.robot.commands.paths.Cargo_Ship_2;
-import frc.robot.commands.paths.Cargo_Ship_3;
-import frc.robot.commands.paths.Cargo_Ship_4;
-import frc.robot.commands.paths.Hard_Curve;
-import frc.robot.commands.paths.L;
-import frc.robot.commands.paths.Left_To_Rocket_L;
-import frc.robot.commands.paths.Sharp_curve;
+import frc.robot.auto.commands.MarkerCommandGroup;
+import frc.robot.auto.commands.NoCommand;
+import frc.robot.auto.commands.WaitCommand;
+import frc.robot.auto.commands.drive.pathfollowing.DrivePath;
+import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.auto.commands.paths.CS_1;
+import frc.robot.auto.commands.paths.CS_2;
+import frc.robot.auto.commands.paths.CS_3;
+import frc.robot.auto.commands.paths.CS_4;
+import frc.robot.auto.commands.paths.CS_5;
+import frc.robot.auto.commands.paths.Cargo_Ship;
+import frc.robot.auto.commands.paths.Cargo_Ship_2;
+import frc.robot.auto.commands.paths.Cargo_Ship_3;
+import frc.robot.auto.commands.paths.Cargo_Ship_4;
+import frc.robot.auto.commands.paths.Hard_Curve;
+import frc.robot.auto.commands.paths.L;
+import frc.robot.auto.commands.paths.Left_To_Rocket_L;
+import frc.robot.auto.commands.paths.Straight_Curve_Left;
+import frc.robot.auto.commands.paths.Straight_Path;
 import frc.robot.commands.paths.Sharp_curve_2;
-import frc.robot.commands.paths.Straight_Curve_Left;
-import frc.robot.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -84,10 +83,7 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-	
-
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Sharp curve 2", new ResetPoseDrivePath(new Sharp_curve_2())));
 		commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
