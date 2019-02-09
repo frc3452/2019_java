@@ -26,7 +26,6 @@ import frc.robot.auto.commands.paths.L;
 import frc.robot.auto.commands.paths.Left_To_Rocket_L;
 import frc.robot.auto.commands.paths.Straight_Curve_Left;
 import frc.robot.auto.commands.paths.Straight_Path;
-import frc.robot.commands.paths.Sharp_curve_2;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;

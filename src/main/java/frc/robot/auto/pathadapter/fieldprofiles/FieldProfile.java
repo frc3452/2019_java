@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Translation2d;
 
-public class FieldProfile {
+public abstract class FieldProfile {
 
     private static final double mCenterLineY = 162;
     private static final double mFieldWith = mCenterLineY * 2.0;
@@ -22,18 +22,6 @@ public class FieldProfile {
     // Cargo ship
     public FieldValues<Double> mCargoShipFaceToHABRamp;
     public FieldValues<Double> mCargoShipFaceToMidLine;
-
-    /**
-     * public FieldValues<Double> mCargoShipTeam1BayToCenterLine; public
-     * FieldValues<Double> mCargoShipTeam1BayToSideWall; public FieldValues<Double>
-     * mCargoShipTeam2BayToCenterLine; public FieldValues<Double>
-     * mCargoShipTeam2BayToSideWall; public FieldValues<Double>
-     * mCargoShipTeam3BayToCenterLine; public FieldValues<Double>
-     * mCargoShipTeam3BayToSideWall; public FieldValues<Double>
-     * mRocketEdgeToDriverStation; public FieldValues<Double> mRocketFaceToWall;
-     * public FieldValues<Double> mCargoShipCenterOfTapeToCenterLine; public
-     * FieldValues<Double> mCargoShipFaceToEdgeOfPlatform;
-     */
 
     public Translation2d getLeftFeederStation(Alliance a) {
         final double x = mFeederStationToDriverWall.getLeft(a);
@@ -59,4 +47,6 @@ public class FieldProfile {
         Translation2d trans2d = new Translation2d(x, y);
         return trans2d;
     }
+
+    public abstract HeightsContainer getElevatorHeights();
 }

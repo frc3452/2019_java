@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.auto.pathadapter.PathAdapter;
+import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -53,9 +54,13 @@ public class Constants {
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
+		private final static HeightsContainer h = PathAdapter.getHeights();
+
 		public static enum Heights {
-			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46, true),
-			Cargo_1(27.5, true), Cargo_2(55.5, true), Cargo_3(83.5, true), HP_Feeder_Jog(HP_1, 2);
+
+			Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
+			Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
+			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(HP_1, 2);
 
 			public final double inches;
 			public final boolean moving_hp;
@@ -140,13 +145,13 @@ public class Constants {
 
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
-		
-		//2019 Robot
-		
+
+		// 2019 Robot
+
 		// public final static boolean L_INVERT = true;
 		// public final static boolean R_INVERT = true;
-		
-		//2018 Practice
+
+		// 2018 Practice
 		public final static boolean L_INVERT = false;
 		public final static boolean R_INVERT = true;
 

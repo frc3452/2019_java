@@ -2,10 +2,10 @@ package frc.robot.auto.pathadapter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
+import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
 import frc.robot.auto.pathadapter.robotprofiles.CompBot;
 import frc.robot.auto.pathadapter.robotprofiles.RobotProfile;
-import frc.robot.poofs.util.math.Translation2d;
 
 public class PathAdapter {
     private static final DriverStation ds = DriverStation.getInstance();
@@ -15,9 +15,6 @@ public class PathAdapter {
 
     private static RobotProfile kRobotProfile = new CompBot();
 
-
-
-    
     public static double getWheelDiameterInches() {
         return kRobotProfile.getWheelDiamaterInches();
     }
@@ -28,5 +25,10 @@ public class PathAdapter {
 
     public static double getWheelBaseInches() {
         return kRobotProfile.getWheelBaseInches();
+    }
+
+    public static HeightsContainer getHeights()
+    {
+        return kCurrentField.getElevatorHeights();
     }
 }

@@ -56,7 +56,6 @@ public class FieldValues<T> {
             if (left)
                 return getBlueLeft();
             return getBlueRight();
-
         default:
             return get(Alliance.Red, left);
         }
