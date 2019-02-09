@@ -29,8 +29,9 @@ public class Constants {
 	}
 
 	public static class kElevator {
-		public static final int ELEVATOR_MOTOR_ID = 0;
-		public static final boolean E_1_INVERT = false;
+		public static final int ELEVATOR_1_ID = 9;
+		public static final int ELEVATOR_2_ID = 10;
+		public static final boolean ELEVATOR_INVERT = false;
 
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
@@ -52,15 +53,15 @@ public class Constants {
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static enum Heights {
-			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19, true), HP_2(47, true), HP_3(75, true), Cargo_Ship(46),
-			Cargo_1(27.5), Cargo_2(55.5), Cargo_3(83.5), HP_Feeder_Jog(HP_1, 2, true);
+			Home(HOME_INCHES), HP_Floor_Grab(17), HP_1(19), HP_2(47), HP_3(75), Cargo_Ship(46, true),
+			Cargo_1(27.5, true), Cargo_2(55.5, true), Cargo_3(83.5, true), HP_Feeder_Jog(HP_1, 2);
 
 			public final double inches;
 			public final boolean moving_hp;
 
-			private Heights(double inches, boolean movingHatchPanel) {
+			private Heights(double inches, boolean movingCargo) {
 				this.inches = inches;
-				this.moving_hp = movingHatchPanel;
+				this.moving_hp = movingCargo;
 			}
 
 			private Heights(double inches) {
@@ -75,8 +76,8 @@ public class Constants {
 				this(h, jog, false);
 			}
 
-			private Heights(Heights h, double jog, boolean movingHatchPanel) {
-				this(h.inches + jog, movingHatchPanel);
+			private Heights(Heights h, double jog, boolean movingCargo) {
+				this(h.inches + jog, movingCargo);
 			}
 		}
 	}
@@ -170,7 +171,8 @@ public class Constants {
 		public final static int DRIVE_L_1 = 1, DRIVE_L_2 = 2, DRIVE_L_3 = 3, DRIVE_L_4 = 4;
 		public final static int DRIVE_R_1 = 11, DRIVE_R_2 = 12, DRIVE_R_3 = 13, DRIVE_R_4 = 14;
 
-		public static final int ELEVATOR_MOTOR = 0;
+		public static final int ELEVATOR_1 = 0;
+		public static final int ELEVATOR_2 = 15;
 
 		public static final int INTAKE_LEFT = 0;
 		public static final int INTAKE_RIGHT = 0;

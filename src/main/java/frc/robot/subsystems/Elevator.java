@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -31,7 +33,7 @@ public class Elevator extends GZSubsystem {
     private ElevatorState mWantedState = ElevatorState.NEUTRAL;
     public IO mIO = new IO();
 
-    private GZSRX mElevator1;
+    private GZSRX mElevator1, mElevator2;
     private GZAnalogInput mCargoSensor;
 
     private GZSolenoid mCarriageSlide, mClaw;
@@ -50,7 +52,10 @@ public class Elevator extends GZSubsystem {
 
     // INIT AND LIFT
     private Elevator() {
-        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_MOTOR_ID, this, "Elevator 1", kPDP.ELEVATOR_MOTOR).build();
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
+                .build();
+        mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
+                .build();
 
         mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
         mCarriageSlide.set(false);
@@ -61,8 +66,6 @@ public class Elevator extends GZSubsystem {
                 kElevator.CARGO_SENSOR_LOW_VOLT, kElevator.CARGO_SENSOR_HIGH_VOLT);
 
         talonInit();
-
-        mElevator1.setInverted(Constants.kElevator.E_1_INVERT);
 
         GZSRX.logError(
                 mElevator1.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
@@ -118,6 +121,8 @@ public class Elevator extends GZSubsystem {
             s.setNeutralMode(NeutralMode.Brake);
 
             s.enableVoltageCompensation(true);
+
+            s.setInverted(kElevator.ELEVATOR_INVERT);
 
             GZSRX.logError(s.configContinuousCurrentLimit(kElevator.AMP_CONTINUOUS, GZSRX.TIMEOUT), this,
                     AlertLevel.WARNING, "Could not set current-limit continuous current limit for " + s.getGZName());
@@ -187,9 +192,9 @@ public class Elevator extends GZSubsystem {
         setHeight(getHeightInches() + jogHeightInches);
     }
 
-    public void manual (double speedPercent) {
+    public void manual(double speedPercent) {
         if (setWantedState(ElevatorState.MANUAL)) {
-        mIO.desired_output = speedPercent;
+            mIO.desired_output = speedPercent;
         }
     }
 
@@ -203,8 +208,8 @@ public class Elevator extends GZSubsystem {
 
     private int inchesPerSecondToNativeUnits(double inchesPerSecond) {
         int sensorUnitsPer100ms;
-        sensorUnitsPer100ms = (int) Math.rint(inchesPerSecond * kElevator.TICKS_PER_INCH);
-        return sensorUnitsPer100ms;
+        sensorUnitsPer100ms = (int) Math.rint(inchesPerSecond * kElevator.TICKS_PER_INCH / 10);
+        return sensorUnitsPer100ms; 
     }
 
     private void configAccel(int sensorUnitsPer100msPerSec) {
@@ -232,7 +237,7 @@ public class Elevator extends GZSubsystem {
      */
     private void handlePID() {
         if (mPrevMovingHP != mMovingHP)
-            selectProfileSlot((mMovingHP ? ElevatorPIDConfig.CARGO : ElevatorPIDConfig.EMPTY));
+            selectProfileSlot((mMovingHP ? ElevatorPIDConfig.HP : ElevatorPIDConfig.EMPTY));
 
         mPrevMovingHP = mMovingHP;
     }
@@ -359,7 +364,6 @@ public class Elevator extends GZSubsystem {
         }
 
         mIO.elevator_total_rotations = mElevator1.getTotalEncoderRotations(getRotations());
-        // mElevator1.getTotalEncoderRotations(currentRotationValue)
     }
 
     public boolean getTopLimit() {
@@ -450,7 +454,7 @@ public class Elevator extends GZSubsystem {
     }
 
     private enum ElevatorPIDConfig {
-        EMPTY(0), CARGO(1);
+        EMPTY(0), HP(1);
 
         private int slot;
 
