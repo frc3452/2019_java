@@ -30,6 +30,11 @@ public class Pneumatics extends GZSubsystem {
         mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT);
     }
 
+    public double getPressure()
+    {
+        return -1;
+    }
+
     public void dropCrawler() {
         mClimberCrawler.set(true);
     }

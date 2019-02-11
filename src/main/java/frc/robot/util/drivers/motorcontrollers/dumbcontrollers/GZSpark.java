@@ -103,9 +103,12 @@ public class GZSpark extends Spark implements GZSpeedController {
         return GZPDP.getInstance().getCurrent(this.mPDPChannel);
     }
 
-    public Double getTemperatureSensor() {
-        return GZUtil.readTemperatureFromAnalogInput(this.mTemperatureSensor);
-    }
+   
+	public Double getTemperatureSensor() {
+		if (mTemperatureSensor == null)
+			return -3452.0;
+		return mTemperatureSensor.getTranslatedValue();
+	}
 
     public String getGZName() {
         return this.mName;

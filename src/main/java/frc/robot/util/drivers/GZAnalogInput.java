@@ -4,24 +4,60 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZAnalogInput.VoltageTranslation.AnalogMode;
 
 public class GZAnalogInput extends AnalogInput implements IGZHardware {
+    public static class VoltageTranslation {
+
+        public static enum AnalogMode {
+            TRIP, RANGE, NONE;
+        }
+
+        public double mTripLowVoltage, mTripHighVoltage;
+        public double mRangeLowVoltage, mRangeHighVoltage, mRangeLowValue, mRangeHighValue;
+        public final AnalogMode mMode;
+
+        public VoltageTranslation() {
+            mMode = AnalogMode.NONE;
+        }
+
+        public VoltageTranslation(double lowVoltageTrip, double highVoltageTrip) {
+            this.mTripLowVoltage = lowVoltageTrip;
+            this.mTripHighVoltage = highVoltageTrip;
+            mMode = AnalogMode.TRIP;
+        }
+
+        public VoltageTranslation(double lowVoltage, double highVoltage, double lowValue, double highValue) {
+            this.mRangeLowVoltage = lowVoltage;
+            this.mRangeHighVoltage = highVoltage;
+
+            this.mRangeLowValue = lowValue;
+            this.mRangeHighValue = highValue;
+
+            mMode = AnalogMode.RANGE;
+        }
+
+        public AnalogMode getMode() {
+            return mMode;
+        }
+    }
+
     private final String mName;
 
     private final GZSubsystem mSub;
 
-    private final double mLowVolt;
-    private final double mHighVolt;
     private final int mChannel;
 
+    private final VoltageTranslation mTranslation;
+
     public GZAnalogInput(GZSubsystem sub, String name, int channel) {
-        this(sub, name, channel, -3452, -3452);
+        this(sub, name, channel, new VoltageTranslation());
     }
 
-    public GZAnalogInput(GZSubsystem sub, String name, int channel, double lowVoltForTrip, double highVoltForTrip) {
+    public GZAnalogInput(GZSubsystem sub, String name, int channel, VoltageTranslation translation) {
         super(channel);
-        this.mLowVolt = lowVoltForTrip;
-        this.mHighVolt = highVoltForTrip;
+        this.mTranslation = translation;
+        ;
         mChannel = channel;
         mName = name;
         this.mSub = sub;
@@ -29,11 +65,20 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
         GZFiles.getInstance().mAllAnalogSensors.add(this);
     }
 
-    public boolean isWithinRange() {
-        if (this.mLowVolt == -3452 || this.mHighVolt == -3452)
+    public boolean isTripped() {
+        if (this.mTranslation.getMode() != AnalogMode.TRIP)
             return false;
 
-        return GZUtil.between(this.getVoltage(), this.mLowVolt, this.mHighVolt);
+        return GZUtil.between(this.getVoltage(), this.mTranslation.mTripLowVoltage, this.mTranslation.mTripHighVoltage);
+    }
+
+    public double getTranslatedValue() {
+        if (this.mTranslation.getMode() != AnalogMode.RANGE)
+            return -3452;
+
+        return GZUtil.scaleBetween(this.getVoltage(), this.mTranslation.mRangeLowValue,
+                this.mTranslation.mRangeHighValue, this.mTranslation.mRangeLowVoltage,
+                this.mTranslation.mRangeHighVoltage);
     }
 
     @Override
@@ -45,8 +90,7 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
         return mSub;
     }
 
-    public int getPort()
-    {
+    public int getPort() {
         return mChannel;
     }
 

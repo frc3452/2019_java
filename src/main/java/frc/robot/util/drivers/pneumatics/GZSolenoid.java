@@ -56,6 +56,8 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         this.mExtendedTimer.start();
         this.mRetractedTimer.start();
         this.mSub.mSingleSolenoids.add(this);
+
+        mRetractedTimer.startTimer();
     }
 
     public int getChangeCounts() {

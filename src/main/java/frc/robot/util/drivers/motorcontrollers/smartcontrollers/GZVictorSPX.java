@@ -166,8 +166,11 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		return this.mTemperatureSensorPort;
 	}
 
+	
 	public Double getTemperatureSensor() {
-		return GZUtil.readTemperatureFromAnalogInput(this.mTemperatureSensor);
+		if (mTemperatureSensor == null)
+			return -3452.0;
+		return mTemperatureSensor.getTranslatedValue();
 	}
 
 	public String getGZName() {

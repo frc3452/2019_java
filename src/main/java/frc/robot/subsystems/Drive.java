@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
+import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
@@ -46,6 +47,7 @@ import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
@@ -104,8 +106,8 @@ public class Drive extends GZSubsystem {
 
 		mNavX = new NavX(SPI.Port.kMXP);
 
-		// mShifter = new GZSolenoid(kDrivetrain.SHIFTER, this, "PTO Shifter");
-		// mShifter.set(false);
+		// mShifter = new GZSolenoid(kSolenoids.SHIFTER, this, "PTO Shifter");
+		
 		try {
 			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
 		} catch (Exception e) {
@@ -647,6 +649,14 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void in() {
 		this.mModifyPercent = (mIsSlow ? .5 : 1);
+		
+		String out = "";
+		for (GZSRX s : mTalons)
+		{
+			out += df.format(s.getMotorOutputVoltage()) + "\t";
+		}
+
+		// System.out.println(out);
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();

@@ -23,8 +23,7 @@ public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
 
-	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.KEY_LOW_VOLT,
-			kOI.KEY_HIGH_VOLT);
+	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.LOCK_OUT_KEY_VOLT);
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
 
@@ -210,7 +209,7 @@ public class GZOI extends GZSubsystem {
 	 * A physical key on the robot to shut off
 	 */
 	public boolean getSafteyKey() {
-		return mKey.isWithinRange();
+		return mKey.isTripped();
 	}
 
 	public boolean hasMotors() {

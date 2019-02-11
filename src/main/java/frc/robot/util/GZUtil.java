@@ -87,20 +87,6 @@ public class GZUtil {
 		return x;
 	}
 
-	public static Double readTemperatureFromAnalogInput(AnalogInput a) {
-		double retval = -3452;
-
-		if (a != null) {
-			retval = GZUtil.scaleBetween(a.getVoltage(), kTempSensor.LOW_TEMP_C, kTempSensor.HIGH_TEMP_C,
-					kTempSensor.LOW_VOLT, kTempSensor.HIGH_VOLT);
-			retval = GZUtil.celsiusToFahrenheit(retval);
-
-			retval = GZUtil.round(retval);
-		}
-
-		return retval;
-	}
-
 	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
 			double max) {
 		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;

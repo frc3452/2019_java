@@ -184,7 +184,9 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public Double getTemperatureSensor() {
-		return GZUtil.readTemperatureFromAnalogInput(this.mTemperatureSensor);
+		if (mTemperatureSensor == null)
+			return -3452.0;
+		return mTemperatureSensor.getTranslatedValue();
 	}
 
 	public String getGZName() {

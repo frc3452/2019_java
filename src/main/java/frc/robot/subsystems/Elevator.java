@@ -63,7 +63,7 @@ public class Elevator extends GZSubsystem {
         mClaw.set(false);
 
         mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
-                kElevator.CARGO_SENSOR_LOW_VOLT, kElevator.CARGO_SENSOR_HIGH_VOLT);
+                kElevator.CARGO_SENSOR_VOLT);
 
         talonInit();
 
@@ -209,7 +209,7 @@ public class Elevator extends GZSubsystem {
     private int inchesPerSecondToNativeUnits(double inchesPerSecond) {
         int sensorUnitsPer100ms;
         sensorUnitsPer100ms = (int) Math.rint(inchesPerSecond * kElevator.TICKS_PER_INCH / 10);
-        return sensorUnitsPer100ms; 
+        return sensorUnitsPer100ms;
     }
 
     private void configAccel(int sensorUnitsPer100msPerSec) {
@@ -350,7 +350,7 @@ public class Elevator extends GZSubsystem {
     private void in() {
         mIO.encoders_valid = mElevator1.isEncoderValid();
 
-        if (mCargoSensor.isWithinRange())
+        if (mCargoSensor.isTripped())
             mIO.mCargoSensorLoopCounter++;
         else
             mIO.mCargoSensorLoopCounter = 0;

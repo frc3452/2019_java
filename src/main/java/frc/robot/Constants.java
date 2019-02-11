@@ -10,6 +10,7 @@ import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
 import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
+import frc.robot.util.drivers.GZAnalogInput.VoltageTranslation;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 
 /**
@@ -41,8 +42,7 @@ public class Constants {
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
 		public static final int CARGO_SENSOR_CHANNEL = 0;
-		public static final double CARGO_SENSOR_LOW_VOLT = 1.2; // TODO TUNE
-		public static final double CARGO_SENSOR_HIGH_VOLT = 1.4; // TODO TUNE
+		public static final VoltageTranslation CARGO_SENSOR_VOLT = new VoltageTranslation(1.2, 2.4); //TODO TUNE
 
 		public static final double OPEN_RAMP_TIME = 0;
 
@@ -135,7 +135,7 @@ public class Constants {
 		public static class PID {
 			static final double p = 0; // .9
 			static final double d = 0; // 20
-			static final double f = 0; // 1.47
+			static final double f = .1; // 1.47
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -150,10 +150,6 @@ public class Constants {
 
 		// 2019 Robot
 
-		// public final static boolean L_INVERT = true;
-		// public final static boolean R_INVERT = true;
-
-		// 2018 Practice
 		public final static boolean L_INVERT = true;
 		public final static boolean R_INVERT = true;
 
@@ -186,11 +182,14 @@ public class Constants {
 		public static final int INTAKE_RIGHT = 0;
 	}
 
-	public class kTempSensor {
-		public final static double LOW_TEMP_C = -50;
-		public final static double HIGH_TEMP_C = 100;
+	public static class kTempSensor {
+		public final static VoltageTranslation TEMPERATURE_SENSOR = new VoltageTranslation(0, 1.75, -50, 100);
+	}
+
+	public static class kPressureSensor {
+		public final static double LOW_PRESSURE_PSI = 0;
+		public final static double HIGH_PRESSURE_PSI = 0;
 		public final static double LOW_VOLT = 0;
-		public final static double HIGH_VOLT = 1.75;
 	}
 
 	public static class kLights {
@@ -257,7 +256,6 @@ public class Constants {
 		}
 
 		public static final int LOCK_OUT_KEY = 3;
-		public static final double KEY_LOW_VOLT = -1;
-		public static final double KEY_HIGH_VOLT = -2;
+		public static final VoltageTranslation LOCK_OUT_KEY_VOLT = new VoltageTranslation();
 	}
 }
