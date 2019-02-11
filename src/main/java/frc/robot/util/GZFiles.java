@@ -19,10 +19,10 @@ import frc.robot.Robot;
 import frc.robot.subsystems.Drive;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.GZAnalogInput;
+import frc.robot.util.drivers.motorcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.SmartController;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.SmartController;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 

@@ -14,7 +14,7 @@ import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZJoystick.Buttons;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSRX;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;

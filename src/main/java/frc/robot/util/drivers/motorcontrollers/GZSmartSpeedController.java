@@ -1,14 +1,8 @@
-package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
+package frc.robot.util.drivers.motorcontrollers;
 
-import java.util.function.Supplier;
-
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
 
-import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.GZSubsystem;
-import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public interface GZSmartSpeedController extends GZSpeedController {
 

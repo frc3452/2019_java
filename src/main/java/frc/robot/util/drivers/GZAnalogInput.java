@@ -57,9 +57,8 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
     public GZAnalogInput(GZSubsystem sub, String name, int channel, VoltageTranslation translation) {
         super(channel);
         this.mTranslation = translation;
-        ;
-        mChannel = channel;
-        mName = name;
+        this.mChannel = channel;
+        this.mName = name;
         this.mSub = sub;
 
         GZFiles.getInstance().mAllAnalogSensors.add(this);

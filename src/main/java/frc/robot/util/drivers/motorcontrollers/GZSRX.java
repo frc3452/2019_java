@@ -1,4 +1,4 @@
-package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
+package frc.robot.util.drivers.motorcontrollers;
 
 import java.util.function.Supplier;
 
@@ -10,12 +10,11 @@ import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import frc.robot.Constants.kTempSensor;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
-import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
@@ -121,7 +120,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 		if (this.mTemperatureSensorPort != -1)
 			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
-					this.mTemperatureSensorPort);
+					this.mTemperatureSensorPort, kTempSensor.TEMPERATURE_SENSOR);
 
 		if (this.mBreaker != this.mActualBreaker)
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
@@ -233,18 +232,43 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
 
-	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX t, LimitSwitchNormal normal) {
-		mRemoteEncoderTalon = t;
+	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX otherTalon, LimitSwitchNormal normal) {
+		mRemoteLimitSwitchTalon = otherTalon;
 
 		logError(
 				() -> this.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
-						mRemoteEncoderTalon.getPort()),
+						mRemoteLimitSwitchTalon.getPort()),
 				sub, AlertLevel.ERROR, "Could not configure forward limit switch source for Talon " + this.getGZName());
 
-		logError(() -> 
-				this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
-						mRemoteEncoderTalon.getPort()),
+		logError(
+				() -> this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
+						mRemoteLimitSwitchTalon.getPort()),
 				sub, AlertLevel.ERROR, "Could not configure reverse limit switch source for Talon " + this.getGZName());
+	}
+
+	public boolean usingRemoteLimitSwitch() {
+		return mRemoteLimitSwitchTalon != null;
+	}
+
+	private boolean getFWDFromSensorCollection() {
+		return this.getSensorCollection().isFwdLimitSwitchClosed();
+	}
+
+	private boolean getREVFromSensorCollection() {
+		return this.getSensorCollection().isRevLimitSwitchClosed();
+	}
+
+	public boolean getFWDLimit() {
+		if (usingRemoteLimitSwitch())
+			return mRemoteLimitSwitchTalon.getFWDFromSensorCollection();
+
+		return this.getFWDFromSensorCollection();
+	}
+
+	public boolean getREVLimit() {
+		if (usingRemoteLimitSwitch())
+			return mRemoteLimitSwitchTalon.getREVFromSensorCollection();
+		return this.getREVFromSensorCollection();
 	}
 
 	public void setUsingRemoteEncoderOnTalon(GZSubsystem sub, GZSRX t) {

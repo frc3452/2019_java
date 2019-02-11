@@ -1,25 +1,19 @@
 package frc.robot.subsystems;
 
-import java.io.FileReader;
 import java.text.DecimalFormat;
-import java.util.Scanner;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
-import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
@@ -42,12 +36,11 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.motorcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Side;
-import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {

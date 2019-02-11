@@ -8,10 +8,10 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.MotorChecker.AmperageChecker;
 import frc.robot.util.MotorChecker.AmperageChecker.CheckerConfig;
+import frc.robot.util.drivers.motorcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
+import frc.robot.util.drivers.motorcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 

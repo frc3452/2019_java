@@ -1,15 +1,14 @@
-package frc.robot.util.drivers.motorcontrollers.smartcontrollers;
+package frc.robot.util.drivers.motorcontrollers;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import frc.robot.Constants.kTempSensor;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
@@ -111,7 +110,7 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 
 		if (this.mTemperatureSensorPort != -1)
 			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
-					this.mTemperatureSensorPort);
+					this.mTemperatureSensorPort, kTempSensor.TEMPERATURE_SENSOR);
 
 		if (this.mBreaker != this.mActualBreaker)
 			Health.getInstance().addAlert(this.mSubsystem, AlertLevel.WARNING, "Talon " + this.getGZName()
@@ -131,8 +130,7 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		}
 	}
 
-		
-	public SmartController getControllerType(){
+	public SmartController getControllerType() {
 		return SmartController.VICTORSPX;
 	}
 
@@ -166,7 +164,6 @@ public class GZVictorSPX extends VictorSPX implements GZSmartSpeedController {
 		return this.mTemperatureSensorPort;
 	}
 
-	
 	public Double getTemperatureSensor() {
 		if (mTemperatureSensor == null)
 			return -3452.0;

@@ -1,13 +1,13 @@
-package frc.robot.util.drivers.motorcontrollers.dumbcontrollers;
+package frc.robot.util.drivers.motorcontrollers;
 
-import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Spark;
+import frc.robot.Constants.kTempSensor;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
-public class GZTalonSR extends Talon implements GZSpeedController {
+public class GZSpark extends Spark implements GZSpeedController {
 
     public static class Builder {
         private int mPWMPort;
@@ -29,9 +29,9 @@ public class GZTalonSR extends Talon implements GZSpeedController {
             return this;
         }
 
-        public GZTalonSR build() {
-            GZTalonSR s;
-            s = new GZTalonSR(this.mPWMPort, this.mSub, this.mPDPChannel, this.mName, this.mTempSensorPort);
+        public GZSpark build() {
+            GZSpark s;
+            s = new GZSpark(this.mPWMPort, this.mSub, this.mPDPChannel, this.mName, this.mTempSensorPort);
 
             return s;
         }
@@ -42,7 +42,6 @@ public class GZTalonSR extends Talon implements GZSpeedController {
     private int mPDPChannel;
     private String mName;
     private Breaker mBreaker;
-
     private GZSubsystem mSubsystem;
 
     private boolean mLockedOut = false;
@@ -50,20 +49,19 @@ public class GZTalonSR extends Talon implements GZSpeedController {
     private GZAnalogInput mTemperatureSensor = null;
     private int mTemperatureSensorPort;
 
-    private GZTalonSR(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
+    private GZSpark(int pwmPort, GZSubsystem subsystem, int PDPChannel, String name, int tempSensorPort) {
         super(pwmPort);
         this.mPWMPort = pwmPort;
         this.mName = name;
         this.mPDPChannel = PDPChannel;
         this.mTemperatureSensorPort = tempSensorPort;
-
         this.mSubsystem = subsystem;
 
         this.mBreaker = GZSpeedController.setBreaker(this.mPDPChannel, this);
 
         if (this.mTemperatureSensorPort != -1)
-			this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
-					this.mTemperatureSensorPort);
+            this.mTemperatureSensor = new GZAnalogInput(this.mSubsystem, this.getGZName() + "'s temperature sensor",
+                    this.mTemperatureSensorPort, kTempSensor.TEMPERATURE_SENSOR);
 
         subsystem.mDumbControllers.add(this);
     }
@@ -91,8 +89,7 @@ public class GZTalonSR extends Talon implements GZSpeedController {
     }
 
     @Override
-    public double getOutputPercentage()
-    {
+    public double getOutputPercentage() {
         return super.getSpeed();
     }
 
@@ -105,7 +102,7 @@ public class GZTalonSR extends Talon implements GZSpeedController {
         return GZPDP.getInstance().getCurrent(this.mPDPChannel);
     }
 
-    
+   
 	public Double getTemperatureSensor() {
 		if (mTemperatureSensor == null)
 			return -3452.0;

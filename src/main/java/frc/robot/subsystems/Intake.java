@@ -3,9 +3,8 @@ package frc.robot.subsystems;
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
-import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZVictorSPX;
+import frc.robot.util.drivers.motorcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 

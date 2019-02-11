@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -20,10 +17,9 @@ import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
-import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController;
-import frc.robot.util.drivers.motorcontrollers.smartcontrollers.GZSmartSpeedController.Master;
+import frc.robot.util.drivers.motorcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
@@ -67,14 +63,19 @@ public class Elevator extends GZSubsystem {
 
         talonInit();
 
-        GZSRX.logError(
-                mElevator1.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                        LimitSwitchNormal.NormallyOpen),
-                this, AlertLevel.WARNING, "Could not configure forward limit switch source");
-        GZSRX.logError(
-                mElevator1.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                        LimitSwitchNormal.NormallyOpen),
-                this, AlertLevel.WARNING, "Could not configure reverse limit switch source");
+        // REMOTE LIMIT SWITCHES
+        // NORMALLYOPEN LIMIT SWITCHES WITH A TALON TACH IS SETTING WHETHER THE SENSOR
+        // IS TRIPPED UNDER DARK OR LIGHT
+        // GZSRX.logError(
+        // elevator_1.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX,
+        // LimitSwitchNormal.NormallyOpen, elevator_2.getDeviceID(), 10),
+        // this, AlertLevel.WARNING, "Could not set forward limit switch");
+        // GZSRX.logError(
+        // elevator_1.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX,
+        // LimitSwitchNormal.NormallyOpen, elevator_2.getDeviceID(), 10),
+        // this, AlertLevel.WARNING, "Could not set reverse limit switch");
+        
+        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed);
 
         GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT), this,
                 AlertLevel.WARNING, "Could not set open loop ramp time");
@@ -362,6 +363,9 @@ public class Elevator extends GZSubsystem {
             mIO.ticks_position = Double.NaN;
             mIO.ticks_velocity = Double.NaN;
         }
+
+        mIO.fwd_limit_switch = mElevator1.getFWDLimit();
+        mIO.rev_limit_switch = mElevator1.getREVLimit();
 
         mIO.elevator_total_rotations = mElevator1.getTotalEncoderRotations(getRotations());
     }
