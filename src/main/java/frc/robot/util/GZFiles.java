@@ -633,6 +633,18 @@ public class GZFiles {
 		Files.deleteIfExists(_new.getFile().toPath());
 	}
 
+	public static void deleteFileSafe(GZFile file) {
+		try {
+			deleteFile(file);
+		} catch (Exception e) {
+
+		}
+	}
+
+	public static void deleteFile(GZFile file) throws Exception {
+		Files.deleteIfExists(file.getFile().toPath());
+	}
+
 	public static void copyFolder(Folder source, boolean sourceOnUsb, Folder dest, boolean destOnUsb)
 			throws IOException {
 		Path sourcePath = Paths.get(GZFileMaker.getFileLocation("", source, null, sourceOnUsb, false));

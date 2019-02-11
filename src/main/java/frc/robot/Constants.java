@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.Scanner;
+
 import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.util.GZFile;
@@ -127,7 +129,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-		public static final boolean TUNING = true;
+		public static final boolean TUNING = false;
 
 		// .95,0,60,.1,0,
 		public static class PID {
@@ -152,7 +154,7 @@ public class Constants {
 		// public final static boolean R_INVERT = true;
 
 		// 2018 Practice
-		public final static boolean L_INVERT = false;
+		public final static boolean L_INVERT = true;
 		public final static boolean R_INVERT = true;
 
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0;
@@ -228,6 +230,25 @@ public class Constants {
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
 		public final static double LOGGING_SPEED = .125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";
+
+		public final static GZFile ROBOT_NAME_FILE = GZFileMaker.getSafeFile("RobotName", new Folder(),
+				FileExtensions.TXT, false, false);
+		public final static String ROBOT_NAME;
+		static {
+			String tempString = "Unknown_Robot";
+			try {
+				Scanner n = new Scanner(kFiles.ROBOT_NAME_FILE.getFile());
+				tempString = n.nextLine();
+				n.close();
+			} catch (Exception e) {
+			} finally {
+				ROBOT_NAME = tempString;
+			}
+			if (ROBOT_NAME == "") {
+				System.out
+						.println("Robot name not found! Upload [RobotName.txt] to ROBORIO home directory to set name!");
+			}
+		}
 	}
 
 	public static class kOI {

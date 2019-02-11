@@ -25,9 +25,12 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
             this.retractTime = retractTime;
         }
 
+        /**
+         * By default on PCM 0!
+         */
         public DoubleSolenoidConstants(int fwd_channel, int rev_channel, double extendTime,
                 double retractTime) {
-            this(0, fwd_channel, rev_channel, extendTime, retractTime);
+            this(1, fwd_channel, rev_channel, extendTime, retractTime);
         }
     }
 

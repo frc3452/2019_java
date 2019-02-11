@@ -25,8 +25,11 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
             this.retractTime = retractTime;
         }
 
+        /**
+         * By default on PCM 0!
+         */
         public SolenoidConstants(int channel, double extendTime, double retractTime) {
-            this(0, channel, extendTime, retractTime);
+            this(1, channel, extendTime, retractTime);
         }
     }
 

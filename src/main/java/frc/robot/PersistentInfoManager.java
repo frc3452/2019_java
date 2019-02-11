@@ -297,12 +297,12 @@ public class PersistentInfoManager {
     public void replaceAndReRead() {
         try {
             GZFile theOld = GZFileMaker.getFile(kFiles.STATS_FILE_NAME, kFiles.STATS_FILE_FOLDER, FileExtensions.CSV,
-                    kFiles.STATS_FILE_ON_USB, false);
+                    kFiles.STATS_FILE_ON_USB, true);
+
             GZFile theNew = GZFileMaker.getFile("StatsToReplace", kFiles.STATS_FILE_FOLDER, FileExtensions.CSV, false,
                     false);
 
-            if (theOld.getFile().exists())
-                GZFiles.replaceFile(theOld, theNew);
+            GZFiles.replaceFile(theOld, theNew);
 
             initialize();
         } catch (Exception e) {

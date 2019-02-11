@@ -3,12 +3,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -83,7 +81,6 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
 			handleDriverController();
-			handleRumble();
 			// handleElevatorTesting();
 		}
 	}
@@ -118,7 +115,7 @@ public class GZOI extends GZSubsystem {
 		if (driverJoy.getButtonLatched(Buttons.B))
 			drive.toggleOpenLoop();
 
-			if (driverJoy.getButtonLatched(Buttons.A))
+		if (driverJoy.getButtonLatched(Buttons.A))
 			drive.toggleSlowSpeed();
 
 		drive.handleDriving(driverJoy);

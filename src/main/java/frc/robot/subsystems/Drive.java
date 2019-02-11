@@ -117,7 +117,7 @@ public class Drive extends GZSubsystem {
 
 		// im gonna kill the electrical team if they ever make
 		// me do remote sensors again
-		L1.setUsingRemoteEncoderOnTalon(this, R3);
+		// L1.setUsingRemoteEncoderOnTalon(this, R3);
 		zeroEncoders();
 
 		enableFollower();
@@ -709,11 +709,14 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void handleDriving(GZJoystick joy) {
 		// if (usingOpenLoop() || !mIO.encodersValid)
-		System.out.println(driveOutputLessThan(.2));
-		if (driveOutputLessThan(.2))
-			setWantedState(DriveState.OPEN_LOOP_DRIVER);
-		else
-			setWantedState(DriveState.CLOSED_LOOP_DRIVER);
+		// System.out.println(driveOutputLessThan(.2));
+		// if (driveOutputLessThan(.2))
+		// 	setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		// else
+		// 	setWantedState(DriveState.CLOSED_LOOP_DRIVER);
+
+
+		setWantedState(DriveState.OPEN_LOOP_DRIVER);
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
@@ -744,7 +747,7 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
 		final double move = joy.getLeftAnalogY() * elv;
-		arcadeNoState(move, rotate, false);
+		arcadeNoState(move, rotate, joy.getButton(Buttons.RB));
 		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
 		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ),
