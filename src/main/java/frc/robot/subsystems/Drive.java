@@ -719,7 +719,8 @@ public class Drive extends GZSubsystem {
 		// 	setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 
 
-		setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		tank(0, GZOI.driverJoy.getLeftAnalogY());
+		// setWantedState(DriveState.OPEN_LOOP_DRIVER);
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {

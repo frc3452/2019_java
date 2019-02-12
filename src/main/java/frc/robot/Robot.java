@@ -8,6 +8,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
+import frc.robot.util.GZRPMSupplier;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
