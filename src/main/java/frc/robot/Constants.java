@@ -42,7 +42,7 @@ public class Constants {
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
 		public static final int CARGO_SENSOR_CHANNEL = 0;
-		public static final VoltageTranslation CARGO_SENSOR_VOLT = new VoltageTranslation(1.2, 2.4); //TODO TUNE
+		public static final VoltageTranslation CARGO_SENSOR_VOLT = new VoltageTranslation(-1, -2); // TODO TUNE
 
 		public static final double OPEN_RAMP_TIME = 0;
 
@@ -62,30 +62,18 @@ public class Constants {
 
 			Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
 			Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
-			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(HP_1, 2);
+			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;
 			public final boolean moving_hp;
 
-			private Heights(double inches, boolean movingCargo) {
+			private Heights(double inches, boolean movingHP) {
 				this.inches = inches;
-				this.moving_hp = movingCargo;
+				this.moving_hp = movingHP;
 			}
 
 			private Heights(double inches) {
-				this(inches, false);
-			}
-
-			private Heights(Heights h) {
-				this(h.inches);
-			}
-
-			private Heights(Heights h, double jog) {
-				this(h, jog, false);
-			}
-
-			private Heights(Heights h, double jog, boolean movingCargo) {
-				this(h.inches + jog, movingCargo);
+				this(inches, true);
 			}
 		}
 	}
@@ -203,6 +191,7 @@ public class Constants {
 	}
 
 	public static class kIntake {
+
 		public static final int INTAKE_LEFT = 1;
 		public static final int INTAKE_RIGHT = 2;
 		public static final double INTAKE_SPEED = 0;
@@ -230,13 +219,12 @@ public class Constants {
 		public final static double LOGGING_SPEED = .125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";
 
-		public final static GZFile ROBOT_NAME_FILE = GZFileMaker.getSafeFile("RobotName", new Folder(),
-				FileExtensions.TXT, false, false);
 		public final static String ROBOT_NAME;
 		static {
 			String tempString = "Unknown_Robot";
 			try {
-				Scanner n = new Scanner(kFiles.ROBOT_NAME_FILE.getFile());
+				Scanner n = new Scanner(
+						GZFileMaker.getSafeFile("RobotName", new Folder(), FileExtensions.TXT, false, false).getFile());
 				tempString = n.nextLine();
 				n.close();
 			} catch (Exception e) {

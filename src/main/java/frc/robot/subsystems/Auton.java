@@ -12,6 +12,7 @@ import frc.robot.auto.commands.NoCommand;
 import frc.robot.auto.commands.WaitCommand;
 import frc.robot.auto.commands.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.auto.commands.drive.pathfollowing.WaitForMarker;
 import frc.robot.auto.commands.paths.CS_1;
 import frc.robot.auto.commands.paths.CS_2;
 import frc.robot.auto.commands.paths.CS_3;
@@ -75,6 +76,18 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
+		// CommandGroup c = new CommandGroup() {
+		// 	{
+		// 		addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
+		// 		addSequential(new CommandGroup() {
+		// 			{
+		// 				addSequential(new WaitForMarker("DropIntake"));
+		// 				addSequential(//drop intake);
+		// 			}
+		// 		});
+		// 	}
+		// };
+
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
 		commandArray.add(new GZCommand("Curve test", new ResetPoseDrivePath(new Curve_Test())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
@@ -93,10 +106,7 @@ public class Auton {
 				addSequential(new WaitCommand(waitTime));
 			}
 		}));
-	
-
-		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
-		
+		commandArray.add(new GZCommand("Marker command group", new MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

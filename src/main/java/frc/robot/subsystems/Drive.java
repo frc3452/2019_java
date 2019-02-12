@@ -100,7 +100,7 @@ public class Drive extends GZSubsystem {
 		mNavX = new NavX(SPI.Port.kMXP);
 
 		// mShifter = new GZSolenoid(kSolenoids.SHIFTER, this, "PTO Shifter");
-		
+
 		try {
 			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
 		} catch (Exception e) {
@@ -642,10 +642,9 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void in() {
 		this.mModifyPercent = (mIsSlow ? .5 : 1);
-		
+
 		String out = "";
-		for (GZSRX s : mTalons)
-		{
+		for (GZSRX s : mTalons) {
 			out += df.format(s.getMotorOutputVoltage()) + "\t";
 		}
 
@@ -714,10 +713,9 @@ public class Drive extends GZSubsystem {
 		// if (usingOpenLoop() || !mIO.encodersValid)
 		// System.out.println(driveOutputLessThan(.2));
 		// if (driveOutputLessThan(.2))
-		// 	setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		// setWantedState(DriveState.OPEN_LOOP_DRIVER);
 		// else
-		// 	setWantedState(DriveState.CLOSED_LOOP_DRIVER);
-
+		// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 
 		tank(0, GZOI.driverJoy.getLeftAnalogY());
 		// setWantedState(DriveState.OPEN_LOOP_DRIVER);
