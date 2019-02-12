@@ -12,6 +12,7 @@ import frc.robot.auto.commands.NoCommand;
 import frc.robot.auto.commands.WaitCommand;
 import frc.robot.auto.commands.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.auto.commands.drive.pathfollowing.WaitForMarker;
 import frc.robot.auto.commands.paths.CS_1;
 import frc.robot.auto.commands.paths.CS_2;
 import frc.robot.auto.commands.paths.CS_3;
@@ -82,10 +83,21 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
+		// CommandGroup c = new CommandGroup() {
+		// 	{
+		// 		addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
+		// 		addSequential(new CommandGroup() {
+		// 			{
+		// 				addSequential(new WaitForMarker("DropIntake"));
+		// 				addSequential(//drop intake);
+		// 			}
+		// 		});
+		// 	}
+		// };
+
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
 		commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
-		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
-		{
+		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup() {
 			{
 				final double waitTime = .1;
 				addSequential(new ResetPoseDrivePath(new CS_1()));
@@ -100,9 +112,7 @@ public class Auton {
 				addSequential(new WaitCommand(waitTime));
 			}
 		}));
-	
 
-	
 		commandArray.add(new GZCommand(new ResetPoseDrivePath(new L())));
 		commandArray.add(new GZCommand("Help", new CommandGroup() {
 			{
@@ -117,7 +127,6 @@ public class Auton {
 		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Left_To_Rocket_L())));
 		commandArray.add(new GZCommand("Straight curve left", new ResetPoseDrivePath(new Straight_Curve_Left())));
 		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
-		
 
 		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
 

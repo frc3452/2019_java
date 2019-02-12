@@ -5,7 +5,7 @@ public class CompBot extends RobotProfile {
 
     @Override
     public double getWheelDiamaterInches() {
-        return 8;
+        return 7.7;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class PathAdapter {
     private static FieldProfile kCurrentField = new ReferenceField();
 
     private static RobotProfile kRobotProfile = new CompBot();
-
+    
     public static double getWheelDiameterInches() {
         return kRobotProfile.getWheelDiamaterInches();
     }

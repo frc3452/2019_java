@@ -4,6 +4,8 @@ import frc.robot.Constants.kElevator;
 
 public class ReferenceField extends FieldProfile {
     public ReferenceField() {
+        this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
+        this.mFeederStationToWall = new FieldValues<Double>(5.5);
     }
 
     private HeightsContainer mHeight = new HeightsContainer() {
