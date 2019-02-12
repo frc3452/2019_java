@@ -6,8 +6,10 @@ var width = 1656; //pixels
 var height = 823; //pixels
 var fieldWidth = 652; // in inches
 var fieldHeight = 324; // in inches
-var robotWidth = 34.5; //inches //32.75
-var robotHeight = 38.5; //inches //37.5
+var robotWidth = (23.5 + (3.5 * 2));
+var robotHeight = (30 + (3.5 * 2));
+// var robotWidth = 34.5; //inches //32.75
+// var robotHeight = 38.5; //inches //37.5
 const halfL = robotHeight / 2.0;
 var pointRadius = 5;
 var turnRadius = 30;
@@ -17,7 +19,8 @@ var imageFlipped;
 var wto;
 
 var lastSetStartingPosition = 0;
-var startingPositions = [[22, 205], [22, 117], [67, 205], [67, 162], [67, 119]];
+const level1StartX = (48 + (1 / 8)) + halfL;
+var startingPositions = [[22, 205], [22, 117], [level1StartX, 205], [level1StartX, 162], [level1StartX, 119]];
 
 var maxSpeed = 120;
 var maxSpeedColor = [0, 255, 0];

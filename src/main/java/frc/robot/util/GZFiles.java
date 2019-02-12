@@ -500,7 +500,6 @@ public class GZFiles {
 						pwmTable = HTML.table(pwmTable);
 						subsystem += pwmTable;
 					}
-
 				} // if has motors
 
 				if (s.hasAir()) {
@@ -547,6 +546,25 @@ public class GZFiles {
 						subsystem += doublesTable;
 					}
 
+				}
+
+				if (s.mRPMSuppliers.size() != 0) {
+					subsystem += HTML.paragraph("");
+					String rpmSupplierTable = "";
+					{
+						String rpmSupplierHeader = "";
+						rpmSupplierHeader = HTML.tableRow(HTML.easyHeader("RPM Suppliers"));
+						rpmSupplierTable += rpmSupplierHeader;
+					}
+
+					for (GZRPMSupplier sup : s.mRPMSuppliers) {
+						String supplierRow = "";
+						supplierRow += HTML.easyTableRow(sup.getGZName());
+						rpmSupplierTable += supplierRow;
+					}
+
+					rpmSupplierTable = HTML.table(rpmSupplierTable);
+					subsystem += rpmSupplierTable;
 				}
 
 				body += subsystem;

@@ -5,14 +5,12 @@ import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.commands.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.util.math.Rotation2d;
 
-public class Straight_Curve_Left extends PathContainer {
-    public Straight_Curve_Left() {
+public class Curve_Test extends PathContainer {
+    public Curve_Test() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(20, 48, 0, 0));
-        sWaypoints.add(new Waypoint(120, 48, 1, 40));
-        sWaypoints.add(new Waypoint(232, 43, 40, 40));
-        sWaypoints.add(new Waypoint(232, 103, 1, 40));
-        sWaypoints.add(new Waypoint(232, 190, 0, 40));
+        sWaypoints.add(new Waypoint(19, 268, 0, 0));
+        sWaypoints.add(new Waypoint(144, 268, 40, 60));
+        sWaypoints.add(new Waypoint(144, 34, 0, 60));
     }
 
     @Override

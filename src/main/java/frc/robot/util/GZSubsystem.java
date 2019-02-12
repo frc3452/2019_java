@@ -34,6 +34,8 @@ public abstract class GZSubsystem extends Subsystem {
 	public ArrayList<GZSolenoid> mSingleSolenoids = new ArrayList<GZSolenoid>();
 	public ArrayList<GZDoubleSolenoid> mDoubleSolenoids = new ArrayList<GZDoubleSolenoid>();
 
+	public ArrayList<GZRPMSupplier> mRPMSuppliers = new ArrayList<GZRPMSupplier>();
+
 	public void printState() {
 		System.out.println(getStateString());
 	}

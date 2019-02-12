@@ -2,4 +2,5 @@
 Prop3=19,1
 [InternetShortcut]
 IDList=
-URL=ftp://10.34.52.2/u/
+URL=ftp://10.34.52.2/home/lvuser/RobotName.txt
+HotKey=0

@@ -17,14 +17,7 @@ import frc.robot.auto.commands.paths.CS_2;
 import frc.robot.auto.commands.paths.CS_3;
 import frc.robot.auto.commands.paths.CS_4;
 import frc.robot.auto.commands.paths.CS_5;
-import frc.robot.auto.commands.paths.Cargo_Ship;
-import frc.robot.auto.commands.paths.Cargo_Ship_2;
-import frc.robot.auto.commands.paths.Cargo_Ship_3;
-import frc.robot.auto.commands.paths.Cargo_Ship_4;
-import frc.robot.auto.commands.paths.Hard_Curve;
-import frc.robot.auto.commands.paths.L;
-import frc.robot.auto.commands.paths.Left_To_Rocket_L;
-import frc.robot.auto.commands.paths.Straight_Curve_Left;
+import frc.robot.auto.commands.paths.Curve_Test;
 import frc.robot.auto.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -83,7 +76,7 @@ public class Auton {
 		commandArray = new ArrayList<GZCommand>();
 
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Hard curve", new ResetPoseDrivePath(new Hard_Curve())));
+		commandArray.add(new GZCommand("Curve test", new ResetPoseDrivePath(new Curve_Test())));
 		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
 		{
 			{
@@ -102,20 +95,6 @@ public class Auton {
 		}));
 	
 
-	
-		commandArray.add(new GZCommand(new ResetPoseDrivePath(new L())));
-		commandArray.add(new GZCommand("Help", new CommandGroup() {
-			{
-				addSequential(new ResetPoseDrivePath(new Cargo_Ship().print()));
-				addSequential(new DrivePath(new Cargo_Ship_2().print()));
-				addSequential(new DrivePath(new Cargo_Ship_3().print()));
-				addSequential(new DrivePath(new Cargo_Ship_3().getReversed().print()));
-				addSequential(new DrivePath(new Cargo_Ship_4().print()));
-			}
-		}));
-
-		commandArray.add(new GZCommand(new ResetPoseDrivePath(new Left_To_Rocket_L())));
-		commandArray.add(new GZCommand("Straight curve left", new ResetPoseDrivePath(new Straight_Curve_Left())));
 		commandArray.add(new GZCommand("Test command group", new MarkerCommandGroup()));
 		
 

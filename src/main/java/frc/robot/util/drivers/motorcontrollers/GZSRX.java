@@ -13,7 +13,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.Constants.kTempSensor;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZRPMSupplier;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 
 public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
@@ -128,6 +130,10 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 		subsystem.mTalons.add(this);
 		subsystem.mSmartControllers.add(this);
+
+		if (this.encoderPresent())
+			subsystem.mRPMSuppliers
+					.add(new GZRPMSupplier(this, () -> GZUtil.nativeTalonUnitsToRPM(this.getSelectedSensorPosition())));
 	}
 
 	public SmartController getControllerType() {

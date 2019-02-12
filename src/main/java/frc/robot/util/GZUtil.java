@@ -189,6 +189,11 @@ public class GZUtil {
 		}
 	}
 
+	public static Double nativeTalonUnitsToRPM(double nativeUnits)
+	{
+		return nativeUnits * (1/4096) * (600);
+	}
+
 	public static boolean between(double value, double low, double high) {
 		if (value >= low && value <= high)
 			return true;

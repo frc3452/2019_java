@@ -1,7 +1,7 @@
 package frc.robot.auto.pathadapter.robotprofiles;
 
 
-public class CompBot extends RobotProfile {
+public class PracticeBot extends RobotProfile {
 
     @Override
     public double getWheelDiamaterInches() {
