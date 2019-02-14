@@ -112,13 +112,18 @@ public class Auton {
 	}
 
 	private Auton() {
+		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_ONES);
 		// mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
-		// mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		fillAutonArray();
 	}
 
+	public void print()
+	{
+		mSelectorTens.print();
+	}
+
 	public int getSelector() {
-		return DigitalSelector.get(mSelectorOnes, mSelectorTens);
+		return DigitalSelector.get(mSelectorTens, mSelectorOnes);
 	}
 
 	public void crash() {

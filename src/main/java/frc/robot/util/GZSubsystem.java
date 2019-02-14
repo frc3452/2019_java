@@ -95,7 +95,6 @@ public abstract class GZSubsystem extends Subsystem {
 
 			GZLog.addAverageLeft(name + "AMP-AVG");
 
-
 			if (s.hasTemperatureSensor()) {
 				new LogItem(name + "TEMP") {
 
@@ -168,8 +167,7 @@ public abstract class GZSubsystem extends Subsystem {
 
 	public abstract void addLoggingValues();
 
-	public void superLoop()
-	{
+	public void superLoop() {
 		for (GZSolenoid s : mSingleSolenoids)
 			s.shouldForceOutputOff();
 
@@ -198,4 +196,5 @@ public abstract class GZSubsystem extends Subsystem {
 	// Zero sensors
 	public void zeroSensors() {
 	}
+
 }

@@ -11,7 +11,8 @@ public class CS_5 extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(283, 277, 1, 0));
         sWaypoints.add(new Waypoint(283, 243, 1, 45));
-        sWaypoints.add(PathAdapter.getHABBay(new Waypoint(283, 209, 1, 35), 2, true));
+        sWaypoints.add(new Waypoint(283, 209, 1, 35));
+        // sWaypoints.add(PathAdapter.getHABBay(new Waypoint(283, 209, 1, 35), 2, true));
     }
 
     @Override

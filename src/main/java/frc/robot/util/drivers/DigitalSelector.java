@@ -16,16 +16,16 @@ public class DigitalSelector {
     private String mName;
 
     public DigitalSelector(DigitalSelectorConstants constants) {
-        this(constants.name, constants.port1, constants.port2, constants.port3, constants.port4);
+        this(constants.name, constants.portA, constants.portB, constants.portC, constants.portD);
     }
 
-    private DigitalSelector(String name, int port1, int port2, int port3, int port4) {
+    private DigitalSelector(String name, int portA, int portB, int portC, int portD) {
         mName = name;
 
-        this.port1 = port1;
-        this.port2 = port2;
-        this.port3 = port3;
-        this.port4 = port4;
+        this.port1 = portA;
+        this.port2 = portB;
+        this.port3 = portC;
+        this.port4 = portD;
 
         try {
             m1 = new GZDigitalInput(this.port1);
@@ -142,28 +142,41 @@ public class DigitalSelector {
         return mName;
     }
 
+    public void print() {
+        String out = "DigitalSelector: " + toString();
+        if (areAnyNull()){
+            out = " has some null inputs (A,B,C,D): " + (m1 == null) + "\t" + (m2 == null) + "\t"
+                    + (m3 == null) + "\t" + (m4 == null);
+            System.out.println(out);
+            return;
+        }
+
+        out = "\tValue: " + this.get() + "\tIndividual Values: " + (m1.get() + "\t" + m2.get() + "\t" + m3.get() + "\t" + m4.get());
+        System.out.println(out);
+    }
+
     public static class DigitalSelectorConstants {
         private final static int PORT_MIN = 0;
         private final static int PORT_MAX = 9;
 
         public final String name;
-        public final int port1, port2, port3, port4;
+        public final int portA, portB, portC, portD;
 
-        public DigitalSelectorConstants(String name, int port1, int port2, int port3, int port4) {
+        public DigitalSelectorConstants(String name, int portA, int portB, int portC, int portD) {
             this.name = name;
-            this.port1 = port1;
-            this.port2 = port2;
-            this.port3 = port3;
-            this.port4 = port4;
+            this.portA = portA;
+            this.portB = portB;
+            this.portC = portC;
+            this.portD = portD;
 
             ArrayList<Integer> ports = new ArrayList<Integer>();
-            ports.addAll(Arrays.asList(this.port1, this.port2, this.port3, this.port4));
+            ports.addAll(Arrays.asList(this.portA, this.portB, this.portC, this.portD));
 
             int portNum = 1;
             for (int port : ports) {
                 if (port < PORT_MIN || port > PORT_MAX)
-                    throw new IllegalArgumentException("Port " + portNum + " cannot be on port " + port1 + ". (Must be between "
-                            + PORT_MIN + " and " + PORT_MAX + ")");
+                    throw new IllegalArgumentException("Port " + portNum + " cannot be on port " + portA
+                            + ". (Must be between " + PORT_MIN + " and " + PORT_MAX + ")");
                 portNum++;
             }
 

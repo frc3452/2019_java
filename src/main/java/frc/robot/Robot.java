@@ -62,6 +62,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		auton.print();
+
 		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && Drive.getInstance().driveOutputLessThan(.05))
 			auton.crash();
 	}
