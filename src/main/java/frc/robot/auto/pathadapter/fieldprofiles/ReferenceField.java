@@ -6,6 +6,14 @@ public class ReferenceField extends FieldProfile {
     public ReferenceField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
         this.mFeederStationToWall = new FieldValues<Double>(5.5);
+        this.mBay1ToWall = new FieldValues<Double>(133.13);
+        this.mBay2ToWall = new FieldValues<Double>(133.13, 133.13);
+        this.mBay3ToWall = new FieldValues<Double>(133.13, 133.13);
+        this.mBay1ToRamp = new FieldValues<Double>(164.52, 164.52);
+        this.mBay2ToRamp = new FieldValues<Double>(208.02, 208.02);
+        this.mBay3ToRamp = new FieldValues<Double>(251.52, 251.52);
+        this.mCargoShipFaceToHABRamp = new FieldValues<Double>(124.97, 118.29);
+        this.mCargoShipFaceToMidLine = new FieldValues<Double>(175.85, 179.85);
     }
 
     private HeightsContainer mHeight = new HeightsContainer() {

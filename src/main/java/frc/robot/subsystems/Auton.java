@@ -74,7 +74,7 @@ public class Auton {
 		m_controllerOverrideValue = 1;
 
 		commandArray = new ArrayList<GZCommand>();
-
+		
 		// CommandGroup c = new CommandGroup() {
 		// {
 		// addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
@@ -87,9 +87,9 @@ public class Auton {
 		// }
 		// };
 
-		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Curve test", new ResetPoseDrivePath(new Curve_Test_2(), true, 3)));
-		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup() {
+		commandArray.add(new GZCommand("Drive straight", () -> new ResetPoseDrivePath(new Straight_Path())   ));
+		commandArray.add(new GZCommand("Curve test", () -> new ResetPoseDrivePath(new Curve_Test_2())));
+		commandArray.add(new GZCommand("Cargo ship ", () -> new CommandGroup() {
 			{
 				final double waitTime = .1;
 				addSequential(new ResetPoseDrivePath(new CS_1()));
@@ -104,9 +104,9 @@ public class Auton {
 				addSequential(new WaitCommand(waitTime));
 			}
 		}));
-		commandArray.add(new GZCommand("Marker command group", new MarkerCommandGroup()));
+		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
 
-		defaultCommand = new GZCommand("DEFAULT", new NoCommand());
+		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
 		autonChooser();
 	}
@@ -173,10 +173,15 @@ public class Auton {
 			return;
 
 		if (mLBAutoStart.update(update)) {
-			autonomousCommand.start();
+			startAutoCommand() ;
 			System.out.println("WARNING Controller starting auto!");
-
 		}
+	}
+
+	private void startAutoCommand() 
+	{
+		autonomousCommand.setCommand();
+		autonomousCommand.start();
 	}
 
 	/**
@@ -219,7 +224,7 @@ public class Auton {
 			if (mWaitOnAutoStart) {
 				System.out.println("WARNING Auto not running! Wait toggled!");
 			} else {
-				autonomousCommand.start();
+				startAutoCommand();
 				System.out.println("Starting auto...");
 			}
 

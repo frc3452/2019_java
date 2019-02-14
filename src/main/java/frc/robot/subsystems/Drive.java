@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import java.text.DecimalFormat;
+import java.util.function.Supplier;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -52,7 +54,7 @@ public class Drive extends GZSubsystem {
 	public IO mIO = new IO();
 
 	// DRIVETRAIN
-	private GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
+	public GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
 
 	// GYRO
 	private NavX mNavX;
@@ -433,16 +435,18 @@ public class Drive extends GZSubsystem {
 							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current-limit continuous for Talon " + name);
 
+
+
 			GZSRX.logError(
-					s.configPeakCurrentLimit(
+					() -> s.configPeakCurrentLimit(
 							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_PEAK : kDrivetrain.AMP_30_PEAK,
 							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current-limit peak for Talon " + name);
 
 			GZSRX.logError(
-					() -> s.configPeakCurrentDuration(
-							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TIME : kDrivetrain.AMP_30_TIME,
-							GZSRX.TIMEOUT),
+				() -> s.configPeakCurrentDuration(
+					s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TIME : kDrivetrain.AMP_30_TIME,
+					GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current limit time for Talon " + name);
 
 			s.enableCurrentLimit(true);

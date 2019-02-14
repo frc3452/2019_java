@@ -1,6 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 
@@ -34,6 +35,13 @@ public abstract class FieldProfile {
     // Left Cargo Ship Bay 3
     public FieldValues<Double> mBay3ToWall;
     public FieldValues<Double> mBay3ToRamp;
+
+    public Translation2d getFeederStation(Alliance a, boolean left) {
+        if (left)
+            return getLeftFeederStation(a);
+
+        return getRightFeederStation(a);
+    }
 
     public Translation2d getLeftFeederStation(Alliance a) {
         // this.mFeederStationToDriverWall.
@@ -86,7 +94,7 @@ public abstract class FieldProfile {
         }
     }
 
-    public Translation2d getBay(boolean left, int bay, Alliance a) {
+    public Translation2d getBay(Alliance a,  int bay, boolean left) {
         final double x = mHABLevel3EdgeToDriverStation.get(a, left) + mHABLevel1EdgeToRamp.get(a, left)
                 + mHABRamp.get(a, left) + getBayToRamp(bay).get(a, left);
         final double y;
