@@ -10,7 +10,8 @@ public class Curve_Test extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(19, 268, 0, 0));
         sWaypoints.add(new Waypoint(144, 268, 40, 60));
-        sWaypoints.add(new Waypoint(144, 34, 0, 60));
+        sWaypoints.add(new Waypoint(144, 34, 15, 60));
+        sWaypoints.add(new Waypoint(268, 34, 0, 60));
     }
 
     @Override

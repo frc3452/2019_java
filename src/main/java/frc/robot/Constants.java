@@ -147,7 +147,7 @@ public class Constants {
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
 		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
-		public final static double OPEN_LOOP_RAMP_TIME = .125;
+		public final static double OPEN_LOOP_RAMP_TIME = .125; // .125
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
 

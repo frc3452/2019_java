@@ -706,7 +706,7 @@ public class Drive extends GZSubsystem {
 	public synchronized boolean driveOutputLessThan(double speed) {
 		speed = Math.abs(speed);
 
-		return getLeftSpeed() < speed && getRightSpeed() < speed;
+		return Math.abs(getLeftSpeed()) < speed && Math.abs(getRightSpeed()) < speed;
 	}
 
 	public synchronized void handleDriving(GZJoystick joy) {
@@ -717,8 +717,8 @@ public class Drive extends GZSubsystem {
 		// else
 		// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 
-		tank(0, GZOI.driverJoy.getLeftAnalogY());
-		// setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
+		setWantedState(DriveState.OPEN_LOOP_DRIVER);
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {

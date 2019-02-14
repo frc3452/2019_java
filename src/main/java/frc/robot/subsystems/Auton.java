@@ -12,13 +12,12 @@ import frc.robot.auto.commands.NoCommand;
 import frc.robot.auto.commands.WaitCommand;
 import frc.robot.auto.commands.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.drive.pathfollowing.WaitForMarker;
 import frc.robot.auto.commands.paths.CS_1;
 import frc.robot.auto.commands.paths.CS_2;
 import frc.robot.auto.commands.paths.CS_3;
 import frc.robot.auto.commands.paths.CS_4;
 import frc.robot.auto.commands.paths.CS_5;
-import frc.robot.auto.commands.paths.Curve_Test;
+import frc.robot.auto.commands.paths.Curve_Test_2;
 import frc.robot.auto.commands.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -77,21 +76,20 @@ public class Auton {
 		commandArray = new ArrayList<GZCommand>();
 
 		// CommandGroup c = new CommandGroup() {
-		// 	{
-		// 		addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
-		// 		addSequential(new CommandGroup() {
-		// 			{
-		// 				addSequential(new WaitForMarker("DropIntake"));
-		// 				addSequential(//drop intake);
-		// 			}
-		// 		});
-		// 	}
+		// {
+		// addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
+		// addSequential(new CommandGroup() {
+		// {
+		// addSequential(new WaitForMarker("DropIntake"));
+		// addSequential(//drop intake);
+		// }
+		// });
+		// }
 		// };
 
 		commandArray.add(new GZCommand("Drive straight", new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Curve test", new ResetPoseDrivePath(new Curve_Test())));
-		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup()
-		{
+		commandArray.add(new GZCommand("Curve test", new ResetPoseDrivePath(new Curve_Test_2(), true, 3)));
+		commandArray.add(new GZCommand("Cargo ship ", new CommandGroup() {
 			{
 				final double waitTime = .1;
 				addSequential(new ResetPoseDrivePath(new CS_1()));
@@ -124,7 +122,8 @@ public class Auton {
 	}
 
 	public void crash() {
-		if (GZOI.getInstance().isDisabled() && !GZOI.getInstance().isFMS()) {
+		// GZOI.getInstance().isDisabled() &&
+		if (!GZOI.getInstance().isFMS()) {
 			Timer f = null;
 			f.start();
 		}

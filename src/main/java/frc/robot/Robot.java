@@ -11,6 +11,7 @@ import frc.robot.util.GZFiles;
 import frc.robot.util.GZRPMSupplier;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
 
@@ -36,7 +37,8 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/Offseason/"  + GZUtil.getDate());
+	private final Folder loggingLocation = new Folder(
+			"Logging/ " + kFiles.ROBOT_NAME + "/Offseason/" + GZUtil.getDate());
 
 	@Override
 	public void robotInit() {
@@ -58,6 +60,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && Drive.getInstance().driveOutputLessThan(.05))
+			auton.crash();
 	}
 
 	@Override
