@@ -132,7 +132,8 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		subsystem.mSmartControllers.add(this);
 
 		if (this.encoderPresent())
-			subsystem.mRPMSuppliers.add(new GZRPMSupplier(this, () -> GZUtil.nativeTalonUnitsToRPM((double) this.getSelectedSensorVelocity(0))));
+			subsystem.mRPMSuppliers.add(new GZRPMSupplier(this,
+					() -> GZUtil.nativeTalonUnitsToRPM((double) this.getSelectedSensorVelocity(0))));
 	}
 
 	public SmartController getControllerType() {
@@ -360,10 +361,12 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	public static boolean logError(Supplier<ErrorCode> errorCode, GZSubsystem subsystem, AlertLevel level,
 			String message, int retries) {
 		boolean success = false;
-		if (level == AlertLevel.WARNING)
-			retries = 3;
-		else
-			retries = 6;
+
+		if (retries != -1)
+			if (level == AlertLevel.WARNING)
+				retries = 3;
+			else
+				retries = 6;
 
 		for (int i = 0; i < retries && !success; i++) {
 			if (errorCode.get() == ErrorCode.OK)
@@ -378,7 +381,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 
 	public static boolean logError(Supplier<ErrorCode> errorCode, GZSubsystem subsystem, AlertLevel level,
 			String message) {
-		return logError(errorCode, subsystem, level, message, 0);
+		return logError(errorCode, subsystem, level, message, -1);
 	}
 
 }

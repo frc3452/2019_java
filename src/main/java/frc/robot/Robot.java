@@ -3,9 +3,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Health;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZRPMSupplier;
@@ -36,7 +38,8 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/Offseason/"  + GZUtil.getDate());
+	private final Folder loggingLocation = new Folder(
+			"Logging/ " + kFiles.ROBOT_NAME + "/Offseason/" + GZUtil.getDate());
 
 	@Override
 	public void robotInit() {

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.CANifier;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -33,6 +35,14 @@ public class Lights extends GZSubsystem {
 	private double tempArray[] = new double[10];
 
 	private static Lights mInstance = null;
+
+
+	public void it(Supplier<String> supplier)
+	{
+		for (int i = 0; i < 1000; i++)
+			System.out.println(supplier.get());
+	}
+
 
 	public synchronized static Lights getInstance() {
 		if (mInstance == null)

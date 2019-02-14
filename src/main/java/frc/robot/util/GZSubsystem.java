@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.GZOI;
