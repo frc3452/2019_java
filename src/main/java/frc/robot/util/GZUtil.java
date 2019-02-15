@@ -7,11 +7,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
-import edu.wpi.first.wpilibj.AnalogInput;
-import frc.robot.Constants.kTempSensor;
 import frc.robot.poofs.util.control.PathSegment;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
@@ -50,7 +50,6 @@ public class GZUtil {
 
 		return ret;
 	}
-
 
 	public static String[] letters = { "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
 			"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI",
@@ -189,9 +188,8 @@ public class GZUtil {
 		}
 	}
 
-	public static Double nativeTalonUnitsToRPM(double nativeUnits)
-	{
-		return nativeUnits * (1.0/4096.0) * (600.0);
+	public static Double nativeTalonUnitsToRPM(double nativeUnits) {
+		return nativeUnits * (1.0 / 4096.0) * (600.0);
 	}
 
 	public static boolean between(double value, double low, double high) {

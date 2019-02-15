@@ -3,35 +3,39 @@ package frc.robot.util.drivers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import edu.wpi.first.wpilibj.DigitalInput;
 
 public class DigitalSelector {
 
     private final int port1, port2, port3, port4;
     private GZDigitalInput m1 = null, m2 = null, m3 = null, m4 = null;
 
+    private final boolean invert;
+
     private Map<Integer, GZDigitalInput> map = new HashMap<Integer, GZDigitalInput>();
     private String mName;
 
     public DigitalSelector(DigitalSelectorConstants constants) {
-        this(constants.name, constants.portA, constants.portB, constants.portC, constants.portD);
+        this(constants.name, constants.invert, constants.portA, constants.portB, constants.portC, constants.portD);
     }
 
-    private DigitalSelector(String name, int portA, int portB, int portC, int portD) {
+    private DigitalSelector(String name, boolean invert, int portA, int portB, int portC, int portD) {
         mName = name;
 
         this.port1 = portA;
         this.port2 = portB;
         this.port3 = portC;
         this.port4 = portD;
+        this.invert = invert;
 
         try {
-            m1 = new GZDigitalInput(this.port1);
-            m2 = new GZDigitalInput(this.port2);
-            m3 = new GZDigitalInput(this.port3);
-            m4 = new GZDigitalInput(this.port4);
+            m1 = new GZDigitalInput(this.port1, this.invert);
+            m2 = new GZDigitalInput(this.port2, this.invert);
+            m3 = new GZDigitalInput(this.port3, this.invert);
+            m4 = new GZDigitalInput(this.port4, this.invert);
+
+            m1.get();
 
             map.put(1, m1);
             map.put(2, m2);
@@ -103,34 +107,31 @@ public class DigitalSelector {
     private boolean none() {
         boolean ret = false;
 
-        for (DigitalInput i : map.values())
+        for (GZDigitalInput i : map.values())
             ret |= i.get();
 
         return !ret;
     }
 
-    private boolean are(int... selectors) {
+    private boolean are(Integer... selectors) {
         boolean ret = true;
+        List<Integer> list = Arrays.asList(selectors);
 
-        for (Integer a : selectors) {
-            if (map.containsKey(a))
-                if (map.get(a).get())
-                    ret &= true;
-                else
-                    ret = false;
-            else
-                ret = false;
+        for (int i = 1; i <= 4 && ret; i++) {
+            if (list.contains(i)) {
+                ret &= map.get(i).get();
+            } else {
+                ret &= !map.get(i).get();
+            }
         }
-
         return ret;
     }
 
-    private boolean areAnyNull(DigitalInput... list) {
+    private boolean areAnyNull(GZDigitalInput... list) {
         boolean ret = false;
-        for (DigitalInput i : list)
+        for (GZDigitalInput i : list)
             ret |= i == null;
         return ret;
-
     }
 
     private boolean areAnyNull() {
@@ -144,14 +145,15 @@ public class DigitalSelector {
 
     public void print() {
         String out = "DigitalSelector: " + toString();
-        if (areAnyNull()){
-            out = " has some null inputs (A,B,C,D): " + (m1 == null) + "\t" + (m2 == null) + "\t"
-                    + (m3 == null) + "\t" + (m4 == null);
+        if (areAnyNull()) {
+            out = " has some null inputs (A,B,C,D): " + (m1 == null) + "\t" + (m2 == null) + "\t" + (m3 == null) + "\t"
+                    + (m4 == null);
             System.out.println(out);
             return;
         }
 
-        out = "\tValue: " + this.get() + "\tIndividual Values: " + (m1.get() + "\t" + m2.get() + "\t" + m3.get() + "\t" + m4.get());
+        out = "\tValue: " + this.get() + "\tIndividual Values: "
+                + (m1.get() + "\t" + m2.get() + "\t" + m3.get() + "\t" + m4.get());
         System.out.println(out);
     }
 
@@ -159,15 +161,21 @@ public class DigitalSelector {
         private final static int PORT_MIN = 0;
         private final static int PORT_MAX = 9;
 
+        public final boolean invert;
         public final String name;
         public final int portA, portB, portC, portD;
 
         public DigitalSelectorConstants(String name, int portA, int portB, int portC, int portD) {
+            this(name, false, portA, portB, portC, portD);
+        }
+
+        public DigitalSelectorConstants(String name, boolean invert, int portA, int portB, int portC, int portD) {
             this.name = name;
             this.portA = portA;
             this.portB = portB;
             this.portC = portC;
             this.portD = portD;
+            this.invert = invert;
 
             ArrayList<Integer> ports = new ArrayList<Integer>();
             ports.addAll(Arrays.asList(this.portA, this.portB, this.portC, this.portD));
