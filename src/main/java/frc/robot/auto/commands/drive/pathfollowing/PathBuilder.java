@@ -85,6 +85,11 @@ public class PathBuilder {
         public void translateBy(Translation2d translation) {
             position = position.translateBy(translation);
         }
+
+        public String toString()
+        {
+            return "T:" + position.toString() + "\tR: " + radius + "\tS: " + speed;
+        }
     }
 
     /**

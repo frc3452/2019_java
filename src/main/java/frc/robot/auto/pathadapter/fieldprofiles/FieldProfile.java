@@ -44,7 +44,6 @@ public abstract class FieldProfile {
     }
 
     public Translation2d getLeftFeederStation(Alliance a) {
-        // this.mFeederStationToDriverWall.
         final double x = mFeederStationToDriverWall.getLeft(a);
         final double y = mFieldWith - mFeederStationToWall.getLeft(a);
         Translation2d ret = new Translation2d(x, y);

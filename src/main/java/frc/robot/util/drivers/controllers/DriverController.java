@@ -8,6 +8,7 @@ public class DriverController extends DeepSpaceController {
     }
     
     private void initButtons() {
+        this.idle = new GZButton(this, () -> false);
         this.queueAction = new GZButton(this, () -> false);
         this.elevatorHome = new GZButton(this, () -> false);
         this.hatchPannel1 = new GZButton(this, () -> false);

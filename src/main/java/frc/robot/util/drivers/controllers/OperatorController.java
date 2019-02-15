@@ -19,6 +19,7 @@ public class OperatorController extends DeepSpaceController {
     public OperatorController(int port) {
         super(port);
 
+        this.idle = new GZButton(this, () -> false, () -> false);
         this.queueAction = new GZButton(this, () -> false, () -> false);
         this.elevatorHome = new GZButton(this, () -> false, () -> false);
         this.hatchPannel1 = new GZButton(this, () -> false, () -> false);

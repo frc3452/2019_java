@@ -3,10 +3,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -33,7 +36,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	// private Superstructure supe = Superstructure.getInstance();
+	private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
 
 	private static GZOI mInstance = null;
@@ -123,33 +126,48 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
-		/**
-		 * if (controller.hatchPannel1.get()) supe.runHeight(Heights.HP_1, queue); else
-		 * if (controller.hatchPanel2.get()) supe.runHeight(Heights.HP_2, queue); else
-		 * if (controller.hatchPanel3.get()) supe.runHeight(Heights.HP_3, queue); else
-		 * if (controller.hatchFromFeed.get()) supe.runHeight(Heights.HP_1, queue); else
-		 * if (controller.cargo1.get()) supe.runHeight(Heights.Cargo_1, queue); else if
-		 * (controller.cargo2.get()) supe.runHeight(Heights.Cargo_2, queue); else if
-		 * (controller.cargo3.get()) supe.runHeight(Heights.Cargo_3, queue); else if
-		 * (controller.cargoShip.get()) supe.runHeight(Heights.Cargo_Ship, queue); else
-		 * supe.elevatorNoManual();
-		 * 
-		 * if (controller.slidesIn.get()) supe.retractSlides(true); else if
-		 * (controller.slidesOut.get()) supe.extendSlides(true); else
-		 * supe.slidesNoManual();
-		 * 
-		 * if (controller.clawOpen.get()) supe.openClaw(true); else if
-		 * (controller.clawClosed.get()) supe.closeClaw(true); else supe.clawNoManual();
-		 * 
-		 * if (controller.stow.updated()) supe.runAction(Actions.STOW, queue); else if
-		 * (controller.stowLow.updated()) supe.runAction(Actions.STOW_LOW, queue); else
-		 * if (controller.intakeCargo.updated()) supe.runAction(Actions.INTAKE_CARGO,
-		 * queue); else if (controller.floorHatchToManip.updated())
-		 * supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue); else if
-		 * (controller.hatchFromFeed.updated())
-		 * supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		 */
+		if (controller.idle.get()) {
+			supe.idle();
+		} else {
 
+			if (controller.hatchPannel1.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (controller.hatchPanel2.get())
+				supe.runHeight(Heights.HP_2, queue);
+			else if (controller.hatchPanel3.get())
+				supe.runHeight(Heights.HP_3, queue);
+			else if (controller.hatchFromFeed.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (controller.cargo1.get())
+				supe.runHeight(Heights.Cargo_1, queue);
+			else if (controller.cargo2.get())
+				supe.runHeight(Heights.Cargo_2, queue);
+			else if (controller.cargo3.get())
+				supe.runHeight(Heights.Cargo_3, queue);
+			else if (controller.cargoShip.get())
+				supe.runHeight(Heights.Cargo_Ship, queue);
+
+			if (controller.slidesIn.get())
+				supe.retractSlides();
+			else if (controller.slidesOut.get())
+				supe.extendSlides();
+
+			if (controller.clawOpen.get())
+				supe.openClaw();
+			else if (controller.clawClosed.get())
+				supe.closeClaw();
+
+			if (controller.stow.updated())
+				supe.runAction(Actions.STOW, queue);
+			else if (controller.stowLow.updated())
+				supe.runAction(Actions.STOW_LOW, queue);
+			else if (controller.intakeCargo.updated())
+				supe.runAction(Actions.INTAKE_CARGO, queue);
+			else if (controller.floorHatchToManip.updated())
+				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+			else if (controller.hatchFromFeed.updated())
+				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		}
 	}
 
 	public String getSmallString() {
