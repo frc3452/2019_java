@@ -244,10 +244,6 @@ public class Auton {
 		}
 	}
 
-	public boolean isDemo() {
-		return getSelector() == kAuton.SAFTEY_SWITCH;
-	}
-
 	private void printSelected() {
 		if (m_controllerOverrideValue == -1) {
 			if (m_selectorValue != p_selectorValue) {

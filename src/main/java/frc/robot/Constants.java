@@ -25,12 +25,13 @@ public class Constants {
 	}
 
 	public static class kSolenoids {
-		public static final SolenoidConstants INTAKE_SOLENOID = new SolenoidConstants(1, 1, 1.5, 1.5);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 1.5, 1.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 1.5, 1.5);
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, .5, .5);
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 1.5, 1);
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 1.5, 1.5);
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 1, 4, 4);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 4, 4);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 4, 4);
+		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, 4, 4);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 4, 4);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 4, 4);
+		public static final SolenoidConstants INTAKE_WRIST = new SolenoidConstants(1,6, 4, 4);
 	}
 
 	public static class kElevator {

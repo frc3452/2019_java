@@ -120,10 +120,6 @@ public class ExampleGZSubsystem extends GZSubsystem {
 
 			switchToState(ExampleState.NEUTRAL);
 
-		} else if (Auton.getInstance().isDemo()) { /* AAAA **/
-
-			switchToState(ExampleState.DEMO);
-
 		} else if (mWantedState != mState) { /* AAAA **/
 
 			switchToState(mWantedState);

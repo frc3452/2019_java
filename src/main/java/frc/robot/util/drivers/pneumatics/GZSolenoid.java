@@ -9,7 +9,22 @@ import frc.robot.util.drivers.IGZHardware;
 public class GZSolenoid extends Solenoid implements IGZHardware {
 
     public enum SolenoidState {
-        TRANSITION, EXTENDED, RETRACTED;
+        TRANSITION, ON, OFF;
+    }
+
+    public boolean isOn()
+    {
+        return this.getSolenoidState() == SolenoidState.ON;
+    }
+
+    public boolean isOff()
+    {
+        return this.getSolenoidState() == SolenoidState.OFF;
+    }
+
+    public boolean isTransitioning()
+    {
+        return this.getSolenoidState() == SolenoidState.TRANSITION;
     }
 
     public static class SolenoidConstants {
@@ -26,7 +41,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         }
 
         /**
-         * By default on PCM 0!
+         * By default on PCM 1!
          */
         public SolenoidConstants(int channel, double extendTime, double retractTime) {
             this(1, channel, extendTime, retractTime);
@@ -37,8 +52,8 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     private final String mName;
     private final SolenoidConstants mConstants;
 
-    private GZTimer mExtendedTimer = new GZTimer();
-    private GZTimer mRetractedTimer = new GZTimer();
+    private GZTimer mOnTimer = new GZTimer();
+    private GZTimer mOffTimer = new GZTimer();
 
     private int mChangeCounts = 0;
     private boolean mForcedOff = false;
@@ -53,11 +68,9 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         this.mConstants = constants;
         this.mSub = subsystem;
         this.mName = name;
-        this.mExtendedTimer.start();
-        this.mRetractedTimer.start();
+        this.mOffTimer.start();
+        this.mOnTimer.start();
         this.mSub.mSingleSolenoids.add(this);
-
-        mRetractedTimer.startTimer();
     }
 
     public int getChangeCounts() {
@@ -65,7 +78,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     }
 
     public void shouldForceOutputOff() {
-        mForcedOff = this.mSub.isSafetyDisabled() && GZOI.getInstance().isDisabled();
+        mForcedOff = this.mSub.isSafetyDisabled() || GZOI.getInstance().isDisabled();
 
         if (mForcedOff)
             runSolenoid(false, true);
@@ -89,22 +102,22 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         mChangeCounts++;
 
         if (on) {
-            mExtendedTimer.startTimer();
+            mOnTimer.startTimer();
         } else {
-            mRetractedTimer.startTimer();
+            mOffTimer.startTimer();
         }
     }
 
     public SolenoidState getSolenoidState() {
         if (this.mConstants.extendTime == -3452 && super.get())
-            return SolenoidState.EXTENDED;
+            return SolenoidState.ON;
         else if (this.mConstants.retractTime == -3452 && !super.get())
-            return SolenoidState.RETRACTED;
+            return SolenoidState.OFF;
 
-        if (super.get() && mExtendedTimer.get() > this.mConstants.extendTime)
-            return SolenoidState.EXTENDED;
-        else if (!super.get() && mRetractedTimer.get() > this.mConstants.retractTime)
-            return SolenoidState.RETRACTED;
+        if (super.get() && mOnTimer.get() > this.mConstants.extendTime)
+            return SolenoidState.ON;
+        else if (!super.get() && mOffTimer.get() > this.mConstants.retractTime)
+            return SolenoidState.OFF;
 
         return SolenoidState.TRANSITION;
     }

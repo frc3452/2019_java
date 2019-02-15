@@ -10,11 +10,12 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Intake extends GZSubsystem {
 
+    private DesiredDropState mDesiredDropState = DesiredDropState.UP;
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
     private GZVictorSPX mIntakeLeft, mIntakeRight;
-    private GZSolenoid mIntakeSol;
+    private GZSolenoid mIntakeDrop, mIntakeWrist;
 
     public IO mIO = new IO();
 
@@ -23,7 +24,8 @@ public class Intake extends GZSubsystem {
     private Intake() {
         mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
         mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
-        mIntakeSol = new GZSolenoid(kSolenoids.INTAKE_SOLENOID, this, "Intake Solenoid");
+        mIntakeDrop = new GZSolenoid(kSolenoids.INTAKE_DROP, this, "Intake Drop");
+        mIntakeWrist = new GZSolenoid(kSolenoids.INTAKE_WRIST, this, "Intake Wrist");
     }
 
     public static Intake getInstance() {
@@ -33,18 +35,51 @@ public class Intake extends GZSubsystem {
         return mInstance;
     }
 
-
     protected void stow() {
         stop();
         raise();
     }
 
+    private void handleDrop() {
+        switch (mDesiredDropState) {
+        case DOWN:
+            mIntakeDrop.set(true);
+            mIntakeWrist.set(mIntakeDrop.getSolenoidState() == SolenoidState.ON);
+            break;
+        case UP:
+            mIntakeWrist.set(false);
+            mIntakeDrop.set(mIntakeWrist.getSolenoidState() != SolenoidState.OFF);
+            break;
+        default:
+            System.out.println("ERROR Unhandled Intake Drop State: " + mDesiredDropState);
+            break;
+        }
+    }
+
+    protected DropState getDropState()
+    {
+        if (mIntakeWrist.isOn() && mIntakeDrop.isOn())
+            return DropState.DOWN;
+        else if (mIntakeWrist.isOff() && mIntakeDrop.isOff())
+            return DropState.UP;
+        
+        return DropState.IN_MOTION;
+    }
+
     protected void lower() {
-        mIntakeSol.set(true);
+        mDesiredDropState = DesiredDropState.DOWN;
     }
 
     protected void raise() {
-        mIntakeSol.set(false);
+        mDesiredDropState = DesiredDropState.UP;
+    }
+
+    public enum DropState {
+        UP, DOWN, IN_MOTION
+    }
+
+    public enum DesiredDropState {
+        UP, DOWN
     }
 
     public enum IntakeState {
@@ -63,15 +98,11 @@ public class Intake extends GZSubsystem {
     }
 
     public boolean isRaised() {
-        return mIntakeSol.getSolenoidState() == SolenoidState.EXTENDED;
+        return getDropState() == DropState.UP;
     }
 
     public boolean isLowered() {
-        return mIntakeSol.getSolenoidState() == SolenoidState.RETRACTED;
-    }
-
-    public SolenoidState getSolenoidState() {
-        return mIntakeSol.getSolenoidState();
+        return getDropState() == DropState.DOWN;
     }
 
     protected void runIntake(double left, double right) {
@@ -96,6 +127,7 @@ public class Intake extends GZSubsystem {
     @Override
     public void loop() {
         handleStates();
+        handleDrop();
         in();
         out();
     }
@@ -110,9 +142,7 @@ public class Intake extends GZSubsystem {
         }
 
         if (neutral) {
-
             switchToState(IntakeState.NEUTRAL);
-
         } else {
             switchToState(mWantedState);
         }
@@ -182,9 +212,13 @@ public class Intake extends GZSubsystem {
         return mState.toString();
     }
 
-    public int getIntakeTotalFlips()
+    public int getIntakeTotalFlips() {
+        return mIntakeDrop.getChangeCounts();
+    }
+
+    public int getIntakeTotalOpens() 
     {
-        return mIntakeSol.getChangeCounts();
+        return mIntakeWrist.getChangeCounts();
     }
 
     @Override

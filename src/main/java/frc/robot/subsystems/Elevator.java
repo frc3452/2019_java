@@ -280,19 +280,19 @@ public class Elevator extends GZSubsystem {
     }
 
     public boolean isClawClosed() {
-        return mClaw.getSolenoidState() == SolenoidState.RETRACTED;
+        return mClaw.getSolenoidState() == SolenoidState.ON;
     }
 
     public boolean isClawOpen() {
-        return mClaw.getSolenoidState() == SolenoidState.EXTENDED;
+        return mClaw.getSolenoidState() == SolenoidState.OFF;
     }
 
     public boolean areSlidesOut() {
-        return mCarriageSlide.getSolenoidState() == SolenoidState.EXTENDED;
+        return mCarriageSlide.getSolenoidState() == SolenoidState.ON;
     }
 
     public boolean areSlidesIn() {
-        return mCarriageSlide.getSolenoidState() == SolenoidState.RETRACTED;
+        return mCarriageSlide.getSolenoidState() == SolenoidState.OFF;
     }
 
     public SolenoidState getSlidesState() {

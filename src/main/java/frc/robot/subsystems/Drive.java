@@ -394,6 +394,7 @@ public class Drive extends GZSubsystem {
 		boolean neutral = false;
 		neutral |= this.isSafetyDisabled();
 		neutral |= mWantedState == DriveState.NEUTRAL;
+		neutral |= getShifterState() == SolenoidState.TRANSITION;
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
 		// neutral |= getShifterState() == SolenoidState.TRANSITION;
 
@@ -401,14 +402,8 @@ public class Drive extends GZSubsystem {
 
 			switchToState(DriveState.NEUTRAL);
 
-		} else if (getShifterState() != SolenoidState.RETRACTED) {
+		} else if (getShifterState() != SolenoidState.OFF) {
 			switchToState(DriveState.CLIMB);
-		} else if (Auton.getInstance().isDemo()) {
-			if (!gzOI.isFMS()) {
-				switchToState(DriveState.DEMO);
-			} else {
-				switchToState(DriveState.OPEN_LOOP_DRIVER);
-			}
 		} else {
 			switchToState(mWantedState);
 		}
@@ -435,8 +430,6 @@ public class Drive extends GZSubsystem {
 							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current-limit continuous for Talon " + name);
 
-
-
 			GZSRX.logError(
 					() -> s.configPeakCurrentLimit(
 							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_PEAK : kDrivetrain.AMP_30_PEAK,
@@ -444,9 +437,9 @@ public class Drive extends GZSubsystem {
 					this, AlertLevel.WARNING, "Could not set current-limit peak for Talon " + name);
 
 			GZSRX.logError(
-				() -> s.configPeakCurrentDuration(
-					s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TIME : kDrivetrain.AMP_30_TIME,
-					GZSRX.TIMEOUT),
+					() -> s.configPeakCurrentDuration(
+							s.getBreaker() == Breaker.AMP_40 ? kDrivetrain.AMP_40_TIME : kDrivetrain.AMP_30_TIME,
+							GZSRX.TIMEOUT),
 					this, AlertLevel.WARNING, "Could not set current limit time for Talon " + name);
 
 			s.enableCurrentLimit(true);
@@ -695,7 +688,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private SolenoidState getShifterState() {
-		return SolenoidState.RETRACTED;
+		return SolenoidState.OFF;
 		// return mShifter.getSolenoidState();
 	}
 
