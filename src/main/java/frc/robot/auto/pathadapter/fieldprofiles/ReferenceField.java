@@ -7,13 +7,16 @@ public class ReferenceField extends FieldProfile {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
         this.mFeederStationToWall = new FieldValues<Double>(5.5);
         this.mBay1ToWall = new FieldValues<Double>(133.13);
-        this.mBay2ToWall = new FieldValues<Double>(133.13, 133.13);
-        this.mBay3ToWall = new FieldValues<Double>(133.13, 133.13);
-        this.mBay1ToRamp = new FieldValues<Double>(164.52, 164.52);
-        this.mBay2ToRamp = new FieldValues<Double>(208.02, 208.02);
-        this.mBay3ToRamp = new FieldValues<Double>(251.52, 251.52);
-        this.mCargoShipFaceToHABRamp = new FieldValues<Double>(124.97, 118.29);
-        this.mCargoShipFaceToMidLine = new FieldValues<Double>(175.85, 179.85);
+        this.mBay2ToWall = new FieldValues<Double>(133.13);
+        this.mBay3ToWall = new FieldValues<Double>(133.13);
+        this.mBay1ToRamp = new FieldValues<Double>(163.52);
+        this.mBay2ToRamp = new FieldValues<Double>(207.02);
+        this.mBay3ToRamp = new FieldValues<Double>(250.52);
+        this.mCargoShipFaceToHABRamp = new FieldValues<Double>(123.97);
+        this.mCargoShipFaceToMidLine = new FieldValues<Double>(10.875);
+        this.mHABLevel1EdgeToRamp = new FieldValues<Double>(Double.NaN);
+        this.mHABLevel3EdgeToDriverStation = new FieldValues<Double>(Double.NaN);
+        this.mHABRamp = new FieldValues<Double>(Double.NaN);    
     }
 
     private HeightsContainer mHeight = new HeightsContainer() {
