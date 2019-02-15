@@ -8,16 +8,17 @@ public class DeepSpaceController extends GZJoystick {
     public DeepSpaceController(int port) {
         super(port);
     }
-
+    
     public DeepSpaceController(int port, double deadband) {
         super(port, deadband);
     }
-
+    
     protected void addButton(GZButton b) {
         allButtons.add(b);
     }
-
+    
     public GZButton queueAction;
+    public GZButton idle;
     public GZButton elevatorHome;
 
     public GZButton hatchPannel1;
@@ -42,7 +43,6 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton floorHatchToManip;
     public GZButton hatchFromFeed;
 
-    public GZButton it;
 
     protected ArrayList<GZButton> allButtons = new ArrayList<GZButton>();
 }

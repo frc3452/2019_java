@@ -1,8 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
+import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
@@ -44,8 +47,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		infoManager.toString();
-
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
