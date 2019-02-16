@@ -101,8 +101,10 @@ public class GZUtil {
 	public static void trace(StackTraceElement e[]) {
 
 		String retval = "";
-		try {
-			for (int i = e.length - 5; i > 1; i--) {
+		try
+		{ 
+		// for (int i = e.length - 5; i > 1; i--) {
+		for (int i = e.length - 1; i > 1; i--) {
 				retval += e[i].getMethodName();
 
 				if (i != 2)

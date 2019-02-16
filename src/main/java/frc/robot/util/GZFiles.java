@@ -366,7 +366,9 @@ public class GZFiles {
 	}
 
 	public void writeHardwareReport() {
-		String body = HTML.paragraph("Created on: " + GZUtil.dateTime(false));
+		String body = HTML.header("Created on: " + GZUtil.dateTime(false),3);
+
+		body += HTML.header("Robot: " + kFiles.ROBOT_NAME);
 
 		for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
 			if (s.hasAir() || s.hasMotors()) {
@@ -382,7 +384,7 @@ public class GZFiles {
 						{
 							String header = "";
 							header += HTML.tableRow(HTML.easyHeader("Talon Name", "Device ID", "Encoder Connected",
-									"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version",
+									"PDP Channel", "Calculated breaker", "Breaker treated as", "Firmware version (" + GZSRX.FIRMWARE + ")",
 									"Temperature Sensor Port", "Temperature sensor value (F)", "Master/Follower"));
 
 							talonTable += header;
@@ -770,6 +772,11 @@ public class GZFiles {
 			}
 			retval = HTML.tableRow(retval);
 			return retval;
+		}
+
+		public static String bold(String f)
+		{
+			return bold(f, "black");
 		}
 
 		public static String bold(String f, String color) {

@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
 
 		// Gen health file
 		health.generateHealth();
+		health.printForSubsystemErrors();
 
 		allSubsystems.addLoggingValues();
 

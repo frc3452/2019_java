@@ -35,6 +35,7 @@ public class Health {
 	}
 
 	public void addAlert(GZSubsystem subsystem, AlertLevel level, String message) {
+		GZUtil.trace(GZUtil.currentThread());
 		ArrayList<String> temp = new ArrayList<>();
 		temp.add(level.stringValue);
 		temp.add(message);
@@ -87,8 +88,8 @@ public class Health {
 
 			// Write table
 			for (GZSubsystem s : mSubsystems)
-				table += HTML.tableRow(HTML.tableCell(s.toString())
-						+ HTML.tableCell("", s.getHighestAlert().stringValue, true));
+				table += HTML.tableRow(
+						HTML.tableCell(s.toString()) + HTML.tableCell("", s.getHighestAlert().stringValue, true));
 
 			// Put table tags around values
 			table = HTML.table(table);
@@ -142,6 +143,17 @@ public class Health {
 			System.out.println("WARNING Could not generate health file!");
 			e.printStackTrace();
 		}
+	}
+
+	public void printForSubsystemErrors() {
+		boolean errors = false;
+		for (GZSubsystem s : mSubsystems) {
+			errors |= s.getHighestAlert() == AlertLevel.ERROR;
+		}
+
+		if (errors)
+			for (int i = 0; i < 8; i++)
+				System.out.println("ERROR Health generation found errors!!!");
 	}
 
 	public enum AlertLevel {

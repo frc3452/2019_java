@@ -335,8 +335,10 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public static void logError(ErrorCode errorCode, GZSubsystem subsystem, AlertLevel level, String message) {
-		if (errorCode != ErrorCode.OK)
+		if (errorCode != ErrorCode.OK) {
 			Health.getInstance().addAlert(subsystem, level, message);
+		}
+
 	}
 
 	public int getFirmware() {
@@ -370,20 +372,24 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	public static boolean logError(Supplier<ErrorCode> errorCode, GZSubsystem subsystem, AlertLevel level,
 			String message, int retries) {
 		boolean success = false;
+		ErrorCode code = ErrorCode.OK;
 
-		if (retries != -1)
+		if (retries != -1) {
 			if (level == AlertLevel.WARNING)
 				retries = 3;
 			else
 				retries = 6;
+		} else
+			retries = 1;
 
 		for (int i = 0; i < retries && !success; i++) {
-			if (errorCode.get() == ErrorCode.OK)
+			code = errorCode.get();
+			if (code == ErrorCode.OK)
 				success = true;
 		}
 
 		if (!success)
-			Health.getInstance().addAlert(subsystem, level, message);
+			Health.getInstance().addAlert(subsystem, level, message + "\t[" + code + "]");
 
 		return success;
 	}

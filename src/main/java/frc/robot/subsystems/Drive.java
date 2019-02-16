@@ -117,9 +117,6 @@ public class Drive extends GZSubsystem {
 		// L1.setUsingRemoteEncoderOnTalon(this, R3);
 		zeroEncoders();
 
-		L1.configMotionAcceleration(500);
-		L1.configMotionCruiseVelocity(2000);
-
 		enableFollower();
 
 		in();
