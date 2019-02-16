@@ -238,18 +238,27 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
 
-	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX otherTalon, LimitSwitchNormal normal) {
+	public static enum LimitSwitchDirections {
+		FWD, REV, BOTH
+	}
+
+	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX otherTalon, LimitSwitchNormal normal,
+			LimitSwitchDirections limitSwitchDirections) {
 		mRemoteLimitSwitchTalon = otherTalon;
 
-		logError(
-				() -> this.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
-						mRemoteLimitSwitchTalon.getPort()),
-				sub, AlertLevel.ERROR, "Could not configure forward limit switch source for Talon " + this.getGZName());
+		if (limitSwitchDirections == LimitSwitchDirections.FWD || limitSwitchDirections == LimitSwitchDirections.BOTH)
+			logError(
+					() -> this.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
+							mRemoteLimitSwitchTalon.getPort()),
+					sub, AlertLevel.ERROR,
+					"Could not configure forward limit switch source for Talon " + this.getGZName());
 
-		logError(
-				() -> this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
-						mRemoteLimitSwitchTalon.getPort()),
-				sub, AlertLevel.ERROR, "Could not configure reverse limit switch source for Talon " + this.getGZName());
+		if (limitSwitchDirections == LimitSwitchDirections.REV || limitSwitchDirections == LimitSwitchDirections.BOTH)
+			logError(
+					() -> this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
+							mRemoteLimitSwitchTalon.getPort()),
+					sub, AlertLevel.ERROR,
+					"Could not configure reverse limit switch source for Talon " + this.getGZName());
 	}
 
 	public boolean usingRemoteLimitSwitch() {

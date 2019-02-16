@@ -1,48 +1,29 @@
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix.CANifier;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
-import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kLights;
-import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.TheBumbler;
+import frc.robot.util.TheBumbler.TimeValue;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;
 
-	private boolean readyForMatch = false;
-
-	public int m_hue = 225;
-	private double pulseBrightness = 0;
-	private boolean pulseDirection = true;
-
-	private Timer lightTimer = new Timer();
-
-	private NetworkTableEntry centerX;
-	private NetworkTableEntry centerY;
-
-	private double tempArray[] = new double[10];
-
 	private static Lights mInstance = null;
 
+	private LightState mState = LightState.OFF;
 
-	public void it(Supplier<String> supplier)
-	{
-		for (int i = 0; i < 1000; i++)
-			System.out.println(supplier.get());
-	}
+	private Color mColor = Color.OFF;
 
+	private TheBumbler<Color> mLightQueuer = new TheBumbler<Lights.Color>() {
+		@Override
+		public Color getDefault() {
+			return new Color(0, 0, 0);
+		}
+	};
 
 	public synchronized static Lights getInstance() {
 		if (mInstance == null)
@@ -50,131 +31,57 @@ public class Lights extends GZSubsystem {
 
 		return mInstance;
 	}
-	public void addLoggingValues()
-	{
-		// D:
-	}
-
-	public String getSmallString()
-	{
-		return "LGHT";
-	}
 
 	private Lights() {
-
-		for (int i = 0; i < 10; i++)
-			tempArray[i] = 3452;
-
 		canifier = new CANifier(Constants.kLights.CANIFIER_ID);
 		GZSRX.logError(canifier.configFactoryDefault(), this, AlertLevel.WARNING, "Canifier not found");
-
-		lightTimer.stop();
-		lightTimer.reset();
-		lightTimer.start();
-
-		NetworkTableInstance inst = NetworkTableInstance.getDefault();
-		NetworkTable table = inst.getTable("/GRIP/vision");
-
-		centerX = table.getEntry("centerX");
-		centerY = table.getEntry("centerY");
 	}
 
 	@Override
 	public void loop() {
-		GZOI gzOI = GZOI.getInstance();
+		handleStates();
+	}
 
-		if (!gzOI.isSafetyDisabled()) {
+	private void handleStates() {
+		if (!mLightQueuer.isQueueEmpty()) {
+			mState = LightState.BLINK;
+		}
 
-			if (GZOI.driverJoy.getButtons(Buttons.A, Buttons.B, Buttons.BACK))
-				readyForMatch = true;
-
-			if (GZOI.driverJoy.getButtons(Buttons.A, Buttons.B, Buttons.START))
-				readyForMatch = false;
-
-			if (gzOI.isTele()) {
-
-				hsv(kLights.GREEN, 1, .5);
-
-			} else if (gzOI.isAuto()) {
-
-				hsv(gzOI.isRed() ? kLights.RED : kLights.BLUE, 1, .5);
-
-			} else if (gzOI.isDisabled()) {
-
-				switch (Auton.getInstance().getSelector()) {
-				case 100:
-
-					// OFF
-					off();
-
-					break;
-
-				case kAuton.SAFTEY_SWITCH:
-
-					// FADE
-					hsv(m_hue, 1, .25);
-					m_hue++;
-
-					break;
-				case 97:
-
-					// POLICE
-					if (m_hue > 180)
-						hsv(kLights.RED, 1, 1);
-					else
-						hsv(kLights.BLUE, 1, 1);
-					m_hue += 30;
-
-					break;
-				default:
-
-					// IF CONNECTED LOW GREEN
-					if (DriverStation.getInstance().isDSAttached()) {
-
-						if (readyForMatch)
-							pulse(kLights.GREEN, 1, 0.1, .4, 0.025 / 3.5);
-						else
-							pulse(kLights.YELLOW, 1, 0.1, .4, 0.025 / 3.5);
-
-					} else {
-						// IF NOT CONNECTED DO AGGRESSIVE RED PULSE
-						pulse(kLights.RED, 1, 0.2, .8, 0.025 / 3.5);
-					}
-					break;
-				}
-			}
-		} else {
-			pulse(kLights.RED, 1, 0, 1, Double.POSITIVE_INFINITY);
+		switch (mState) {
+		case OFF:
+			rgb(Color.OFF);
+			break;
+		case BLINK:
+			rgb(mLightQueuer.update());
+			break;
+		case FADE:
+			break;
+		case SOLID:
+			rgb(mColor);
+			break;
 		}
 	}
 
-	public double centerX(int whichCube) {
-		if (visionLength() > 0)
-			return centerX.getDoubleArray(tempArray)[whichCube];
-		else
-			return 3452;
+	public void setSolidColor(Color color) {
+		this.mState = LightState.SOLID;
+		this.mColor = color;
 	}
 
-	public double centerY(int whichCube) {
-		if (visionLength() > 0)
-			return centerY.getDoubleArray(tempArray)[whichCube];
-		else
-			return 3452;
+	public void blink(TimeValue<Color> color, double offTime, int times) {
+		blink(color, offTime, times, false);
 	}
 
-	private int visionLength() {
-		return centerX.getDoubleArray(tempArray).length;
+	public void blink(TimeValue<Color> color, double offTime, int times, boolean clear) {
+		if (clear)
+			mLightQueuer.clear();
+		mLightQueuer.addToQueue(color, new TimeValue<Color>(Color.OFF, offTime), times);
 	}
 
-	public void off() {
-		hsv(0, 0, 0);
-	}
-	public void addPDPTestingMotors(){}
-
-	public void addMotorsForTesting() {
+	private void off() {
+		rgb(0, 0, 0);
 	}
 
-	public void hsv(double hDegrees, double saturation, double value) {
+	private void hsv(double hDegrees, double saturation, double value) {
 		double R, G, B;
 		double H = hDegrees;
 
@@ -255,35 +162,17 @@ public class Lights extends GZSubsystem {
 		rgb((float) R, (float) G, (float) B);
 	}
 
-	private void rgb(float red, float green, float blue) {
-		if (m_hue > 360)
-			m_hue = 0;
+	private void rgb(Color color) {
+		rgb(color.r, color.g, color.b);
+	}
 
+	private void rgb(double red, double green, double blue) {
 		try {
 			canifier.setLEDOutput(red, CANifier.LEDChannel.LEDChannelA);
 			canifier.setLEDOutput(green, CANifier.LEDChannel.LEDChannelB);
 			canifier.setLEDOutput(blue, CANifier.LEDChannel.LEDChannelC);
 		} catch (Exception e) {
 		}
-	}
-
-	public void pulse(int hue, double saturation, double lowBounePoint, double highBouncePoint, double pulseIntensity) {
-		if (pulseIntensity > highBouncePoint / 15)
-			pulseIntensity = highBouncePoint / 15;
-
-		if (pulseDirection)
-			pulseBrightness += pulseIntensity;
-		else
-			pulseBrightness -= pulseIntensity;
-
-		if (pulseBrightness >= highBouncePoint)
-			pulseDirection = false;
-
-		if (pulseBrightness <= lowBounePoint)
-			pulseDirection = true;
-
-		hsv(hue, saturation, pulseBrightness);
-		m_hue = hue;
 	}
 
 	public void stop() {
@@ -299,7 +188,40 @@ public class Lights extends GZSubsystem {
 	protected void out() {
 	}
 
+	public String getSmallString() {
+		return "LGHT";
+	}
+
 	protected void initDefaultCommand() {
+	}
+
+	@Override
+	public void addLoggingValues() {
+	}
+
+	public enum LightState {
+		OFF, BLINK, FADE, SOLID
+	}
+
+	public static class Color {
+
+		public final static Color OFF = Color.get(0, 0, 0);
+		// public final static Color GREEN = new Color(32, 94, 95);
+		public final static Color GREEN = Color.get(0, 255, 0);
+		public final static Color RED = Color.get(255, 0, 0);
+		public final static Color BLUE = Color.get(0, 0, 255);
+
+		private double r, g, b;
+
+		public Color(double r, double g, double b) {
+			this.r = r;
+			this.g = g;
+			this.b = b;
+		}
+
+		public static Color get(double r, double g, double b) {
+			return new Color(r, g, b);
+		}
 	}
 
 }

@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
@@ -19,6 +18,7 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
@@ -64,22 +64,21 @@ public class Elevator extends GZSubsystem {
         talonInit();
 
         // REMOTE LIMIT SWITCHES
-        // NORMALLYOPEN LIMIT SWITCHES WITH A TALON TACH IS SETTING WHETHER THE SENSOR
-        // IS TRIPPED UNDER DARK OR LIGHT
-        // GZSRX.logError(
-        // elevator_1.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX,
-        // LimitSwitchNormal.NormallyOpen, elevator_2.getDeviceID(), 10),
-        // this, AlertLevel.WARNING, "Could not set forward limit switch");
-        // GZSRX.logError(
-        // elevator_1.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX,
-        // LimitSwitchNormal.NormallyOpen, elevator_2.getDeviceID(), 10),
-        // this, AlertLevel.WARNING, "Could not set reverse limit switch");
-        
-        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed);
+        // For applications where the Talon Tach is pointing to a non-reflective surface
+        // or open air (LED is on) when motor
+        // movement is allowed, the Talon Tach should be treated as a NC limit switch.
+        // For applications where the Talon Tach is pointing to a reflective surface
+        // when motor movement is allowed (LED is
+        // off), it should be treated as a NO limit switch.
+
+        // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
+
+        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
+                LimitSwitchDirections.FWD);
 
         GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT), this,
                 AlertLevel.WARNING, "Could not set open loop ramp time");
-        GZSRX.logError(mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
                 "Could not set encoder zero on bottom limit");
 
         configPID(kElevator.PID);
@@ -161,7 +160,6 @@ public class Elevator extends GZSubsystem {
             public String val() {
                 return "" + mIO.encoders_valid;
             }
-
         };
 
         this.addLoggingValuesTalons();
@@ -364,18 +362,13 @@ public class Elevator extends GZSubsystem {
             mIO.ticks_velocity = Double.NaN;
         }
 
-        mIO.fwd_limit_switch = mElevator1.getFWDLimit();
-        mIO.rev_limit_switch = mElevator1.getREVLimit();
+        mIO.bottom_limit_switch = mElevator1.getFWDLimit(); // TODO TUNE
 
         mIO.elevator_total_rotations = mElevator1.getTotalEncoderRotations(getRotations());
     }
 
-    public boolean getTopLimit() {
-        return mIO.fwd_limit_switch; // TODO TUNE
-    }
-
     public boolean getBottomLimit() {
-        return mIO.rev_limit_switch; // TODO TUNE
+        return mIO.bottom_limit_switch;
     }
 
     public int getSlidesTotalCounts() {
@@ -392,8 +385,7 @@ public class Elevator extends GZSubsystem {
         public Double ticks_velocity = Double.NaN;
         public Double ticks_position = Double.NaN;
 
-        public Boolean fwd_limit_switch = false;
-        public Boolean rev_limit_switch = false;
+        public Boolean bottom_limit_switch = false;
 
         public Boolean encoders_valid = false;
 

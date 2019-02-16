@@ -16,6 +16,7 @@ import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
+import frc.robot.util.TheBumbler;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
@@ -38,6 +39,13 @@ public class GZOI extends GZSubsystem {
 	private Drive drive = Drive.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
+
+	private TheBumbler<Double> mRumbleQueue = new TheBumbler<Double>() {
+		@Override
+		public Double getDefault() {
+			return 0.0;
+		}
+	};
 
 	private static GZOI mInstance = null;
 
@@ -83,17 +91,19 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
 			handleDriverController();
+			handleRumble();
 			// handleElevatorTesting();
 		}
 	}
 
+	public void addRumble(double value, double time, int times)
+	{
+		mRumbleQueue.addToQueue(value, time, times);
+	}
+
 	private void handleRumble() {
 		// CONTROLLER RUMBLE
-		if (GZUtil.between(getMatchTime(), 29.1, 30))
-			// ENDGAME
-			rumble(kOI.Rumble.ENDGAME);
-		else
-			rumble(0);
+		rumble(mRumbleQueue.update());
 	}
 
 	private void disabled() {
@@ -244,7 +254,7 @@ public class GZOI extends GZSubsystem {
 
 	private static void rumble(double intensity) {
 		driverJoy.rumble(intensity);
-		op.rumble(intensity);
+		// op.rumble(intensity);
 	}
 
 	public boolean isFMS() {

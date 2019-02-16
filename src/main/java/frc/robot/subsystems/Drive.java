@@ -117,6 +117,9 @@ public class Drive extends GZSubsystem {
 		// L1.setUsingRemoteEncoderOnTalon(this, R3);
 		zeroEncoders();
 
+		L1.configMotionAcceleration(500);
+		L1.configMotionCruiseVelocity(2000);
+
 		enableFollower();
 
 		in();
@@ -507,6 +510,7 @@ public class Drive extends GZSubsystem {
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case CLIMB:
+			GZOI.getInstance().addRumble(1.0, .1, 6);
 			// Superstructure.getInstance().stow();
 			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;

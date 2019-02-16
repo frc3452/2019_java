@@ -31,7 +31,7 @@ public class Constants {
 		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, 4, 4);
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 4, 4);
 		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 4, 4);
-		public static final SolenoidConstants INTAKE_WRIST = new SolenoidConstants(1,6, 4, 4);
+		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1,6, 4, 4);
 	}
 
 	public static class kElevator {
@@ -47,15 +47,15 @@ public class Constants {
 
 		public static final double OPEN_RAMP_TIME = 0;
 
+		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
+		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
+
 		public static final double HOME_INCHES = 14;
 		public static final int TICKS_PER_INCH = 3; // TODO TUNE ME
 
 		public static final boolean ENC_INVERT = false;
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
-		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 30; // TODO TUNE
-
-		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
-		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
+		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 

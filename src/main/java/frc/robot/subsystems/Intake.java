@@ -15,7 +15,7 @@ public class Intake extends GZSubsystem {
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
     private GZVictorSPX mIntakeLeft, mIntakeRight;
-    private GZSolenoid mIntakeDrop, mIntakeWrist;
+    private GZSolenoid mIntakeDrop, mIntakeFold;
 
     public IO mIO = new IO();
 
@@ -25,7 +25,7 @@ public class Intake extends GZSubsystem {
         mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
         mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
         mIntakeDrop = new GZSolenoid(kSolenoids.INTAKE_DROP, this, "Intake Drop");
-        mIntakeWrist = new GZSolenoid(kSolenoids.INTAKE_WRIST, this, "Intake Wrist");
+        mIntakeFold = new GZSolenoid(kSolenoids.INTAKE_FOLD, this, "Intake Fold");
     }
 
     public static Intake getInstance() {
@@ -44,11 +44,11 @@ public class Intake extends GZSubsystem {
         switch (mDesiredDropState) {
         case DOWN:
             mIntakeDrop.set(true);
-            mIntakeWrist.set(mIntakeDrop.getSolenoidState() == SolenoidState.ON);
+            mIntakeFold.set(mIntakeDrop.getSolenoidState() == SolenoidState.ON);
             break;
         case UP:
-            mIntakeWrist.set(false);
-            mIntakeDrop.set(mIntakeWrist.getSolenoidState() != SolenoidState.OFF);
+            mIntakeFold.set(false);
+            mIntakeDrop.set(mIntakeFold.getSolenoidState() != SolenoidState.OFF);
             break;
         default:
             System.out.println("ERROR Unhandled Intake Drop State: " + mDesiredDropState);
@@ -58,9 +58,9 @@ public class Intake extends GZSubsystem {
 
     protected DropState getDropState()
     {
-        if (mIntakeWrist.isOn() && mIntakeDrop.isOn())
+        if (mIntakeFold.isOn() && mIntakeDrop.isOn())
             return DropState.DOWN;
-        else if (mIntakeWrist.isOff() && mIntakeDrop.isOff())
+        else if (mIntakeFold.isOff() && mIntakeDrop.isOff())
             return DropState.UP;
         
         return DropState.IN_MOTION;
@@ -218,7 +218,7 @@ public class Intake extends GZSubsystem {
 
     public int getIntakeTotalOpens() 
     {
-        return mIntakeWrist.getChangeCounts();
+        return mIntakeFold.getChangeCounts();
     }
 
     @Override
