@@ -134,7 +134,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
-		Elevator.getInstance().manual(op.getRightAnalogY() * -1);
+		Elevator.getInstance().manual(op.getRightAnalogY());
 	}
 
 	private void handleDriverController() {

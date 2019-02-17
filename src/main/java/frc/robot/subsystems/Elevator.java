@@ -65,8 +65,16 @@ public class Elevator extends GZSubsystem {
         openClaw();
 
         mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
-                kElevator.CARGO_SENSOR_VOLT);
+        kElevator.CARGO_SENSOR_VOLT);
 
+        //TODO REMOVE
+        mElevator1.configFactoryDefault();
+        mElevator2.configFactoryDefault();
+
+        brake();
+        
+        if (true)
+            return;
         talonInit();
 
         try {
@@ -84,16 +92,20 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
-        brake();
+
 
         GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
                 AlertLevel.WARNING, "Could not set open loop ramp time");
 
-        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
-                LimitSwitchDirections.FWD);
+        mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, GZSRX.TIMEOUT);
 
-        // GZSRX.logError(mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-        //         "Could not set encoder zero on bottom limit");
+        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
+                LimitSwitchDirections.REV);
+
+        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
+
+        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set encoder zero on bottom limit");
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 

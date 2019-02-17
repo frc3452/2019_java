@@ -42,7 +42,7 @@ public class Constants {
 	public static class kElevator {
 		public static final int ELEVATOR_1_ID = 9;
 		public static final int ELEVATOR_2_ID = 10;
-		public static final boolean ELEVATOR_INVERT = false;
+		public static final boolean ELEVATOR_INVERT = true;
 
 		
 		// Peak should be half continuous
