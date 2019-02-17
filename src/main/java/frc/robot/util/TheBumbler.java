@@ -1,8 +1,8 @@
 package frc.robot.util;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
 public abstract class TheBumbler<T> {
@@ -14,19 +14,34 @@ public abstract class TheBumbler<T> {
     public TheBumbler() {
     }
 
-    public T update() {
+    public void print() {
         if (isQueueEmpty())
-            return getDefault();
+            return;
+        String out = "";
+        int counter = 0;
+        for (TimeValue<T> m : mQueue)
+            out += counter++ + "\t" + m.toString() + "\n";
+        System.out.println(out);
+    }
+
+    public T update() {
         final double now = Timer.getFPGATimestamp();
+        // print();
 
-        if (mQueue.get(0).done()) {
-            mQueue.remove(0);
-        } else {
-            mQueue.get(0).deductTimeBy(now - mPrevTime);
+        if (!isQueueEmpty()) {
+            if (mQueue.get(0).done()) {
+                mQueue.remove(0);
+            } else {
+                mQueue.get(0).deductTimeBy(now - mPrevTime);
+            }
+
+            mPrevTime = now;
+            if (isQueueEmpty())
+                return getDefault();
+            return mQueue.get(0).value;
         }
-
         mPrevTime = now;
-        return mQueue.get(0).value;
+        return getDefault();
     }
 
     public void clear() {
@@ -60,19 +75,30 @@ public abstract class TheBumbler<T> {
         mQueue.add(new TimeValue<T>(valueB, time));
     }
 
+    public void addToQueue(T valueA, double timeA, T valueB, double timeB) {
+        mQueue.add(new TimeValue<T>(valueA, timeA));
+        mQueue.add(new TimeValue<T>(valueB, timeB));
+    }
+
+    public void addToQueue(T valueA, double timeA, T valueB, double timeB, int times) {
+        for (int i = 0; i < times; i++) {
+            addToQueue(valueA, timeA, valueB, timeB);
+        }
+    }
+
     public void addToQueue(T value, double time, int times) {
-        addToQueue(new TimeValue<T>(value, time), new TimeValue<T>(getDefault(), time), times);
+        addToQueue(new TimeValue<T>(value, time), new TimeValue<T>(getDefault(), 0), times);
     }
 
     public static class TimeValue<T> {
+
+        private final DecimalFormat df = new DecimalFormat("#0.00");
         private final T value;
-        private final double time;
 
         private double timeLeft;
 
         public TimeValue(T value, double time) {
             this.value = value;
-            this.time = time;
             timeLeft = time;
         }
 
@@ -82,6 +108,14 @@ public abstract class TheBumbler<T> {
 
         public boolean done() {
             return timeLeft <= 0;
+        }
+
+        public String toString() {
+            return "Value [" + value + "] Time Left [" + df.format(timeLeft) + "]";
+        }
+
+        public void print() {
+            System.out.println(toString());
         }
     }
 

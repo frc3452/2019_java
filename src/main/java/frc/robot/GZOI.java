@@ -7,6 +7,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -14,7 +15,6 @@ import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.TheBumbler;
 import frc.robot.util.drivers.GZAnalogInput;
@@ -37,7 +37,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	// private Superstructure supe = Superstructure.getInstance();
+	private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
 
 	private TheBumbler<Double> mRumbleQueue = new TheBumbler<Double>() {
@@ -92,13 +92,26 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
-			// handleElevatorTesting();
+			handleElevatorTesting();
 		}
 	}
 
-	public void addRumble(double value, double time, int times)
-	{
-		mRumbleQueue.addToQueue(value, time, times);
+	public void addRumble(double onTime, double offTime, int times) {
+		addRumble(1.0, onTime, offTime, times, false);
+	}
+
+	public void addRumble(double onTime, double offTime, int times, boolean clear) {
+		addRumble(1.0, onTime, offTime, times, clear);
+	}
+
+	public void addRumble(Double value, double onTime, double offTime, int times, boolean clearQueue) {
+		if (clearQueue)
+			mRumbleQueue.clear();
+		mRumbleQueue.addToQueue(value, onTime, 0.0, offTime, times);
+	}
+
+	public void addRumble(Double value, double onTime) {
+		mRumbleQueue.addToQueue(value, onTime, 1);
 	}
 
 	private void handleRumble() {
@@ -108,6 +121,8 @@ public class GZOI extends GZSubsystem {
 
 	private void disabled() {
 		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+
+		handleRumble();
 
 		if (driverJoy.getButtons(Buttons.LB, Buttons.Y))
 			auton.crash();
@@ -119,16 +134,27 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
-		Elevator.getInstance().manual(op.getRightAnalogY() * .2);
+		Elevator.getInstance().manual(op.getRightAnalogY() * -.5);
 	}
 
 	private void handleDriverController() {
+		if (driverJoy.getButton(Buttons.LB)) {
+			if (driverJoy.getButton(Buttons.A))
+				drive.shift(ClimbingState.NONE);
+			else if (driverJoy.getButton(Buttons.B))
+				drive.shift(ClimbingState.FRONT);
+			else if (driverJoy.getButton(Buttons.X))
+				drive.shift(ClimbingState.REAR);
+			else if (driverJoy.getButton(Buttons.Y))
+				drive.shift(ClimbingState.BOTH);
+		} else {
+			if (driverJoy.getButtonLatched(Buttons.A)) {
+				drive.toggleSlowSpeed();
+			}
+		}
 
 		if (driverJoy.getButtonLatched(Buttons.B))
 			drive.toggleOpenLoop();
-
-		if (driverJoy.getButtonLatched(Buttons.A))
-			drive.toggleSlowSpeed();
 
 		drive.handleDriving(driverJoy);
 	}
@@ -136,48 +162,48 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
-		// if (controller.idle.get()) {
-		// 	supe.idle();
-		// } else {
+		if (controller.idle.get()) {
+			supe.idle();
+		} else {
 
-		// 	if (controller.hatchPannel1.get())
-		// 		supe.runHeight(Heights.HP_1, queue);
-		// 	else if (controller.hatchPanel2.get())
-		// 		supe.runHeight(Heights.HP_2, queue);
-		// 	else if (controller.hatchPanel3.get())
-		// 		supe.runHeight(Heights.HP_3, queue);
-		// 	else if (controller.hatchFromFeed.get())
-		// 		supe.runHeight(Heights.HP_1, queue);
-		// 	else if (controller.cargo1.get())
-		// 		supe.runHeight(Heights.Cargo_1, queue);
-		// 	else if (controller.cargo2.get())
-		// 		supe.runHeight(Heights.Cargo_2, queue);
-		// 	else if (controller.cargo3.get())
-		// 		supe.runHeight(Heights.Cargo_3, queue);
-		// 	else if (controller.cargoShip.get())
-		// 		supe.runHeight(Heights.Cargo_Ship, queue);
+			if (controller.hatchPannel1.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (controller.hatchPanel2.get())
+				supe.runHeight(Heights.HP_2, queue);
+			else if (controller.hatchPanel3.get())
+				supe.runHeight(Heights.HP_3, queue);
+			else if (controller.hatchFromFeed.get())
+				supe.runHeight(Heights.HP_1, queue);
+			else if (controller.cargo1.get())
+				supe.runHeight(Heights.Cargo_1, queue);
+			else if (controller.cargo2.get())
+				supe.runHeight(Heights.Cargo_2, queue);
+			else if (controller.cargo3.get())
+				supe.runHeight(Heights.Cargo_3, queue);
+			else if (controller.cargoShip.get())
+				supe.runHeight(Heights.Cargo_Ship, queue);
 
-		// 	if (controller.slidesIn.get())
-		// 		supe.retractSlides();
-		// 	else if (controller.slidesOut.get())
-		// 		supe.extendSlides();
+			if (controller.slidesIn.get())
+				supe.retractSlides();
+			else if (controller.slidesOut.get())
+				supe.extendSlides();
 
-		// 	if (controller.clawOpen.get())
-		// 		supe.openClaw();
-		// 	else if (controller.clawClosed.get())
-		// 		supe.closeClaw();
+			if (controller.clawOpen.get())
+				supe.openClaw();
+			else if (controller.clawClosed.get())
+				supe.closeClaw();
 
-		// 	if (controller.stow.updated())
-		// 		supe.runAction(Actions.STOW, queue);
-		// 	else if (controller.stowLow.updated())
-		// 		supe.runAction(Actions.STOW_LOW, queue);
-		// 	else if (controller.intakeCargo.updated())
-		// 		supe.runAction(Actions.INTAKE_CARGO, queue);
-		// 	else if (controller.floorHatchToManip.updated())
-		// 		supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		// 	else if (controller.hatchFromFeed.updated())
-		// 		supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		// }
+			if (controller.stow.updated())
+				supe.runAction(Actions.STOW, queue);
+			else if (controller.stowLow.updated())
+				supe.runAction(Actions.STOW_LOW, queue);
+			else if (controller.intakeCargo.updated())
+				supe.runAction(Actions.INTAKE_CARGO, queue);
+			else if (controller.floorHatchToManip.updated())
+				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+			else if (controller.hatchFromFeed.updated())
+				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		}
 	}
 
 	public String getSmallString() {
@@ -311,6 +337,24 @@ public class GZOI extends GZSubsystem {
 	@Override
 	public String getStateString() {
 		return "NA";
+	}
+
+	public enum Rumble {
+		LOW, MEDIUM, HIGH
+	}
+
+	public void addRumble(Rumble r) {
+		switch (r) {
+		case LOW:
+			addRumble(.125, .06, 1, false);
+			break;
+		case MEDIUM:
+			addRumble(.125, .06, 2, false);
+			break;
+		case HIGH:
+			addRumble(.24, .07, 3, true);
+			break;
+		}
 	}
 
 	public void stop() {

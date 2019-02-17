@@ -1,9 +1,9 @@
-package frc.robot.auto.commands.paths;
+package frc.robot.auto.commands.functions.paths;
 
 import java.util.ArrayList;
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.auto.commands.drive.pathfollowing.PathContainer;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
+
 
 public class CS_4 extends PathContainer {
     public CS_4() {

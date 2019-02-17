@@ -1,4 +1,4 @@
-package frc.robot.auto.commands.drive.pathfollowing;
+package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.InstantCommand;

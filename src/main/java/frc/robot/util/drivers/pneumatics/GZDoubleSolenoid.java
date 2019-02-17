@@ -42,6 +42,10 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
     private final DoubleSolenoidConstants mConstants;
     private int mChangeCounts = 0;
 
+    public enum State {
+        FORWARD, REVERSE, TRANSITION
+    }
+
     public GZDoubleSolenoid(DoubleSolenoidConstants constants, GZSubsystem subsystem, String name) {
         super(constants.module, constants.fwd_channel, constants.rev_channel);
         this.mConstants = constants;
@@ -93,6 +97,16 @@ public class GZDoubleSolenoid extends DoubleSolenoid implements IGZHardware {
             return true;
 
         return super.get() == Value.kReverse && mRetractedTimer.get() > this.mConstants.retractTime;
+    }
+
+    public State getValue()
+    {
+        if (isExtended())
+            return State.FORWARD;
+        else if (isRetracted())
+            return State.REVERSE;
+
+        return State.TRANSITION;
     }
 
     public DoubleSolenoidConstants getConstants() {

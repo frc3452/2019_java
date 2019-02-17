@@ -8,6 +8,7 @@ import frc.robot.Constants.kSolenoids;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.GZLog.LogItem;
 
 public class Pneumatics extends GZSubsystem {
 
@@ -30,8 +31,7 @@ public class Pneumatics extends GZSubsystem {
         mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT);
     }
 
-    public double getPressure()
-    {
+    public double getPressure() {
         return -1;
     }
 
@@ -46,8 +46,8 @@ public class Pneumatics extends GZSubsystem {
     @Override
     public void loop() {
         boolean noAir = false;
-
-        if (GZOI.getInstance().isAuto()) {
+        
+        if (GZOI.getInstance().isAuto() || GZOI.getInstance().isTele()) {
             noAir = true;
         }
 
@@ -56,7 +56,6 @@ public class Pneumatics extends GZSubsystem {
         } else {
             mCompressor.start();
         }
-
     }
 
     public int getDropClimberTotalCounts() {
@@ -75,6 +74,29 @@ public class Pneumatics extends GZSubsystem {
 
     @Override
     public void addLoggingValues() {
+        new LogItem(getSmallString() + "-PRSSRE") {
+            public String val() {
+                return "" + getPressure();
+            }
+        };
+
+        new LogItem(getSmallString() + "-COMP-AMP") {
+            public String val() {
+                return "" + mCompressor.getCompressorCurrent();
+            }
+        };
+
+        new LogItem(getSmallString() + "-COMP-PS-SWT") {
+            public String val() {
+                return "" + mCompressor.getPressureSwitchValue();
+            }
+        };
+
+        new LogItem(getSmallString() + "-COMP-ON") {
+            public String val() {
+                return "" + mCompressor.enabled();
+            }
+        };
     }
 
     @Override

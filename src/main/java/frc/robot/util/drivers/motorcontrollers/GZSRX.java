@@ -6,8 +6,10 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
+import com.ctre.phoenix.motorcontrol.StickyFaults;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import frc.robot.Constants.kTempSensor;
@@ -239,26 +241,42 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public static enum LimitSwitchDirections {
-		FWD, REV, BOTH
+		FWD("Forward"), REV("Reverse"), BOTH("Both");
+
+		private final String val;
+		private LimitSwitchDirections(String val)
+		{
+			this.val = val;
+		}
+	}
+
+	public void disabledLimitSwitch(GZSubsystem sub, LimitSwitchDirections limitSwitchDirections) {
+		Supplier<ErrorCode> code = limitSwitchDirections == LimitSwitchDirections.FWD
+				? () -> this.configForwardLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled)
+				: () -> this.configReverseLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
+
+		logError(code, sub, AlertLevel.WARNING, "Could not disable " + limitSwitchDirections.val + " limit switch!");
 	}
 
 	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX otherTalon, LimitSwitchNormal normal,
 			LimitSwitchDirections limitSwitchDirections) {
 		mRemoteLimitSwitchTalon = otherTalon;
 
-		if (limitSwitchDirections == LimitSwitchDirections.FWD || limitSwitchDirections == LimitSwitchDirections.BOTH)
+		if (limitSwitchDirections == LimitSwitchDirections.FWD || limitSwitchDirections == LimitSwitchDirections.BOTH) {
 			logError(
 					() -> this.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
 							mRemoteLimitSwitchTalon.getPort()),
 					sub, AlertLevel.ERROR,
 					"Could not configure forward limit switch source for Talon " + this.getGZName());
+		}
 
-		if (limitSwitchDirections == LimitSwitchDirections.REV || limitSwitchDirections == LimitSwitchDirections.BOTH)
+		if (limitSwitchDirections == LimitSwitchDirections.REV || limitSwitchDirections == LimitSwitchDirections.BOTH) {
 			logError(
 					() -> this.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, normal,
 							mRemoteLimitSwitchTalon.getPort()),
 					sub, AlertLevel.ERROR,
 					"Could not configure reverse limit switch source for Talon " + this.getGZName());
+		}
 	}
 
 	public boolean usingRemoteLimitSwitch() {

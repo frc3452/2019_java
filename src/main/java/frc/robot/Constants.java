@@ -25,13 +25,18 @@ public class Constants {
 	}
 
 	public static class kSolenoids {
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 1, 4, 4);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 0, 4, 4);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 1, 4, 4);
-		public static final SolenoidConstants SHIFTER = new SolenoidConstants(0, 3, 4, 4);
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 2, 4, 4);
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(1, 0, 4, 4);
-		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1,6, 4, 4);
+		//CORRECT
+		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 2, 2);
+		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, 2, 2);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 4, 4);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
+		
+		//NOT CORRECT
+
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
+		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(0, 1, 4, 4);
+		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(0, 0 , 4, 4);
 	}
 
 	public static class kElevator {
@@ -39,14 +44,16 @@ public class Constants {
 		public static final int ELEVATOR_2_ID = 10;
 		public static final boolean ELEVATOR_INVERT = false;
 
+		
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
-
+		
 		public static final int CARGO_SENSOR_CHANNEL = 0;
 		public static final VoltageTranslation CARGO_SENSOR_VOLT = new VoltageTranslation(-1, -2); // TODO TUNE
-
-		public static final double OPEN_RAMP_TIME = 0;
-
+		
+		public static final double OPEN_LOOP_RAMP_TIME = .5;
+		
+		public static final boolean TUNING = false;
 		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
@@ -148,7 +155,7 @@ public class Constants {
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
 		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
-		public final static double OPEN_LOOP_RAMP_TIME = .125; // .125
+		public final static double OPEN_LOOP_RAMP_TIME = 5; // .125
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
 
@@ -199,7 +206,7 @@ public class Constants {
 	}
 
 	public static class kPneumatics {
-		public static final int COMPRESSOR_MODULE = 0;
+		public static final int COMPRESSOR_MODULE = 1;
 		public static final int PRESSURE_GUAGE_PORT = 1;
 	}
 

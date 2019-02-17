@@ -1,21 +1,20 @@
 package frc.robot.subsystems;
 
 import java.text.DecimalFormat;
-import java.util.function.Supplier;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
+import frc.robot.Constants.kSolenoids;
+import frc.robot.GZOI.Rumble;
 import frc.robot.GZOI;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
@@ -43,10 +42,11 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
-	// private GZSolenoid mShifter;
+	private GZSolenoid mShifterFront, mShifterRear;
 
 	// Force switch state to neutral on start up
 	private DriveState mState = DriveState.OPEN_LOOP;
@@ -78,6 +78,8 @@ public class Drive extends GZSubsystem {
 
 	private boolean mDrivingOpenLoop = true;
 
+	private ClimbingState mClimbState = null;
+
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
 			mInstance = new Drive();
@@ -101,7 +103,8 @@ public class Drive extends GZSubsystem {
 
 		mNavX = new NavX(SPI.Port.kMXP);
 
-		// mShifter = new GZSolenoid(kSolenoids.SHIFTER, this, "PTO Shifter");
+		mShifterFront = new GZSolenoid(kSolenoids.SHIFTER_FRONT, this, "Shifter-Front");
+		mShifterRear = new GZSolenoid(kSolenoids.SHIFTER_REAR, this, "Shifter-Rear");
 
 		try {
 			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
@@ -269,6 +272,8 @@ public class Drive extends GZSubsystem {
 				updatePathFollower();
 			}
 			break;
+		case CLIMB:
+			break;
 		case OPEN_LOOP_DRIVER:
 			arcade(GZOI.driverJoy);
 			break;
@@ -341,8 +346,6 @@ public class Drive extends GZSubsystem {
 				return Drive.getInstance().mIO.rightEncoderValid.toString();
 			}
 		};
-
-		this.addLoggingValuesTalons();
 	}
 
 	public enum DriveState {
@@ -394,15 +397,12 @@ public class Drive extends GZSubsystem {
 		boolean neutral = false;
 		neutral |= this.isSafetyDisabled();
 		neutral |= mWantedState == DriveState.NEUTRAL;
-		neutral |= getShifterState() == SolenoidState.TRANSITION;
+		neutral |= eitherShifterTransitioning();
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
-		// neutral |= getShifterState() == SolenoidState.TRANSITION;
 
 		if (neutral) {
-
 			switchToState(DriveState.NEUTRAL);
-
-		} else if (getShifterState() != SolenoidState.OFF) {
+		} else if (!shiftersInDrive()) {
 			switchToState(DriveState.CLIMB);
 		} else {
 			switchToState(mWantedState);
@@ -507,7 +507,6 @@ public class Drive extends GZSubsystem {
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case CLIMB:
-			GZOI.getInstance().addRumble(1.0, .1, 6);
 			// Superstructure.getInstance().stow();
 			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;
@@ -679,18 +678,19 @@ public class Drive extends GZSubsystem {
 		mIO.right_encoder_total_delta_rotations = R1.getTotalEncoderRotations(getRightRotations());
 	}
 
-	public void shift() {
-		// mShifter.set(!mShifter.get());
+	public void shift(ClimbingState state) {
+		if (state != mClimbState) {
+			GZOI.getInstance().addRumble(Rumble.HIGH);
+			mClimbState = state;
+		}
+		mShifterFront.set(state == ClimbingState.BOTH || state == ClimbingState.FRONT);
+		mShifterRear.set(state == ClimbingState.BOTH || state == ClimbingState.REAR);
+
 	}
 
-	public synchronized void runClimber(double front, double back) {
+	public synchronized void runClimber(double front, double rear) {
 		// TODO TUNE
-		tank(front, back);
-	}
-
-	private SolenoidState getShifterState() {
-		return SolenoidState.OFF;
-		// return mShifter.getSolenoidState();
+		tank(front, rear);
 	}
 
 	public synchronized double getLeftSpeed() {
@@ -717,6 +717,19 @@ public class Drive extends GZSubsystem {
 
 		// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
 		setWantedState(DriveState.OPEN_LOOP_DRIVER);
+	}
+
+	private synchronized void handleClimbing(GZJoystick joy) {
+		if (mShifterFront.getSolenoidState() == SolenoidState.ON || mShifterRear.getSolenoidState() == SolenoidState.ON)
+			tank(joy.getLeftAnalogY(), joy.getLeftAnalogY());
+		else if (mShifterFront.getSolenoidState() == SolenoidState.OFF
+				|| mShifterRear.getSolenoidState() == SolenoidState.ON)
+			tank(0, 0);
+		else if (mShifterFront.getSolenoidState() == SolenoidState.ON
+				|| mShifterRear.getSolenoidState() == SolenoidState.OFF)
+			tank(0, 0);
+		else
+			System.out.println("ERROR Handle climber fall through!!!!");
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
@@ -780,6 +793,14 @@ public class Drive extends GZSubsystem {
 	public synchronized void arcade(double move, double rotate) {
 		if (setWantedState(DriveState.OPEN_LOOP))
 			arcadeNoState(move, rotate);
+	}
+
+	public synchronized boolean eitherShifterTransitioning() {
+		return mShifterFront.isTransitioning() || mShifterRear.isTransitioning();
+	}
+
+	public synchronized boolean shiftersInDrive() {
+		return mShifterFront.isOff() && mShifterRear.isOff();
 	}
 
 	public synchronized double[] arcadeToLR(double xSpeed, double zRotation) {
@@ -922,6 +943,7 @@ public class Drive extends GZSubsystem {
 			c.setNeutralMode(mode);
 	}
 
+	@Deprecated
 	public synchronized void motionMagic(double leftRotations, double rightRotations, double leftAccel,
 			double rightAccel, double leftSpeed, double rightSpeed) {
 
@@ -946,6 +968,7 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	@Deprecated
 	public synchronized boolean encoderSpeedIsUnder(double ticksPer100Ms) {
 		double l = Math.abs(mIO.left_encoder_vel);
 		double r = Math.abs(mIO.right_encoder_vel);
@@ -953,13 +976,9 @@ public class Drive extends GZSubsystem {
 		return l < ticksPer100Ms || r < ticksPer100Ms;
 	}
 
+	@Deprecated
 	public synchronized void encoderDone() {
 		stop();
-
-		processMotionProfileBuffer(3452);
-
-		L1.clearMotionProfileTrajectories();
-		R1.clearMotionProfileTrajectories();
 
 		R1.configPeakOutputForward(1, 0);
 		R1.configPeakOutputReverse(-1, 0);
@@ -972,6 +991,7 @@ public class Drive extends GZSubsystem {
 		mPercentageComplete = -3452;
 	}
 
+	@Deprecated
 	public synchronized boolean encoderIsDone(double multiplier) {
 		return (mIO.left_encoder_ticks < mLeft_target + 102 * multiplier)
 				&& (mIO.left_encoder_ticks > mLeft_target - 102 * multiplier)
@@ -979,36 +999,12 @@ public class Drive extends GZSubsystem {
 				&& (mIO.right_encoder_ticks > mRight_target - 102 * multiplier);
 	}
 
+	@Deprecated
 	public synchronized boolean encoderIsDoneEither(double multiplier) {
 		return (mIO.left_encoder_ticks < mLeft_target + 102 * multiplier
 				&& mIO.left_encoder_ticks > mLeft_target - 102 * multiplier)
 				|| (mIO.right_encoder_ticks < mRight_target + 102 * multiplier
 						&& mIO.right_encoder_ticks > mRight_target - 102 * multiplier);
-	}
-
-	/**
-	 * notifier object for running MotionProfileBuffer
-	 */
-	private Notifier processMotionProfile = new Notifier(new Runnable() {
-		@Override
-		public void run() {
-			{
-				L1.processMotionProfileBuffer();
-				R1.processMotionProfileBuffer();
-			}
-		}
-	});
-
-	/**
-	 * Used to turn on/off runnable for motion profiling
-	 * 
-	 * @param time double - if 3452, stops notifier
-	 */
-	public synchronized void processMotionProfileBuffer(double time) {
-		if (time == 3452)
-			processMotionProfile.stop();
-		else
-			processMotionProfile.startPeriodic(time);
 	}
 
 	public synchronized void enableFollower() {
@@ -1047,9 +1043,13 @@ public class Drive extends GZSubsystem {
 		mNavX.reset();
 	}
 
-	public int getTotalShiftCounts() {
-		return 0;
-		// return mShifter.getChangeCounts();
+	public int getTotalShiftCountsFront() {
+		return mShifterFront.getChangeCounts();
+	}
+
+
+	public int getTotalShiftCountsRear() {
+		return mShifterRear.getChangeCounts();
 	}
 
 	public synchronized void setUsingOpenLoop(boolean useOpenLoop) {
@@ -1066,6 +1066,7 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void toggleSlowSpeed() {
 		slowSpeed(!isSlow());
+		GZOI.getInstance().addRumble(Rumble.LOW);
 		System.out.println("Drivetrain speed: " + (isSlow() ? "slow" : "faster"));
 	}
 
@@ -1083,6 +1084,10 @@ public class Drive extends GZSubsystem {
 
 	public DriveState getState() {
 		return mState;
+	}
+
+	public enum ClimbingState {
+		FRONT, REAR, BOTH, NONE
 	}
 
 	protected void initDefaultCommand() {

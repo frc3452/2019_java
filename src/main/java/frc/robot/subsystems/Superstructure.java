@@ -11,7 +11,7 @@ import frc.robot.util.GZSubsystemManager;
 public class Superstructure extends GZSubsystem {
 
     private Elevator elev = Elevator.getInstance();
-    private Intake intake = Intake.getInstance();
+    // private Intake intake = Intake.getInstance();
 
     private GZSubsystemManager subsystems;
 
@@ -27,7 +27,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Superstructure() {
-        subsystems = new GZSubsystemManager(elev, intake);
+        subsystems = new GZSubsystemManager(elev); //intake
     }
 
     private Actions mAction = Actions.IDLE;
@@ -53,14 +53,15 @@ public class Superstructure extends GZSubsystem {
 
             switch (mAction) {
             case IDLE:
+            break;
             case STOW_LOW:
                 if (isStowed())
                     elev.setHeight(Heights.Home);
                 else
                 break;
             case INTAKE_CARGO:
-                if (intake.isLowered() && elev.nearTarget())
-                    intake.runIntake(kIntake.INTAKE_SPEED);
+                // if (intake.isLowered() && elev.nearTarget())
+                //     intake.runIntake(kIntake.INTAKE_SPEED);
 
                 if (elev.isCargoSensorTripped())
                     runAction(Actions.HOLD_CARGO);
@@ -79,7 +80,7 @@ public class Superstructure extends GZSubsystem {
                     if (!HPFromFloor.get(1) && elev.areSlidesIn() && elev.isClawClosed()) {
                         stow();
                         HPFromFloor.trip(1);
-                    } else if (!HPFromFloor.getNext() && intake.isRaised()) {
+                    } else if (!HPFromFloor.getNext() /*&& intake.isRaised()*/) {
                         elev.extendSlides();
                         HPFromFloor.tripNext();
                     } else if (!HPFromFloor.getNext() && elev.areSlidesOut()) {
@@ -95,7 +96,7 @@ public class Superstructure extends GZSubsystem {
                 }
                 break;
             case GRAB_HP_FROM_FEED:
-                if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
+                if (/*intake.isRaised() &&*/ elev.nearTarget() && elev.isClawClosed()) {
                     HPFromFeed.trip(1);
                 }
                 if (HPFromFeed.get(1)) {
@@ -121,7 +122,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     private boolean isStowed() {
-        return elev.areSlidesIn() && intake.isRaised();
+        return elev.areSlidesIn();// && intake.isRaised();
     }
 
     public void idle() {
@@ -178,13 +179,13 @@ public class Superstructure extends GZSubsystem {
         case OFF:
         case IDLE:
             elev.stopMovement();
-            intake.stop();
+            // intake.stop();
             break;
         case GO_TO_QUEUED_HEIGHT:
             elev.setHeight(mQueuedHeight);
             break;
         case INTAKE_CARGO:
-            intake.lower();
+            // intake.lower();
             elev.setHeight(Heights.Home);
             break;
         case STOW:
@@ -209,9 +210,9 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void stow() {
-        intake.raise();
+        // intake.raise();
         elev.retractSlides();
-        intake.stop();
+        // intake.stop();
     }
 
     public void openClaw()

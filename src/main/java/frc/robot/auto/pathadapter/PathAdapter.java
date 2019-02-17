@@ -2,7 +2,7 @@ package frc.robot.auto.pathadapter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;

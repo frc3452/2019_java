@@ -8,17 +8,17 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.MarkerCommandGroup;
-import frc.robot.auto.commands.NoCommand;
-import frc.robot.auto.commands.WaitCommand;
-import frc.robot.auto.commands.drive.pathfollowing.DrivePath;
-import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.paths.CS_1;
-import frc.robot.auto.commands.paths.CS_2;
-import frc.robot.auto.commands.paths.CS_3;
-import frc.robot.auto.commands.paths.CS_4;
-import frc.robot.auto.commands.paths.CS_5;
-import frc.robot.auto.commands.paths.Curve_Test_2;
-import frc.robot.auto.commands.paths.Straight_Path;
+import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.WaitCommand;
+import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
+import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
+import frc.robot.auto.commands.functions.paths.CS_1;
+import frc.robot.auto.commands.functions.paths.CS_2;
+import frc.robot.auto.commands.functions.paths.CS_3;
+import frc.robot.auto.commands.functions.paths.CS_4;
+import frc.robot.auto.commands.functions.paths.CS_5;
+import frc.robot.auto.commands.functions.paths.Curve_Test_2;
+import frc.robot.auto.commands.functions.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -130,7 +130,7 @@ public class Auton {
 		// GZOI.getInstance().isDisabled() &&
 		if (!GZOI.getInstance().isFMS()) {
 			Timer f = null;
-			f.start();
+			// f.start();
 		}
 	}
 

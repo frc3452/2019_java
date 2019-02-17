@@ -1,24 +1,22 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.auto.pathadapter.PathAdapter;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
-import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
-import frc.robot.util.GZRPMSupplier;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -26,14 +24,13 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// // health is generated in, etc
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), //Intake.getInstance()
+			GZOI.getInstance(), Superstructure.getInstance());
+
 	// public static final GZSubsystemManager allSubsystems = new
 	// GZSubsystemManager(Drive.getInstance(),
-	// RobotStateEstimator.getInstance(), Elevator.getInstance(),
-	// Intake.getInstance(), Pneumatics.getInstance(),
-	// GZOI.getInstance(), Superstructure.getInstance());
-
-	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), GZOI.getInstance());
+	// RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();

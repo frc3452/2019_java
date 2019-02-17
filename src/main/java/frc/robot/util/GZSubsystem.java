@@ -43,7 +43,7 @@ public abstract class GZSubsystem extends Subsystem {
 
 	public abstract String getSmallString();
 
-	public void addLoggingValuesTalons() {
+	public void addLogSmartMotors() {
 		for (GZSmartSpeedController s : mSmartControllers) {
 			final String name = getSmallString() + "-" + s.getGZName() + "-";
 
@@ -82,7 +82,38 @@ public abstract class GZSubsystem extends Subsystem {
 		}
 	}
 
-	public void addLoggingItemsDumbControllers() {
+	public void addLogItems()
+	{
+		addLogAir();
+		addLogDumbMotors();
+		addLogSmartMotors();
+		addLoggingValues();
+	}
+
+	public void addLogAir()
+	{
+		for (GZSolenoid s : mSingleSolenoids) {
+			final String name = getSmallString() + "-" + s.getGZName() + "-";
+			new LogItem(name + "STATE") {
+				@Override
+				public String val() {
+					return "" + s.getSolenoidState();
+				}
+			};
+		}
+
+		for (GZDoubleSolenoid s : mDoubleSolenoids) {
+			final String name = getSmallString() + "-" + s.getGZName() + "-";
+			new LogItem(name + "STATE") {
+				@Override
+				public String val() {
+					return "" + s.getValue();
+				}
+			};
+		}
+	}
+
+	public void addLogDumbMotors() {
 		for (GZSpeedController s : mDumbControllers) {
 			final String name = getSmallString() + "-" + s.getGZName() + "-";
 			new LogItem(name + "AMP") {

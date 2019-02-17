@@ -1,9 +1,8 @@
-package frc.robot.auto.commands.paths;
+package frc.robot.auto.commands.functions.paths;
 
 import java.util.ArrayList;
-
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.auto.commands.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 
 public class Figure_8_2 extends PathContainer {
     public Figure_8_2() {

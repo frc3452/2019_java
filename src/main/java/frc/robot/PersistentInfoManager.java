@@ -10,6 +10,8 @@ import java.util.Scanner;
 
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -85,7 +87,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            // this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
+            this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
         }
 
         @Override
@@ -98,7 +100,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            // this.addDifference(elev.getSlidesTotalCounts());
+            this.addDifference(Elevator.getInstance().getSlidesTotalCounts());
         }
 
         @Override
@@ -111,7 +113,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            // this.addDifference(elev.getClawTotalCounts());
+            this.addDifference(Elevator.getInstance().getClawTotalCounts());
         }
 
         @Override
@@ -119,11 +121,24 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mDriveTotalShifts = new PersistentInfo() {
+    private PersistentInfo mDriveTotalShiftsFront = new PersistentInfo() {
 
         @Override
         public void update() {
-            // this.addDifference(drive.getTotalShiftCounts());
+            this.addDifference(drive.getTotalShiftCountsFront());
+        }
+
+        @Override
+        public void readSetting() {
+
+        }
+    };
+
+    private PersistentInfo mDriveTotalShiftsBack = new PersistentInfo() {
+
+        @Override
+        public void update() {
+            this.addDifference(drive.getTotalShiftCountsRear());
         }
 
         @Override
@@ -136,7 +151,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            // this.addDifference(Pneumatics.getInstance().getDropClimberTotalCounts());
+            this.addDifference(Pneumatics.getInstance().getDropClimberTotalCounts());
         }
 
         @Override
@@ -167,7 +182,8 @@ public class PersistentInfoManager {
         mSettingsMap.put("Disabled", mDisabled);
         mSettingsMap.put("ClimberDrops", mClimberDrops);
         mSettingsMap.put("SlideChanges", mSlidesTotalChanges);
-        mSettingsMap.put("DriveShifts", mDriveTotalShifts);
+        mSettingsMap.put("DriveShiftsFront", mDriveTotalShiftsFront);
+        mSettingsMap.put("DriveShiftsBack", mDriveTotalShiftsBack);
         mSettingsMap.put("ClawChanges", mClawTotalChanges);
         mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }

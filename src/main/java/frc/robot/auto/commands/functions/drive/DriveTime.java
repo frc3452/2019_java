@@ -1,34 +1,37 @@
-package frc.robot.auto.commands.drive;
+package frc.robot.auto.commands.functions.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.Drive;
 
-public class DriveToStop extends Command {
-	private double m_speed;
+public class DriveTime extends Command {
+	private double m_speed, m_rotate, m_time;
 
 	private Drive drive = Drive.getInstance();
 
 	/**
 	 * @author macco
 	 * @param speed
+	 * @param rotate
+	 * @param time
 	 * @see Drive
 	 */
-	public DriveToStop(double speed) {
+	public DriveTime(double speed, double rotate, double time) {
 		requires(drive);
-		
 		m_speed = speed;
+		m_rotate = rotate;
+		m_time = time;
 	}
 
 	protected void initialize() {
-		setTimeout(10);
+		setTimeout(m_time);
 	}
 
 	protected void execute() {
-		drive.arcade(m_speed, 0);
+		drive.arcade(m_speed, m_rotate);
 	}
 
 	protected boolean isFinished() {
-		return drive.encoderSpeedIsUnder(200) || isTimedOut();
+		return isTimedOut();
 	}
 
 	protected void end() {

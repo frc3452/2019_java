@@ -1,4 +1,4 @@
-package frc.robot.auto.commands.drive.pathfollowing;
+package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import java.util.List;
 

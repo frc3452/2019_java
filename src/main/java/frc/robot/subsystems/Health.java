@@ -35,7 +35,7 @@ public class Health {
 	}
 
 	public void addAlert(GZSubsystem subsystem, AlertLevel level, String message) {
-		GZUtil.trace(GZUtil.currentThread());
+		// GZUtil.trace(GZUtil.currentThread());
 		ArrayList<String> temp = new ArrayList<>();
 		temp.add(level.stringValue);
 		temp.add(message);

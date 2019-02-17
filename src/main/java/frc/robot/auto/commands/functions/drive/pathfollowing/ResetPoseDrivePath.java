@@ -5,11 +5,10 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.auto.commands.drive.pathfollowing;
+package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import frc.robot.auto.commands.WaitCommand;
-import frc.robot.util.GZUtil;
+import frc.robot.auto.commands.functions.WaitCommand;
 
 public class ResetPoseDrivePath extends CommandGroup {
 

@@ -1,8 +1,8 @@
-package frc.robot.auto.commands.drive.pathfollowing;
+package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import java.util.ArrayList;
 
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;

@@ -1010,7 +1010,7 @@ function getDataString() {
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
-	var str = `package frc.robot.auto.commands.paths;
+	var str = `package frc.robot.auto.commands.functions.paths;
 
 import java.util.ArrayList;
 

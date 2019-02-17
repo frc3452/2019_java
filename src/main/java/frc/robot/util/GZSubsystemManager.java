@@ -8,9 +8,22 @@ import java.util.List;
 public class GZSubsystemManager {
 
 	private final List<GZSubsystem> mAllSystems;
+	private final boolean mHasSingleSolenoids;
+	private final boolean mHasDoubleSolenoids;
 
 	public GZSubsystemManager(GZSubsystem... allSubsystems) {
 		mAllSystems = Arrays.asList(allSubsystems);
+
+		boolean singles = false;
+		boolean doubles = false;
+
+		for (GZSubsystem s : mAllSystems) {
+			singles |= s.mSingleSolenoids.size() != 0;
+			doubles |= s.mDoubleSolenoids.size() != 0;
+		}
+
+		mHasSingleSolenoids = singles;
+		mHasDoubleSolenoids = doubles;
 	}
 
 	private GZNotifier looper_ = new GZNotifier(() -> loop());
@@ -20,7 +33,22 @@ public class GZSubsystemManager {
 	}
 
 	public void addLoggingValues() {
-		mAllSystems.forEach((s) -> s.addLoggingValues());
+		mAllSystems.forEach((s) -> s.addLogItems());
+	}
+
+	public boolean hasAir()
+	{
+		return hasSingles() || hasDoubles();
+	}
+
+	public boolean hasSingles()
+	{
+		return this.mHasSingleSolenoids;
+	}
+
+	public boolean hasDoubles()
+	{
+		return this.mHasDoubleSolenoids;
 	}
 
 	public void loop() {

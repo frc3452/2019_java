@@ -3,7 +3,6 @@ package frc.robot.util;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.auto.commands.drive.pathfollowing.ResetPoseDrivePath;
 
 public class GZCommand {
 

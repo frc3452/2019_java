@@ -6,19 +6,24 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
+import frc.robot.GZOI;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZFile;
+import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFileMaker.FileExtensions;
+import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
@@ -37,6 +42,8 @@ public class Elevator extends GZSubsystem {
     private boolean mPrevMovingHP = true;
     private boolean mMovingHP = false;
 
+    private GZFile mPIDConfigFile = null;
+
     private static Elevator mInstance = null;
 
     public static Elevator getInstance() {
@@ -48,20 +55,25 @@ public class Elevator extends GZSubsystem {
 
     // INIT AND LIFT
     private Elevator() {
-        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_1_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
                 .build();
         mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
                 .build();
 
         mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
-        mCarriageSlide.set(false);
+        retractSlides();
         mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
-        mClaw.set(false);
+        openClaw();
 
         mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
                 kElevator.CARGO_SENSOR_VOLT);
 
         talonInit();
+
+        try {
+            mPIDConfigFile = GZFileMaker.getFile("ElevatorPID", new Folder(""), FileExtensions.CSV, false, false);
+        } catch (Exception e) {
+        }
 
         // REMOTE LIMIT SWITCHES
         // For applications where the Talon Tach is pointing to a non-reflective surface
@@ -73,13 +85,20 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
+        brake();
+
+        GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
+                AlertLevel.WARNING, "Could not set open loop ramp time");
+
+        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+                "Could not set encoder zero on bottom limit");
+
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.FWD);
 
-        GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_RAMP_TIME, GZSRX.TIMEOUT), this,
-                AlertLevel.WARNING, "Could not set open loop ramp time");
-        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-                "Could not set encoder zero on bottom limit");
+        mElevator1.disabledLimitSwitch(this, LimitSwitchDirections.REV);
+
+        mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
         configPID(kElevator.PID);
         configPID(kElevator.PID2);
@@ -94,6 +113,15 @@ public class Elevator extends GZSubsystem {
 
     private void selectProfileSlot(int slot) {
         mElevator1.selectProfileSlot(slot, 0);
+    }
+
+    private void updatePIDFromFile() {
+        if (kElevator.TUNING) {
+            try {
+                configPID(GZUtil.getGainsFromFile(mPIDConfigFile, 0));
+            } catch (Exception e) {
+            }
+        }
     }
 
     private void configPID(GZPID gains) {
@@ -112,13 +140,21 @@ public class Elevator extends GZSubsystem {
                 AlertLevel.WARNING, "Could not set 'iZone' Gain for slot" + gains.parameterSlot);
     }
 
+    public void brake() {
+        for (GZSRX s : mTalons)
+            s.setNeutralMode(NeutralMode.Brake);
+    }
+
+    public void coast() {
+        for (GZSRX s : mTalons)
+            s.setNeutralMode(NeutralMode.Coast);
+    }
+
     private void talonInit() {
         for (GZSRX s : mTalons) {
 
             GZSRX.logError(() -> s.configFactoryDefault(GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR,
                     "Could not factory reset " + s.getGZName());
-
-            s.setNeutralMode(NeutralMode.Brake);
 
             s.enableVoltageCompensation(true);
 
@@ -161,8 +197,6 @@ public class Elevator extends GZSubsystem {
                 return "" + mIO.encoders_valid;
             }
         };
-
-        this.addLoggingValuesTalons();
     }
 
     protected void setHeight(Heights height) {
@@ -211,6 +245,16 @@ public class Elevator extends GZSubsystem {
         return sensorUnitsPer100ms;
     }
 
+    private double getInchesPerSecond() {
+        return nativeUnitsToInchesPerSecond(mIO.ticks_velocity);
+    }
+
+    private double nativeUnitsToInchesPerSecond(double nativeUnits) {
+        double inchesPerSecond;
+        inchesPerSecond = ((double) nativeUnits / (double) kElevator.TICKS_PER_INCH) * 10;
+        return inchesPerSecond;
+    }
+
     private void configAccel(int sensorUnitsPer100msPerSec) {
         mElevator1.configMotionAcceleration(sensorUnitsPer100msPerSec);
     }
@@ -243,6 +287,9 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void loop() {
+        // System.out.println(mIO.ticks_velocity + "\t" + mIO.ticks_position);
+        // handleCoast();
+        updatePIDFromFile();
         handlePID();
         handleStates();
         in();
@@ -295,6 +342,15 @@ public class Elevator extends GZSubsystem {
 
     public SolenoidState getSlidesState() {
         return mCarriageSlide.getSolenoidState();
+    }
+
+    private void handleCoast() {
+        if (GZOI.getInstance().isDisabled() && !GZOI.getInstance().isFMS()) {
+            if (getInchesPerSecond() > 1)
+                coast();
+            return;
+        }
+        brake();
     }
 
     // GZ SUBSYSTEM STUFF
@@ -407,9 +463,9 @@ public class Elevator extends GZSubsystem {
     }
 
     public synchronized void enableFollower() {
-        for (GZSmartSpeedController s : mSmartControllers)
-            if (s.getMaster() == Master.FOLLOWER)
-                s.follow(mElevator1);
+        for (GZSRX s : mTalons)
+            s.follow(mElevator1);
+        // if (s.getMaster() == Master.FOLLOWER)
     }
 
     @Override
