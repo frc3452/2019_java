@@ -270,7 +270,7 @@ public class PersistentInfoManager {
                     // For some reason a value is in the file and not in the map, so something isn't
                     // right in the first place
                     // Trip the flag incase so we don't accidentally overwrite any data
-                    // mReadFailed.tripFlag();
+                    mReadFailed.tripFlag();
                 }
             }
 

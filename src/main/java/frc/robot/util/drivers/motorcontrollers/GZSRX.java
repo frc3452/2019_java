@@ -244,18 +244,27 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		FWD("Forward"), REV("Reverse"), BOTH("Both");
 
 		private final String val;
-		private LimitSwitchDirections(String val)
-		{
+
+		private LimitSwitchDirections(String val) {
 			this.val = val;
 		}
 	}
 
 	public void disabledLimitSwitch(GZSubsystem sub, LimitSwitchDirections limitSwitchDirections) {
-		Supplier<ErrorCode> code = limitSwitchDirections == LimitSwitchDirections.FWD
-				? () -> this.configForwardLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled)
-				: () -> this.configReverseLimitSwitchSource(LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
 
-		logError(code, sub, AlertLevel.WARNING, "Could not disable " + limitSwitchDirections.val + " limit switch!");
+		if (limitSwitchDirections == LimitSwitchDirections.FWD || limitSwitchDirections == LimitSwitchDirections.BOTH) {
+			logError(
+					() -> this.configForwardLimitSwitchSource(LimitSwitchSource.Deactivated,
+							LimitSwitchNormal.Disabled),
+					sub, AlertLevel.ERROR, "Could not disable forward limit switch for Talon " + this.getGZName());
+		}
+
+		if (limitSwitchDirections == LimitSwitchDirections.REV || limitSwitchDirections == LimitSwitchDirections.BOTH) {
+			logError(
+					() -> this.configReverseLimitSwitchSource(LimitSwitchSource.Deactivated,
+							LimitSwitchNormal.Disabled),
+					sub, AlertLevel.ERROR, "Could not disable reverse limit switch for Talon " + this.getGZName());
+		}
 	}
 
 	public void setUsingRemoteLimitSwitchOnTalon(GZSubsystem sub, GZSRX otherTalon, LimitSwitchNormal normal,

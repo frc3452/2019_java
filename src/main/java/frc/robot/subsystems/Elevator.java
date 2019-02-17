@@ -3,14 +3,15 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 import frc.robot.Constants;
-import frc.robot.GZOI;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
+import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
@@ -23,8 +24,6 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
-import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
-import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
@@ -90,13 +89,11 @@ public class Elevator extends GZSubsystem {
         GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
                 AlertLevel.WARNING, "Could not set open loop ramp time");
 
-        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-                "Could not set encoder zero on bottom limit");
-
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.FWD);
 
-        mElevator1.disabledLimitSwitch(this, LimitSwitchDirections.REV);
+        // GZSRX.logError(mElevator1.configClearPositionOnLimitF(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
+        //         "Could not set encoder zero on bottom limit");
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
@@ -241,7 +238,7 @@ public class Elevator extends GZSubsystem {
 
     private int inchesPerSecondToNativeUnits(double inchesPerSecond) {
         int sensorUnitsPer100ms;
-        sensorUnitsPer100ms = (int) Math.rint(inchesPerSecond * kElevator.TICKS_PER_INCH / 10);
+        sensorUnitsPer100ms = (int) Math.rint((inchesPerSecond * kElevator.TICKS_PER_INCH) / 10);
         return sensorUnitsPer100ms;
     }
 
@@ -287,7 +284,7 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void loop() {
-        // System.out.println(mIO.ticks_velocity + "\t" + mIO.ticks_position);
+        System.out.println(mIO.ticks_velocity + "\t" + mIO.ticks_position);
         // handleCoast();
         updatePIDFromFile();
         handlePID();
