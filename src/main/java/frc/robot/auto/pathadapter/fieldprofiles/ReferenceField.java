@@ -21,13 +21,8 @@ public class ReferenceField extends FieldProfile {
 
     private HeightsContainer mHeight = new HeightsContainer() {
         @Override
-        public double home() {
-            return kElevator.HOME_INCHES;
-        }
-
-        @Override
         public double hp_floor_Grab() {
-            return 17;
+            return kElevator.HOME_INCHES + 1;
         }
 
         @Override

@@ -1,11 +1,5 @@
 package frc.robot.util.drivers.controllers;
 
-import java.util.ArrayList;
-import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.util.LatchedBoolean;
-
 public class OperatorController extends DeepSpaceController {
     private boolean firstSet = false;
 
@@ -21,22 +15,32 @@ public class OperatorController extends DeepSpaceController {
 
         this.idle = new GZButton(this, () -> false, () -> false);
         this.queueAction = new GZButton(this, () -> false, () -> false);
-        this.elevatorHome = new GZButton(this, () -> false, () -> false);
-        this.hatchPannel1 = new GZButton(this, () -> false, () -> false);
-        this.hatchPanel2 = new GZButton(this, () -> false, () -> false);
-        this.hatchPanel3 = new GZButton(this, () -> false, () -> false);
-        this.cargo1 = new GZButton(this, () -> false, () -> false);
-        this.cargo2 = new GZButton(this, () -> false, () -> false);
-        this.cargo3 = new GZButton(this, () -> false, () -> false);
+        this.elevatorHome = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
+        this.cargo1 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.LB) && getButton(Buttons.A));
+        this.cargo2 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.LB) && getButton(Buttons.B));
+        this.cargo3 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.LB) && getButton(Buttons.Y));
+        this.hatchPannel1 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.A) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
+        this.hatchPanel2 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.B) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
+        this.hatchPanel3 = new GZButton(this, () -> false,
+                () -> getButton(Buttons.Y) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
 
         this.cargoShip = new GZButton(this, () -> false, () -> false);
 
         this.intakeDown = new GZButton(this, () -> false, () -> false);
         this.intakeUp = new GZButton(this, () -> false, () -> false);
-        this.slidesIn = new GZButton(this, () -> false, () -> this.getButton(Buttons.X));
-        this.slidesOut = new GZButton(this, () -> false, () -> this.getButton(Buttons.B));
-        this.clawOpen = new GZButton(this, () -> false, () -> this.getButton(Buttons.Y));
-        this.clawClosed = new GZButton(this, () -> false, () -> this.getButton(Buttons.A));
+        this.slidesIn = new GZButton(this, () -> false,
+                () -> getButton(Buttons.RB) && getButton(Buttons.X));
+        this.slidesOut = new GZButton(this, () -> false,
+                () -> getButton(Buttons.RB) && getButton(Buttons.B));
+        this.clawOpen = new GZButton(this, () -> false,
+                () -> getButton(Buttons.RB) && getButton(Buttons.Y));
+        this.clawClosed = new GZButton(this, () -> false,
+                () -> getButton(Buttons.RB) && getButton(Buttons.A));
 
         this.stow = new GZButton(this, () -> false, () -> false);
         this.stowLow = new GZButton(this, () -> false, () -> false);

@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZAnalogInput.VoltageTranslation.AnalogMode;
+import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants.AnalogMode;
 
 public class GZAnalogInput extends AnalogInput implements IGZHardware {
-    public static class VoltageTranslation {
+    public static class AnalogInputConstants {
 
         public static enum AnalogMode {
             TRIP, RANGE, NONE;
@@ -17,17 +17,17 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
         public double mRangeLowVoltage, mRangeHighVoltage, mRangeLowValue, mRangeHighValue;
         public final AnalogMode mMode;
 
-        public VoltageTranslation() {
+        public AnalogInputConstants() {
             mMode = AnalogMode.NONE;
         }
 
-        public VoltageTranslation(double lowVoltageTrip, double highVoltageTrip) {
+        public AnalogInputConstants(double lowVoltageTrip, double highVoltageTrip) {
             this.mTripLowVoltage = lowVoltageTrip;
             this.mTripHighVoltage = highVoltageTrip;
             mMode = AnalogMode.TRIP;
         }
 
-        public VoltageTranslation(double lowVoltage, double highVoltage, double lowValue, double highValue) {
+        public AnalogInputConstants(double lowVoltage, double highVoltage, double lowValue, double highValue) {
             this.mRangeLowVoltage = lowVoltage;
             this.mRangeHighVoltage = highVoltage;
 
@@ -48,13 +48,13 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
 
     private final int mChannel;
 
-    private final VoltageTranslation mTranslation;
+    private final AnalogInputConstants mTranslation;
 
     public GZAnalogInput(GZSubsystem sub, String name, int channel) {
-        this(sub, name, channel, new VoltageTranslation());
+        this(sub, name, channel, new AnalogInputConstants());
     }
 
-    public GZAnalogInput(GZSubsystem sub, String name, int channel, VoltageTranslation translation) {
+    public GZAnalogInput(GZSubsystem sub, String name, int channel, AnalogInputConstants translation) {
         super(channel);
         this.mTranslation = translation;
         this.mChannel = channel;

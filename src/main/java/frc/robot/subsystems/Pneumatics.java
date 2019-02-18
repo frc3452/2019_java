@@ -28,7 +28,7 @@ public class Pneumatics extends GZSubsystem {
     private Pneumatics() {
         mCompressor = new Compressor(kPneumatics.COMPRESSOR_MODULE);
         mClimberCrawler = new GZSolenoid(kSolenoids.CRAWLER, this, "Climber crawler");
-        mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT);
+        mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT, kPneumatics.PRESSURE_GUAGE_INFO);
     }
 
     public double getPressure() {

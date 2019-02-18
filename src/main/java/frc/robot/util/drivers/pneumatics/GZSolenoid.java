@@ -12,18 +12,15 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         TRANSITION, ON, OFF;
     }
 
-    public boolean isOn()
-    {
+    public boolean isOn() {
         return this.getSolenoidState() == SolenoidState.ON;
     }
 
-    public boolean isOff()
-    {
+    public boolean isOff() {
         return this.getSolenoidState() == SolenoidState.OFF;
     }
 
-    public boolean isTransitioning()
-    {
+    public boolean isTransitioning() {
         return this.getSolenoidState() == SolenoidState.TRANSITION;
     }
 
@@ -38,6 +35,10 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
             this.channel = channel;
             this.extendTime = extendTime;
             this.retractTime = retractTime;
+        }
+
+        public SolenoidConstants(int module, int channel, SolenoidConstants other) {
+            this(module, channel, other.extendTime, other.retractTime);
         }
 
         /**

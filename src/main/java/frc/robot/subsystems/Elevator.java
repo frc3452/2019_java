@@ -15,10 +15,11 @@ import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFlag;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
+import frc.robot.util.GZFlag;
 import frc.robot.util.GZLog.LogItem;
+import frc.robot.util.GZNotifier;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -42,8 +43,6 @@ public class Elevator extends GZSubsystem {
     private boolean mPrevMovingHP = true;
     private boolean mMovingHP = false;
 
-    private GZFile mPIDConfigFile = null;
-
     private GZFlag mZeroed = new GZFlag();
 
     private static Elevator mInstance = null;
@@ -63,19 +62,12 @@ public class Elevator extends GZSubsystem {
                 .build();
 
         mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
-        retractSlides();
         mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
-        openClaw();
 
         mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
                 kElevator.CARGO_SENSOR_VOLT);
 
         talonInit();
-
-        try {
-            mPIDConfigFile = GZFileMaker.getFile("ElevatorPID", new Folder(""), FileExtensions.CSV, false, false);
-        } catch (Exception e) {
-        }
 
         // REMOTE LIMIT SWITCHES
         // For applications where the Talon Tach is pointing to a non-reflective surface
@@ -121,10 +113,10 @@ public class Elevator extends GZSubsystem {
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
         configPID(kElevator.PID);
-        configPID(kElevator.PID2);
-        selectProfileSlot(ElevatorPIDConfig.EMPTY);
-        configAccelInchesPerSec(3 * 12); // 3 fps
-        configCruiseInchesPerSec(6 * 12); // 6 fps
+        // configPID(kElevator.PID2);
+        selectProfileSlot(0);
+        configAccelInchesPerSec(7 * 12);
+        configCruiseInchesPerSec(11 * 12);
 
         brake();
     }
@@ -135,15 +127,6 @@ public class Elevator extends GZSubsystem {
 
     private void selectProfileSlot(int slot) {
         mElevator1.selectProfileSlot(slot, 0);
-    }
-
-    private void updatePIDFromFile() {
-        if (kElevator.TUNING) {
-            try {
-                configPID(GZUtil.getGainsFromFile(mPIDConfigFile, 0));
-            } catch (Exception e) {
-            }
-        }
     }
 
     private void configPID(GZPID gains) {
@@ -231,7 +214,7 @@ public class Elevator extends GZSubsystem {
 
     protected void setHeight(double heightInInches, boolean movingHp) {
         setWantedState(ElevatorState.MOTION_MAGIC);
-        mIO.desired_output = 4096 * kElevator.TICKS_PER_INCH * (heightInInches + kElevator.HOME_INCHES);
+        mIO.desired_output = kElevator.TICKS_PER_INCH * (heightInInches - kElevator.HOME_INCHES);
         mMovingHP = movingHp;
     }
 
@@ -305,8 +288,7 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void loop() {
-        // handleCoast();
-        updatePIDFromFile();
+        handleCoast();
         handlePID();
         handleStates();
         in();
@@ -372,10 +354,11 @@ public class Elevator extends GZSubsystem {
 
     private void handleNonZero() {
         switchToState(ElevatorState.MANUAL);
-        mIO.desired_output = -.075;
+        mIO.desired_output = -.15;
         if (this.mIO.bottom_limit_switch) {
             mElevator1.zero();
             this.mZeroed.tripFlag();
+            stop();
         }
     }
 
@@ -487,7 +470,8 @@ public class Elevator extends GZSubsystem {
             mIO.output = 0;
         }
 
-        mElevator1.set(mState.controlMode, mIO.output);
+        ControlMode mode = (mZeroed.get() ? mState.controlMode : ControlMode.PercentOutput);
+        mElevator1.set(mode, mIO.output);
     }
 
     public synchronized void enableFollower() {
@@ -511,7 +495,6 @@ public class Elevator extends GZSubsystem {
 
     protected boolean setWantedState(ElevatorState wantedState) {
         this.mWantedState = wantedState;
-
         return this.mWantedState == mState;
     }
 

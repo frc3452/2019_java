@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
@@ -79,6 +80,11 @@ public class Drive extends GZSubsystem {
 	private boolean mDrivingOpenLoop = true;
 
 	private ClimbingState mClimbState = null;
+
+	Notifier mShiftNotifier = new Notifier(new Runnable() {
+		public void run() {
+		}
+	});
 
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
@@ -393,12 +399,11 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void handleStates() {
-		GZOI gzOI = GZOI.getInstance();
-
 		boolean neutral = false;
 		neutral |= this.isSafetyDisabled();
 		neutral |= mWantedState == DriveState.NEUTRAL;
 		neutral |= eitherShifterTransitioning();
+		neutral |= mClimbState == ClimbingState.MOVING;
 		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
 
 		if (neutral) {
@@ -499,9 +504,9 @@ public class Drive extends GZSubsystem {
 	}
 
 	private void handleLimitSwitches() {
-		final boolean set = mState == DriveState.CLIMB;
-		L1.overrideLimitSwitchesEnable(set);
-		R1.overrideLimitSwitchesEnable(set);
+		final boolean set = mState == DriveState.CLIMB || mClimbState == ClimbingState.MOVING;
+		L1.overrideLimitSwitchesEnable(false);
+		R1.overrideLimitSwitchesEnable(false);
 		// TODO TUNE
 	}
 
@@ -679,13 +684,26 @@ public class Drive extends GZSubsystem {
 		mIO.right_encoder_total_delta_rotations = R1.getTotalEncoderRotations(getRightRotations());
 	}
 
-	public void shift(ClimbingState state) {
-		if (state != mClimbState) {
+	public void wantShift(ClimbingState state) {
+		if (state != mClimbState && mClimbState != ClimbingState.MOVING) {
 			GZOI.getInstance().addRumble(Rumble.HIGH);
-			mClimbState = state;
+			shiftDelay(state);
+			mClimbState = ClimbingState.MOVING;
 		}
+	}
+
+	public void shiftDelay(ClimbingState state) {
+		mShiftNotifier = new Notifier(() -> {
+			shift(state);
+			mShiftNotifier.close();
+		});
+		mShiftNotifier.startSingle(kDrivetrain.NEUTRAL_TIME_BETWEEN_SHIFTS);
+	}
+
+	private void shift(ClimbingState state) {
 		mShifterFront.set(state == ClimbingState.BOTH || state == ClimbingState.FRONT);
 		mShifterRear.set(state == ClimbingState.BOTH || state == ClimbingState.REAR);
+		mClimbState = state;
 	}
 
 	public synchronized void runClimber(double front, double rear) {
@@ -710,12 +728,12 @@ public class Drive extends GZSubsystem {
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
 			// if (usingOpenLoop() || !mIO.encodersValid)
-			// 	System.out.println(driveOutputLessThan(.2));
-			
+			// System.out.println(driveOutputLessThan(.2));
+
 			// if (driveOutputLessThan(.2) || !mIO.encodersValid)
-			// 	setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			// setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			// else
-			// 	setWantedState(DriveState.CLOSED_LOOP_DRIVER);
+			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 
 			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
 
@@ -724,17 +742,21 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
-
 		// RIGHT IS REAR
-
-		if (mShifterFront.isOn() && mShifterRear.isOn())
+		switch (mClimbState) {
+		case BOTH:
 			tankNoState(joy.getLeftAnalogY(), joy.getLeftAnalogY());
-		else if (mShifterFront.isOff() && mShifterRear.isOn())
+			break;
+		case FRONT:
 			tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
-		else if (mShifterFront.isOn() && mShifterRear.isOff())
-			tankNoState(joy.getLeftAnalogX(), joy.getRightAnalogY());
-		else
+			break;
+		case REAR:
+			tankNoState(0, joy.getLeftAnalogY());
+			break;
+		default:
 			System.out.println("ERROR Handle climber fall through!!!!");
+			break;
+		}
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
@@ -1075,12 +1097,12 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void toggleSlowSpeed() {
 		slowSpeed(!isSlow());
-		GZOI.getInstance().addRumble(Rumble.LOW);
 		System.out.println("Drivetrain speed: " + (isSlow() ? "slow" : "faster"));
 	}
 
 	public synchronized void slowSpeed(boolean isSlow) {
 		mIsSlow = isSlow;
+		GZOI.getInstance().addRumble(mIsSlow ? Rumble.LOW : Rumble.MEDIUM);
 	}
 
 	public Boolean isSlow() {
@@ -1096,7 +1118,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public enum ClimbingState {
-		FRONT, REAR, BOTH, NONE
+		FRONT, REAR, BOTH, NONE, MOVING
 	}
 
 	protected void initDefaultCommand() {

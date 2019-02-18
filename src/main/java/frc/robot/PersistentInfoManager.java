@@ -382,18 +382,18 @@ public class PersistentInfoManager {
                     GZFile gzFile = GZFileMaker.getFile(mFileName, mFolder, FileExtensions.CSV, mUsb, true);
                     File f = gzFile.getFile();
 
-                    // create file writing vars
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-
                     // write values
                     // LeftEncoderTicks,1024
                     // Disabled,0
-                    for (String v : mSettingsMap.keySet()) {
-                        bw.write(v + "," + mSettingsMap.get(v).getValue());
-                        bw.write("\r\n");
-                    }
 
-                    bw.close();
+                    String out = "";
+                    for (String v : mSettingsMap.keySet()) {
+                        out += v + "," + mSettingsMap.get(v).getValue();
+                        out += "\r\n";
+                    }
+                    FileWriter fw = new FileWriter(f);
+                    fw.write(out);
+                    fw.close();
 
                 } catch (Exception e) {
                     e.printStackTrace();

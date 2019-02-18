@@ -14,7 +14,7 @@ public class GZPID {
         this.iZone = iZone;
     }
 
-    public GZPID(final double p,final double i,final double d,final double f,final int iZone) {
+    public GZPID(final double p, final double i, final double d, final double f, final int iZone) {
         this(0, p, i, d, f, iZone);
     }
 

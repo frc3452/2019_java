@@ -10,7 +10,7 @@ import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
 import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
-import frc.robot.util.drivers.GZAnalogInput.VoltageTranslation;
+import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
 
 /**
@@ -26,8 +26,8 @@ public class Constants {
 
 	public static class kSolenoids {
 		// CORRECT
-		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 2, 2);
-		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, 2, 2);
+		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .125, .125);
+		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 4, 4);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
 
@@ -47,24 +47,23 @@ public class Constants {
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
-		public static final int CARGO_SENSOR_CHANNEL = 1;
-		public static final VoltageTranslation CARGO_SENSOR_VOLT = new VoltageTranslation(-1, -2); // TODO TUNE
-
 		public static final double OPEN_LOOP_RAMP_TIME = .5;
 
-		public static final boolean TUNING = false;
-		public static GZPID PID = new GZPID(0, 0, 0, 0, 0); // TODO TUNE
+		public static final boolean ENC_INVERT = false;
+
+		public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
+		public static final double TOP_SOFT_LIMIT_INCHES = 89;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
-
-		public static final boolean ENC_INVERT = false;
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
+
+		public static final int CARGO_SENSOR_CHANNEL = 1;
+		public static final AnalogInputConstants CARGO_SENSOR_VOLT = new AnalogInputConstants(-1, -2); // TODO TUNE
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
-		public static final double TOP_SOFT_LIMIT_INCHES = 30;
 
 		public static enum Heights {
 
@@ -82,6 +81,10 @@ public class Constants {
 
 			private Heights(double inches) {
 				this(inches, true);
+			}
+
+			public String toString() {
+				return "IN: [" + this.inches + "]" + " HP: [" + this.moving_hp + "]";
 			}
 		}
 	}
@@ -144,6 +147,8 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
+		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = .5;
+
 		// 2019 Robot
 
 		public final static boolean L_INVERT = true;
@@ -155,7 +160,7 @@ public class Constants {
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
 		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
-		public final static double OPEN_LOOP_RAMP_TIME = 5; // .125
+		public final static double OPEN_LOOP_RAMP_TIME = .125; // .125
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
 
@@ -179,7 +184,7 @@ public class Constants {
 	}
 
 	public static class kTempSensor {
-		public final static VoltageTranslation TEMPERATURE_SENSOR = new VoltageTranslation(0, 1.75, -50, 100);
+		public final static AnalogInputConstants TEMPERATURE_SENSOR = new AnalogInputConstants(0, 1.75, -50, 100);
 	}
 
 	public static class kLights {
@@ -202,7 +207,7 @@ public class Constants {
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 1;
 		public static final int PRESSURE_GUAGE_PORT = 0;
-		public static final VoltageTranslation PRESSURE_TRANSLATION = new VoltageTranslation(0, 200, .5, 4.5);
+		public static final AnalogInputConstants PRESSURE_GUAGE_INFO = new AnalogInputConstants(.5, 4.5, 0, 200);
 	}
 
 	public static class kFiles {
@@ -247,6 +252,6 @@ public class Constants {
 		}
 
 		public static final int LOCK_OUT_KEY = 3;
-		public static final VoltageTranslation LOCK_OUT_KEY_VOLT = new VoltageTranslation();
+		public static final AnalogInputConstants LOCK_OUT_KEY_VOLT = new AnalogInputConstants();
 	}
 }
