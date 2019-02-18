@@ -1,6 +1,7 @@
 package frc.robot.poofs;
 
 import frc.robot.Constants;
+import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
@@ -18,8 +19,8 @@ public class Kinematics {
      * motion)
      */
     public static Twist2d forwardKinematics(double left_wheel_delta, double right_wheel_delta) {
-        double delta_v = (right_wheel_delta - left_wheel_delta) / 2 * Constants.kTrackScrubFactor;
-        double delta_rotation = delta_v * 2 / Constants.kTrackWidthInches;
+        double delta_v = (right_wheel_delta - left_wheel_delta) / 2 * kPathFollowing.kTrackScrubFactor;
+        double delta_rotation = delta_v * 2 / kPathFollowing.kTrackWidthInches;
         return forwardKinematics(left_wheel_delta, right_wheel_delta, delta_rotation);
     }
 
@@ -77,7 +78,7 @@ public class Kinematics {
         if (Math.abs(velocity.dtheta) < kEpsilon) {
             return new DriveVelocity(velocity.dx, velocity.dx);
         }
-        double delta_v = Constants.kTrackWidthInches * velocity.dtheta / (2 * Constants.kTrackScrubFactor);
+        double delta_v = kPathFollowing.kTrackWidthInches * velocity.dtheta / (2 * kPathFollowing.kTrackScrubFactor);
         return new DriveVelocity(velocity.dx - delta_v, velocity.dx + delta_v);
     }
 }

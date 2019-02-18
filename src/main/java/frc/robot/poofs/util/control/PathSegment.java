@@ -1,6 +1,7 @@
 package frc.robot.poofs.util.control;
 
 import frc.robot.Constants;
+import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.motion.MotionProfile;
@@ -126,7 +127,7 @@ public class PathSegment {
 
     public void createMotionProfiler(MotionState start_state, double end_speed) {
         MotionProfileConstraints motionConstraints = new MotionProfileConstraints(maxSpeed,
-                Constants.kPathFollowingMaxAccel);
+        kPathFollowing.kPathFollowingMaxAccel);
         MotionProfileGoal goal_state = new MotionProfileGoal(getLength(), end_speed);
         speedController = MotionProfileGenerator.generateProfile(motionConstraints, goal_state, start_state);
         // System.out.println(speedController);

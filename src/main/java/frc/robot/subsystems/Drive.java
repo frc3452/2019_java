@@ -14,9 +14,10 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
+import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
-import frc.robot.GZOI.Rumble;
 import frc.robot.GZOI;
+import frc.robot.GZOI.Rumble;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Lookahead;
@@ -44,7 +45,6 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
-import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -146,8 +146,8 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void updateVelocitySetpoint(double left_inches_per_sec, double right_inches_per_sec) {
 		final double max_desired = Math.max(Math.abs(left_inches_per_sec), Math.abs(right_inches_per_sec));
-		final double scale = max_desired > Constants.kDriveHighGearMaxSetpoint
-				? Constants.kDriveHighGearMaxSetpoint / max_desired
+		final double scale = max_desired > kPathFollowing.kDriveHighGearMaxSetpoint
+				? kPathFollowing.kDriveHighGearMaxSetpoint / max_desired
 				: 1.0;
 		mIO.left_desired_output = rpmToTicksPer100ms((inchesPerSecondToRpm(left_inches_per_sec * scale)));
 		mIO.right_desired_output = -rpmToTicksPer100ms(inchesPerSecondToRpm(right_inches_per_sec * scale));
@@ -179,14 +179,14 @@ public class Drive extends GZSubsystem {
 		if (mCurrentPath != path || mState != DriveState.PATH_FOLLOWING) {
 			RobotState.getInstance().resetDistanceDriven();
 			mPathFollower = new PathFollower(path, reversed, new PathFollower.Parameters(
-					new Lookahead(Constants.kMinLookAhead, Constants.kMaxLookAhead, Constants.kMinLookAheadSpeed,
-							Constants.kMaxLookAheadSpeed),
-					Constants.kInertiaSteeringGain, Constants.kPathFollowingProfileKp,
-					Constants.kPathFollowingProfileKi, Constants.kPathFollowingProfileKv,
-					Constants.kPathFollowingProfileKffv, Constants.kPathFollowingProfileKffa,
-					Constants.kPathFollowingMaxVel, Constants.kPathFollowingMaxAccel,
-					Constants.kPathFollowingGoalPosTolerance, Constants.kPathFollowingGoalVelTolerance,
-					Constants.kPathStopSteeringDistance));
+					new Lookahead(kPathFollowing.kMinLookAhead, kPathFollowing.kMaxLookAhead, kPathFollowing.kMinLookAheadSpeed,
+					kPathFollowing.kMaxLookAheadSpeed),
+					kPathFollowing.kInertiaSteeringGain, kPathFollowing.kPathFollowingProfileKp,
+					kPathFollowing.kPathFollowingProfileKi, kPathFollowing.kPathFollowingProfileKv,
+					kPathFollowing.kPathFollowingProfileKffv, kPathFollowing.kPathFollowingProfileKffa,
+					kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
+					kPathFollowing.kPathFollowingGoalPosTolerance, kPathFollowing.kPathFollowingGoalVelTolerance,
+					kPathFollowing.kPathStopSteeringDistance));
 			setWantedState(DriveState.PATH_FOLLOWING);
 			mCurrentPath = path;
 		} else {

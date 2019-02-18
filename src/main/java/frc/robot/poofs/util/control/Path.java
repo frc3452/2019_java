@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import frc.robot.Constants;
+import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
@@ -182,7 +183,7 @@ public class Path {
     public void checkSegmentDone(Translation2d robotPos) {
         PathSegment currentSegment = segments.get(0);
         double remainingDist = currentSegment.getRemainingDistance(currentSegment.getClosestPoint(robotPos));
-        if (remainingDist < Constants.kSegmentCompletionTolerance) {
+        if (remainingDist < kPathFollowing.kSegmentCompletionTolerance) {
             removeCurrentSegment();
         }
     }
@@ -204,7 +205,7 @@ public class Path {
         for (int i = segments.size() - 1; i >= 0; i--) {
             PathSegment segment = segments.get(i);
             maxStartSpeed += Math
-                    .sqrt(maxStartSpeed * maxStartSpeed + 2 * Constants.kPathFollowingMaxAccel * segment.getLength());
+                    .sqrt(maxStartSpeed * maxStartSpeed + 2 * kPathFollowing.kPathFollowingMaxAccel * segment.getLength());
             startSpeeds[i] = segment.getStartState().vel();
             // System.out.println(maxStartSpeed + ", " + startSpeeds[i]);
             if (startSpeeds[i] > maxStartSpeed) {
