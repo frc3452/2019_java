@@ -26,7 +26,7 @@ public class Constants {
 
 	public static class kSolenoids {
 		// CORRECT
-		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .125, .125);
+		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .3, .3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 4, 4);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
@@ -147,7 +147,7 @@ public class Constants {
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = .5;
+		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = .3;
 
 		// 2019 Robot
 
