@@ -32,7 +32,7 @@ public class Pneumatics extends GZSubsystem {
     }
 
     public double getPressure() {
-        return -1;
+        return mPressureSensor.getTranslatedValue();
     }
 
     public void dropCrawler() {

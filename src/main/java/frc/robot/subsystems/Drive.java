@@ -273,6 +273,7 @@ public class Drive extends GZSubsystem {
 			}
 			break;
 		case CLIMB:
+			handleClimbing(GZOI.driverJoy);
 			break;
 		case OPEN_LOOP_DRIVER:
 			arcade(GZOI.driverJoy);
@@ -685,7 +686,6 @@ public class Drive extends GZSubsystem {
 		}
 		mShifterFront.set(state == ClimbingState.BOTH || state == ClimbingState.FRONT);
 		mShifterRear.set(state == ClimbingState.BOTH || state == ClimbingState.REAR);
-
 	}
 
 	public synchronized void runClimber(double front, double rear) {
@@ -708,26 +708,31 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void handleDriving(GZJoystick joy) {
-		// if (usingOpenLoop() || !mIO.encodersValid)
-		// System.out.println(driveOutputLessThan(.2));
-		// if (driveOutputLessThan(.2))
-		// setWantedState(DriveState.OPEN_LOOP_DRIVER);
-		// else
-		// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
+		if (mState != DriveState.CLIMB) {
+			// if (usingOpenLoop() || !mIO.encodersValid)
+			// 	System.out.println(driveOutputLessThan(.2));
+			
+			// if (driveOutputLessThan(.2) || !mIO.encodersValid)
+			// 	setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			// else
+			// 	setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 
-		// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
-		setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
+
+			setWantedState(DriveState.OPEN_LOOP_DRIVER);
+		}
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
-		if (mShifterFront.getSolenoidState() == SolenoidState.ON || mShifterRear.getSolenoidState() == SolenoidState.ON)
-			tank(joy.getLeftAnalogY(), joy.getLeftAnalogY());
-		else if (mShifterFront.getSolenoidState() == SolenoidState.OFF
-				|| mShifterRear.getSolenoidState() == SolenoidState.ON)
-			tank(0, 0);
-		else if (mShifterFront.getSolenoidState() == SolenoidState.ON
-				|| mShifterRear.getSolenoidState() == SolenoidState.OFF)
-			tank(0, 0);
+
+		// RIGHT IS REAR
+
+		if (mShifterFront.isOn() && mShifterRear.isOn())
+			tankNoState(joy.getLeftAnalogY(), joy.getLeftAnalogY());
+		else if (mShifterFront.isOff() && mShifterRear.isOn())
+			tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
+		else if (mShifterFront.isOn() && mShifterRear.isOff())
+			tankNoState(joy.getLeftAnalogX(), joy.getRightAnalogY());
 		else
 			System.out.println("ERROR Handle climber fall through!!!!");
 	}
@@ -930,6 +935,11 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	private synchronized void tankNoState(double left, double right) {
+		mIO.left_desired_output = left * getModifier() * mModifyPercent;
+		mIO.right_desired_output = right * getModifier() * mModifyPercent;
+	}
+
 	public synchronized void tank(GZJoystick joy) {
 		tank(joy.getLeftAnalogY(), joy.getRightAnalogY());
 	}
@@ -1046,7 +1056,6 @@ public class Drive extends GZSubsystem {
 	public int getTotalShiftCountsFront() {
 		return mShifterFront.getChangeCounts();
 	}
-
 
 	public int getTotalShiftCountsRear() {
 		return mShifterRear.getChangeCounts();

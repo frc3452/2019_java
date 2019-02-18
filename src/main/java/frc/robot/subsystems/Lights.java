@@ -5,8 +5,8 @@ import com.ctre.phoenix.CANifier;
 import frc.robot.Constants;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZSubsystem;
-import frc.robot.util.TheBumbler;
-import frc.robot.util.TheBumbler.TimeValue;
+import frc.robot.util.GZQueuer;
+import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 
 public class Lights extends GZSubsystem {
@@ -18,7 +18,7 @@ public class Lights extends GZSubsystem {
 
 	private Color mColor = Color.OFF;
 
-	private TheBumbler<Color> mLightQueuer = new TheBumbler<Lights.Color>() {
+	private GZQueuer<Color> mLightQueuer = new GZQueuer<Lights.Color>() {
 		@Override
 		public Color getDefault() {
 			return new Color(0, 0, 0);

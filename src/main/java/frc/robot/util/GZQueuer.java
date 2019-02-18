@@ -5,13 +5,15 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public abstract class TheBumbler<T> {
+public abstract class GZQueuer<T> {
 
     private double mPrevTime;
 
+    public abstract T getDefault();
+
     private ArrayList<TimeValue<T>> mQueue = new ArrayList<TimeValue<T>>();
 
-    public TheBumbler() {
+    public GZQueuer() {
     }
 
     public void print() {
@@ -34,8 +36,8 @@ public abstract class TheBumbler<T> {
             } else {
                 mQueue.get(0).deductTimeBy(now - mPrevTime);
             }
-
             mPrevTime = now;
+
             if (isQueueEmpty())
                 return getDefault();
             return mQueue.get(0).value;
@@ -51,8 +53,6 @@ public abstract class TheBumbler<T> {
     public boolean isQueueEmpty() {
         return mQueue.size() == 0;
     }
-
-    public abstract T getDefault();
 
     public void addToQueue(TimeValue<T> value) {
         mQueue.add(value);

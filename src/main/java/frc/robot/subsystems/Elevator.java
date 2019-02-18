@@ -15,6 +15,7 @@ import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFlag;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
@@ -43,6 +44,8 @@ public class Elevator extends GZSubsystem {
 
     private GZFile mPIDConfigFile = null;
 
+    private GZFlag mZeroed = new GZFlag();
+
     private static Elevator mInstance = null;
 
     public static Elevator getInstance() {
@@ -65,16 +68,8 @@ public class Elevator extends GZSubsystem {
         openClaw();
 
         mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
-        kElevator.CARGO_SENSOR_VOLT);
+                kElevator.CARGO_SENSOR_VOLT);
 
-        //TODO REMOVE
-        mElevator1.configFactoryDefault();
-        mElevator2.configFactoryDefault();
-
-        brake();
-        
-        if (true)
-            return;
         talonInit();
 
         try {
@@ -92,20 +87,36 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
-
-
         GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
                 AlertLevel.WARNING, "Could not set open loop ramp time");
 
-        mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, GZSRX.TIMEOUT);
+        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
+        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.REV);
 
-        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
+        GZSRX.logError(
+                () -> mElevator1.configForwardSoftLimitThreshold(
+                        (int) ((kElevator.TOP_SOFT_LIMIT_INCHES - kElevator.HOME_INCHES) * kElevator.TICKS_PER_INCH),
+                        GZSRX.TIMEOUT),
+                this, AlertLevel.ERROR,
+                "Could not set top limit to " + kElevator.TOP_SOFT_LIMIT_INCHES + " inches from ground");
 
-        GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-                "Could not set encoder zero on bottom limit");
+        GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
+                "Could not enable top limit!");
+
+        GZSRX.logError(
+                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        LimitSwitchNormal.NormallyClosed),
+                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!");
+
+        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+
+        // GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT),
+        // this, AlertLevel.WARNING,
+        // "Could not set encoder zero on bottom limit");
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
@@ -114,6 +125,8 @@ public class Elevator extends GZSubsystem {
         selectProfileSlot(ElevatorPIDConfig.EMPTY);
         configAccelInchesPerSec(3 * 12); // 3 fps
         configCruiseInchesPerSec(6 * 12); // 6 fps
+
+        brake();
     }
 
     private void selectProfileSlot(ElevatorPIDConfig e) {
@@ -177,10 +190,6 @@ public class Elevator extends GZSubsystem {
 
             GZSRX.logError(s.configPeakCurrentDuration(Constants.kElevator.AMP_TIME, GZSRX.TIMEOUT), this,
                     AlertLevel.WARNING, "Could not set current-limit duration for " + s.getGZName());
-
-            GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-                    GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
-            mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
             s.enableCurrentLimit(true);
 
@@ -296,7 +305,6 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void loop() {
-        System.out.println(mIO.ticks_velocity + "\t" + mIO.ticks_position);
         // handleCoast();
         updatePIDFromFile();
         handlePID();
@@ -362,6 +370,15 @@ public class Elevator extends GZSubsystem {
         brake();
     }
 
+    private void handleNonZero() {
+        switchToState(ElevatorState.MANUAL);
+        mIO.desired_output = -.075;
+        if (this.mIO.bottom_limit_switch) {
+            mElevator1.zero();
+            this.mZeroed.tripFlag();
+        }
+    }
+
     // GZ SUBSYSTEM STUFF
     private void handleStates() {
         boolean neutral = false;
@@ -370,6 +387,8 @@ public class Elevator extends GZSubsystem {
             neutral = true;
         } else if (this.isSafetyDisabled()) {
             neutral = true;
+        } else if (!mZeroed.get()) {
+            handleNonZero();
         } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
         }
@@ -427,7 +446,7 @@ public class Elevator extends GZSubsystem {
             mIO.ticks_velocity = Double.NaN;
         }
 
-        mIO.bottom_limit_switch = mElevator1.getFWDLimit(); // TODO TUNE
+        mIO.bottom_limit_switch = !mElevator1.getREVLimit();
 
         mIO.elevator_total_rotations = mElevator1.getTotalEncoderRotations(getRotations());
     }

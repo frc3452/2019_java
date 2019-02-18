@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.StickyFaults;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import frc.robot.Constants.kTempSensor;
@@ -308,8 +307,9 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public boolean getREVLimit() {
-		if (usingRemoteLimitSwitch())
+		if (usingRemoteLimitSwitch()){
 			return mRemoteLimitSwitchTalon.getREVFromSensorCollection();
+		}
 		return this.getREVFromSensorCollection();
 	}
 

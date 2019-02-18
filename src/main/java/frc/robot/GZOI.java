@@ -14,9 +14,10 @@ import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
+import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
+import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.util.TheBumbler;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
@@ -40,9 +41,12 @@ public class GZOI extends GZSubsystem {
 	private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
 
-	private TheBumbler<Double> mRumbleQueue = new TheBumbler<Double>() {
+	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
 		@Override
 		public Double getDefault() {
+			if (GZUtil.between(getMatchTime(), 29.1, 30))
+				return .75;
+
 			return 0.0;
 		}
 	};
@@ -134,11 +138,12 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
-		Elevator.getInstance().manual(op.getRightAnalogY());
+		Elevator.getInstance().manual(op.getRightAnalogY() * .25);
 	}
 
 	private void handleDriverController() {
 		if (driverJoy.getButton(Buttons.LB)) {
+
 			if (driverJoy.getButton(Buttons.A))
 				drive.shift(ClimbingState.NONE);
 			else if (driverJoy.getButton(Buttons.B))
@@ -147,6 +152,7 @@ public class GZOI extends GZSubsystem {
 				drive.shift(ClimbingState.REAR);
 			else if (driverJoy.getButton(Buttons.Y))
 				drive.shift(ClimbingState.BOTH);
+
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
