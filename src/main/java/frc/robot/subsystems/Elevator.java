@@ -79,9 +79,6 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
-        GZSRX.logError(mElevator1.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
-                AlertLevel.WARNING, "Could not set open loop ramp time");
-
         GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
                 GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
@@ -160,6 +157,9 @@ public class Elevator extends GZSubsystem {
 
             GZSRX.logError(() -> s.configFactoryDefault(GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR,
                     "Could not factory reset " + s.getGZName());
+
+            GZSRX.logError(s.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
+                    AlertLevel.WARNING, "Could not set open loop ramp time for " + s.getGZName());
 
             s.enableVoltageCompensation(true);
 
@@ -288,7 +288,7 @@ public class Elevator extends GZSubsystem {
 
     @Override
     public void loop() {
-        handleCoast();
+        // handleCoast();
         handlePID();
         handleStates();
         in();
@@ -345,6 +345,7 @@ public class Elevator extends GZSubsystem {
 
     private void handleCoast() {
         if (GZOI.getInstance().isDisabled() && !GZOI.getInstance().isFMS()) {
+            System.out.println(getInchesPerSecond());
             if (getInchesPerSecond() > 1)
                 coast();
             return;

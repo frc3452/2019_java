@@ -96,7 +96,7 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
-			handleElevatorTesting();
+			// handleElevatorTesting();
 		}
 	}
 
