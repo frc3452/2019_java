@@ -307,7 +307,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 	}
 
 	public boolean getREVLimit() {
-		if (usingRemoteLimitSwitch()){
+		if (usingRemoteLimitSwitch()) {
 			return mRemoteLimitSwitchTalon.getREVFromSensorCollection();
 		}
 		return this.getREVFromSensorCollection();

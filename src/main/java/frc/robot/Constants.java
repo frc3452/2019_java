@@ -55,7 +55,7 @@ public class Constants {
 		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
-		public static final double TOP_SOFT_LIMIT_INCHES = 89;
+		public static final double TOP_SOFT_LIMIT_INCHES = 80;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 
@@ -214,9 +214,6 @@ public class Constants {
 	}
 
 	public static class kFiles {
-		private kFiles() {
-		}
-
 		public static final boolean FAKE_PDP = false;
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
 				FileExtensions.CSV, false, false);
@@ -242,7 +239,7 @@ public class Constants {
 			} finally {
 				ROBOT_NAME = tempString;
 			}
-			if (ROBOT_NAME == "") {
+			if (ROBOT_NAME == tempString) {
 				System.out
 						.println("Robot name not found! Upload [RobotName.txt] to ROBORIO home directory to set name!");
 			}

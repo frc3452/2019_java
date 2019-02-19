@@ -13,13 +13,8 @@ import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.GZFile;
-import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.FileExtensions;
-import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZLog.LogItem;
-import frc.robot.util.GZNotifier;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -103,10 +98,6 @@ public class Elevator extends GZSubsystem {
 
         mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
 
-        // GZSRX.logError(mElevator1.configClearPositionOnLimitR(true, GZSRX.TIMEOUT),
-        // this, AlertLevel.WARNING,
-        // "Could not set encoder zero on bottom limit");
-
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
         configPID(kElevator.PID);
@@ -161,7 +152,8 @@ public class Elevator extends GZSubsystem {
             GZSRX.logError(s.configOpenloopRamp(Constants.kElevator.OPEN_LOOP_RAMP_TIME, GZSRX.TIMEOUT), this,
                     AlertLevel.WARNING, "Could not set open loop ramp time for " + s.getGZName());
 
-            s.enableVoltageCompensation(true);
+            // s.configVoltageCompSaturation(12);
+            // s.enableVoltageCompensation(true);
 
             s.setInverted(kElevator.ELEVATOR_INVERT);
 
@@ -359,7 +351,7 @@ public class Elevator extends GZSubsystem {
         if (this.mIO.bottom_limit_switch) {
             mElevator1.zero();
             this.mZeroed.tripFlag();
-            stop();
+            // stop();
         }
     }
 
@@ -473,12 +465,12 @@ public class Elevator extends GZSubsystem {
 
         ControlMode mode = (mZeroed.get() ? mState.controlMode : ControlMode.PercentOutput);
         mElevator1.set(mode, mIO.output);
+        System.out.println(mode + "\t" + mIO.output);
     }
 
     public synchronized void enableFollower() {
         for (GZSRX s : mTalons)
             s.follow(mElevator1);
-        // if (s.getMaster() == Master.FOLLOWER)
     }
 
     @Override
