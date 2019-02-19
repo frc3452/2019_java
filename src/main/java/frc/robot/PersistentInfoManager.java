@@ -11,6 +11,7 @@ import java.util.Scanner;
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
@@ -171,6 +172,28 @@ public class PersistentInfoManager {
         }
     };
 
+    private PersistentInfo mIntakeFolds = new PersistentInfo(0.0) {
+        public void update() {
+            this.addDifference(Intake.getInstance().getIntakeTotalOpens());
+        }
+
+        @Override
+        public void readSetting() {
+            GZOI.op.setButtonBoard(this.getValue() == 0);
+        }
+    };
+
+    private PersistentInfo mIntakeDrops = new PersistentInfo(0.0) {
+        public void update() {
+            this.addDifference(Intake.getInstance().getIntakeTotalFlips());
+        }
+
+        @Override
+        public void readSetting() {
+            GZOI.op.setButtonBoard(this.getValue() == 0);
+        }
+    };
+
     private void resetMap() {
         mSettingsMap = new HashMap<String, PersistentInfo>();
 
@@ -185,6 +208,8 @@ public class PersistentInfoManager {
         mSettingsMap.put("DriveShiftsFront", mDriveTotalShiftsFront);
         mSettingsMap.put("DriveShiftsBack", mDriveTotalShiftsBack);
         mSettingsMap.put("ClawChanges", mClawTotalChanges);
+        mSettingsMap.put("IntakeDrops", mIntakeDrops);
+        mSettingsMap.put("IntakeFolds", mIntakeFolds);
         mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }
 
