@@ -11,15 +11,16 @@ import frc.robot.util.GZSubsystemManager;
 public class Superstructure extends GZSubsystem {
 
     private Elevator elev = Elevator.getInstance();
-    // private Intake intake = Intake.getInstance();
+    private Intake intake = Intake.getInstance();
 
     private GZSubsystemManager subsystems;
 
+    private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
-
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(5);
 
     private static Superstructure mInstance = null;
+
     public static Superstructure getInstance() {
         if (mInstance == null)
             mInstance = new Superstructure();
@@ -27,7 +28,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Superstructure() {
-        subsystems = new GZSubsystemManager(elev); //intake
+        subsystems = new GZSubsystemManager(elev, intake); // intake
     }
 
     private Actions mAction = Actions.IDLE;
@@ -37,6 +38,7 @@ public class Superstructure extends GZSubsystem {
     public enum Actions {
         OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED,
         GO_TO_QUEUED_HEIGHT;
+
         // MOVE CARGO ACROSS FLOOR
     }
 
@@ -53,15 +55,15 @@ public class Superstructure extends GZSubsystem {
 
             switch (mAction) {
             case IDLE:
-            break;
+                break;
             case STOW_LOW:
                 if (isStowed())
                     elev.setHeight(Heights.Home);
                 else
-                break;
+                    break;
             case INTAKE_CARGO:
-                // if (intake.isLowered() && elev.nearTarget())
-                //     intake.runIntake(kIntake.INTAKE_SPEED);
+                if (intake.isLowered() && elev.nearTarget())
+                    intake.runIntake(kIntake.INTAKE_SPEED);
 
                 if (elev.isCargoSensorTripped())
                     runAction(Actions.HOLD_CARGO);
@@ -72,7 +74,7 @@ public class Superstructure extends GZSubsystem {
                     stow();
 
                 if (elev.isClawClosed() && elev.isCargoSensorTripped() && isStowed())
-                    idle();
+                    done();
                 break;
             case TRNSFR_HP_FROM_FLOOR:
                 elev.setHeight(Heights.HP_Floor_Grab);
@@ -80,7 +82,7 @@ public class Superstructure extends GZSubsystem {
                     if (!HPFromFloor.get(1) && elev.areSlidesIn() && elev.isClawClosed()) {
                         stow();
                         HPFromFloor.trip(1);
-                    } else if (!HPFromFloor.getNext() /*&& intake.isRaised()*/) {
+                    } else if (!HPFromFloor.getNext() && intake.isRaised()) {
                         elev.extendSlides();
                         HPFromFloor.tripNext();
                     } else if (!HPFromFloor.getNext() && elev.areSlidesOut()) {
@@ -92,11 +94,11 @@ public class Superstructure extends GZSubsystem {
                     }
                 }
                 if (HPFromFloor.allFlagsTripped() && elev.areSlidesIn()) {
-                    idle();
+                    done();
                 }
                 break;
             case GRAB_HP_FROM_FEED:
-                if (/*intake.isRaised() &&*/ elev.nearTarget() && elev.isClawClosed()) {
+                if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
                     HPFromFeed.trip(1);
                 }
                 if (HPFromFeed.get(1)) {
@@ -114,7 +116,7 @@ public class Superstructure extends GZSubsystem {
                         HPFromFeed.tripNext();
                     }
                     if (HPFromFeed.allFlagsTripped() && elev.areSlidesIn())
-                        idle();
+                        done();
                 }
                 break;
             }
@@ -122,14 +124,15 @@ public class Superstructure extends GZSubsystem {
     }
 
     private boolean isStowed() {
-        return elev.areSlidesIn();// && intake.isRaised();
+        return elev.areSlidesIn() && intake.isRaised();
     }
 
     public void idle() {
         runAction(Actions.IDLE);
     }
 
-    public void cancelAction() {
+    public void done() {
+        mActionDone.tripFlag();
         idle();
     }
 
@@ -137,10 +140,14 @@ public class Superstructure extends GZSubsystem {
         runHeight(h, false);
     }
 
+    public boolean isActionDone()
+    {
+        return mActionDone.get();
+    }
+
     public void runHeight(Heights h, boolean queue) {
         if (queue) {
-            if (mQueuedHeight != h)
-            {
+            if (mQueuedHeight != h) {
                 mQueuedHeight = h;
                 queueAction(Actions.GO_TO_QUEUED_HEIGHT);
                 System.out.println("Queued height: " + mQueuedHeight);
@@ -174,18 +181,25 @@ public class Superstructure extends GZSubsystem {
             return;
         }
 
+        if (mAction == action)
+            return;
+
         mAction = action;
+
+        if (mAction != Actions.IDLE && mAction != Actions.OFF)
+            mActionDone.rst();
+
         switch (action) {
         case OFF:
         case IDLE:
             elev.stopMovement();
-            // intake.stop();
+            intake.stop();
             break;
         case GO_TO_QUEUED_HEIGHT:
             elev.setHeight(mQueuedHeight);
             break;
         case INTAKE_CARGO:
-            // intake.lower();
+            intake.lower();
             elev.setHeight(Heights.Home);
             break;
         case STOW:
@@ -210,28 +224,24 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void stow() {
-        // intake.raise();
+        intake.raise();
         elev.retractSlides();
-        // intake.stop();
+        intake.stop();
     }
 
-    public void openClaw()
-    {
+    public void openClaw() {
         elev.openClaw();
     }
 
-    public void closeClaw()
-    {
+    public void closeClaw() {
         elev.closeClaw();
     }
 
-    public void extendSlides()
-    {
+    public void extendSlides() {
         elev.extendSlides();
     }
 
-    public void retractSlides()
-    {
+    public void retractSlides() {
         elev.retractSlides();
     }
 
