@@ -17,7 +17,7 @@ import frc.robot.auto.commands.functions.paths.CS_2;
 import frc.robot.auto.commands.functions.paths.CS_3;
 import frc.robot.auto.commands.functions.paths.CS_4;
 import frc.robot.auto.commands.functions.paths.CS_5;
-import frc.robot.auto.commands.functions.paths.Curve_Test_2;
+import frc.robot.auto.commands.functions.paths.Square_Time;
 import frc.robot.auto.commands.functions.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
@@ -74,7 +74,7 @@ public class Auton {
 		m_controllerOverrideValue = 1;
 
 		commandArray = new ArrayList<GZCommand>();
-		
+
 		// CommandGroup c = new CommandGroup() {
 		// {
 		// addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
@@ -87,8 +87,8 @@ public class Auton {
 		// }
 		// };
 
-		commandArray.add(new GZCommand("Drive straight", () -> new ResetPoseDrivePath(new Straight_Path())   ));
-		commandArray.add(new GZCommand("Curve test", () -> new ResetPoseDrivePath(new Curve_Test_2())));
+		commandArray.add(new GZCommand("Drive straight", () -> new ResetPoseDrivePath(new Straight_Path())));
+		commandArray.add(new GZCommand("Curve test", () -> new ResetPoseDrivePath(new Square_Time())));
 		commandArray.add(new GZCommand("Cargo ship ", () -> new CommandGroup() {
 			{
 				final double waitTime = .1;
@@ -117,8 +117,7 @@ public class Auton {
 		fillAutonArray();
 	}
 
-	public void print()
-	{
+	public void print() {
 		System.out.println(getSelector());
 	}
 
@@ -130,7 +129,7 @@ public class Auton {
 		// GZOI.getInstance().isDisabled() &&
 		if (!GZOI.getInstance().isFMS()) {
 			Timer f = null;
-			// f.start();
+			f.start();
 		}
 	}
 
@@ -178,13 +177,12 @@ public class Auton {
 			return;
 
 		if (mLBAutoStart.update(update)) {
-			startAutoCommand() ;
+			startAutoCommand();
 			System.out.println("WARNING Controller starting auto!");
 		}
 	}
 
-	private void startAutoCommand() 
-	{
+	private void startAutoCommand() {
 		autonomousCommand.setCommand();
 		autonomousCommand.start();
 	}

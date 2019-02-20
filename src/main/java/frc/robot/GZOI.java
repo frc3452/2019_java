@@ -38,7 +38,7 @@ public class GZOI extends GZSubsystem {
 	private boolean mSafetyDisable = false;
 
 	private Drive drive = Drive.getInstance();
-	private Superstructure supe = Superstructure.getInstance();
+	// private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
@@ -96,7 +96,7 @@ public class GZOI extends GZSubsystem {
 			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
-			handleElevatorTesting();
+			// handleElevatorTesting();
 		}
 	}
 
@@ -138,8 +138,8 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
-		if (Math.abs(op.getLeftTrigger()) > .5)
-			Elevator.getInstance().manual(op.getRightAnalogY() * .25);
+		// if (Math.abs(op.getLeftTrigger()) > .5)
+			// Elevator.getInstance().manual(op.getRightAnalogY() * .25);
 	}
 
 	private void handleDriverController() {
@@ -169,47 +169,31 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
-		if (controller.idle.get()) {
-			supe.idle();
-		} else {
-			if (controller.hatchPannel1.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (controller.hatchPanel2.get())
-				supe.runHeight(Heights.HP_2, queue);
-			else if (controller.hatchPanel3.get())
-				supe.runHeight(Heights.HP_3, queue);
-			else if (controller.hatchFromFeed.get())
-				supe.runHeight(Heights.HP_1, queue);
-			else if (controller.cargo1.get())
-				supe.runHeight(Heights.Cargo_1, queue);
-			else if (controller.cargo2.get())
-				supe.runHeight(Heights.Cargo_2, queue);
-			else if (controller.cargo3.get())
-				supe.runHeight(Heights.Cargo_3, queue);
-			else if (controller.cargoShip.get())
-				supe.runHeight(Heights.Cargo_Ship, queue);
-
-			if (controller.slidesIn.get())
-				supe.retractSlides();
-			else if (controller.slidesOut.get())
-				supe.extendSlides();
-
-			if (controller.clawOpen.get())
-				supe.openClaw();
-			else if (controller.clawClosed.get())
-				supe.closeClaw();
-
-			if (controller.stow.updated())
-				supe.runAction(Actions.STOW, queue);
-			else if (controller.stowLow.updated())
-				supe.runAction(Actions.STOW_LOW, queue);
-			else if (controller.intakeCargo.updated())
-				supe.runAction(Actions.INTAKE_CARGO, queue);
-			else if (controller.floorHatchToManip.updated())
-				supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-			else if (controller.hatchFromFeed.updated())
-				supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		}
+		/**
+		 * if (controller.idle.get()) { supe.idle(); } else { if
+		 * (controller.hatchPannel1.get()) supe.runHeight(Heights.HP_1, queue); else if
+		 * (controller.hatchPanel2.get()) supe.runHeight(Heights.HP_2, queue); else if
+		 * (controller.hatchPanel3.get()) supe.runHeight(Heights.HP_3, queue); else if
+		 * (controller.hatchFromFeed.get()) supe.runHeight(Heights.HP_1, queue); else if
+		 * (controller.cargo1.get()) supe.runHeight(Heights.Cargo_1, queue); else if
+		 * (controller.cargo2.get()) supe.runHeight(Heights.Cargo_2, queue); else if
+		 * (controller.cargo3.get()) supe.runHeight(Heights.Cargo_3, queue); else if
+		 * (controller.cargoShip.get()) supe.runHeight(Heights.Cargo_Ship, queue);
+		 * 
+		 * if (controller.slidesIn.get()) supe.retractSlides(); else if
+		 * (controller.slidesOut.get()) supe.extendSlides();
+		 * 
+		 * if (controller.clawOpen.get()) supe.openClaw(); else if
+		 * (controller.clawClosed.get()) supe.closeClaw();
+		 * 
+		 * if (controller.stow.updated()) supe.runAction(Actions.STOW, queue); else if
+		 * (controller.stowLow.updated()) supe.runAction(Actions.STOW_LOW, queue); else
+		 * if (controller.intakeCargo.updated()) supe.runAction(Actions.INTAKE_CARGO,
+		 * queue); else if (controller.floorHatchToManip.updated())
+		 * supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue); else if
+		 * (controller.hatchFromFeed.updated())
+		 * supe.runAction(Actions.GRAB_HP_FROM_FEED, queue); }
+		 */
 	}
 
 	public String getSmallString() {

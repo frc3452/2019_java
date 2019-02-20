@@ -131,7 +131,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-		public static final boolean TUNING = false;
+		public static final boolean TUNING = true;
 
 		// .95,0,60,.1,0,
 		public static class PID {

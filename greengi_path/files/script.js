@@ -1012,11 +1012,10 @@ function getDataString() {
 	var deg = isReversed ? 180 : 0;
 	var str = `package frc.robot.auto.commands.functions.paths;
 
-import java.util.ArrayList;
-
-import frc.robot.auto.commands.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.auto.commands.drive.pathfollowing.PathContainer;
-import frc.robot.poofs.util.math.Rotation2d;
+	import java.util.ArrayList;
+	
+	import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+	import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 
 public class ${title} extends PathContainer {
     

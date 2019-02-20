@@ -5,6 +5,11 @@ public class GZPID {
     public final double P, I, D, F;
     public final int parameterSlot, iZone;
 
+    public GZPID()
+    {
+        this(0,0,0,0,0);
+    }
+    
     public GZPID(final int slot, final double p, final double i, final double d, final double f, final int iZone) {
         this.parameterSlot = slot;
         this.P = p;
@@ -16,6 +21,20 @@ public class GZPID {
 
     public GZPID(final double p, final double i, final double d, final double f, final int iZone) {
         this(0, p, i, d, f, iZone);
+    }
+
+    public boolean equals(GZPID other)
+    {
+        boolean ret = true;
+
+        ret &= this.P == other.P;
+        ret &= this.I == other.I;
+        ret &= this.D == other.D;
+        ret &= this.F == other.F;
+        ret &= this.iZone == other.iZone;
+        ret &= this.parameterSlot == other.parameterSlot;
+        
+        return ret;
     }
 
 }

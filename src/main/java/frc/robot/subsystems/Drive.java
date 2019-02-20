@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.sql.Date;
 import java.text.DecimalFormat;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -178,15 +179,16 @@ public class Drive extends GZSubsystem {
 	public synchronized void setWantDrivePath(Path path, boolean reversed) {
 		if (mCurrentPath != path || mState != DriveState.PATH_FOLLOWING) {
 			RobotState.getInstance().resetDistanceDriven();
-			mPathFollower = new PathFollower(path, reversed, new PathFollower.Parameters(
-					new Lookahead(kPathFollowing.kMinLookAhead, kPathFollowing.kMaxLookAhead, kPathFollowing.kMinLookAheadSpeed,
-					kPathFollowing.kMaxLookAheadSpeed),
-					kPathFollowing.kInertiaSteeringGain, kPathFollowing.kPathFollowingProfileKp,
-					kPathFollowing.kPathFollowingProfileKi, kPathFollowing.kPathFollowingProfileKv,
-					kPathFollowing.kPathFollowingProfileKffv, kPathFollowing.kPathFollowingProfileKffa,
-					kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
-					kPathFollowing.kPathFollowingGoalPosTolerance, kPathFollowing.kPathFollowingGoalVelTolerance,
-					kPathFollowing.kPathStopSteeringDistance));
+			mPathFollower = new PathFollower(path, reversed,
+					new PathFollower.Parameters(
+							new Lookahead(kPathFollowing.kMinLookAhead, kPathFollowing.kMaxLookAhead,
+									kPathFollowing.kMinLookAheadSpeed, kPathFollowing.kMaxLookAheadSpeed),
+							kPathFollowing.kInertiaSteeringGain, kPathFollowing.kPathFollowingProfileKp,
+							kPathFollowing.kPathFollowingProfileKi, kPathFollowing.kPathFollowingProfileKv,
+							kPathFollowing.kPathFollowingProfileKffv, kPathFollowing.kPathFollowingProfileKffa,
+							kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
+							kPathFollowing.kPathFollowingGoalPosTolerance,
+							kPathFollowing.kPathFollowingGoalVelTolerance, kPathFollowing.kPathStopSteeringDistance));
 			setWantedState(DriveState.PATH_FOLLOWING);
 			mCurrentPath = path;
 		} else {
@@ -309,10 +311,17 @@ public class Drive extends GZSubsystem {
 		}
 
 		if (kDrivetrain.TUNING) {
-			setPID(L1, getGainsFromFile(0));
-			setPID(R1, getGainsFromFile(0)); // both top line
+			GZPID temp = getGainsFromFile(0);
+			if (!oldPID.equals(temp)) {
+				oldPID = temp;
+				setPID(L1, oldPID);
+				setPID(R1, oldPID); // both top line
+				System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
+			}
 		}
 	}
+
+	GZPID oldPID = new GZPID();
 
 	private final DecimalFormat df = new DecimalFormat("#0.000");
 
@@ -785,13 +794,15 @@ public class Drive extends GZSubsystem {
 
 		double elv = getModifier();
 
-		final double rotate = elv * turnScalar * ((joy.getRightTrigger() - joy.getLeftTrigger()) * .65);
-		final double move = joy.getLeftAnalogY() * elv;
-		arcadeNoState(move, rotate, joy.getButton(Buttons.RB));
-		// final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		// final double move = joy.getLeftAnalogY() * elv;
-		// cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .65 ),
-		// !joy.getButton(Buttons.RB));
+		// final double rotate = elv * turnScalar * ((joy.getRightTrigger() -
+		// joy.getLeftTrigger()) * .6);
+		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
+		// arcadeNoState(move, rotate, false);
+
+		final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
+		final double move = joy.getLeftAnalogY() * elv;
+		cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .5), !joy.getButton(Buttons.RB));
 	}
 
 	// called in DEMO state
@@ -811,7 +822,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn) {
-		double[] temp = cheesyToLR(move, rotate, quickTurn);
+		double[] temp = cheesyToLR(move * mModifyPercent, rotate * mModifyPercent, quickTurn);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
