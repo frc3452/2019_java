@@ -725,6 +725,11 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftSpeed()) < speed && Math.abs(getRightSpeed()) < speed;
 	}
 
+	public synchronized void handleDriving()
+	{
+		handleDriving(GZOI.driverJoy);
+	}
+
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
 			// if (usingOpenLoop() || !mIO.encodersValid)

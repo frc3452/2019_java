@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
 	// This order is crucial! it determines what order logging is added, what order
 	// // health is generated in, etc
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), //Intake.getInstance()
+			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), // Intake.getInstance()
 			GZOI.getInstance(), Superstructure.getInstance());
 
 	// public static final GZSubsystemManager allSubsystems = new
@@ -95,7 +95,10 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+		if (Auton.getInstance().isAutoControl())
+			Scheduler.getInstance().run();
+		else
+			Scheduler.getInstance().removeAll();
 	}
 
 	@Override

@@ -15,8 +15,8 @@ public class Superstructure extends GZSubsystem {
 
     private GZSubsystemManager subsystems;
 
+    private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
-
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(5);
 
     private static Superstructure mInstance = null;
@@ -38,6 +38,7 @@ public class Superstructure extends GZSubsystem {
     public enum Actions {
         OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, HOLD_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED,
         GO_TO_QUEUED_HEIGHT;
+
         // MOVE CARGO ACROSS FLOOR
     }
 
@@ -73,7 +74,7 @@ public class Superstructure extends GZSubsystem {
                     stow();
 
                 if (elev.isClawClosed() && elev.isCargoSensorTripped() && isStowed())
-                    idle();
+                    done();
                 break;
             case TRNSFR_HP_FROM_FLOOR:
                 elev.setHeight(Heights.HP_Floor_Grab);
@@ -93,7 +94,7 @@ public class Superstructure extends GZSubsystem {
                     }
                 }
                 if (HPFromFloor.allFlagsTripped() && elev.areSlidesIn()) {
-                    idle();
+                    done();
                 }
                 break;
             case GRAB_HP_FROM_FEED:
@@ -115,7 +116,7 @@ public class Superstructure extends GZSubsystem {
                         HPFromFeed.tripNext();
                     }
                     if (HPFromFeed.allFlagsTripped() && elev.areSlidesIn())
-                        idle();
+                        done();
                 }
                 break;
             }
@@ -130,12 +131,18 @@ public class Superstructure extends GZSubsystem {
         runAction(Actions.IDLE);
     }
 
-    public void cancelAction() {
+    public void done() {
+        mActionDone.tripFlag();
         idle();
     }
 
     public void runHeight(Heights h) {
         runHeight(h, false);
+    }
+
+    public boolean isActionDone()
+    {
+        return mActionDone.get();
     }
 
     public void runHeight(Heights h, boolean queue) {
@@ -174,13 +181,14 @@ public class Superstructure extends GZSubsystem {
             return;
         }
 
+        if (mAction == action)
+            return;
+
         mAction = action;
 
-        // if (mAction != Actions.IDLE)
-        // {
-        //     mActionDone = false;
-        // }
-        
+        if (mAction != Actions.IDLE && mAction != Actions.OFF)
+            mActionDone.rst();
+
         switch (action) {
         case OFF:
         case IDLE:
