@@ -2,6 +2,9 @@ var waypoints = [];
 var arcArr = [];
 
 var ctx;
+
+const initWidth = 1656;
+const initHeight = 823;
 var width = 1656; //pixels
 var height = 823; //pixels
 var fieldWidth = 652; // in inches
@@ -341,7 +344,8 @@ function convertNativeUnitsPer100msToInchesPerSecond(ips) {
 }
 
 function init() {
-	console.log(new Date());
+	console.log("Startup: " + new Date());
+
 	$("#field").css("width", (width / 1.5) + "px");
 	$("#field").css("height", (height / 1.5) + "px");
 	ctx = document.getElementById('field').getContext('2d')
@@ -379,44 +383,42 @@ function clear() {
 		ctx.drawImage(image, 0, 0, width, height);
 }
 
+function findRowNumber(row) {
+	var rowFound = -1;
+	var counter = 0;
+	$('tbody').children('tr').each(function () {
+		if (($('tbody').children()[counter++] == row))
+			rowFound = counter;
+	})
+
+	return rowFound;
+}
+
 function setAngle(row) {
+	// evaluateWaypoints();
 
-	var allRows = $('tbody').children('tr');
-	var length = allRows.length;
-	console.log(length);
+	var lastX = eval($($($($('tbody').children()[row - 1]).children()[0]).children()).val());
+	var lastY = eval($($($($('tbody').children()[row - 1]).children()[1]).children()).val());
 
-	var foundRow = -1;
-	for (var i = 0; i < length && foundRow == -1; i++) {
-		if ($('tbody').children('tr')[i] == row) {
-			foundRow = i;
-			console.log("ROW FOUND: " + i);
-		}
-	}
+	var prevX = eval($($($($('tbody').children()[row - 2]).children()[0]).children()).val());
+	var prevY = eval($($($($('tbody').children()[row - 2]).children()[1]).children()).val());
 
+	var angle = eval($($($($('tbody').children()[row - 1]).children()[6]).children()).val());
 
-	return;
-	var table = document.getElementById('myTable');
-	// console.log($('tbody').rows.length);
-	console.log(table.rows[1]);
-	return;
-	console.log(row);
+	var newPos = movePointAroundPoint(lastX, lastY, angle, prevX, prevY);
 
-	var g = $('tbody  > tr');
+	// return;
+	$($($($('tbody').children()[row - 2]).children()[0]).children()).val(newPos.x);
+	$($($($('tbody').children()[row - 2]).children()[1]).children()).val(newPos.y);
 
-	for (var i = 0; i < g.length; i++) {
-		if (g[i] == row) {
-			console.log(i);
-			console.log(g[i]);
-		}
-	}
-
-	return;
-	var rows = $('myTable').get(0).rows;
-	console.log(rows);
-	return;
+	update();
 }
 
 function addPoint(x, y, radius) {
+	addPointRound(x, y, radius, true);
+}
+
+function addPointRound(x, y, radius, round) {
 	var prev;
 	if (waypoints.length > 0)
 		prev = waypoints[waypoints.length - 1].position;
@@ -432,26 +434,20 @@ function addPoint(x, y, radius) {
 		if ($("table tr").length > 1 && waypoints.length > 1) {
 			if (x !== waypoints[waypoints.length - 1].position.x && x !== waypoints[waypoints.length - 2].position.x &&
 				y !== waypoints[waypoints.length - 1].position.y && y !== waypoints[waypoints.length - 2].position.y) {
-				var idx = parseInt($('tbody').children().length) - 1;
+				var idx = parseFloat($('tbody').children().length) - 1;
 				$($($($('tbody').children()[idx]).children()[2]).children()).val(15);
 			}
 		}
 	}
 
-	x = Math.round(x);
-	y = Math.round(y);
+	x = Math.round(x * (round ? 1 : 100)) / (round ? 1 : 100.0);
+	y = Math.round(y * (round ? 1 : 100)) / (round ? 1 : 100.0);
 	radius = Math.round(radius);
 
-	$("tbody").append("<tr>"
-		+ "<td><input value='" + (x) + "'></td>"
-		+ "<td><input value='" + (y) + "'></td>"
-		+ "<td><input value='" + (radius) + "'></td>"
-		+ "<td><input value='60'></td>"
-		+ "<td class='marker'><input placeholder='Marker'></td>"
-		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td>"
-		+ "<td><button onclick='setAngle($(this).parent().parent()[0]);'>Set angle</button></td>"
-		// + "<td><button onclick='setAngle(this)'>Set Angle</button></td></tr>"
-	);
+	console.log("Adding point: [" + x + "," + y + "], " + radius);
+
+	addRawPoint(x, y, radius, 60, "");
+
 	update();
 	$('input').unbind("change paste keyup");
 	$('input').bind("change paste keyup", function () {
@@ -465,11 +461,13 @@ function addPoint(x, y, radius) {
 
 function evaluateWaypoints() {
 	$('tbody').children('tr').each(function () {
-		var x = parseInt(eval($($($(this).children()).children()[0]).val()));
+		var x = parseFloat(eval($($($(this).children()).children()[0]).val()));
 
-		var y = parseInt(eval($($($(this).children()).children()[1]).val()));
-		var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
-		var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
+		var y = parseFloat(eval($($($(this).children()).children()[1]).val()));
+		var radius = parseFloat(eval($($($(this).children()).children()[2]).val()));
+		var speed = parseFloat(eval($($($(this).children()).children()[3]).val()));
+
+		var angle = parseFloat(eval($($($(this).children()).children()[6]).val()));
 		if (isNaN(radius) || isNaN(speed)) {
 			radius = 0;
 			speed = 0;
@@ -479,24 +477,44 @@ function evaluateWaypoints() {
 		$($($(this).children()).children()[1]).val(y);
 		$($($(this).children()).children()[2]).val(radius);
 		$($($(this).children()).children()[3]).val(speed);
+		$($($(this).children()).children()[6]).val(angle);
 	});
+}
+
+function reDrawCanvas() {
+	$("#field").css("width", (width / 1.5) + "px");
+	$("#field").css("height", (height / 1.5) + "px");
+	ctx = document.getElementById('field').getContext('2d')
+	ctx.canvas.width = width;
+	ctx.canvas.height = height;
+	ctx.clearRect(0, 0, width, height);
+	ctx.fillStyle = "#FF0000";
+	image = new Image();
+	image.src = 'files/field.png';
+	image.onload = function () {
+		ctx.drawImage(image, 0, 0, width, height);
+		update();
+	}
 }
 
 function myUpdate(toGetFromFile) {
 	if ($("table tr").length > 1) {
-		var idx = parseInt($('tbody').children().length) - 1;
+		var idx = parseFloat($('tbody').children().length) - 1;
 		if ($($($($('tbody').children()[idx]).children()[2]).children()).val() !== 0) {
 			$($($($('tbody').children()[idx]).children()[2]).children()).val(0);
 		}
 	}
 
+	height = initHeight * ($("#canvasSizeSlider").val() / 100);
+	width = initWidth * ($("#canvasSizeSlider").val() / 100);
+
 	if (toGetFromFile) {
 		waypoints = [];
 		$('tbody').children('tr').each(function () {
-			var x = parseInt(eval($($($(this).children()).children()[0]).val()));
-			var y = parseInt(eval($($($(this).children()).children()[1]).val()));
-			var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
-			var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
+			var x = parseFloat(eval($($($(this).children()).children()[0]).val()));
+			var y = parseFloat(eval($($($(this).children()).children()[1]).val()));
+			var radius = parseFloat(eval($($($(this).children()).children()[2]).val()));
+			var speed = parseFloat(eval($($($(this).children()).children()[3]).val()));
 			if (isNaN(radius) || isNaN(speed)) {
 				radius = 0;
 				speed = 0;
@@ -511,7 +529,6 @@ function myUpdate(toGetFromFile) {
 	drawRobot();
 
 }
-
 function update() {
 	myUpdate(true);
 }
@@ -708,14 +725,7 @@ function importData() {
 				}
 
 				wp = new Waypoint(new Translation2d(x, y), speed, radius, marker);
-				$("tbody").append("<tr>"
-					+ "<td><input value='" + wp.position.x + "'></td>"
-					+ "<td><input value='" + wp.position.y + "'></td>"
-					+ "<td><input value='" + wp.radius + "'></td>"
-					+ "<td><input value='" + wp.speed + "'></td>"
-					+ "<td class='marker'><input placeholder='Marker' value='" + wp.marker + "'></td>"
-					+ (i == 0 ? "" : "<td><button onclick='$(this).parent().parent().remove();update();''>Delete</button></td></tr>")
-				);
+				addRawPoint(wp.position.x, wp.position.y, wp.radius, wp.speed, wp.marker);
 			});
 			update();
 
@@ -830,46 +840,7 @@ function getReducedDataString() {
 	var endAdaptStr = $("#endAdaptionValue").val();
 	for (var i = 0; i < waypoints.length; i++) {
 		pathInit += "        sWaypoints.add(";
-
-		if (i == 0) {
-			switch (startAdaptStr) {
-				case "startscaleleft":
-					pathInit += "PathAdapter.getAdaptedLeftScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startscaleright":
-					pathInit += "PathAdapter.getAdaptedRightScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startswitchleft":
-					pathInit += "PathAdapter.getAdaptedLeftSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startswitchright":
-					pathInit += "PathAdapter.getAdaptedRightSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				default:
-					pathInit += waypoints[i].toString();
-					break;
-			}
-		} else if (i == waypoints.length - 1) {
-			switch (endAdaptStr) {
-				case "endscaleleft":
-					pathInit += "PathAdapter.getAdaptedLeftScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endscaleright":
-					pathInit += "PathAdapter.getAdaptedRightScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endswitchleft":
-					pathInit += "PathAdapter.getAdaptedLeftSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endswitchright":
-					pathInit += "PathAdapter.getAdaptedRightSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				default:
-					pathInit += waypoints[i].toString();
-					break;
-			}
-		} else
-			pathInit += waypoints[i].toString();
-
+		pathInit += waypoints[i].toString();
 		pathInit += ");\n";
 	}
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
@@ -888,10 +859,6 @@ function getReducedDataString() {
         return ${isReversed}; 
 	}
 
-	@Override
-    public Rotation2d getStartRotation() {
-        return Rotation2d.fromDegrees(0);
-    }
 }`;
 	return str;
 }
@@ -915,10 +882,10 @@ function newPathTwoPoints() {
 	var counter = 0;
 	$('tbody').children('tr').each(function () {
 		if (counter > length - 3) {
-			var x = parseInt(eval($($($(this).children()).children()[0]).val()));
-			var y = parseInt(eval($($($(this).children()).children()[1]).val()));
-			var radius = parseInt(eval($($($(this).children()).children()[2]).val()));
-			var speed = parseInt(eval($($($(this).children()).children()[3]).val()));
+			var x = parseFloat(eval($($($(this).children()).children()[0]).val()));
+			var y = parseFloat(eval($($($(this).children()).children()[1]).val()));
+			var radius = parseFloat(eval($($($(this).children()).children()[2]).val()));
+			var speed = parseFloat(eval($($($(this).children()).children()[3]).val()));
 			if (isNaN(radius) || isNaN(speed)) {
 				radius = 0;
 				speed = 0;
@@ -946,17 +913,21 @@ function newPathTwoPoints() {
 	update();
 }
 
-function addRawPoint(x, y, radius, speed) {
+function addRawPoint(x, y, radius, speed, marker) {
+	const rows = $("tbody").children("tr").length;
 	$("tbody").append("<tr>"
-		+ "<td><input value='" + (x) + "'></td>"
-		+ "<td><input value='" + (y) + "'></td>"
-		+ "<td><input value='" + (radius) + "'></td>"
-		+ "<td><input value='" + (speed) + "'></td>"
-		+ "<td class='marker'><input placeholder='Marker'></td>"
-		+ "<td><button onclick='$(this).parent().parent().remove();update();'>Delete</button></td></tr>"
-	);
-
+		+ "<td><input value='" + x + "'></td>"
+		+ "<td><input value='" + y + "'></td>"
+		+ "<td><input value='" + radius + "'></td>"
+		+ "<td><input value='" + speed + "'></td>"
+		+ "<td class='marker'><input placeholder='Marker' value='" + marker + "'></td>"
+		+ (rows == 0 ? "" : "<td><button onclick='$(this).parent().parent().remove();update();''>Delete</button></td>")
+		+ "<td><input value='180'></td>"
+		+ "<td><button background-color=#205c36 onclick='update();setAngle(findRowNumber(($(this).parent().parent()[0])))''>Set Angle</button></td>"
+		+ "</tr>"
+	)
 }
+
 
 function getDataString() {
 	var title = ($("#title").val().length > 0) ? $("#title").val() : "UntitledPath";
@@ -965,46 +936,7 @@ function getDataString() {
 	var endAdaptStr = $("#endAdaptionValue").val();
 	for (var i = 0; i < waypoints.length; i++) {
 		pathInit += "        sWaypoints.add(";
-
-		if (i == 0) {
-			switch (startAdaptStr) {
-				case "startscaleleft":
-					pathInit += "PathAdapter.getAdaptedLeftScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startscaleright":
-					pathInit += "PathAdapter.getAdaptedRightScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startswitchleft":
-					pathInit += "PathAdapter.getAdaptedLeftSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "startswitchright":
-					pathInit += "PathAdapter.getAdaptedRightSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				default:
-					pathInit += waypoints[i].toString();
-					break;
-			}
-		} else if (i == waypoints.length - 1) {
-			switch (endAdaptStr) {
-				case "endscaleleft":
-					pathInit += "PathAdapter.getAdaptedLeftScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endscaleright":
-					pathInit += "PathAdapter.getAdaptedRightScaleWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endswitchleft":
-					pathInit += "PathAdapter.getAdaptedLeftSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				case "endswitchright":
-					pathInit += "PathAdapter.getAdaptedRightSwitchWaypoint(" + waypoints[i].toString() + ")";
-					break;
-				default:
-					pathInit += waypoints[i].toString();
-					break;
-			}
-		} else
-			pathInit += waypoints[i].toString();
-
+		pathInit += waypoints[i].toString();
 		pathInit += ");\n";
 	}
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
@@ -1094,8 +1026,8 @@ function flipField() {
 
 
 function changeStartPoint() {
-	var x = parseInt($($($($('tbody').children()[0]).children()[0]).children()).val());
-	var y = parseInt($($($($('tbody').children()[0]).children()[1]).children()).val());
+	var x = parseFloat($($($($('tbody').children()[0]).children()[0]).children()).val());
+	var y = parseFloat($($($($('tbody').children()[0]).children()[1]).children()).val());
 
 	var valueToSetTo = lastSetStartingPosition + 1;
 	if (valueToSetTo > startingPositions.length - 1)
@@ -1107,8 +1039,8 @@ function changeStartPoint() {
 }
 
 function changeStartPointV1() {
-	var x = parseInt($($($($('tbody').children()[0]).children()[0]).children()).val());
-	var y = parseInt($($($($('tbody').children()[0]).children()[1]).children()).val());
+	var x = parseFloat($($($($('tbody').children()[0]).children()[0]).children()).val());
+	var y = parseFloat($($($($('tbody').children()[0]).children()[1]).children()).val());
 
 	for (var i = 0; i < startingPositions.length; i++) {
 		if (x == startingPositions[i][0] && y == startingPositions[i][1]) {
@@ -1130,11 +1062,11 @@ function setStartingPositionPoint(x, y) {
 }
 
 function oldChangeStartPoint() {
-	if (parseInt($($($($('tbody').children()[0]).children()[1]).children()).val()) == startLeftY) {
+	if (parseFloat($($($($('tbody').children()[0]).children()[1]).children()).val()) == startLeftY) {
 		$($($($('tbody').children()[0]).children()[1]).children()).val(startCenterY);
-	} else if (parseInt($($($($('tbody').children()[0]).children()[1]).children()).val()) == startCenterY) {
+	} else if (parseFloat($($($($('tbody').children()[0]).children()[1]).children()).val()) == startCenterY) {
 		$($($($('tbody').children()[0]).children()[1]).children()).val(startRightY);
-	} else if (parseInt($($($($('tbody').children()[0]).children()[1]).children()).val()) == startRightY) {
+	} else if (parseFloat($($($($('tbody').children()[0]).children()[1]).children()).val()) == startRightY) {
 		$($($($('tbody').children()[0]).children()[1]).children()).val(startLeftY);
 	}
 	update();
@@ -1180,8 +1112,264 @@ function findNearestCoord(x, y) {
 	return minDistanceSlot;
 }
 
+function getPlotterPoint(left, value) {
+	var x;
+	var y;
+
+	var angle;
+	switch (value) {
+		case "feeder_station":
+			angle = 90;
+			x = 0;
+			{
+				const val = 25.72;
+				if (left)
+					y = fieldHeight - val;
+				else
+					y = val;
+			}
+
+			x += halfL;
+			break;
+		case "cargo_ship_face":
+			angle = 270;
+			x = 172.25 + 48;
+			x -= halfL;
+			{
+				const val = (fieldHeight / 2.0);
+				const diff = 10.88;
+				if (left) {
+					y = val + diff;
+				} else {
+					y = val - diff;
+				}
+			}
+
+			break;
+		case "cargo_ship_bay_1":
+
+			x = 172.25 + 48 + 40.5;
+			{
+				const val = 133.13;
+				if (left) {
+					angle = 0;
+					y = fieldHeight - val;
+					y += halfL;
+				} else {
+					angle = 180;
+					y = val;
+					y -= halfL;
+				}
+			}
+
+			break;
+		case "cargo_ship_bay_2":
+			x = 172.25 + 48 + 40.5 + 21.75;
+			{
+				const val = 133.13;
+				if (left) {
+					angle = 0;
+					y = fieldHeight - val;
+					y += halfL;
+				} else {
+					angle = 180;
+					y = val;
+					y -= halfL;
+				}
+			}
+			break;
+		case "cargo_ship_bay_3":
+			x = 172.25 + 48 + 40.5 + (21.75 * 2);
+			{
+				const val = 133.13;
+				if (left) {
+					angle = 0;
+					y = fieldHeight - val;
+					y += halfL;
+				} else {
+					angle = 180;
+					y = val;
+					y -= halfL;
+				}
+			}
+			break;
+		case "rocket_closest":
+			x = 166.57 + 48;
+			{
+				const temp = ((27.44 - 7.875) / 2.0) + 7.875;
+				if (left) {
+					y = fieldHeight - temp;
+				} else {
+					y = temp;
+				}
+			}
+
+			{
+				const toAngle = (left ? (180) : 180 + 61.25 + 90);
+				const translation = translateAtAngle(x, y, toAngle, halfL);
+				angle = toAngle;
+				x = translation.x;
+				y = translation.y;
+			}
+			break;
+		case "rocket_mid":
+			x = 181.28 + 48;
+			{
+				const val = 27.44;
+				if (left) {
+					angle = 180;
+					y = fieldHeight - val;
+					y -= halfL;
+				} else {
+					angle = 0;
+					y = val;
+					y += halfL;
+				}
+			}
+			break;
+		case "rocket_far":
+			x = (229.13 - (166.57 + 48)) + 229.13;
+			// x = 195.99;
+
+			{
+				const temp = ((27.44 - 7.875) / 2.0) + 7.875;
+				if (left) {
+					y = fieldHeight - temp;
+				} else {
+					y = temp;
+				}
+			}
+
+			{
+				const toAngle = (left ? (180 - 61.25 - 90) : 180 + 61.25 + 90);
+				const translation = translateAtAngle(x, y, toAngle, halfL);
+				angle = toAngle;
+				x = translation.x;
+				y = translation.y;
+			}
+
+			break;
+	}
+
+	return {
+		x: x,
+		y: y,
+		angle: angle
+	};
+}
+
+function toRadians(angle) {
+	return angle * (Math.PI / 180);
+}
+
+function toDegrees(angle) {
+	return angle * (180 / Math.PI);
+}
+
+function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
+	const radius = Math.sqrt(Math.pow((x1_ - x2_), 2) + Math.pow(y1_ - y2_, 2));
+
+	console.log("Input angle: " + angle_);
+
+	//Fixing Poofs angles to our jank ones
+	// if (angle_ > 0 && angle_ < 90)
+	// 	angle_ += 270;
+	// else if (angle_ > 90 && angle_ < 180)
+	// 	angle_ += 90;
+	// else if (angle_ < 360 && angle_ > 270)
+	// 	angle_ -= 270;
+	// else if (angle_ > 180 && angle_ < 270)
+	// 	angle_ -= 90;
+
+	while (angle_ > 360)
+		angle -= 360;
+
+	while (angle_ < 0)
+		angle += 360;
+
+	var newX = 0, newY = 0;
+
+	newX = Math.sin(toRadians(angle_)) * radius;
+	newY = Math.cos(toRadians(angle_)) * radius;
+	// console.log(y1_ + "\t" + angle_ + "\t" + radius + "\t" + toRadians(angle_) + "\t" + Math.cos(toRadians(angle_)) + "\t" + Math.cos(toRadians(angle_)) * radius);
+
+	// if (angle_ > 90 && angle_ < 180) {
+	// 	newX *= -1;
+	// } else if (angle_ < 90 && angle_ > 0) {
+	// 	newX *= -1;
+	// 	newY *= -1;
+	// } else if (angle_ < 360 && angle_ > 270) {
+	// 	newY *= -1;
+	// 	// } else if (angle_ >= 270 && angle_ < 360) {
+	// }
+
+	// switch (angle_) {
+	// 	case 0:
+	// 		newX *= -1;
+	// 		break;
+	// 	case 90:
+	// 		newY *= -1;
+	// 		break;
+	// }
+
+	newX = eval(newX + "+" + x1_);
+	newY = eval(newY + "+" + y1_);
+
+	return {
+		x: newX,
+		y: newY
+		// x: 0,
+		// y: 0
+	}
+}
+
+function translateAtAngle(x_, y_, angle_, lengthAway_) {
+	var xDelta, yDelta;
+
+	xDelta = Math.abs(Math.cos(toRadians(angle_)) * lengthAway_);
+	yDelta = Math.abs(Math.sin(toRadians(angle_)) * lengthAway_);
+	// console.log("Angle: " + angle_ + "\tXDelta: " + xDelta + "\tYDelta: " + yDelta);
+
+	if (angle_ <= 270 && angle_ > 180) {
+		// console.log("Angle case 1");
+		x_ -= xDelta;
+		y_ += yDelta;
+	} else if (angle_ <= 180 && angle_ > 90) {
+		// console.log("Angle case 2");
+		x_ -= xDelta;
+		y_ -= yDelta;
+	} else if (angle_ <= 90 && angle_ > 0) {
+		// console.log("Angle case 3");
+		x_ += xDelta;
+		y_ -= yDelta;
+	} else if (angle_ >= 270 && angle_ < 360) {
+		// console.log("Angle case 4");
+		x_ += xDelta;
+		y_ += yDelta;
+	}
+
+	return {
+		x: x_,
+		y: y_
+	};
+}
+
+function addPlotterPoint() {
+	var left = $("#pointPlotterLeftRight").val() == "l";
+	var thing = $("#pointPlotterPoint").val();
+
+	var position = getPlotterPoint(left, thing);
+	addPointRound(position.x, position.y, 15, false);
+
+	return;
+	const size = $('tbody').children('tr').length;
+	console.log(size + "\t" + position.angle);
+	$($($($('tbody').children()[size - 1]).children()[6]).children()).val(position.angle);
+	setAngle(size);
+	return;
+}
+
 function canvasDrag(canvas, evt) {
-	//$("#isReversed").is(':checked');
 	if ($("#allowDrag").is(':checked')) {
 		var mPos = getMousePos(canvas, evt);
 
@@ -1192,7 +1380,7 @@ function canvasDrag(canvas, evt) {
 
 function innerHTMLToNumber(innerHTML) {
 	var cell = innerHTML.split('"')[1];
-	return parseInt(cell);
+	return parseFloat(cell);
 }
 
 function numberToInnerHTML(number) {
@@ -1252,9 +1440,9 @@ function getColorForSpeed(speed) {
 function hexToRGB(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 	return result ? [
-		parseInt(result[1], 16),
-		parseInt(result[2], 16),
-		parseInt(result[3], 16)
+		parseFloat(result[1], 16),
+		parseFloat(result[2], 16),
+		parseFloat(result[3], 16)
 	] : null;
 }
 
