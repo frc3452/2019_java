@@ -138,6 +138,8 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
+		
+
 		// if (Math.abs(op.getLeftTrigger()) > .5)
 			// Elevator.getInstance().manual(op.getRightAnalogY() * .25);
 	}

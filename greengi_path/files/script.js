@@ -1119,7 +1119,7 @@ function getPlotterPoint(left, value) {
 	var angle;
 	switch (value) {
 		case "feeder_station":
-			angle = 90;
+			angle = 180;
 			x = 0;
 			{
 				const val = 25.72;
@@ -1132,7 +1132,7 @@ function getPlotterPoint(left, value) {
 			x += halfL;
 			break;
 		case "cargo_ship_face":
-			angle = 270;
+			angle = 0;
 			x = 172.25 + 48;
 			x -= halfL;
 			{
@@ -1152,11 +1152,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 0;
+					angle = 90;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 180;
+					angle = 270;
 					y = val;
 					y -= halfL;
 				}
@@ -1168,11 +1168,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 0;
+					angle = 90;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 180;
+					angle = 270;
 					y = val;
 					y -= halfL;
 				}
@@ -1183,11 +1183,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 0;
+					angle = 90;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 180;
+					angle = 270;
 					y = val;
 					y -= halfL;
 				}
@@ -1205,9 +1205,12 @@ function getPlotterPoint(left, value) {
 			}
 
 			{
-				const toAngle = (left ? (180) : 180 + 61.25 + 90);
+				const toAngle = (left ? (270 - 61.25) : 61.25 + 90 - 180);
 				const translation = translateAtAngle(x, y, toAngle, halfL);
 				angle = toAngle;
+
+				// addRawPoint(x,y,0,0,"TEST");
+
 				x = translation.x;
 				y = translation.y;
 			}
@@ -1217,11 +1220,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 27.44;
 				if (left) {
-					angle = 180;
+					angle = 270;
 					y = fieldHeight - val;
 					y -= halfL;
 				} else {
-					angle = 0;
+					angle = 90;
 					y = val;
 					y += halfL;
 				}
@@ -1241,9 +1244,10 @@ function getPlotterPoint(left, value) {
 			}
 
 			{
-				const toAngle = (left ? (180 - 61.25 - 90) : 180 + 61.25 + 90);
+				const toAngle = (left ? (270 + 61.25 - 180) : 90 - 61.25);
 				const translation = translateAtAngle(x, y, toAngle, halfL);
 				angle = toAngle;
+
 				x = translation.x;
 				y = translation.y;
 			}
@@ -1269,28 +1273,12 @@ function toDegrees(angle) {
 function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
 	const radius = Math.sqrt(Math.pow((x1_ - x2_), 2) + Math.pow(y1_ - y2_, 2));
 
-	console.log("Input angle: " + angle_);
+	const xTemp = Math.cos(toRadians(angle_)) * radius;
+	const yTemp = Math.sin(toRadians(angle_)) * radius;
 
-	//Fixing Poofs angles to our jank ones
-	// if (angle_ > 0 && angle_ < 90)
-	// 	angle_ += 270;
-	// else if (angle_ > 90 && angle_ < 180)
-	// 	angle_ += 90;
-	// else if (angle_ < 360 && angle_ > 270)
-	// 	angle_ -= 270;
-	// else if (angle_ > 180 && angle_ < 270)
-	// 	angle_ -= 90;
+	xDelta = copySign(xTemp, yTemp);
+	yDelta = copySign(yTemp, xTemp);
 
-	while (angle_ > 360)
-		angle -= 360;
-
-	while (angle_ < 0)
-		angle += 360;
-
-	var newX = 0, newY = 0;
-
-	newX = Math.sin(toRadians(angle_)) * radius;
-	newY = Math.cos(toRadians(angle_)) * radius;
 	// console.log(y1_ + "\t" + angle_ + "\t" + radius + "\t" + toRadians(angle_) + "\t" + Math.cos(toRadians(angle_)) + "\t" + Math.cos(toRadians(angle_)) * radius);
 
 	// if (angle_ > 90 && angle_ < 180) {
@@ -1312,8 +1300,8 @@ function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
 	// 		break;
 	// }
 
-	newX = eval(newX + "+" + x1_);
-	newY = eval(newY + "+" + y1_);
+	var newX = eval(xDelta + "+" + x1_);
+	var newY = eval(yDelta + "+" + y1_);
 
 	return {
 		x: newX,
@@ -1323,30 +1311,47 @@ function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
 	}
 }
 
+function copySign(value, signToCopy) {
+	var neg = false;
+	if (signToCopy < 0)
+		neg = true;
+
+	if ((value > 0 && neg) || (value < 0 && !neg))
+		value *= -1;
+
+	return value;
+}
+
 function translateAtAngle(x_, y_, angle_, lengthAway_) {
 	var xDelta, yDelta;
 
-	xDelta = Math.abs(Math.cos(toRadians(angle_)) * lengthAway_);
-	yDelta = Math.abs(Math.sin(toRadians(angle_)) * lengthAway_);
+	const xTemp = Math.cos(toRadians(angle_)) * lengthAway_;
+	const yTemp = Math.sin(toRadians(angle_)) * lengthAway_;
+
+	xDelta = copySign(xTemp, yTemp);
+	yDelta = copySign(yTemp, xTemp);
 	// console.log("Angle: " + angle_ + "\tXDelta: " + xDelta + "\tYDelta: " + yDelta);
 
-	if (angle_ <= 270 && angle_ > 180) {
-		// console.log("Angle case 1");
-		x_ -= xDelta;
-		y_ += yDelta;
-	} else if (angle_ <= 180 && angle_ > 90) {
-		// console.log("Angle case 2");
-		x_ -= xDelta;
-		y_ -= yDelta;
-	} else if (angle_ <= 90 && angle_ > 0) {
-		// console.log("Angle case 3");
-		x_ += xDelta;
-		y_ -= yDelta;
-	} else if (angle_ >= 270 && angle_ < 360) {
-		// console.log("Angle case 4");
-		x_ += xDelta;
-		y_ += yDelta;
-	}
+	// if (angle_ <= 270 && angle_ > 180) {
+	// 	// console.log("Angle case 1");
+	// 	x_ -= xDelta;
+	// 	y_ += yDelta;
+	// } else if (angle_ <= 180 && angle_ > 90) {
+	// 	// console.log("Angle case 2");
+	// 	x_ -= xDelta;
+	// 	y_ -= yDelta;
+	// } else if (angle_ <= 90 && angle_ > 0) {
+	// 	// console.log("Angle case 3");
+	// 	x_ += xDelta;
+	// 	y_ -= yDelta;
+	// } else if (angle_ >= 270 && angle_ < 360) {
+	// 	// console.log("Angle case 4");
+	// 	x_ += xDelta;
+	// 	y_ += yDelta;
+	// }
+
+	x_ += xDelta;
+	y_ += yDelta;
 
 	return {
 		x: x_,
@@ -1361,12 +1366,12 @@ function addPlotterPoint() {
 	var position = getPlotterPoint(left, thing);
 	addPointRound(position.x, position.y, 15, false);
 
-	return;
 	const size = $('tbody').children('tr').length;
-	console.log(size + "\t" + position.angle);
 	$($($($('tbody').children()[size - 1]).children()[6]).children()).val(position.angle);
 	setAngle(size);
-	return;
+	$($($($('tbody').children()[size - 1]).children()[2]).children()).val(15);
+	$($($($('tbody').children()[size - 2]).children()[2]).children()).val(15);
+	update();
 }
 
 function canvasDrag(canvas, evt) {
