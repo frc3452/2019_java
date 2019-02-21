@@ -210,6 +210,7 @@ public class Constants {
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 1;
 		public static final int PRESSURE_GUAGE_PORT = 0;
+		http://www.revrobotics.com/rev-11-1107/
 		public static final AnalogInputConstants PRESSURE_GUAGE_INFO = new AnalogInputConstants(.5, 4.5, 0, 200);
 	}
 
