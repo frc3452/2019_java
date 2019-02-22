@@ -11,6 +11,8 @@ public abstract class GZQueuer<T> {
 
     public abstract T getDefault();
 
+    public abstract void onEmpty();
+
     private ArrayList<TimeValue<T>> mQueue = new ArrayList<TimeValue<T>>();
 
     public GZQueuer() {
@@ -36,10 +38,13 @@ public abstract class GZQueuer<T> {
             } else {
                 mQueue.get(0).deductTimeBy(now - mPrevTime);
             }
+            
             mPrevTime = now;
-
             if (isQueueEmpty())
+            {
+                onEmpty();
                 return getDefault();
+            }
             return mQueue.get(0).value;
         }
         mPrevTime = now;

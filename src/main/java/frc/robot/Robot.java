@@ -8,6 +8,8 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.Lights.Colors;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.subsystems.Superstructure;
@@ -26,10 +28,11 @@ public class Robot extends TimedRobot {
 	// // health is generated in, etc
 	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
 			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), Intake.getInstance(),
-			GZOI.getInstance(), Superstructure.getInstance());
+			GZOI.getInstance(), Superstructure.getInstance(), Lights.getInstance());
 
-	// public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-	// 		RobotStateEstimator.getInstance(), GZOI.getInstance());
+	// public static final GZSubsystemManager allSubsystems = new
+	// GZSubsystemManager(Drive.getInstance(),
+	// RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -66,6 +69,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledInit() {
+		// Lights.getInstance().setFade(1, Colors.BLUE, Colors.OFF);
 		infoManager.robotDisabled();
 		allSubsystems.stop();
 		log(false);
