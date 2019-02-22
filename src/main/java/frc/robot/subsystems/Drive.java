@@ -29,11 +29,13 @@ import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.subsystems.Lights.Colors;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
+import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -697,6 +699,7 @@ public class Drive extends GZSubsystem {
 	public void wantShift(ClimbingState state) {
 		if (state != mClimbState && mClimbState != ClimbingState.MOVING) {
 			GZOI.getInstance().addRumble(Rumble.HIGH);
+			Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1, 5);
 			shiftDelay(state);
 			mClimbState = ClimbingState.MOVING;
 		}
@@ -735,8 +738,7 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftSpeed()) < speed && Math.abs(getRightSpeed()) < speed;
 	}
 
-	public synchronized void handleDriving()
-	{
+	public synchronized void handleDriving() {
 		handleDriving(GZOI.driverJoy);
 	}
 

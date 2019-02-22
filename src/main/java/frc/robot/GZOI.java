@@ -49,6 +49,10 @@ public class GZOI extends GZSubsystem {
 
 			return 0.0;
 		}
+
+		@Override
+		public void onEmpty() {
+		}
 	};
 
 	private static GZOI mInstance = null;

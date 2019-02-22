@@ -1,13 +1,18 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.ctre.phoenix.CANifier;
 
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZQueuer;
 import frc.robot.util.GZQueuer.TimeValue;
+import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
+import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;
@@ -15,15 +20,28 @@ public class Lights extends GZSubsystem {
 	private static Lights mInstance = null;
 
 	private LightState mState = LightState.OFF;
+	private LightState mWantedState = LightState.OFF;
 
-	private Color mColor = Color.OFF;
+	private Colors mCurrentColor = Colors.OFF;
+	private Colors mColor = Colors.OFF;
 
-	private GZQueuer<Color> mLightQueuer = new GZQueuer<Lights.Color>() {
+	private GZQueuer<Colors> mLightQueuer = new GZQueuer<Lights.Colors>() {
 		@Override
-		public Color getDefault() {
-			return new Color(0, 0, 0);
+		public Colors getDefault() {
+			return new Colors(0, 0, 0);
+		}
+
+		@Override
+		public void onEmpty() {
 		}
 	};
+
+	private ArrayList<Colors> mColorFade = new ArrayList<>();
+	private double mPrevTimeStamp;
+	private double mFadeTime;
+	private double mTimeInFade;
+	private double rIntegral, gIntegral, bIntegral;
+	private int mFadeSlot, mPrevFadeSlot;
 
 	public synchronized static Lights getInstance() {
 		if (mInstance == null)
@@ -42,19 +60,51 @@ public class Lights extends GZSubsystem {
 		handleStates();
 	}
 
+	public void setFade(double time, Colors... colors) {
+		this.mFadeTime = time;
+		mColorFade = (ArrayList<Colors>) Arrays.asList(colors);
+		mWantedState = LightState.FADE;
+	}
+
+	private void handleFade() {
+		if (mPrevFadeSlot != mFadeSlot) {
+			mTimeInFade = 0;
+			rIntegral = (mColorFade.get(mFadeSlot).r - mCurrentColor.r) / mFadeTime;
+			gIntegral = (mColorFade.get(mFadeSlot).g - mCurrentColor.g) / mFadeTime;
+			bIntegral = (mColorFade.get(mFadeSlot).b - mCurrentColor.b) / mFadeTime;
+		}
+		mPrevFadeSlot = mFadeSlot;
+
+		mCurrentColor.addR(rIntegral);
+		mCurrentColor.addG(gIntegral);
+		mCurrentColor.addB(bIntegral);
+
+		final double now = Timer.getFPGATimestamp();
+		mTimeInFade += Timer.getFPGATimestamp() - mPrevTimeStamp;
+		mPrevTimeStamp = now;
+
+		if (mTimeInFade > mFadeTime) {
+			mFadeSlot++;
+		}
+
+		if (mFadeSlot > mColorFade.size() - 1)
+			mFadeSlot = 0;
+	}
+
 	private void handleStates() {
 		if (!mLightQueuer.isQueueEmpty()) {
-			mState = LightState.BLINK;
+			mWantedState = LightState.BLINK;
 		}
 
 		switch (mState) {
 		case OFF:
-			rgb(Color.OFF);
+			rgb(Colors.OFF);
 			break;
 		case BLINK:
 			rgb(mLightQueuer.update());
 			break;
 		case FADE:
+			handleFade();
 			break;
 		case SOLID:
 			rgb(mColor);
@@ -62,19 +112,19 @@ public class Lights extends GZSubsystem {
 		}
 	}
 
-	public void setSolidColor(Color color) {
-		this.mState = LightState.SOLID;
+	public void setSolidColor(Colors color) {
+		this.mWantedState = LightState.SOLID;
 		this.mColor = color;
 	}
 
-	public void blink(TimeValue<Color> color, double offTime, int times) {
+	public void blink(TimeValue<Colors> color, double offTime, int times) {
 		blink(color, offTime, times, false);
 	}
 
-	public void blink(TimeValue<Color> color, double offTime, int times, boolean clear) {
+	public void blink(TimeValue<Colors> color, double offTime, int times, boolean clear) {
 		if (clear)
 			mLightQueuer.clear();
-		mLightQueuer.addToQueue(color, new TimeValue<Color>(Color.OFF, offTime), times);
+		mLightQueuer.addToQueue(color, new TimeValue<Colors>(Colors.OFF, offTime), times);
 	}
 
 	private void off() {
@@ -162,7 +212,7 @@ public class Lights extends GZSubsystem {
 		rgb((float) R, (float) G, (float) B);
 	}
 
-	private void rgb(Color color) {
+	private void rgb(Colors color) {
 		rgb(color.r, color.g, color.b);
 	}
 
@@ -171,6 +221,8 @@ public class Lights extends GZSubsystem {
 			canifier.setLEDOutput(red, CANifier.LEDChannel.LEDChannelA);
 			canifier.setLEDOutput(green, CANifier.LEDChannel.LEDChannelB);
 			canifier.setLEDOutput(blue, CANifier.LEDChannel.LEDChannelC);
+
+			mCurrentColor.set(red, green, blue);
 		} catch (Exception e) {
 		}
 	}
@@ -203,25 +255,42 @@ public class Lights extends GZSubsystem {
 		OFF, BLINK, FADE, SOLID
 	}
 
-	public static class Color {
+	public static class Colors {
 
-		public final static Color OFF = Color.get(0, 0, 0);
+		public final static Colors OFF = Colors.get(0, 0, 0);
 		// public final static Color GREEN = new Color(32, 94, 95);
-		public final static Color GREEN = Color.get(0, 255, 0);
-		public final static Color RED = Color.get(255, 0, 0);
-		public final static Color BLUE = Color.get(0, 0, 255);
+		public final static Colors GREEN = Colors.get(0, 255, 0);
+		public final static Colors RED = Colors.get(255, 0, 0);
+		public final static Colors BLUE = Colors.get(0, 0, 255);
 
 		private double r, g, b;
 
-		public Color(double r, double g, double b) {
+		public Colors(double r, double g, double b) {
+			set(r, g, b);
+		}
+
+		public static Colors get(double r, double g, double b) {
+			return new Colors(r, g, b);
+		}
+
+		public void set(double r, double g, double b) {
 			this.r = r;
 			this.g = g;
 			this.b = b;
 		}
 
-		public static Color get(double r, double g, double b) {
-			return new Color(r, g, b);
+		public void addR(double rAdd) {
+			this.r += rAdd;
 		}
+
+		public void addG(double gAdd) {
+			this.g += gAdd;
+		}
+
+		public void addB(double bAdd) {
+			this.b += bAdd;
+		}
+
 	}
 
 }
