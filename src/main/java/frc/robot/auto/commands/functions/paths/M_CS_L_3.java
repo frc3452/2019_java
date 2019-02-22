@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 
-
-public class CS_5 extends PathContainer {
-    public CS_5() {
+public class M_CS_L_3 extends PathContainer {
+    public M_CS_L_3() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(283, 277, 1, 0));
-        sWaypoints.add(new Waypoint(283, 243, 1, 45));
-        sWaypoints.add(new Waypoint(283, 209, 1, 35));
-        // sWaypoints.add(PathAdapter.getHABBay(new Waypoint(283, 209, 1, 35), 2, true));
+        sWaypoints.add(new Waypoint(201, 199, 0, 60));
+        sWaypoints.add(new Waypoint(173, 231, 15, 60));
+        sWaypoints.add(new Waypoint(132, 299, 15, 60));
+        sWaypoints.add(new Waypoint(57.02127204545561, 298.28, 0, 60));
+        sWaypoints.add(new Waypoint(18.5, 298.28, 0, 30));
     }
 
     @Override

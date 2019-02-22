@@ -724,6 +724,9 @@ function importData() {
 					marker = wptmp[4].replace(/"/g, "");
 				}
 
+				if (marker == " undefined")
+					marker = "";
+
 				wp = new Waypoint(new Translation2d(x, y), speed, radius, marker);
 				addRawPoint(wp.position.x, wp.position.y, wp.radius, wp.speed, wp.marker);
 			});
@@ -1132,7 +1135,7 @@ function getPlotterPoint(left, value) {
 			x += halfL;
 			break;
 		case "cargo_ship_face":
-			angle = 0;
+			angle = 360;
 			x = 172.25 + 48;
 			x -= halfL;
 			{

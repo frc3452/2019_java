@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 
-public class Curve_Test_2 extends PathContainer {
-    public Curve_Test_2() {
+public class M_CS_L_1 extends PathContainer {
+    public M_CS_L_1() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(19, 268, 0, 0));
-        sWaypoints.add(new Waypoint(155, 268, 40, 60));
-        sWaypoints.add(new Waypoint(155, 84, 40, 60));
-        sWaypoints.add(new Waypoint(235, 84, 1, 60));
-        sWaypoints.add(new Waypoint(325, 84, 0, 60));
+        sWaypoints.add(new Waypoint(66.625, 162, 0, 0));
+        sWaypoints.add(new Waypoint(129, 162, 15, 30));
+        sWaypoints.add(new Waypoint(163.999809272005, 172.88, 15, 60));
+        sWaypoints.add(new Waypoint(201.75, 172.88, 0, 30));
     }
 
     @Override

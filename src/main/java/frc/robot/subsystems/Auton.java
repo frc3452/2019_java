@@ -12,13 +12,11 @@ import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.functions.paths.CS_1;
-import frc.robot.auto.commands.functions.paths.CS_2;
-import frc.robot.auto.commands.functions.paths.CS_3;
-import frc.robot.auto.commands.functions.paths.CS_4;
-import frc.robot.auto.commands.functions.paths.CS_5;
+import frc.robot.auto.commands.functions.paths.M_CS_L_1;
+import frc.robot.auto.commands.functions.paths.M_CS_L_2;
+import frc.robot.auto.commands.functions.paths.M_CS_L_3;
+import frc.robot.auto.commands.functions.paths.M_CS_L_4;
 import frc.robot.auto.commands.functions.paths.Square_Time;
-import frc.robot.auto.commands.functions.paths.Straight_Path;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
@@ -71,7 +69,7 @@ public class Auton {
 			return;
 
 		// TODO remove
-		m_controllerOverrideValue = 1;
+		m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
 
@@ -87,20 +85,17 @@ public class Auton {
 		// }
 		// };
 
-		commandArray.add(new GZCommand("Drive straight", () -> new ResetPoseDrivePath(new Straight_Path())));
-		commandArray.add(new GZCommand("Curve test", () -> new ResetPoseDrivePath(new Square_Time())));
+		commandArray.add(new GZCommand("Square time", () -> new ResetPoseDrivePath(new Square_Time())));
 		commandArray.add(new GZCommand("Cargo ship ", () -> new CommandGroup() {
 			{
-				final double waitTime = .1;
-				addSequential(new ResetPoseDrivePath(new CS_1()));
+				final double waitTime = 1;
+				addSequential(new ResetPoseDrivePath(new M_CS_L_1()));
 				addSequential(new WaitCommand(waitTime));
-				addSequential(new DrivePath(new CS_2()));
+				addSequential(new DrivePath(new M_CS_L_2()));
 				addSequential(new WaitCommand(waitTime));
-				addSequential(new DrivePath(new CS_3()));
-				addSequential(new WaitCommand(.2));
-				addSequential(new DrivePath(new CS_4()));
+				addSequential(new DrivePath(new M_CS_L_3()));
 				addSequential(new WaitCommand(waitTime));
-				addSequential(new DrivePath(new CS_5()));
+				addSequential(new DrivePath(new M_CS_L_4()));
 				addSequential(new WaitCommand(waitTime));
 			}
 		}));

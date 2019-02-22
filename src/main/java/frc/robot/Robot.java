@@ -24,12 +24,12 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// // health is generated in, etc
-	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), Intake.getInstance(),
-			GZOI.getInstance(), Superstructure.getInstance());
-
 	// public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-	// 		RobotStateEstimator.getInstance(), GZOI.getInstance());
+	// 		RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), Intake.getInstance(),
+	// 		GZOI.getInstance(), Superstructure.getInstance());
+
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();

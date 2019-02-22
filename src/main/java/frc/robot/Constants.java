@@ -135,9 +135,9 @@ public class Constants {
 
 		// .95,0,60,.1,0,
 		public static class PID {
-			static final double p = 0; // .9
-			static final double d = 0; // 20
-			static final double f = 0; // 1.47
+			static final double p = .9; // .9
+			static final double d = 8; // 20
+			static final double f = .14; // 1.47
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -201,7 +201,6 @@ public class Constants {
 	}
 
 	public static class kIntake {
-
 		public static final int INTAKE_LEFT = 1;
 		public static final int INTAKE_RIGHT = 2;
 		public static final double INTAKE_SPEED = 0;

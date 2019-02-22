@@ -88,7 +88,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
+            // this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
         }
 
         @Override
@@ -101,7 +101,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            this.addDifference(Elevator.getInstance().getSlidesTotalCounts());
+            // this.addDifference(Elevator.getInstance().getSlidesTotalCounts());
         }
 
         @Override
@@ -114,7 +114,7 @@ public class PersistentInfoManager {
 
         @Override
         public void update() {
-            this.addDifference(Elevator.getInstance().getClawTotalCounts());
+            // this.addDifference(Elevator.getInstance().getClawTotalCounts());
         }
 
         @Override
