@@ -8,7 +8,6 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.subsystems.Superstructure;

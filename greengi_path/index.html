@@ -260,11 +260,8 @@
 			<!--<button onclick="flipField()">Flip Field</button>-->
 		</div>
 		<div>
-			Side:
-			<select id="pointPlotterLeftRight">
-				<option value="l">Left</option>
-				<option value="r">Right</option>
-			</select>
+			Side Left:
+			<input type="checkbox" id="pointPlotterLeftRight">
 			<div>
 				Point:
 				<select id="pointPlotterPoint">
@@ -281,9 +278,9 @@
 				<button title="Add point" onclick="addPlotterPoint()"><i class="fa fa-plus-circle"></i></button>
 			</div>
 		</div>
-
 		<div class="slidecontainer">
-			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider" onmouseup="update();reDrawCanvas();">
+			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider"
+				onmouseup="update();reDrawCanvas();">
 		</div>
 		<!-- <div>
 		<select id="endAdaptionValue">
@@ -336,5 +333,16 @@
 
 	<input type="file" id="upl" style="display:none;">
 </body>
+
+<datalist id="angles">
+	<option value=0>0 ➡️</option>
+	<option value=45>45 ️↗️</option>
+	<option value=90>90 ⬆️</option>
+	<option value=135>135 ️↖️</option>
+	<option value=180>180 ⬅️</option>
+	<option value=225>225 ️↙️</option>
+	<option value=270>270 ️⬇️</option>
+	<option value=315>315 ↘️</option>
+  </datalist>
 
 </html>

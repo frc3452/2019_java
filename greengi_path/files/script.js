@@ -407,11 +407,13 @@ function setAngle(row) {
 
 	var newPos = movePointAroundPoint(lastX, lastY, angle, prevX, prevY);
 
-	// return;
-	$($($($('tbody').children()[row - 2]).children()[0]).children()).val(newPos.x);
-	$($($($('tbody').children()[row - 2]).children()[1]).children()).val(newPos.y);
-
-	update();
+	if (angle != undefined)
+	{
+		$($($($('tbody').children()[row - 2]).children()[1]).children()).val(newPos.y);
+		$($($($('tbody').children()[row - 2]).children()[0]).children()).val(newPos.x);
+		
+		update();
+	}
 }
 
 function addPoint(x, y, radius) {
@@ -925,7 +927,7 @@ function addRawPoint(x, y, radius, speed, marker) {
 		+ "<td><input value='" + speed + "'></td>"
 		+ "<td class='marker'><input placeholder='Marker' value='" + marker + "'></td>"
 		+ (rows == 0 ? "" : "<td><button onclick='$(this).parent().parent().remove();update();''>Delete</button></td>")
-		+ "<td><input value='180'></td>"
+		+ "<td><input list='" + "angles" + "'value=''></td>"
 		+ "<td><button background-color=#205c36 onclick='update();setAngle(findRowNumber(($(this).parent().parent()[0])))''>Set Angle</button></td>"
 		+ "</tr>"
 	)
@@ -1155,11 +1157,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 90;
+					angle = 270;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 270;
+					angle = 90;
 					y = val;
 					y -= halfL;
 				}
@@ -1171,11 +1173,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 90;
+					angle = 270;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 270;
+					angle = 90;
 					y = val;
 					y -= halfL;
 				}
@@ -1186,11 +1188,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 133.13;
 				if (left) {
-					angle = 90;
+					angle = 270;
 					y = fieldHeight - val;
 					y += halfL;
 				} else {
-					angle = 270;
+					angle = 90;
 					y = val;
 					y -= halfL;
 				}
@@ -1208,7 +1210,7 @@ function getPlotterPoint(left, value) {
 			}
 
 			{
-				const toAngle = (left ? (270 - 61.25) : 61.25 + 90 - 180);
+				const toAngle = (left ? (90 - 61.25) : 61.25 + 90 - 180);
 				const translation = translateAtAngle(x, y, toAngle, halfL);
 				angle = toAngle;
 
@@ -1223,11 +1225,11 @@ function getPlotterPoint(left, value) {
 			{
 				const val = 27.44;
 				if (left) {
-					angle = 270;
+					angle = 90;
 					y = fieldHeight - val;
 					y -= halfL;
 				} else {
-					angle = 90;
+					angle = 270;
 					y = val;
 					y += halfL;
 				}
@@ -1247,7 +1249,7 @@ function getPlotterPoint(left, value) {
 			}
 
 			{
-				const toAngle = (left ? (270 + 61.25 - 180) : 90 - 61.25);
+				const toAngle = (left ? (270 + 61.25 - 180) : 90 - 61.25 + 180);
 				const translation = translateAtAngle(x, y, toAngle, halfL);
 				angle = toAngle;
 
@@ -1273,8 +1275,28 @@ function toDegrees(angle) {
 	return angle * (180 / Math.PI);
 }
 
+function angleCheck(angle_) {
+	if (angle_ == 0)
+		angle_ = 360;
+	else if (angle_ <= 90 && angle_ >= 0) {
+		if (angle_ < 180)
+			angle_ += 180;
+		else if (angle_ > 180)
+			angle_ -= 180;
+	} else if (angle_ >= 180 && angle_ <= 270) {
+		if (angle_ < 180)
+			angle_ += 180;
+		else if (angle_ > 180)
+			angle_ -= 180;
+	}
+
+	return angle_;
+}
+
 function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
 	const radius = Math.sqrt(Math.pow((x1_ - x2_), 2) + Math.pow(y1_ - y2_, 2));
+
+	angle_ = angleCheck(angle_);
 
 	const xTemp = Math.cos(toRadians(angle_)) * radius;
 	const yTemp = Math.sin(toRadians(angle_)) * radius;
@@ -1328,6 +1350,8 @@ function copySign(value, signToCopy) {
 function translateAtAngle(x_, y_, angle_, lengthAway_) {
 	var xDelta, yDelta;
 
+	angle_ = angleCheck(angle_);
+
 	const xTemp = Math.cos(toRadians(angle_)) * lengthAway_;
 	const yTemp = Math.sin(toRadians(angle_)) * lengthAway_;
 
@@ -1363,12 +1387,11 @@ function translateAtAngle(x_, y_, angle_, lengthAway_) {
 }
 
 function addPlotterPoint() {
-	var left = $("#pointPlotterLeftRight").val() == "l";
+	var left = $("#pointPlotterLeftRight").is(':checked');
 	var thing = $("#pointPlotterPoint").val();
 
 	var position = getPlotterPoint(left, thing);
 	addPointRound(position.x, position.y, 15, false);
-
 	const size = $('tbody').children('tr').length;
 	$($($($('tbody').children()[size - 1]).children()[6]).children()).val(position.angle);
 	setAngle(size);
