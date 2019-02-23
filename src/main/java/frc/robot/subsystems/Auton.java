@@ -12,12 +12,10 @@ import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.functions.paths.M_CS_L_1;
-import frc.robot.auto.commands.functions.paths.M_CS_L_2;
-import frc.robot.auto.commands.functions.paths.M_CS_L_3;
-import frc.robot.auto.commands.functions.paths.M_CS_L_4;
+import frc.robot.auto.commands.functions.paths.Curve;
 import frc.robot.auto.commands.functions.paths.Square_Time;
 import frc.robot.util.GZCommand;
+import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
@@ -85,21 +83,38 @@ public class Auton {
 		// }
 		// };
 
+		
+		commandArray.add(new GZCommand("Far Cargo Man", () -> new GZCommandGroup() {
+			{
+				// resetDriveBack(new L_CS_R_1());
+				// drivePath(new L_CS_R_1().getReversed());
+			}
+		}));
+		/**
 		commandArray.add(new GZCommand("Square time", () -> new ResetPoseDrivePath(new Square_Time())));
-		commandArray.add(new GZCommand("Cargo ship ", () -> new CommandGroup() {
+
+		commandArray.add(new GZCommand("Curve time", () -> new GZCommandGroup() {
+			{
+				addSequential(new ResetPoseDrivePath(new Curve(), true, 3));
+				add(new DrivePath(new Curve().getReversed()));
+			}
+		}));
+
+		commandArray.add(new GZCommand("Cargo ship ", () -> new GZCommandGroup() {
 			{
 				final double waitTime = 1;
 				addSequential(new ResetPoseDrivePath(new M_CS_L_1()));
-				addSequential(new WaitCommand(waitTime));
+				wait(waitTime);
 				addSequential(new DrivePath(new M_CS_L_2()));
-				addSequential(new WaitCommand(waitTime));
+				wait(waitTime);
 				addSequential(new DrivePath(new M_CS_L_3()));
-				addSequential(new WaitCommand(waitTime));
+				wait(waitTime);
 				addSequential(new DrivePath(new M_CS_L_4()));
-				addSequential(new WaitCommand(waitTime));
+				wait(waitTime);
 			}
 		}));
 		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
+		*/
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 

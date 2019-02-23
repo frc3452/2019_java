@@ -46,6 +46,8 @@ public class GZOI extends GZSubsystem {
 		public Double getDefault() {
 			if (GZUtil.between(getMatchTime(), 29.1, 30))
 				return .75;
+			else if (drive.usingCurvature())
+				return .4;
 
 			return 0.0;
 		}

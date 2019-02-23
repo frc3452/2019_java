@@ -26,7 +26,6 @@ public class RobotStateEstimator extends GZSubsystem {
     double left_encoder_prev_distance_ = 0;
     double right_encoder_prev_distance_ = 0;
 
-
     @Override
     public void loop() {
         final double left_distance = drive_.getLeftDistanceInches();

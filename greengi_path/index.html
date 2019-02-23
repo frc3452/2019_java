@@ -234,11 +234,26 @@
 			background: #4CAF50;
 			cursor: pointer;
 		}
+
+		.folder {
+			height: 25px;
+			border-radius: 25%;
+			display: block;
+			margin: 0 auto;
+			margin-bottom: 10px;
+			margin-top: 10px;
+			/* margin-left: auto; */
+			/* margin-right: auto; */
+			text-align: center;
+		}
 	</style>
 </head>
 
 <body onload="init()">
-	<input id="title" placeholder="Title">
+	<div>
+		<input id="title" placeholder="Title"></input>
+		<input class="folder" list="folders" id="folder" placeholder="Folder"></input>
+	</div>
 	<!-- <canvas onclick="canvasClick(this, event)" id="field"></canvas> -->
 	<canvas onclick="canvasClick(this, event)" ondragstart="storeNearestCoordinate(this,event)"
 		ondrag="canvasDrag(this,event)" ondragend="update()" draggable="true" id="field"></canvas>
@@ -319,6 +334,7 @@
 				<td class="radius"><span>0</span></td>
 				<td class="speed"><span>0</span></td>
 				<td class="marker"><input placeholder="Marker"></td>
+				<td><button>Delete</button></td>
 			</tr>
 		</tbody>
 	</table>
@@ -334,6 +350,17 @@
 	<input type="file" id="upl" style="display:none;">
 </body>
 
+<datalist id="folders">
+	<option value="Left">
+		Left
+	</option>
+	<option value="Center">
+		Center
+	</option>
+	<option value="Right">
+		Right
+	</option>
+</datalist>
 <datalist id="angles">
 	<option value=0>0 ➡️</option>
 	<option value=45>45 ️↗️</option>
@@ -343,6 +370,6 @@
 	<option value=225>225 ️↙️</option>
 	<option value=270>270 ️⬇️</option>
 	<option value=315>315 ↘️</option>
-  </datalist>
+</datalist>
 
 </html>

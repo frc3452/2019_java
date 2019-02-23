@@ -99,6 +99,15 @@ public class Drive extends GZSubsystem {
 		System.out.println(this.mNavX.toString());
 	}
 
+	public synchronized RigidTransform2d getOdometry() {
+		return RobotState.getInstance().getOdometry();
+	}
+
+
+	public synchronized void printOdometry() {
+		System.out.println("Odometry: " + getOdometry().toString() + "\t" + mNavX.getFusedHeading());
+	}
+
 	private Drive() {
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
@@ -402,14 +411,6 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public double getLeftOutputPercentage() {
-		return L1.getOutputPercentage();
-	}
-
-	public double getRightOutputPercentage() {
-		return R1.getOutputPercentage();
-	}
-
 	public synchronized void handleStates() {
 		boolean neutral = false;
 		neutral |= this.isSafetyDisabled();
@@ -525,6 +526,7 @@ public class Drive extends GZSubsystem {
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case CLIMB:
+			brake(true);
 			// Superstructure.getInstance().stow();
 			// Superstructure.getInstance().setHeight(Heights.Home);
 			break;
@@ -724,18 +726,18 @@ public class Drive extends GZSubsystem {
 		tank(front, rear);
 	}
 
-	public synchronized double getLeftSpeed() {
+	public synchronized double getLeftPercent() {
 		return L1.getMotorOutputPercent();
 	}
 
-	public synchronized double getRightSpeed() {
+	public synchronized double getRightPercent() {
 		return R1.getMotorOutputPercent();
 	}
 
-	public synchronized boolean driveOutputLessThan(double speed) {
-		speed = Math.abs(speed);
+	public synchronized boolean driveOutputLessThan(double percent) {
+		percent = Math.abs(percent);
 
-		return Math.abs(getLeftSpeed()) < speed && Math.abs(getRightSpeed()) < speed;
+		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
 	public synchronized void handleDriving() {
@@ -810,7 +812,11 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
 		final double move = joy.getLeftAnalogY() * elv;
-		cheesyNoState(move, rotate * (!joy.getButton(Buttons.RB) ? .5 : .5), !joy.getButton(Buttons.RB));
+		cheesyNoState(move, rotate * .5, !usingCurvature());
+	}
+
+	public boolean usingCurvature() {
+		return !driveOutputLessThan(.5);
 	}
 
 	// called in DEMO state

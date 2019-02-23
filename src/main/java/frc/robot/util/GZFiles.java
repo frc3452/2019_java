@@ -183,8 +183,8 @@ public class GZFiles {
 		@Override
 		public void run() {
 			try {
-				double leftPercent = Drive.getInstance().getLeftOutputPercentage();
-				double rightPercent = Drive.getInstance().getRightOutputPercentage();
+				double leftPercent = Drive.getInstance().getLeftPercent();
+				double rightPercent = Drive.getInstance().getRightPercent();
 
 				// write values
 				bw.write(String.valueOf(leftPercent + ","));

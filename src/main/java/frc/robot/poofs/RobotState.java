@@ -119,6 +119,11 @@ public class RobotState {
         return distance_driven_;
     }
 
+    public synchronized RigidTransform2d getOdometry()
+    {
+        return getLatestFieldToVehicle().getValue();
+    }
+
     public synchronized Twist2d getPredictedVelocity() {
         return vehicle_velocity_predicted_;
     }

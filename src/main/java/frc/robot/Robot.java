@@ -2,21 +2,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Health;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.RobotStateEstimator;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -24,18 +20,19 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// // health is generated in, etc
-	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), Intake.getInstance(),
-			GZOI.getInstance(), Superstructure.getInstance());
-
 	// public static final GZSubsystemManager allSubsystems = new
 	// GZSubsystemManager(Drive.getInstance(),
-	// RobotStateEstimator.getInstance(), GZOI.getInstance());
+	// RobotStateEstimator.getInstance(), Elevator.getInstance(),
+	// Pneumatics.getInstance(), Intake.getInstance(),
+	// GZOI.getInstance(), Superstructure.getInstance());
+
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
-
 	private PersistentInfoManager infoManager = PersistentInfoManager.getInstance();
+	private Drive drive = Drive.getInstance();
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
@@ -47,6 +44,8 @@ public class Robot extends TimedRobot {
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();
+
+		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.5);
 
 		// Gen health file
 		health.generateHealth();
@@ -61,8 +60,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && Drive.getInstance().driveOutputLessThan(.05))
-			auton.crash();
+		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) &&
+		// drive.driveOutputLessThan(.05))
+		// auton.crash();
 	}
 
 	@Override

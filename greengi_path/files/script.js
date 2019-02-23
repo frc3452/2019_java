@@ -407,17 +407,16 @@ function setAngle(row) {
 
 	var newPos = movePointAroundPoint(lastX, lastY, angle, prevX, prevY);
 
-	if (angle != undefined)
-	{
+	if (angle != undefined) {
 		$($($($('tbody').children()[row - 2]).children()[1]).children()).val(newPos.y);
 		$($($($('tbody').children()[row - 2]).children()[0]).children()).val(newPos.x);
-		
+
 		update();
 	}
 }
 
 function addPoint(x, y, radius) {
-	addPointRound(x, y, radius, true);
+	addPointRound(x, y, radius, false);
 }
 
 function addPointRound(x, y, radius, round) {
@@ -442,8 +441,9 @@ function addPointRound(x, y, radius, round) {
 		}
 	}
 
-	x = Math.round(x * (round ? 1 : 100)) / (round ? 1 : 100.0);
-	y = Math.round(y * (round ? 1 : 100)) / (round ? 1 : 100.0);
+	x = Math.round(x * (round ? 100 : 1)) / (round ? 100.0 : 1);
+	y = Math.round(y * (round ? 100 : 1)) / (round ? 100.0 : 1);
+
 	radius = Math.round(radius);
 
 	console.log("Adding point: [" + x + "," + y + "], " + radius);
@@ -936,6 +936,12 @@ function addRawPoint(x, y, radius, speed, marker) {
 
 function getDataString() {
 	var title = ($("#title").val().length > 0) ? $("#title").val() : "UntitledPath";
+	var folder = $("#folder").val();
+	if (folder != undefined && folder != "")
+		folder = "." + folder;
+	else
+		folder = "";
+
 	var pathInit = "";
 	var startAdaptStr = $("#startAdaptionValue").val();
 	var endAdaptStr = $("#endAdaptionValue").val();
@@ -947,7 +953,7 @@ function getDataString() {
 	var startPoint = "new Translation2d(" + waypoints[0].position.x + ", " + waypoints[0].position.y + ")";
 	var isReversed = $("#isReversed").is(':checked');
 	var deg = isReversed ? 180 : 0;
-	var str = `package frc.robot.auto.commands.functions.paths;
+	var str = `package frc.robot.auto.commands.functions.paths` + folder + `;
 
 	import java.util.ArrayList;
 	
@@ -1328,6 +1334,9 @@ function movePointAroundPoint(x1_, y1_, angle_, x2_, y2_) {
 	var newX = eval(xDelta + "+" + x1_);
 	var newY = eval(yDelta + "+" + y1_);
 
+	newX = Math.round(newX * 1000.0) / 1000.0;
+	newY = Math.round(newY * 1000.0) / 1000.0;
+
 	return {
 		x: newX,
 		y: newY
@@ -1391,7 +1400,7 @@ function addPlotterPoint() {
 	var thing = $("#pointPlotterPoint").val();
 
 	var position = getPlotterPoint(left, thing);
-	addPointRound(position.x, position.y, 15, false);
+	addPointRound(position.x, position.y, 15, true);
 	const size = $('tbody').children('tr').length;
 	$($($($('tbody').children()[size - 1]).children()[6]).children()).val(position.angle);
 	setAngle(size);

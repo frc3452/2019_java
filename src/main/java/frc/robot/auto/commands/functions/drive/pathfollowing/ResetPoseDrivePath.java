@@ -8,9 +8,11 @@
 package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.command.PrintCommand;
 import frc.robot.auto.commands.functions.WaitCommand;
+import frc.robot.util.GZCommandGroup;
 
-public class ResetPoseDrivePath extends CommandGroup {
+public class ResetPoseDrivePath extends GZCommandGroup {
 
   private final PathContainer mPathContainer;
 
@@ -28,10 +30,13 @@ public class ResetPoseDrivePath extends CommandGroup {
     mPathContainer = pathContainer;
 
     addSequential(new ResetPoseFromPath(mPathContainer));
+    print("Driving!");
     addSequential(new DrivePath(mPathContainer));
+    print("Done driving");
 
     if (andBack) {
-      addSequential(new WaitCommand(delay));
+      print("Waiting " + delay + " seconds for reverse");
+      waitTime(delay);
       addSequential(new DrivePath(PathContainer.getReversed(mPathContainer)));
     }
   }

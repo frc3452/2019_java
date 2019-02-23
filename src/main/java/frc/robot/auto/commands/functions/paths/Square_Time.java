@@ -10,7 +10,7 @@ public class Square_Time extends PathContainer {
         sWaypoints.add(new Waypoint(78, 253, 0, 0));
 
         for (int i = 0; i < 20; i++) {
-            sWaypoints.add(new Waypoint(198, 253, 25, 75));
+            sWaypoints.add(new Waypoint(198, 253, 30, 75));
             sWaypoints.add(new Waypoint(198, 100, 25, 75));
             sWaypoints.add(new Waypoint(125, 101, 20, 30));
             sWaypoints.add(new Waypoint(125, 179, 1, 30));

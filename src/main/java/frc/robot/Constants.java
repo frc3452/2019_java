@@ -133,11 +133,10 @@ public class Constants {
 
 		public static final boolean TUNING = true;
 
-		// .95,0,60,.1,0,
 		public static class PID {
-			static final double p = .9; // .9
-			static final double d = 8; // 20
-			static final double f = .14; // 1.47
+			static final double p = 0; //.9
+			static final double d = 0;  //8
+			static final double f = 0; //.14
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -229,20 +228,24 @@ public class Constants {
 
 		public final static String ROBOT_NAME;
 		static {
-			String tempString = "Unknown_Robot";
+			String badString = "Unknown_Robot";
+			String tempString = badString;
 			try {
 				Scanner n = new Scanner(
-						GZFileMaker.getSafeFile("RobotName", new Folder(), FileExtensions.TXT, false, false).getFile());
+						GZFileMaker.getFile("RobotName", new Folder(), FileExtensions.TXT, false, false).getFile());
 				tempString = n.nextLine();
 				n.close();
 			} catch (Exception e) {
 			} finally {
 				ROBOT_NAME = tempString;
 			}
-			if (ROBOT_NAME == tempString) {
-				System.out
-						.println("Robot name not found! Upload [RobotName.txt] to ROBORIO home directory to set name!");
+			if (ROBOT_NAME == badString) {
+				System.out.println(
+						"ERROR Robot name not found! Upload [RobotName.txt] to ROBORIO home directory to set name!");
+			} else {
+				System.out.println("Robot identified: " + ROBOT_NAME);
 			}
+
 		}
 	}
 
