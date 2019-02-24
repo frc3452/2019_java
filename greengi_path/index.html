@@ -188,21 +188,25 @@
 			transition: background-color 0.25s
 		}
 
-		/* button:hover {
-			background-color: #3498db;
-		} */
-
 		button:focus {
 			outline: #aaa;
 		}
 
-
-		button:hover {
-			background-color: #fff914;
+		.fa:hover {
+			-webkit-animation: fa-spin 1s infinite linear;
+			animation: fa-spin 1s infinite linear;
+			
 		}
 
 		button {
 			background-color: #205c36;
+		}
+
+		button:hover {
+			/* -webkit-animation: fa-spin 3s infinite linear; */
+			/* animation: fa-spin 3s infinite linear; */
+			/* height: 30px; */
+			/* width: 30px; */
 		}
 
 		.slider {
@@ -259,16 +263,19 @@
 		ondrag="canvasDrag(this,event)" ondragend="update()" draggable="true" id="field"></canvas>
 	<div class="buttonContainer">
 		<div>
-			<button title="Add Point" onclick="addPoint()"><i class="fa fa-plus-circle"></i></button>
-			<!-- <button onclick="update()">Update</button> -->
+			<!-- <button title="Add Point" onclick="addPoint()"><i class="fa fa-plus-circle"></i></button> -->
+			<!-- <button title="Update"onclick="update()"><i class="fa fa-plus-circle"></i></button> -->
 			<button title="Display Path Code" onclick="showData()"><i class="fa fa-tv"></i></button>
 			<button title="Copy To Clipboard" onclick="copyToClipBoard()"><i class="fa fa-clipboard"></i></button>
 			<!-- <button title="Download File" onclick="exportData()"><i class="fa fa-download"></i></button> -->
 			<button title="Import File" onclick="importData()"><i class="fa fa-arrow-circle-up"></i></button>
 			<button title="Change Start Point" onclick="changeStartPoint()"><i class="fa fa-arrows-v"></i></button>
-			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i class="fa fa-refresh"></i></button>
+			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i
+					class="fa fa-refresh fa-fw"></i></button>
 			<button title="New path from last two points" onclick="newPathTwoPoints()"><i
-					class="fa fa-backward"></i></button>
+					class="fa fa-sort-alpha-desc"></i></button>
+
+			<button title="Duplicate last point" onclick="copyLastPoint()"><i class="fa fa-plus-circle"></i></button>
 
 			<!-- <button title="Flip Path" onclick="flipPath()"><i class="fa fa-exchange" aria-hidden="true"></i></button> -->
 			<!--<button onclick="doStuff()">GetPoints</button>-->

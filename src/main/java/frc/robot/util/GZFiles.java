@@ -248,6 +248,10 @@ public class GZFiles {
 		}
 	});
 
+	public void stopLog() {
+		csvControl("", new Folder(), false, TASK.Log, false);
+	}
+
 	private void createCSVFile(String fileName, Folder folder, fileState readwrite, boolean usb) {
 		createCSVFile(fileName, folder, readwrite, usb, false);
 	}
@@ -531,7 +535,8 @@ public class GZFiles {
 
 		if (Robot.allSubsystems.hasAir()) {
 			String pneumatics = "";
-			pneumatics += HTML.header("Pneumatics", 1, "Green");;
+			pneumatics += HTML.header("Pneumatics", 1, "Green");
+			;
 
 			String singlesTable = "";
 			if (Robot.allSubsystems.hasSingles()) {
@@ -580,7 +585,6 @@ public class GZFiles {
 
 			body += pneumatics;
 		}
-
 
 		// Analog inputs
 		{

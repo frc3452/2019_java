@@ -37,6 +37,12 @@ public class GZOI extends GZSubsystem {
 	private boolean mPrevSafteyDisable = false;
 	private boolean mSafetyDisable = false;
 
+	private boolean mShouldHandleDrive = false;
+
+	public void shouldHandleDrive(boolean drive) {
+		this.mShouldHandleDrive = drive;
+	}
+
 	private Drive drive = Drive.getInstance();
 	// private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -46,8 +52,8 @@ public class GZOI extends GZSubsystem {
 		public Double getDefault() {
 			if (GZUtil.between(getMatchTime(), 29.1, 30))
 				return .75;
-			else if (drive.usingCurvature())
-				return .4;
+			// else if (drive.usingCurvature())
+			// 	return .4;
 
 			return 0.0;
 		}
@@ -97,6 +103,9 @@ public class GZOI extends GZSubsystem {
 		else if (auton.isAutoControl()) { // running auto command
 			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
+
+			// if (mShouldHandleDrive)
+			// 	handleDriverController();
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
@@ -134,9 +143,6 @@ public class GZOI extends GZSubsystem {
 
 		handleRumble();
 
-		if (driverJoy.getButtons(Buttons.LB, Buttons.Y))
-			auton.crash();
-
 		if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.X))
 			op.setButtonBoard();
 		else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
@@ -144,13 +150,14 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleElevatorTesting() {
-		
 
 		// if (Math.abs(op.getLeftTrigger()) > .5)
-			// Elevator.getInstance().manual(op.getRightAnalogY() * .25);
+		// Elevator.getInstance().manual(op.getRightAnalogY() * .25);
 	}
 
 	private void handleDriverController() {
+		// System.out.println("HANDLING DRIVE!!!");
+
 		if (driverJoy.getButton(Buttons.LB)) {
 
 			if (driverJoy.getButton(Buttons.A))
@@ -347,7 +354,7 @@ public class GZOI extends GZSubsystem {
 			addRumble(.125, .06, 1, false);
 			break;
 		case MEDIUM:
-			addRumble(.125, .06, 2, false);
+			addRumble(.125 / 3.0, .02, 2, false);
 			break;
 		case HIGH:
 			addRumble(.24, .07, 3, true);

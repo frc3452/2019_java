@@ -3,16 +3,15 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.WaitCommand;
-import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
+import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.functions.paths.Curve;
+import frc.robot.auto.commands.functions.paths.Jank_To_Feed;
+import frc.robot.auto.commands.functions.paths.L_CS_Face_L;
+import frc.robot.auto.commands.functions.paths.L_CS_Face_R;
 import frc.robot.auto.commands.functions.paths.Square_Time;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -83,38 +82,22 @@ public class Auton {
 		// }
 		// };
 
-		
-		commandArray.add(new GZCommand("Far Cargo Man", () -> new GZCommandGroup() {
+
+		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
 			{
-				// resetDriveBack(new L_CS_R_1());
-				// drivePath(new L_CS_R_1().getReversed());
+				resetDrive(new L_CS_Face_L());
+				tele();
+				drivePath(new Jank_To_Feed());
 			}
 		}));
-		/**
+
+		commandArray.add(new GZCommand("The 2", () -> new GZCommandGroup() {
+			{
+				resetDrive(new L_CS_Face_R());
+			}
+		}));
 		commandArray.add(new GZCommand("Square time", () -> new ResetPoseDrivePath(new Square_Time())));
-
-		commandArray.add(new GZCommand("Curve time", () -> new GZCommandGroup() {
-			{
-				addSequential(new ResetPoseDrivePath(new Curve(), true, 3));
-				add(new DrivePath(new Curve().getReversed()));
-			}
-		}));
-
-		commandArray.add(new GZCommand("Cargo ship ", () -> new GZCommandGroup() {
-			{
-				final double waitTime = 1;
-				addSequential(new ResetPoseDrivePath(new M_CS_L_1()));
-				wait(waitTime);
-				addSequential(new DrivePath(new M_CS_L_2()));
-				wait(waitTime);
-				addSequential(new DrivePath(new M_CS_L_3()));
-				wait(waitTime);
-				addSequential(new DrivePath(new M_CS_L_4()));
-				wait(waitTime);
-			}
-		}));
 		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
-		*/
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
@@ -133,14 +116,6 @@ public class Auton {
 
 	public int getSelector() {
 		return DigitalSelector.get(mSelectorTens, mSelectorOnes);
-	}
-
-	public void crash() {
-		// GZOI.getInstance().isDisabled() &&
-		if (!GZOI.getInstance().isFMS()) {
-			Timer f = null;
-			f.start();
-		}
 	}
 
 	public void autonChooser() {

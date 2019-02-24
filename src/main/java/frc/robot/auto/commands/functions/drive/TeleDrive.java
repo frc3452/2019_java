@@ -19,11 +19,16 @@ public class TeleDrive extends Command {
         this.mDrive = shouldDrive;
     }
 
+    public TeleDrive(boolean shouldDrive) {
+        this(() -> GZOI.driverJoy.getButton(Buttons.B), true);
+    }
+
     public TeleDrive() {
-        this(() -> GZOI.driverJoy.getButton(Buttons.B), false);
+        this(false);
     }
 
     protected void initialize() {
+        GZOI.getInstance().shouldHandleDrive(mDrive);
     }
 
     protected void execute() {
@@ -36,7 +41,9 @@ public class TeleDrive extends Command {
     }
 
     protected void end() {
-        drive.stop();
+        GZOI.getInstance().shouldHandleDrive(false);
+        drive.brake(false);
+        // drive.stop();
     }
 
     protected void interrupted() {

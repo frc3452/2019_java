@@ -9,8 +9,8 @@ var width = 1656; //pixels
 var height = 823; //pixels
 var fieldWidth = 652; // in inches
 var fieldHeight = 324; // in inches
-var robotWidth = (23.5 + (3.5 * 2));
-var robotHeight = (30 + (3.5 * 2));
+var robotWidth = (27 + (3.5 * 2));
+var robotHeight = (32 + (3.5 * 2));
 // var robotWidth = 34.5; //inches //32.75
 // var robotHeight = 38.5; //inches //37.5
 const halfL = robotHeight / 2.0;
@@ -22,7 +22,7 @@ var imageFlipped;
 var wto;
 
 var lastSetStartingPosition = 0;
-const level1StartX = (48 + (1 / 8)) + halfL;
+const level1StartX = (48 + halfL);
 var startingPositions = [[22, 205], [22, 117], [level1StartX, 205], [level1StartX, 162], [level1StartX, 119]];
 
 var maxSpeed = 120;
@@ -319,6 +319,10 @@ class Arc {
 	}
 }
 
+function pointDistance(x1, y1, x2, y2) {
+	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
 class TalonSRXPoint {
 	constructor(pos, vel, time) {
 		this.pos = pos;
@@ -396,30 +400,56 @@ function findRowNumber(row) {
 
 function setAngle(row) {
 	// evaluateWaypoints();
+	row -= 1;
 
-	var lastX = eval($($($($('tbody').children()[row - 1]).children()[0]).children()).val());
-	var lastY = eval($($($($('tbody').children()[row - 1]).children()[1]).children()).val());
+	var lastX = getRowValue(row, 0);
+	var lastY = getRowValue(row, 1);
 
-	var prevX = eval($($($($('tbody').children()[row - 2]).children()[0]).children()).val());
-	var prevY = eval($($($($('tbody').children()[row - 2]).children()[1]).children()).val());
+	var movingX = getRowValue(row - 1, 0);
+	var movingY = getRowValue(row - 1, 1);
 
-	var angle = eval($($($($('tbody').children()[row - 1]).children()[6]).children()).val());
+	var angle = getRowValue(row, 6);
 
-	var newPos = movePointAroundPoint(lastX, lastY, angle, prevX, prevY);
+	var newPos = movePointAroundPoint(lastX, lastY, angle, movingX, movingY);
 
+	
 	if (angle != undefined) {
-		$($($($('tbody').children()[row - 2]).children()[1]).children()).val(newPos.y);
-		$($($($('tbody').children()[row - 2]).children()[0]).children()).val(newPos.x);
+		setRowValue(row-1,0,newPos.x);
+		setRowValue(row-1,1,newPos.y);
+		// $($($($('tbody').children()[row - 1]).children()[1]).children()).val(newPos.y);
+		// $($($($('tbody').children()[row - 1]).children()[0]).children()).val(newPos.x);
+
+
+		var centerPoint = translateAtAngle(lastX, lastY, angle, pointDistance(lastX, lastY, newPos.x, newPos.y) / 2.0);
+		addRawPointAt(row-1, centerPoint.x,centerPoint.y, 1, 30,"");
 
 		update();
 	}
 }
 
-function addPoint(x, y, radius) {
-	addPointRound(x, y, radius, false);
+function getRowValue(row, val) {
+	return eval($($($($('tbody').children()[row]).children()[val]).children()).val())
 }
 
-function addPointRound(x, y, radius, round) {
+function setRowValue(row, val, val2) {
+	$($($($('tbody').children()[row]).children()[val]).children()).val(val2);
+}
+
+function changeRow(row, x, y, radius, speed, marker) {
+	$($($($('tbody').children()[row]).children()[0]).children()).val(x);
+	$($($($('tbody').children()[row]).children()[1]).children()).val(y);
+
+	$($($($('tbody').children()[row]).children()[2]).children()).val(radius);
+	$($($($('tbody').children()[row]).children()[3]).children()).val(speed);
+
+	$($($($('tbody').children()[row]).children()[4]).children()).val(marker);
+}
+
+function addPoint(x, y, radius) {
+	addPointRound(x, y, radius, 60, false);
+}
+
+function addPointRound(x, y, radius, speed, round) {
 	var prev;
 	if (waypoints.length > 0)
 		prev = waypoints[waypoints.length - 1].position;
@@ -448,7 +478,7 @@ function addPointRound(x, y, radius, round) {
 
 	console.log("Adding point: [" + x + "," + y + "], " + radius);
 
-	addRawPoint(x, y, radius, 60, "");
+	addRawPoint(x, y, radius, speed, "");
 
 	update();
 	$('input').unbind("change paste keyup");
@@ -462,6 +492,7 @@ function addPointRound(x, y, radius, round) {
 }
 
 function evaluateWaypoints() {
+	var counter = 0;
 	$('tbody').children('tr').each(function () {
 		var x = parseFloat(eval($($($(this).children()).children()[0]).val()));
 
@@ -470,6 +501,10 @@ function evaluateWaypoints() {
 		var speed = parseFloat(eval($($($(this).children()).children()[3]).val()));
 
 		var angle = parseFloat(eval($($($(this).children()).children()[6]).val()));
+
+		if (angle == undefined || isNaN(angle))
+			angle = "";
+
 		if (isNaN(radius) || isNaN(speed)) {
 			radius = 0;
 			speed = 0;
@@ -481,6 +516,8 @@ function evaluateWaypoints() {
 		$($($(this).children()).children()[3]).val(speed);
 		$($($(this).children()).children()[6]).val(angle);
 	});
+
+	update();
 }
 
 function reDrawCanvas() {
@@ -522,6 +559,10 @@ function myUpdate(toGetFromFile) {
 				speed = 0;
 			}
 			var marker = ($($($(this).children()).children()[4]).val())
+			if (marker == "undefined")
+				marker = "";
+			($($($(this).children()).children()[4]).val(marker))
+
 			var comment = ($($($(this).children()).children()[5]).val())
 			waypoints.push(new Waypoint(new Translation2d(x, y), speed, radius, marker, comment));
 		});
@@ -918,19 +959,39 @@ function newPathTwoPoints() {
 	update();
 }
 
-function addRawPoint(x, y, radius, speed, marker) {
-	const rows = $("tbody").children("tr").length;
-	$("tbody").append("<tr>"
+function addRawRow(val) {
+	var x = parseFloat(eval($($($(val).children()).children()[0]).val()));
+	var y = parseFloat(eval($($($(val).children()).children()[1]).val()));
+	var radius = parseFloat(eval($($($(val).children()).children()[2]).val()));
+	var speed = parseFloat(eval($($($(val).children()).children()[3]).val()));
+	if (isNaN(radius) || isNaN(speed)) {
+		radius = 0;
+		speed = 0;
+	}
+	var marker = ($($($(this).children()).children()[4]).val())
+	var comment = ($($($(this).children()).children()[5]).val())
+	addRawPoint(x, y, radius, speed, marker);
+}
+
+function addRawPointAt(row, x, y, radius, speed, marker) {
+	$('#myTable > tbody > tr').eq(row).after(getRowHTML(x, y, radius, speed, marker));
+}
+function getRowHTML(x, y, radius, speed, marker) {
+	const row = $("tbody").children("tr").length;
+	return "<tr>"
 		+ "<td><input value='" + x + "'></td>"
 		+ "<td><input value='" + y + "'></td>"
 		+ "<td><input value='" + radius + "'></td>"
 		+ "<td><input value='" + speed + "'></td>"
 		+ "<td class='marker'><input placeholder='Marker' value='" + marker + "'></td>"
-		+ (rows == 0 ? "" : "<td><button onclick='$(this).parent().parent().remove();update();''>Delete</button></td>")
+		+ (row == 0 ? "" : "<td><button onclick='$(this).parent().parent().remove();update();''>Delete</button></td>")
 		+ "<td><input list='" + "angles" + "'value=''></td>"
 		+ "<td><button background-color=#205c36 onclick='update();setAngle(findRowNumber(($(this).parent().parent()[0])))''>Set Angle</button></td>"
-		+ "</tr>"
-	)
+		+ "</tr>";
+}
+
+function addRawPoint(x, y, radius, speed, marker) {
+	$("tbody").append(getRowHTML(x, y, radius, speed, marker));
 }
 
 
@@ -1063,6 +1124,13 @@ function changeStartPointV1() {
 			return;
 		}
 	}
+}
+
+function copyLastPoint() {
+	var length = $($('tbody').children('tr')).length - 1;
+	var row = $($('tbody').children('tr'))[length];
+	addRawRow(row);
+	update();
 }
 
 function setStartingPositionPoint(x, y) {
@@ -1395,17 +1463,23 @@ function translateAtAngle(x_, y_, angle_, lengthAway_) {
 	};
 }
 
+
 function addPlotterPoint() {
 	var left = $("#pointPlotterLeftRight").is(':checked');
 	var thing = $("#pointPlotterPoint").val();
 
 	var position = getPlotterPoint(left, thing);
-	addPointRound(position.x, position.y, 15, true);
+	addPointRound(position.x, position.y, 15, 30, true);
 	const size = $('tbody').children('tr').length;
-	$($($($('tbody').children()[size - 1]).children()[6]).children()).val(position.angle);
+
+	setRowValue(size-1,6,position.angle);
 	setAngle(size);
-	$($($($('tbody').children()[size - 1]).children()[2]).children()).val(15);
-	$($($($('tbody').children()[size - 2]).children()[2]).children()).val(15);
+	// setRowValue(size-1,2,15);
+	setRowValue(size-2,2,15);
+
+	update();
+	return;
+
 	update();
 }
 
@@ -1432,7 +1506,7 @@ function numberToInnerHTML(number) {
 }
 
 function movePoint(pointNumber, newX, newY) {
-	if (newX != 0 && newY != 0) {
+	if (newX != 0 && newY != 0 && newX != 1 && newY != 1) {
 		var row = document.getElementById("myTable").rows[pointNumber + 1];
 		row.cells[0].innerHTML = numberToInnerHTML(newX);
 		row.cells[1].innerHTML = numberToInnerHTML(newY);

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -32,6 +33,8 @@ public class PersistentInfoManager {
     // timers and prev vals
     private final GZTimer mOnTimeTimer = new GZTimer("OnTime");
     private final GZTimer mEnabledTimer = new GZTimer("EnabledTimer");
+
+    private final GZFlag mRebootRequested = new GZFlag();
 
     private Drive drive = Drive.getInstance();
     // private Elevator elev = Elevator.getInstance();
@@ -295,7 +298,7 @@ public class PersistentInfoManager {
                     // For some reason a value is in the file and not in the map, so something isn't
                     // right in the first place
                     // Trip the flag incase so we don't accidentally overwrite any data
-                    mReadFailed.tripFlag();
+                    // mReadFailed.tripFlag();
                 }
             }
 
@@ -424,6 +427,12 @@ public class PersistentInfoManager {
                     e.printStackTrace();
                     System.out.println("ERROR Could not update long term stats file!");
                 }
+
+                if (mRebootRequested.get()) {
+                    GZFiles.getInstance().stopLog();
+                    System.out.println("Dying...");
+                    System.exit(0);
+                }
             }
         });
 
@@ -438,6 +447,14 @@ public class PersistentInfoManager {
 
     public void robotDisabled() {
         mEnabledTimer.stopTimer();
+    }
+
+    public void requestRestart() {
+        if (drive.driveOutputLessThan(.05) && !GZOI.getInstance().isFMS() && !mRebootRequested.get()) {
+            mRebootRequested.tripFlag();
+            System.out.println("WARNING Reboot requested");
+            GZUtil.trace(GZUtil.currentThread());
+        }
     }
 
 }

@@ -1,18 +1,21 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.RobotStateEstimator;
 import frc.robot.util.GZFiles;
+import frc.robot.util.GZFlag;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
+import frc.robot.util.GZNotifier;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -45,7 +48,7 @@ public class Robot extends TimedRobot {
 
 		infoManager.initialize();
 
-		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.5);
+		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.25);
 
 		// Gen health file
 		health.generateHealth();
@@ -60,9 +63,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) &&
-		// drive.driveOutputLessThan(.05))
-		// auton.crash();
+		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && drive.driveOutputLessThan(.05))
+			PersistentInfoManager.getInstance().requestRestart();
 	}
 
 	@Override
@@ -104,6 +106,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		drive.slowSpeed(true);
 		auton.cancelAuton();
 		enabledInits();
 	}

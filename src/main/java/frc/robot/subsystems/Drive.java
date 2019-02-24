@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
@@ -103,7 +104,6 @@ public class Drive extends GZSubsystem {
 		return RobotState.getInstance().getOdometry();
 	}
 
-
 	public synchronized void printOdometry() {
 		System.out.println("Odometry: " + getOdometry().toString() + "\t" + mNavX.getFusedHeading());
 	}
@@ -189,6 +189,8 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void setWantDrivePath(Path path, boolean reversed) {
 		if (mCurrentPath != path || mState != DriveState.PATH_FOLLOWING) {
+			setWantedState(DriveState.PATH_FOLLOWING);
+			handleStates();
 			RobotState.getInstance().resetDistanceDriven();
 			mPathFollower = new PathFollower(path, reversed,
 					new PathFollower.Parameters(
@@ -200,7 +202,6 @@ public class Drive extends GZSubsystem {
 							kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
 							kPathFollowing.kPathFollowingGoalPosTolerance,
 							kPathFollowing.kPathFollowingGoalVelTolerance, kPathFollowing.kPathStopSteeringDistance));
-			setWantedState(DriveState.PATH_FOLLOWING);
 			mCurrentPath = path;
 		} else {
 			// stop();
@@ -547,7 +548,7 @@ public class Drive extends GZSubsystem {
 			break;
 		case NEUTRAL:
 			// brake(false);
-			brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
+			brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
 			break;
 		case OPEN_LOOP:
 			brake(true);
@@ -588,6 +589,8 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
+		// SmartDashboard.putNumber("Left Velocity", L1.getSelectedSensorVelocity());
+		// SmartDashboard.putNumber("Left Target Velocity", L1.getClosedLoopTarget());
 		handleLimitSwitches();
 		handleStates();
 		in();
@@ -752,10 +755,10 @@ public class Drive extends GZSubsystem {
 			// if (driveOutputLessThan(.2) || !mIO.encodersValid)
 			// setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			// else
-			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
-
+			
 			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
-
+			
+			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 			setWantedState(DriveState.OPEN_LOOP_DRIVER);
 		}
 	}
@@ -770,10 +773,10 @@ public class Drive extends GZSubsystem {
 			tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
 			break;
 		case REAR:
-			tankNoState(0, joy.getLeftAnalogY());
+			tankNoState(0, joy.getRightAnalogY());
 			break;
 		default:
-			System.out.println("ERROR Handle climber fall through!!!!");
+			System.out.println("ERROR Handle climber fall through [" + mState + "]");
 			break;
 		}
 	}
@@ -991,7 +994,7 @@ public class Drive extends GZSubsystem {
 		tank(joy.getLeftAnalogY(), joy.getRightAnalogY());
 	}
 
-	private synchronized void brake(boolean brake) {
+	public synchronized void brake(boolean brake) {
 		brake(brake ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 

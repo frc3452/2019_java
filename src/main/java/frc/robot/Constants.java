@@ -117,16 +117,38 @@ public class Constants {
 		// our speed
 		// in inches per sec
 
-		public static double kPathFollowingProfileKp = 5.00;
-		public static double kPathFollowingProfileKi = 0.03;
+		// public static double kPathFollowingProfileKp = 5.00;
+		// public static double kPathFollowingProfileKi = 0.03;
+		// public static double kPathFollowingProfileKv = 0.02;
+		// public static double kPathFollowingProfileKffv = 1.0;
+		// public static double kPathFollowingProfileKffa = 0.05;
+
+		public static double kPathFollowingProfileKp = 1.8;
+		public static double kPathFollowingProfileKi = 0.06;
 		public static double kPathFollowingProfileKv = 0.02;
-		public static double kPathFollowingProfileKffv = 1.0;
-		public static double kPathFollowingProfileKffa = 0.05;
+		public static double kPathFollowingProfileKffv = 1.0 * .7;
+		public static double kPathFollowingProfileKffa = 0.05 * 1;
+
+		// "OKRR"
+		// public static double kPathFollowingProfileKp = 2.5;
+		// public static double kPathFollowingProfileKi = 0.06;
+		// public static double kPathFollowingProfileKv = 0.02;
+		// public static double kPathFollowingProfileKffv = 1.0 * .5;
+		// public static double kPathFollowingProfileKffa = 0.05 * 1;
+
+		// V V SLOW
+		// public static double kPathFollowingProfileKp = 0.01;
+		// public static double kPathFollowingProfileKi = 0.00;
+		// public static double kPathFollowingProfileKv = 0.02;
+		// public static double kPathFollowingProfileKffv = 1 * .8;
+		// public static double kPathFollowingProfileKffa = 0.05 * .8;
 
 		public static double kSegmentCompletionTolerance = 0.1; // inches
-		public static double kPathFollowingGoalPosTolerance = 0.75;
+		// public static double kPathFollowingGoalPosTolerance = 0.75;
+		public static double kPathFollowingGoalPosTolerance = 0.5;
 		public static double kPathFollowingGoalVelTolerance = 12.0;
-		public static double kPathStopSteeringDistance = 9.0;
+		// public static double kPathStopSteeringDistance = 9;
+		public static double kPathStopSteeringDistance = 0;
 	}
 
 	public static class kDrivetrain {
@@ -134,9 +156,9 @@ public class Constants {
 		public static final boolean TUNING = true;
 
 		public static class PID {
-			static final double p = 0; //.9
-			static final double d = 0;  //8
-			static final double f = 0; //.14
+			static final double p = 0; // .9
+			static final double d = 0; // 8
+			static final double f = 0; // .14
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
 
@@ -171,7 +193,7 @@ public class Constants {
 		public final static double NEUTRAL_DEADBAND = 0.01;
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
-		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * .8;
+		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
 	}
 
 	public static class kPDP {
@@ -220,7 +242,7 @@ public class Constants {
 		public final static Folder STATS_FILE_FOLDER = new Folder("GZStats");
 		public final static String STATS_FILE_NAME = "Stats";
 		public final static boolean STATS_FILE_ON_USB = false;
-		public final static double DEFAULT_STATS_RECORD_TIME = .5;
+		public final static double DEFAULT_STATS_RECORD_TIME = 1;
 
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
 		public final static double LOGGING_SPEED = .125;
