@@ -12,7 +12,6 @@ import frc.robot.util.GZQueuer;
 import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class Lights extends GZSubsystem {
 	private static CANifier canifier;

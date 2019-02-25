@@ -1,7 +1,6 @@
 package frc.robot.util.drivers.pneumatics;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.GZOI;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZTimer;
 import frc.robot.util.drivers.IGZHardware;

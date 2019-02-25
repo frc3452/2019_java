@@ -12,18 +12,6 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         TRANSITION, ON, OFF;
     }
 
-    public boolean isOn() {
-        return this.getSolenoidState() == SolenoidState.ON;
-    }
-
-    public boolean isOff() {
-        return this.getSolenoidState() == SolenoidState.OFF;
-    }
-
-    public boolean isTransitioning() {
-        return this.getSolenoidState() == SolenoidState.TRANSITION;
-    }
-
     public static class SolenoidConstants {
         public final int module;
         public final int channel;
@@ -59,6 +47,8 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     private int mChangeCounts = 0;
     private boolean mForcedOff = false;
 
+    private boolean mWantedChange = false;
+
     public SolenoidConstants getConstants() {
         return this.mConstants;
     }
@@ -93,10 +83,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     }
 
     private void runSolenoid(boolean on, boolean override) {
-        if (!override && (mForcedOff || this.mSub.isSafetyDisabled()))
-            return;
-
-        if (on == super.get())
+        if (on == super.get() || (!override && (mForcedOff || this.mSub.isSafetyDisabled())))
             return;
 
         super.set(on);
@@ -107,6 +94,36 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         } else {
             mOffTimer.startTimer();
         }
+    }
+
+    public void wantOn() {
+        mWantedChange = true;
+    }
+
+    public void wantOff() {
+        mWantedChange = false;
+    }
+
+    public void stateChange() {
+        set(mWantedChange);
+    }
+
+    public boolean wantsStateChange() {
+        if ((!isOff() && !mWantedChange) || (!isOn() && mWantedChange))
+            return true;
+        return false;
+    }
+
+    public boolean isOn() {
+        return this.getSolenoidState() == SolenoidState.ON;
+    }
+
+    public boolean isOff() {
+        return this.getSolenoidState() == SolenoidState.OFF;
+    }
+
+    public boolean isTransitioning() {
+        return this.getSolenoidState() == SolenoidState.TRANSITION;
     }
 
     public SolenoidState getSolenoidState() {

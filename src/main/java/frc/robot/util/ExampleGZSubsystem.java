@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-import frc.robot.subsystems.Auton;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;

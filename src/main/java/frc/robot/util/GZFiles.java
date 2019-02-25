@@ -17,7 +17,6 @@ import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.Robot;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;

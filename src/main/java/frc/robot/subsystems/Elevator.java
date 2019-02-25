@@ -6,7 +6,6 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
@@ -45,7 +44,6 @@ public class Elevator extends GZSubsystem {
 
     private double mDesiredHeight = Heights.Home.inches;
     private double mLowestHeight = mDesiredHeight;
-    private boolean mDesiredSlidesState = false;
 
     private boolean mLimiting = false;
     private boolean mSpeedLimitOverride = false;
@@ -268,7 +266,7 @@ public class Elevator extends GZSubsystem {
         return mIO.ticks_position / 4096;
     }
 
-    public double getHeightInches() {
+    public Double getHeightInches() {
         return (mIO.ticks_position / kElevator.TICKS_PER_INCH) + kElevator.HOME_INCHES;
     }
 
@@ -316,11 +314,11 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void extendSlides() {
-        mDesiredSlidesState = true;
+        mCarriageSlide.wantOn();
     }
 
     protected void retractSlides() {
-        mDesiredSlidesState = false;
+        mCarriageSlide.wantOff();
     }
 
     public boolean isClawClosed() {
@@ -514,9 +512,9 @@ public class Elevator extends GZSubsystem {
             mLowestHeight = (areSlidesIn() ? Heights.Home.inches : kElevator.LOWEST_WITH_SLIDES_OUT);
             mIO.desired_output = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
         }
-
+        
         if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT) {
-            mCarriageSlide.set(mDesiredSlidesState);
+            mCarriageSlide.stateChange();
         }
 
         if (mState != ElevatorState.NEUTRAL) {
