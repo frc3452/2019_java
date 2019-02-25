@@ -119,13 +119,23 @@ public class GZUtil {
 		System.out.println(retval);
 	}
 
-	public static double limit(double value) {
+	public static double limit1to1(double value) {
 		if (value > 1.0) {
 			return 1.0;
 		}
 		if (value < -1.0) {
 			return -1.0;
 		}
+		return value;
+	}
+
+	public static double limit(double value, double low, double high)
+	{
+		if (value > high)
+			value = high;
+		else if (value < low)
+			value = low;
+		
 		return value;
 	}
 

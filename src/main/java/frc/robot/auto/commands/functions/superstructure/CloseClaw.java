@@ -3,7 +3,6 @@ package frc.robot.auto.commands.functions.superstructure;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 
 public class CloseClaw extends Command {
   public CloseClaw() {

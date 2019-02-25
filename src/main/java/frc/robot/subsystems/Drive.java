@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.sql.Date;
 import java.text.DecimalFormat;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -12,9 +11,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
+import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
@@ -36,8 +34,8 @@ import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
-import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZPID;
+import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
@@ -704,7 +702,7 @@ public class Drive extends GZSubsystem {
 	public void wantShift(ClimbingState state) {
 		if (state != mClimbState && mClimbState != ClimbingState.MOVING) {
 			GZOI.getInstance().addRumble(Rumble.HIGH);
-			Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1, 5);
+			Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1, 5, true);
 			shiftDelay(state);
 			mClimbState = ClimbingState.MOVING;
 		}
@@ -725,7 +723,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void runClimber(double front, double rear) {
-		// TODO TUNE
 		tank(front, rear);
 	}
 
@@ -739,7 +736,6 @@ public class Drive extends GZSubsystem {
 
 	public synchronized boolean driveOutputLessThan(double percent) {
 		percent = Math.abs(percent);
-
 		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
@@ -755,9 +751,9 @@ public class Drive extends GZSubsystem {
 			// if (driveOutputLessThan(.2) || !mIO.encodersValid)
 			// setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			// else
-			
+
 			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
-			
+
 			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
 			setWantedState(DriveState.OPEN_LOOP_DRIVER);
 		}
@@ -782,7 +778,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
-
 		final double rot = .45 * (joy.getRightTrigger() - joy.getLeftTrigger());
 		double temp[] = Drive.getInstance().arcadeToLR(joy.getLeftAnalogY(), rot, joy.getButton(Buttons.RB));
 		double left = temp[0];
@@ -795,26 +790,21 @@ public class Drive extends GZSubsystem {
 		right = -GZUtil.scaleBetween(right, -kDrivetrain.CLOSED_LOOP_TOP_TICKS, kDrivetrain.CLOSED_LOOP_TOP_TICKS, -1,
 				1);
 
+		left *= mModifyPercent * getModifier();
+		right *= mModifyPercent * getModifier();
+
 		setVelocity(left, right);
 	}
 
 	private synchronized void arcade(GZJoystick joy) {
-		double turnScalar;
-		// if (Elevator.getInstance().isLimiting())
-		// turnScalar = Constants.kDrivetrain.ELEV_TURN_SCALAR;
-		// else
-		turnScalar = 1;
-
-		double elv = getModifier();
-
 		// final double move = joy.getLeftAnalogY() * elv;
 		// final double rotate = elv * turnScalar * ((joy.getRightTrigger() -
 		// joy.getLeftTrigger()) * .6);
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		final double rotate = joy.getRightTrigger() - joy.getLeftTrigger();
-		final double move = joy.getLeftAnalogY() * elv;
+		final double rotate = joy.getRightTrigger() - joy.getLeftTrigger() * getTurnModifier();
+		final double move = joy.getLeftAnalogY() * getTotalModifer();
 		cheesyNoState(move, rotate * .5, !usingCurvature());
 	}
 
@@ -822,9 +812,16 @@ public class Drive extends GZSubsystem {
 		return !driveOutputLessThan(.5);
 	}
 
-	// called in DEMO state
+	private double getTurnModifier() {
+		return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier() * kElevator.ELEV_TURN_SCALAR : 1);
+	}
+
+	private double getTotalModifer() {
+		return mModifyPercent * getModifier();
+	}
+
 	private synchronized void alternateArcade(GZJoystick joy) {
-		arcadeNoState(joy.getLeftAnalogY(), (joy.getRightAnalogX() * .85));
+		arcadeNoState(joy.getLeftAnalogY() * getTotalModifer(), (joy.getRightAnalogX() * .85) * getTotalModifer());
 	}
 
 	private synchronized void arcadeNoState(double move, double rotate) {
@@ -832,14 +829,14 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void arcadeNoState(double move, double rotate, boolean squaredInputs) {
-		double[] temp = arcadeToLR(move * mModifyPercent, rotate * mModifyPercent, squaredInputs);
+		double[] temp = arcadeToLR(move, rotate, squaredInputs);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
 	}
 
 	private synchronized void cheesyNoState(double move, double rotate, boolean quickTurn) {
-		double[] temp = cheesyToLR(move * mModifyPercent, rotate * mModifyPercent, quickTurn);
+		double[] temp = cheesyToLR(move, rotate, quickTurn);
 
 		mIO.left_desired_output = temp[0];
 		mIO.right_desired_output = temp[1];
@@ -865,10 +862,10 @@ public class Drive extends GZSubsystem {
 	// Modified from DifferentialDrive.java to produce double array, [0] being left
 	// motor value, [1] being right motor value
 	public synchronized double[] arcadeToLR(double xSpeed, double zRotation, boolean squaredInputs) {
-		xSpeed = GZUtil.limit(xSpeed);
+		xSpeed = GZUtil.limit1to1(xSpeed);
 		xSpeed = GZUtil.applyDeadband(xSpeed, kDrivetrain.DIFFERENTIAL_DRIVE_DEADBAND);
 
-		zRotation = GZUtil.limit(zRotation);
+		zRotation = GZUtil.limit1to1(zRotation);
 		zRotation = GZUtil.applyDeadband(zRotation, kDrivetrain.DIFFERENTIAL_DRIVE_DEADBAND);
 
 		double leftMotorOutput;
@@ -904,17 +901,17 @@ public class Drive extends GZSubsystem {
 		}
 
 		double retval[] = { 0, 0 };
-		retval[0] = GZUtil.limit(leftMotorOutput);
-		retval[1] = -GZUtil.limit(rightMotorOutput);
+		retval[0] = GZUtil.limit1to1(leftMotorOutput);
+		retval[1] = -GZUtil.limit1to1(rightMotorOutput);
 
 		return retval;
 	}
 
 	public double[] cheesyToLR(double xSpeed, double zRotation, boolean isQuickTurn) {
-		xSpeed = GZUtil.limit(xSpeed);
+		xSpeed = GZUtil.limit1to1(xSpeed);
 		// xSpeed = applyDeadband(xSpeed, m_deadband);
 
-		zRotation = GZUtil.limit(zRotation);
+		zRotation = GZUtil.limit1to1(zRotation);
 		// zRotation = applyDeadband(zRotation, m_deadband);
 
 		double angularPower;
@@ -924,7 +921,7 @@ public class Drive extends GZSubsystem {
 			if (Math.abs(xSpeed) < curvatureDriveQuickStopThreshold) {
 				curvatureDriveQuickStopAccumulator = (1 - curvatureDriveQuickStopAlpha)
 						* curvatureDriveQuickStopAccumulator
-						+ curvatureDriveQuickStopAlpha * GZUtil.limit(zRotation) * 2;
+						+ curvatureDriveQuickStopAlpha * GZUtil.limit1to1(zRotation) * 2;
 			}
 			overPower = true;
 			angularPower = zRotation;
@@ -975,19 +972,18 @@ public class Drive extends GZSubsystem {
 	}
 
 	public double getModifier() {
-		return 1;
+		return Elevator.getInstance().getSpeedLimiting();
 	}
 
 	public synchronized void tank(double left, double right) {
 		if (setWantedState(DriveState.OPEN_LOOP)) {
-			mIO.left_desired_output = left * getModifier() * mModifyPercent;
-			mIO.right_desired_output = right * getModifier() * mModifyPercent;
+			tank(left * getModifier() * mModifyPercent, right * getModifier() * mModifyPercent);
 		}
 	}
 
 	private synchronized void tankNoState(double left, double right) {
-		mIO.left_desired_output = left * getModifier() * mModifyPercent;
-		mIO.right_desired_output = right * getModifier() * mModifyPercent;
+		mIO.left_desired_output = left;
+		mIO.right_desired_output = right;
 	}
 
 	public synchronized void tank(GZJoystick joy) {

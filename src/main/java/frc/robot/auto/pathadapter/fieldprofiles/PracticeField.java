@@ -1,11 +1,9 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
-import frc.robot.Constants.kElevator;
-
 public class PracticeField extends FieldProfile {
     public PracticeField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
-        this.mFeederStationToWall = new FieldValues<Double>(5.5); // 5.5
+        this.mFeederStationToWall = new FieldValues<Double>(25.72); //Where did we get 5.5?????
         this.mBay1ToWall = new FieldValues<Double>(133.13);
         this.mBay2ToWall = new FieldValues<Double>(133.13);
         this.mBay3ToWall = new FieldValues<Double>(133.13);
@@ -16,7 +14,7 @@ public class PracticeField extends FieldProfile {
         this.mCargoShipFaceToMidLine = new FieldValues<Double>(10.875);
         this.mHABLevel1EdgeToRamp = new FieldValues<Double>(40.7387);
         this.mHABLevel3EdgeToDriverStation = new FieldValues<Double>(40.0);
-        this.mHABRamp = new FieldValues<Double>(10.9632);
+        this.mHABRamp = new FieldValues<Double>(10.9632);    
     }
 
     private HeightsContainer mHeights = new ReferenceField().getElevatorHeights();

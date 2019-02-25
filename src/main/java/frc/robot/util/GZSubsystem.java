@@ -84,10 +84,10 @@ public abstract class GZSubsystem extends Subsystem {
 
 	public void addLogItems()
 	{
-		addLogAir();
-		addLogDumbMotors();
-		addLogSmartMotors();
 		addLoggingValues();
+		addLogSmartMotors();
+		addLogDumbMotors();
+		addLogAir();
 	}
 
 	public void addLogAir()

@@ -1,11 +1,9 @@
 package frc.robot.poofs.util.control;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import frc.robot.Constants;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;

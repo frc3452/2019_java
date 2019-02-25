@@ -1,6 +1,7 @@
 package frc.robot.poofs.util.control;
 
-import frc.robot.Constants;
+import java.util.Optional;
+
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
@@ -9,8 +10,6 @@ import frc.robot.poofs.util.motion.MotionProfileConstraints;
 import frc.robot.poofs.util.motion.MotionProfileGenerator;
 import frc.robot.poofs.util.motion.MotionProfileGoal;
 import frc.robot.poofs.util.motion.MotionState;
-
-import java.util.Optional;
 
 /**
  * Class representing a segment of the robot's autonomous path.

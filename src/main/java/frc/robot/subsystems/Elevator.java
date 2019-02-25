@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
@@ -41,6 +42,13 @@ public class Elevator extends GZSubsystem {
     private GZFlag mZeroed = new GZFlag();
 
     private static Elevator mInstance = null;
+
+    private double mDesiredHeight = Heights.Home.inches;
+    private double mLowestHeight = mDesiredHeight;
+    private boolean mDesiredSlidesState = false;
+
+    private boolean mLimiting = false;
+    private boolean mSpeedLimitOverride = false;
 
     public static Elevator getInstance() {
         if (mInstance == null)
@@ -206,7 +214,7 @@ public class Elevator extends GZSubsystem {
 
     protected void setHeight(double heightInInches, boolean movingHp) {
         setWantedState(ElevatorState.MOTION_MAGIC);
-        mIO.desired_output = kElevator.TICKS_PER_INCH * (heightInInches - kElevator.HOME_INCHES);
+        mDesiredHeight = kElevator.TICKS_PER_INCH * (heightInInches - kElevator.HOME_INCHES);
         mMovingHP = movingHp;
     }
 
@@ -308,11 +316,11 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void extendSlides() {
-        mCarriageSlide.set(true);
+        mDesiredSlidesState = true;
     }
 
     protected void retractSlides() {
-        mCarriageSlide.set(false);
+        mDesiredSlidesState = false;
     }
 
     public boolean isClawClosed() {
@@ -374,6 +382,50 @@ public class Elevator extends GZSubsystem {
         } else {
             switchToState(mWantedState);
         }
+    }
+
+    public boolean isLimiting()
+    {
+        return mLimiting;
+    }
+
+    public synchronized double getSpeedLimiting() {
+        Double pos = getHeightInches();
+
+        // if not in demo and not overriding, limit
+        if (!isSpeedOverriden()) {
+
+            mLimiting = true;
+
+            // Encoder not present or too high
+            if (!mIO.encoders_valid || pos > kElevator.TOP_SOFT_LIMIT_INCHES) {
+                return kElevator.SPEED_LIMIT_SLOWEST_SPEED;
+
+                // Encoder value good, limit
+            } else if (pos > kElevator.SPEED_LIMIT_STARTING_INCHES) {
+                return 1 - (pos / kElevator.TOP_SOFT_LIMIT_INCHES) + kElevator.SPEED_LIMIT_SLOWEST_SPEED;
+
+                // Encoder value lower than limit
+            } else {
+                mLimiting = false;
+                return 1;
+            }
+        } else {
+            mLimiting = false;
+            return 1;
+        }
+    }
+
+    private boolean isSpeedOverriden() {
+        return mSpeedLimitOverride;
+    }
+
+    public void toggleSpeedOverride() {
+        setSpeedOverride(!isSpeedOverriden());
+    }
+
+    public void setSpeedOverride(boolean on) {
+        mSpeedLimitOverride = on;
     }
 
     private void switchToState(ElevatorState s) {
@@ -457,15 +509,23 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
+
+        if (mState == ElevatorState.MOTION_MAGIC) {
+            mLowestHeight = (areSlidesIn() ? Heights.Home.inches : kElevator.LOWEST_WITH_SLIDES_OUT);
+            mIO.desired_output = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
+        }
+
+        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT) {
+            mCarriageSlide.set(mDesiredSlidesState);
+        }
+
         if (mState != ElevatorState.NEUTRAL) {
             mIO.output = mIO.desired_output;
         } else {
             mIO.output = 0;
         }
 
-        ControlMode mode = (mZeroed.get() ? mState.controlMode : ControlMode.PercentOutput);
-        mElevator1.set(mode, mIO.output);
-        System.out.println(mode + "\t" + mIO.output);
+        mElevator1.set(mState.controlMode, mIO.output);
     }
 
     public synchronized void enableFollower() {

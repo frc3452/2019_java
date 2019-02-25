@@ -1,9 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.util.drivers.motorcontrollers.GZSRX;
 
 public abstract class FieldProfile {
 

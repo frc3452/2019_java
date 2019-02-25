@@ -1,6 +1,5 @@
 package frc.robot;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -8,10 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFile;

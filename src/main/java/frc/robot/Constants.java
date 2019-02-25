@@ -32,7 +32,6 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
 
 		// NOT CORRECT
-
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
 		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
 		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(0, 1, 4, 4);
@@ -56,6 +55,7 @@ public class Constants {
 
 		public static final double HOME_INCHES = 16;
 		public static final double TOP_SOFT_LIMIT_INCHES = 80;
+		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 
@@ -64,6 +64,10 @@ public class Constants {
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
+
+		public final static double ELEV_TURN_SCALAR = 1.00; // 1.67
+		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
+		public static final double SPEED_LIMIT_STARTING_INCHES = 20;
 
 		public static enum Heights {
 
@@ -187,8 +191,6 @@ public class Constants {
 		public final static double OPEN_LOOP_RAMP_TIME = .125; // .125
 
 		public final static double DEMO_DRIVE_MODIFIER = .4;
-
-		public final static double ELEV_TURN_SCALAR = 1.67; // 1.67
 
 		public final static double NEUTRAL_DEADBAND = 0.01;
 

@@ -3,14 +3,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -37,23 +34,20 @@ public class GZOI extends GZSubsystem {
 	private boolean mPrevSafteyDisable = false;
 	private boolean mSafetyDisable = false;
 
-	private boolean mShouldHandleDrive = false;
-
-	public void shouldHandleDrive(boolean drive) {
-		this.mShouldHandleDrive = drive;
-	}
-
 	private Drive drive = Drive.getInstance();
+	private Elevator elev = Elevator.getInstance();
 	// private Superstructure supe = Superstructure.getInstance();
 	private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
 		@Override
 		public Double getDefault() {
-			if (GZUtil.between(getMatchTime(), 29.1, 30))
-				return .75;
-			// else if (drive.usingCurvature())
-			// 	return .4;
+			if (elev.isLimiting())
+				return .45;
+			else if (GZUtil.between(getMatchTime(), 29.1, 30))
+				return .6;
+			else if (drive.usingCurvature())
+				return .4;
 
 			return 0.0;
 		}
@@ -103,9 +97,6 @@ public class GZOI extends GZSubsystem {
 		else if (auton.isAutoControl()) { // running auto command
 			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
-
-			// if (mShouldHandleDrive)
-			// 	handleDriverController();
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
@@ -135,7 +126,7 @@ public class GZOI extends GZSubsystem {
 
 	private void handleRumble() {
 		// CONTROLLER RUMBLE
-		rumble(mRumbleQueue.update());
+		rumble(mRumbleQueue.getDefault() != 0 ? mRumbleQueue.getDefault() : mRumbleQueue.update());
 	}
 
 	private void disabled() {
@@ -156,8 +147,6 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleDriverController() {
-		// System.out.println("HANDLING DRIVE!!!");
-
 		if (driverJoy.getButton(Buttons.LB)) {
 
 			if (driverJoy.getButton(Buttons.A))
@@ -174,6 +163,9 @@ public class GZOI extends GZSubsystem {
 				drive.toggleSlowSpeed();
 			}
 		}
+
+		if (driverJoy.getButtonLatched(Buttons.BACK))
+			elev.toggleSpeedOverride();
 
 		if (driverJoy.getButtonLatched(Buttons.B))
 			drive.toggleOpenLoop();
@@ -269,14 +261,6 @@ public class GZOI extends GZSubsystem {
 	 */
 	public boolean getSafteyKey() {
 		return mKey.isTripped();
-	}
-
-	public boolean hasMotors() {
-		return false;
-	}
-
-	public boolean hasAir() {
-		return false;
 	}
 
 	public void setSafteyDisableForAllSystems(boolean disable) {

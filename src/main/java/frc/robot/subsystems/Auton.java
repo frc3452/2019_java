@@ -7,7 +7,6 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
 import frc.robot.auto.commands.functions.paths.Jank_To_Feed;
 import frc.robot.auto.commands.functions.paths.L_CS_Face_L;

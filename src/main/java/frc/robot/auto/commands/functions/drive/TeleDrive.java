@@ -28,7 +28,6 @@ public class TeleDrive extends Command {
     }
 
     protected void initialize() {
-        GZOI.getInstance().shouldHandleDrive(mDrive);
     }
 
     protected void execute() {
@@ -41,7 +40,6 @@ public class TeleDrive extends Command {
     }
 
     protected void end() {
-        GZOI.getInstance().shouldHandleDrive(false);
         drive.brake(false);
         // drive.stop();
     }

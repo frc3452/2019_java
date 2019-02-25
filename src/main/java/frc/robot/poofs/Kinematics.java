@@ -1,6 +1,5 @@
 package frc.robot.poofs;
 
-import frc.robot.Constants;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;

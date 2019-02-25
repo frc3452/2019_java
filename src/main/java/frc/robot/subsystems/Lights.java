@@ -20,21 +20,11 @@ public class Lights extends GZSubsystem {
 	private static Lights mInstance = null;
 
 	private LightState mState = LightState.OFF;
-	private LightState mWantedState = LightState.OFF;
+	private LightState mPrevState = LightState.SOLID;
+	private LightState mStateOnHold = LightState.OFF;
 
 	private Colors mCurrentColor = Colors.OFF;
 	private Colors mColor = Colors.OFF;
-
-	private GZQueuer<Colors> mLightQueuer = new GZQueuer<Lights.Colors>() {
-		@Override
-		public Colors getDefault() {
-			return new Colors(0, 0, 0);
-		}
-
-		@Override
-		public void onEmpty() {
-		}
-	};
 
 	private ArrayList<Colors> mColorFade = new ArrayList<>();
 	private double mPrevTimeStamp;
@@ -50,6 +40,17 @@ public class Lights extends GZSubsystem {
 		return mInstance;
 	}
 
+	private GZQueuer<Colors> mLightQueuer = new GZQueuer<Lights.Colors>() {
+		@Override
+		public Colors getDefault() {
+			return new Colors(0, 0, 0);
+		}
+
+		@Override
+		public void onEmpty() {
+		}
+	};
+
 	private Lights() {
 		canifier = new CANifier(Constants.kLights.CANIFIER_ID);
 		GZSRX.logError(canifier.configFactoryDefault(), this, AlertLevel.WARNING, "Canifier not found");
@@ -63,7 +64,7 @@ public class Lights extends GZSubsystem {
 	public void setFade(double time, Colors... colors) {
 		this.mFadeTime = time;
 		mColorFade = (ArrayList<Colors>) Arrays.asList(colors);
-		mWantedState = LightState.FADE;
+		mState = LightState.FADE;
 	}
 
 	private void handleFade() {
@@ -91,10 +92,37 @@ public class Lights extends GZSubsystem {
 			mFadeSlot = 0;
 	}
 
-	private void handleStates() {
-		if (!mLightQueuer.isQueueEmpty()) {
-			mWantedState = LightState.BLINK;
+	private void exitState(LightState s) {
+		switch (s) {
+		case BLINK:
+			mState = mStateOnHold;
+			break;
 		}
+	}
+
+	private void enterState(LightState s) {
+		switch (s) {
+		case BLINK:
+			mStateOnHold = mPrevState;
+			break;
+		}
+	}
+
+	private void handleStateChange() {
+		if (mPrevState != mState) {
+			exitState(mPrevState);
+			enterState(mState);
+		}
+		mPrevState = mState;
+	}
+
+	private synchronized void handleStates() {
+
+		if (!mLightQueuer.isQueueEmpty()) {
+			mState = LightState.BLINK;
+		}
+
+		handleStateChange();
 
 		switch (mState) {
 		case OFF:
@@ -113,7 +141,7 @@ public class Lights extends GZSubsystem {
 	}
 
 	public void setSolidColor(Colors color) {
-		this.mWantedState = LightState.SOLID;
+		mState = LightState.SOLID;
 		this.mColor = color;
 	}
 
