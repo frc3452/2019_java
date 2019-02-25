@@ -17,7 +17,7 @@ import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
-import frc.robot.GZOI.Rumble;
+import frc.robot.GZOI.Level;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Lookahead;
@@ -701,7 +701,7 @@ public class Drive extends GZSubsystem {
 
 	public void wantShift(ClimbingState state) {
 		if (state != mClimbState && mClimbState != ClimbingState.MOVING) {
-			GZOI.getInstance().addRumble(Rumble.HIGH);
+			GZOI.getInstance().addRumble(Level.HIGH);
 			Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1, 5, true);
 			shiftDelay(state);
 			mClimbState = ClimbingState.MOVING;
@@ -1126,7 +1126,7 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void slowSpeed(boolean isSlow) {
 		mIsSlow = isSlow;
-		GZOI.getInstance().addRumble(mIsSlow ? Rumble.LOW : Rumble.MEDIUM);
+		GZOI.getInstance().addRumble(mIsSlow ? Level.LOW : Level.MEDIUM);
 	}
 
 	public Boolean isSlow() {

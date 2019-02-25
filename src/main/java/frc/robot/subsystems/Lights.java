@@ -7,6 +7,8 @@ import com.ctre.phoenix.CANifier;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.GZOI;
+import frc.robot.GZOI.Level;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZQueuer;
 import frc.robot.util.GZQueuer.TimeValue;
@@ -154,6 +156,18 @@ public class Lights extends GZSubsystem {
 		mLightQueuer.addToQueue(color, new TimeValue<Colors>(Colors.OFF, offTime), times);
 	}
 
+	public void addAlert(Level alert) {
+		switch (alert) {
+		case LOW:
+			// blink()
+			break;
+		case MEDIUM:
+			break;
+		case HIGH:
+			break;
+		}
+	}
+
 	private void off() {
 		rgb(0, 0, 0);
 	}
@@ -289,11 +303,23 @@ public class Lights extends GZSubsystem {
 		public final static Colors GREEN = Colors.get(0, 255, 0);
 		public final static Colors RED = Colors.get(255, 0, 0);
 		public final static Colors BLUE = Colors.get(0, 0, 255);
+		public final static Colors PURPLE = Colors.get(255, 0, 255);
 
 		private double r, g, b;
 
 		public Colors(double r, double g, double b) {
 			set(r, g, b);
+		}
+
+		public static Colors getAllianceColor() {
+			switch (GZOI.getInstance().getAlliance()) {
+			case Red:
+				return RED;
+			case Blue:
+				return BLUE;
+			default:
+				return PURPLE;
+			}
 		}
 
 		public static Colors get(double r, double g, double b) {

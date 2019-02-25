@@ -8,6 +8,7 @@ import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Lights;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -328,11 +329,17 @@ public class GZOI extends GZSubsystem {
 		return "NA";
 	}
 
-	public enum Rumble {
+	public enum Level {
 		LOW, MEDIUM, HIGH
 	}
 
-	public void addRumble(Rumble r) {
+	public void alert(Level level)
+	{
+		addRumble(level);
+		Lights.getInstance().addAlert(level);
+	}
+
+	public void addRumble(Level r) {
 		switch (r) {
 		case LOW:
 			addRumble(.125, .06, 1, false);

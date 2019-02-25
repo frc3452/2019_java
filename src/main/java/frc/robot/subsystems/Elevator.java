@@ -287,7 +287,7 @@ public class Elevator extends GZSubsystem {
     @Override
     public void loop() {
         // handleCoast();
-        handlePID();
+        // handlePID();
         handleStates();
         in();
         out();
@@ -382,8 +382,7 @@ public class Elevator extends GZSubsystem {
         }
     }
 
-    public boolean isLimiting()
-    {
+    public boolean isLimiting() {
         return mLimiting;
     }
 
@@ -507,14 +506,25 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
+        // If we want to move the slides, make sure we're an inch above our stop limit
+        if (mCarriageSlide.wantsStateChange()) {
+            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 1;
+            if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
+                mCarriageSlide.stateChange();
 
-        if (mState == ElevatorState.MOTION_MAGIC) {
-            mLowestHeight = (areSlidesIn() ? Heights.Home.inches : kElevator.LOWEST_WITH_SLIDES_OUT);
-            mIO.desired_output = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
+            // If we don't to change, and we slides are not fully retracted
+        } else if (!mCarriageSlide.isOff()) {
+            // Dont state change
+            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT;
+        } else {
+            // We good
+            mLowestHeight = kElevator.HOME_INCHES;
         }
-        
-        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT) {
-            mCarriageSlide.stateChange();
+        if (mState == ElevatorState.MOTION_MAGIC)
+            mIO.desired_output = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
+        else if (mState == ElevatorState.MANUAL) {
+            if (getHeightInches() < mLowestHeight)
+                mIO.desired_output = 0.0;
         }
 
         if (mState != ElevatorState.NEUTRAL) {
