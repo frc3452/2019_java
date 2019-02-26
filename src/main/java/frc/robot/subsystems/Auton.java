@@ -7,11 +7,6 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
-import frc.robot.auto.commands.functions.paths.Jank_To_Feed;
-import frc.robot.auto.commands.functions.paths.L_CS_Face_L;
-import frc.robot.auto.commands.functions.paths.L_CS_Face_R;
-import frc.robot.auto.commands.functions.paths.Square_Time;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
@@ -69,33 +64,15 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		// CommandGroup c = new CommandGroup() {
-		// {
-		// addParallel(new ResetPoseDrivePath(new Straight_Curve_Left()));
-		// addSequential(new CommandGroup() {
-		// {
-		// addSequential(new WaitForMarker("DropIntake"));
-		// addSequential(//drop intake);
-		// }
-		// });
-		// }
-		// };
-
-
 		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
 			{
-				resetDrive(new L_CS_Face_L());
-				tele();
-				drivePath(new Jank_To_Feed());
+				
+				// resetDrive(new L_CS_Face_L());
+				// tele();
+				// drivePath(new Jank_To_Feed());
 			}
 		}));
 
-		commandArray.add(new GZCommand("The 2", () -> new GZCommandGroup() {
-			{
-				resetDrive(new L_CS_Face_R());
-			}
-		}));
-		commandArray.add(new GZCommand("Square time", () -> new ResetPoseDrivePath(new Square_Time())));
 		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());

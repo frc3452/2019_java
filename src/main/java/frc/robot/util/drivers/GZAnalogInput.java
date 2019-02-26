@@ -64,7 +64,7 @@ public class GZAnalogInput extends AnalogInput implements IGZHardware {
         GZFiles.getInstance().mAllAnalogSensors.add(this);
     }
 
-    public boolean isTripped() {
+    public boolean get() {
         if (this.mTranslation.getMode() != AnalogMode.TRIP)
             return false;
 

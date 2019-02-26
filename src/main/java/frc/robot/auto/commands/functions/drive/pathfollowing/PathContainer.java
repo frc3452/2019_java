@@ -86,6 +86,13 @@ public abstract class PathContainer {
                 getEndRotation());
     }
 
+    public ArrayList<PathContainer> toList()
+    {
+        ArrayList<PathContainer> ret = new ArrayList<PathContainer>();
+        ret.add(this);
+        return ret;
+    }
+
     public PathContainer print() {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());

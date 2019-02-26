@@ -94,14 +94,12 @@ public class GZLog {
 		return retval;
 	}
 
-
-	public static void addAverageLeft(String header)
-	{
-		new LogItem(header, true){
-				@Override
-				public String val() {
-					return LogItem.Average_Left_Formula;
-				}
+	public static void addAverageLeft(String header) {
+		new LogItem(header, true) {
+			@Override
+			public String val() {
+				return LogItem.Average_Left_Formula;
+			}
 		};
 	}
 

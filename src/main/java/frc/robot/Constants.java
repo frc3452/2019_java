@@ -59,8 +59,7 @@ public class Constants {
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 
-		public static final int CARGO_SENSOR_CHANNEL = 1;
-		public static final AnalogInputConstants CARGO_SENSOR_VOLT = new AnalogInputConstants(-1, -2); // TODO TUNE
+		public static final int CARGO_SENSOR_CHANNEL = 9;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
 		private final static HeightsContainer h = PathAdapter.getHeights();

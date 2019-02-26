@@ -261,7 +261,7 @@ public class GZOI extends GZSubsystem {
 	 * A physical key on the robot to shut off
 	 */
 	public boolean getSafteyKey() {
-		return mKey.isTripped();
+		return mKey.get();
 	}
 
 	public void setSafteyDisableForAllSystems(boolean disable) {
