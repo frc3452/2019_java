@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.kIntake;
-import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.GZVictorSPX;
@@ -22,8 +20,12 @@ public class Intake extends GZSubsystem {
     private static Intake mInstance = null;
 
     private Intake() {
-        mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
-        mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
+        mIntakeLeft = null;
+        mIntakeRight = null;
+        // mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left",
+        // kPDP.INTAKE_LEFT).build();
+        // mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right",
+        // kPDP.INTAKE_RIGHT).build();
         mIntakeDrop = new GZSolenoid(kSolenoids.INTAKE_DROP, this, "Intake Drop");
         mIntakeFold = new GZSolenoid(kSolenoids.INTAKE_FOLD, this, "Intake Fold");
     }
@@ -56,13 +58,12 @@ public class Intake extends GZSubsystem {
         }
     }
 
-    protected DropState getDropState()
-    {
+    protected DropState getDropState() {
         if (mIntakeFold.isOn() && mIntakeDrop.isOn())
             return DropState.DOWN;
         else if (mIntakeFold.isOff() && mIntakeDrop.isOff())
             return DropState.UP;
-        
+
         return DropState.IN_MOTION;
     }
 
@@ -198,8 +199,11 @@ public class Intake extends GZSubsystem {
             mIO.left_output = 0;
             mIO.right_output = 0;
         }
-        mIntakeLeft.set(mIO.left_output);
-        mIntakeRight.set(mIO.right_output);
+
+        if (mIntakeLeft != null && mIntakeRight != null) {
+            mIntakeLeft.set(mIO.left_output);
+            mIntakeRight.set(mIO.right_output);
+        }
 
     }
 
@@ -216,8 +220,7 @@ public class Intake extends GZSubsystem {
         return mIntakeDrop.getChangeCounts();
     }
 
-    public int getIntakeTotalOpens() 
-    {
+    public int getIntakeTotalOpens() {
         return mIntakeFold.getChangeCounts();
     }
 

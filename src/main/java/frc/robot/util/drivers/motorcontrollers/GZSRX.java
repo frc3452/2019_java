@@ -235,7 +235,7 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		return super.getMotorOutputPercent();
 	}
 
-	private boolean encoderPresent() {
+	public boolean encoderPresent() {
 		return this.getSensorCollection().getPulseWidthRiseToRiseUs() != 0;
 	}
 

@@ -615,6 +615,9 @@ public class Drive extends GZSubsystem {
 		public Boolean rightEncoderValid = false;
 		public Boolean encodersValid = false;
 
+		public final double encoder_loop_printout = 20;
+		public double encoder_invalid_loops = 0;
+
 		// out
 		private double left_output = 0;
 		public double left_desired_output = 0;
@@ -661,17 +664,15 @@ public class Drive extends GZSubsystem {
 	private synchronized void in() {
 		this.mModifyPercent = (mIsSlow ? .5 : 1);
 
-		String out = "";
-		for (GZSRX s : mTalons) {
-			out += df.format(s.getMotorOutputVoltage()) + "\t";
-		}
-
-		// System.out.println(out);
-
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();
 
 		mIO.encodersValid = mIO.leftEncoderValid && mIO.rightEncoderValid;
+		
+		if (mIO.encoder_invalid_loops >= mIO.encoder_loop_printout) {
+			System.out.println("ERROR Drive encoder(s) not found!!!");
+			mIO.encoder_invalid_loops = 0;
+		}
 
 		mIO.ls_left_fwd = L1.getSensorCollection().isFwdLimitSwitchClosed();
 		mIO.ls_left_rev = L1.getSensorCollection().isRevLimitSwitchClosed();
@@ -763,13 +764,13 @@ public class Drive extends GZSubsystem {
 		// RIGHT IS REAR
 		switch (mClimbState) {
 		case BOTH:
-			tankNoState(joy.getLeftAnalogY(), joy.getLeftAnalogY());
+			tankNoState(-joy.getLeftAnalogY() * .25, -joy.getRightAnalogY() * .25);
 			break;
 		case FRONT:
-			tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
+			tankNoState(-joy.getLeftAnalogY(), -joy.getRightAnalogY());
 			break;
 		case REAR:
-			tankNoState(0, joy.getRightAnalogY());
+			tankNoState(0, -joy.getRightAnalogY());
 			break;
 		default:
 			System.out.println("ERROR Handle climber fall through [" + mState + "]");

@@ -110,7 +110,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
 
     public boolean wantsStateChange() {
         //If we're not in desired state
-        if ((!isOff() && !mWantedChange) || (!isOn() && mWantedChange))
+        if ( (!isOff() && !mWantedChange) || (!isOn() && mWantedChange))
             return true;
         return false;
     }

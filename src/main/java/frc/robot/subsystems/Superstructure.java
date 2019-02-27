@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
-import frc.robot.GZOI;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;

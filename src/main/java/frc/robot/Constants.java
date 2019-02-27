@@ -28,8 +28,8 @@ public class Constants {
 		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .3, .3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 4, 4);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 6, .5, .5); //7
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 7, 4, 4); //6
 
 		// NOT CORRECT
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
@@ -51,7 +51,7 @@ public class Constants {
 		public static final boolean ENC_INVERT = false;
 
 		public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
-		public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
+		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
 		public static final double TOP_SOFT_LIMIT_INCHES = 80;
@@ -156,17 +156,14 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-		public static final boolean TUNING = true;
+		public static final boolean TUNING = false;
 
 		public static class PID {
-			static final double p = 0; // .9
-			static final double d = 0; // 8
-			static final double f = 0; // .14
+			static final double p = .9; // .9
+			static final double d = 30; // 8
+			static final double f = .3; // .14
 			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
 			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
-
-			public final static GZPID OldLeft = new GZPID(0, .425, 0, 4.25, 0, 0);
-			public final static GZPID OldRight = new GZPID(0, .8, 0, 4.25, 0, 0);
 		}
 
 		public final static double WHEEL_DIAMATER_IN = PathAdapter.getWheelDiameterInches();

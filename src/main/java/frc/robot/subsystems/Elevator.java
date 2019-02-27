@@ -212,7 +212,7 @@ public class Elevator extends GZSubsystem {
 
     protected void setHeight(double heightInInches, boolean movingHp) {
         setWantedState(ElevatorState.MOTION_MAGIC);
-        mDesiredHeight = kElevator.TICKS_PER_INCH * (heightInInches - kElevator.HOME_INCHES);
+        mDesiredHeight = heightInInches;
         mMovingHP = movingHp;
     }
 
@@ -352,12 +352,12 @@ public class Elevator extends GZSubsystem {
     }
 
     private void handleNonZero() {
+        setWantedState(ElevatorState.MANUAL);
         switchToState(ElevatorState.MANUAL);
         mIO.desired_output = -.15;
         if (this.mIO.bottom_limit_switch) {
             mElevator1.zero();
             this.mZeroed.tripFlag();
-            // stop();
         }
     }
 
@@ -395,7 +395,7 @@ public class Elevator extends GZSubsystem {
             mLimiting = true;
 
             // Encoder not present or too high
-            if (!mIO.encoders_valid || pos > kElevator.TOP_SOFT_LIMIT_INCHES) {
+            if (!mIO.encoders_valid || pos > kElevator.TOP_SOFT_LIMIT_INCHES || pos.isNaN()) {
                 return kElevator.SPEED_LIMIT_SLOWEST_SPEED;
 
                 // Encoder value good, limit
@@ -413,7 +413,7 @@ public class Elevator extends GZSubsystem {
         }
     }
 
-    private boolean isSpeedOverriden() {
+    public boolean isSpeedOverriden() {
         return mSpeedLimitOverride;
     }
 
@@ -456,7 +456,16 @@ public class Elevator extends GZSubsystem {
     }
 
     private void in() {
-        mIO.encoders_valid = mElevator1.isEncoderValid();
+        mIO.encoders_valid = true;
+        // mIO.encoders_valid = mElevator1.isEncoderValid();
+
+        if (!mIO.encoders_valid)
+            mIO.encoder_invalid_loops++;
+
+        if (mIO.encoder_invalid_loops >= mIO.encoder_loop_printout) {
+            System.out.println("ERROR Elevator Encoder not found!!!");
+            mIO.encoder_invalid_loops = 0;
+        }
 
         if (mCargoSensor.get())
             mIO.mCargoSensorLoopCounter++;
@@ -497,6 +506,8 @@ public class Elevator extends GZSubsystem {
         public Boolean bottom_limit_switch = false;
 
         public Boolean encoders_valid = false;
+        public final double encoder_loop_printout = 20;
+        public double encoder_invalid_loops = 0;
 
         // out
         private double output = 0;
@@ -508,11 +519,11 @@ public class Elevator extends GZSubsystem {
     private void out() {
         // If we want to move the slides, make sure we're an inch above our stop limit
         if (mCarriageSlide.wantsStateChange()) {
-            
-            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 1;
+
+            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 3;
             if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
                 mCarriageSlide.stateChange();
-
+            
             // If we don't to change, and we slides are not fully retracted
         } else if (!mCarriageSlide.isOff()) {
             // Dont state change
@@ -521,10 +532,13 @@ public class Elevator extends GZSubsystem {
             // We good
             mLowestHeight = kElevator.HOME_INCHES;
         }
-        if (mState == ElevatorState.MOTION_MAGIC)
-            mIO.desired_output = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
-        else if (mState == ElevatorState.MANUAL) {
-            if (getHeightInches() < mLowestHeight)
+
+        if (mState == ElevatorState.MOTION_MAGIC) {
+            double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
+            // System.out.println(temp);
+            mIO.desired_output = (temp - Heights.Home.inches) * kElevator.TICKS_PER_INCH;
+        } else if (mState == ElevatorState.MANUAL) {
+            if (getHeightInches() < mLowestHeight && mZeroed.get())
                 mIO.desired_output = 0.0;
         }
 
