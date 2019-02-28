@@ -11,7 +11,8 @@ import frc.robot.util.GZCommandGroup;
 
 public class AutoModeBuilder {
 
-    private static final Supplier<GamePiece> mGamePieceSupplier = () -> GZOI.getInstance().getSafteyKey() ? GamePiece.CARGO
+    private static final Supplier<GamePiece> mGamePieceSupplier = () -> GZOI.getInstance().getSafteyKey()
+            ? GamePiece.CARGO
             : GamePiece.HATCH_PANEL;
 
     public enum StartingPosition {
@@ -121,14 +122,12 @@ public class AutoModeBuilder {
                 }
 
                 add(getScoringCommand(scoringLocation, gamePiece.get()));
-
                 {
                     GZCommandGroup driveTwo = new GZCommandGroup();
                     driveTwo.drivePathsAnd(getScoredPosToFeederStation(scoringLocation, nextStation));
                     driveTwo.add(prepForFeederStation());
                     this.add(driveTwo);
                 }
-
                 add(retrieveFromFeederStation());
             }
         };

@@ -9,6 +9,7 @@ import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZPID;
+import frc.robot.util.GZPID.GZPIDPair;
 import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
 import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
@@ -28,8 +29,8 @@ public class Constants {
 		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .3, .3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 6, .5, .5); //7
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 7, 4, 4); //6
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 6, .5, .5); // 7
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 7, 4, 4); // 6
 
 		// NOT CORRECT
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
@@ -158,13 +159,13 @@ public class Constants {
 
 		public static final boolean TUNING = false;
 
-		public static class PID {
-			static final double p = .9; // .9
-			static final double d = 30; // 8
-			static final double f = .3; // .14
-			public final static GZPID Left = new GZPID(p, 0, d, f, 0);
-			public final static GZPID Right = new GZPID(p, 0, d, f, 0);
-		}
+		static final double p = .9; // .9
+		static final double d = 30; // 8
+		static final double f = .3; // .14
+		final static GZPID mLeft = new GZPID(p, 0, d, f, 0);
+		final static GZPID mRight = new GZPID(p, 0, d, f, 0);
+
+		public static final GZPIDPair PID = new GZPIDPair(mLeft, mRight);
 
 		public final static double WHEEL_DIAMATER_IN = PathAdapter.getWheelDiameterInches();
 

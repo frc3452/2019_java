@@ -18,6 +18,7 @@ import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Lookahead;
@@ -35,6 +36,7 @@ import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
+import frc.robot.util.GZPID.GZPIDPair;
 import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -58,6 +60,8 @@ public class Drive extends GZSubsystem {
 
 	// DRIVETRAIN
 	public GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
+
+	private GZPIDPair mCurrentPID = kDrivetrain.PID;
 
 	// GYRO
 	private NavX mNavX;
@@ -131,6 +135,8 @@ public class Drive extends GZSubsystem {
 
 		talonInit();
 
+		setPID(L1, R1, kDrivetrain.PID);
+
 		// im gonna kill the electrical team if they ever make
 		// me do remote sensors again
 		// L1.setUsingRemoteEncoderOnTalon(this, R3);
@@ -185,12 +191,22 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public synchronized void setWantDrivePath(Path path, boolean reversed) {
-		if (mCurrentPath != path || mState != DriveState.PATH_FOLLOWING) {
+	public synchronized void setWantDrivePath(PathContainer pathContainer) {
+		Path mPath = pathContainer.buildPath();
+		final boolean reversed = pathContainer.isReversed();
+		GZPIDPair newPID = pathContainer.getPID();
+
+		if (!newPID.equalTo(mCurrentPID)) {
+			setPID(mCurrentPID);
+		}
+		
+		mCurrentPID = newPID;
+
+		if (mCurrentPath != mPath || mState != DriveState.PATH_FOLLOWING) {
 			setWantedState(DriveState.PATH_FOLLOWING);
 			handleStates();
 			RobotState.getInstance().resetDistanceDriven();
-			mPathFollower = new PathFollower(path, reversed,
+			mPathFollower = new PathFollower(mPath, reversed,
 					new PathFollower.Parameters(
 							new Lookahead(kPathFollowing.kMinLookAhead, kPathFollowing.kMaxLookAhead,
 									kPathFollowing.kMinLookAheadSpeed, kPathFollowing.kMaxLookAheadSpeed),
@@ -200,7 +216,7 @@ public class Drive extends GZSubsystem {
 							kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
 							kPathFollowing.kPathFollowingGoalPosTolerance,
 							kPathFollowing.kPathFollowingGoalVelTolerance, kPathFollowing.kPathStopSteeringDistance));
-			mCurrentPath = path;
+			mCurrentPath = mPath;
 		} else {
 			// stop();
 			// setVelocitySetpoint(0, 0);
@@ -320,16 +336,16 @@ public class Drive extends GZSubsystem {
 			R1.set(mState.controlMode, mIO.right_output);
 		}
 
-		if (kDrivetrain.TUNING) {
-			GZPID temp = getGainsFromFile(0);
-			if (!oldPID.equals(temp)) {
-				oldPID = temp;
-				setPID(L1, oldPID);
-				setPID(R1, oldPID); // both top line
-				System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
-				// GZOI.getInstance().addRumble(Rumble.HIGH);
-			}
-		}
+		// if (kDrivetrain.TUNING) {
+		// GZPID temp = getGainsFromFile(0);
+		// if (!oldPID.equals(temp)) {
+		// oldPID = temp;
+		// setPID(L1, oldPID);
+		// setPID(R1, oldPID); // both top line
+		// System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
+		// // GZOI.getInstance().addRumble(Rumble.HIGH);
+		// }
+		// }
 	}
 
 	GZPID oldPID = new GZPID();
@@ -487,27 +503,17 @@ public class Drive extends GZSubsystem {
 					Health.getInstance().addAlert(this, AlertLevel.ERROR, s.getSide() + " encoder not found");
 
 				s.setSensorPhase(false);
-
-				if (s.getSide() == Side.LEFT) {
-					setPID(s, kDrivetrain.PID.Left);
-				} else {
-					setPID(s, kDrivetrain.PID.Right);
-				}
 			}
 		}
 	}
 
-	public void setPID(GZSRX talon, GZPID pid) {
-		GZSRX.logError(talon.config_kF(pid.parameterSlot, pid.F, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-				"Could not set " + talon.getSide() + " 'F' gain");
-		GZSRX.logError(talon.config_kP(pid.parameterSlot, pid.P, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-				"Could not set " + talon.getSide() + " 'P' gain");
-		GZSRX.logError(talon.config_kI(pid.parameterSlot, pid.I, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-				"Could not set " + talon.getSide() + " 'I' gain");
-		GZSRX.logError(talon.config_kD(pid.parameterSlot, pid.D, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-				"Could not set " + talon.getSide() + " 'D' gain");
-		GZSRX.logError(talon.config_IntegralZone(pid.parameterSlot, pid.iZone, GZSRX.TIMEOUT), this, AlertLevel.WARNING,
-				"Could not set " + talon.getSide() + " 'iZone' gain");
+	public void setPID(GZPIDPair pair) {
+		setPID(L1, R1, pair);
+	}
+
+	public void setPID(GZSRX left, GZSRX right, GZPIDPair pid) {
+		left.setPID(pid.pair1, this);
+		right.setPID(pid.pair2, this);
 	}
 
 	private synchronized void checkFirmware() {
@@ -668,7 +674,7 @@ public class Drive extends GZSubsystem {
 		mIO.rightEncoderValid = R1.isEncoderValid();
 
 		mIO.encodersValid = mIO.leftEncoderValid && mIO.rightEncoderValid;
-		
+
 		if (mIO.encoder_invalid_loops >= mIO.encoder_loop_printout) {
 			System.out.println("ERROR Drive encoder(s) not found!!!");
 			mIO.encoder_invalid_loops = 0;
@@ -719,7 +725,7 @@ public class Drive extends GZSubsystem {
 
 	private void shift(ClimbingState state) {
 		mShifterFront.set(state == ClimbingState.BOTH || state == ClimbingState.FRONT);
-		mShifterRear.set(state == ClimbingState.BOTH || state == ClimbingState.REAR);
+		mShifterRear.set(state == ClimbingState.BOTH);
 		mClimbState = state;
 	}
 
@@ -760,6 +766,20 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	private synchronized void handleAutomaticClimb(double desired_speed) {
+
+		final double pitch = mNavX.getPitch();
+		final double pitchOffset = 0 - pitch;
+		// Positive means front racks are too high, negative means were tipping back
+
+		double left, right;
+
+		if (Math.abs(pitchOffset) < 5) {
+			left = GZUtil.autoScale(pitchOffset, 0, desired_speed, -5, 5);
+			right = -GZUtil.autoScale(pitchOffset, 0, desired_speed, -5, 5);
+		}
+	}
+
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
 		switch (mClimbState) {
@@ -769,11 +789,8 @@ public class Drive extends GZSubsystem {
 		case FRONT:
 			tankNoState(-joy.getLeftAnalogY(), -joy.getRightAnalogY());
 			break;
-		case REAR:
-			tankNoState(0, -joy.getRightAnalogY());
-			break;
 		default:
-			System.out.println("ERROR Handle climber fall through [" + mState + "]");
+			// System.out.println("ERROR Handle climber fall through [" + mState + "]");
 			break;
 		}
 	}
@@ -1143,7 +1160,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public enum ClimbingState {
-		FRONT, REAR, BOTH, NONE, MOVING
+		FRONT, BOTH, NONE, MOVING
 	}
 
 	protected void initDefaultCommand() {

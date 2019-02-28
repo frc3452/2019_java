@@ -2,11 +2,13 @@ package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import java.util.ArrayList;
 
+import frc.robot.Constants.kDrivetrain;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.util.GZPID.GZPIDPair;
 
 public abstract class PathContainer {
 
@@ -59,6 +61,11 @@ public abstract class PathContainer {
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
 
     public abstract boolean isReversed();
+
+    public GZPIDPair getPID()
+    {
+        return kDrivetrain.PID;
+    }
 
     public Path buildPath() {
         return PathBuilder.buildPathFromWaypoints(sWaypoints);

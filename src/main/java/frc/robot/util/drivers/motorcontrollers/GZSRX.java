@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.Constants.kTempSensor;
 import frc.robot.subsystems.Health;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.GZPID;
 import frc.robot.util.GZRPMSupplier;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -149,6 +150,19 @@ public class GZSRX extends WPI_TalonSRX implements GZSmartSpeedController {
 		if (!mLockedOut || (mLockedOut && overrideLockout)) {
 			super.set(mode, value);
 		}
+	}
+
+	public void setPID(GZPID pid, GZSubsystem subsystem) {
+		GZSRX.logError(this.config_kF(pid.parameterSlot, pid.F, GZSRX.TIMEOUT), subsystem, AlertLevel.WARNING,
+				"Could not set " + this.getSide() + " 'F' gain");
+		GZSRX.logError(this.config_kP(pid.parameterSlot, pid.P, GZSRX.TIMEOUT), subsystem, AlertLevel.WARNING,
+				"Could not set " + this.getSide() + " 'P' gain");
+		GZSRX.logError(this.config_kI(pid.parameterSlot, pid.I, GZSRX.TIMEOUT), subsystem, AlertLevel.WARNING,
+				"Could not set " + this.getSide() + " 'I' gain");
+		GZSRX.logError(this.config_kD(pid.parameterSlot, pid.D, GZSRX.TIMEOUT), subsystem, AlertLevel.WARNING,
+				"Could not set " + this.getSide() + " 'D' gain");
+		GZSRX.logError(this.config_IntegralZone(pid.parameterSlot, pid.iZone, GZSRX.TIMEOUT), subsystem,
+				AlertLevel.WARNING, "Could not set " + this.getSide() + " 'iZone' gain");
 	}
 
 	@Override

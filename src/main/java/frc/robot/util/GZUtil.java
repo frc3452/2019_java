@@ -57,10 +57,6 @@ public class GZUtil {
 			"CL", "CM", "CN", "CO", "CP", "CQ", "CR", "CS", "CT", "CU", "CV", "CW", "CX", "CY", "CZ", "DA", "DB", "DC",
 			"DD", "DE", "DF", "DG", "DH", "DI", "DJ", "DK", "DL", "DM", "DN", };
 
-	public static int scaleBetween(int unscaledNum, int minAllowed, int maxAllowed, int min, int max) {
-		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
-	}
-
 	public static Double getRandDouble(double min, double max) {
 		double x = min + (Math.random() * (max - min));
 		return x;
@@ -84,6 +80,12 @@ public class GZUtil {
 		return x;
 	}
 
+	public static double autoScale(double inputVal, double outputRange1, double outputRange2, double inputRange1,
+			double inputRange2) {
+		return scaleBetween(inputVal, Math.min(outputRange1, outputRange2), Math.max(outputRange1, outputRange2),
+				Math.min(inputRange1, inputRange2), Math.max(inputRange1, inputRange2));
+	}
+
 	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
 			double max) {
 		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
@@ -99,10 +101,9 @@ public class GZUtil {
 	public static void trace(StackTraceElement e[]) {
 
 		String retval = "";
-		try
-		{ 
-		// for (int i = e.length - 5; i > 1; i--) {
-		for (int i = e.length - 1; i > 1; i--) {
+		try {
+			// for (int i = e.length - 5; i > 1; i--) {
+			for (int i = e.length - 1; i > 1; i--) {
 				retval += e[i].getMethodName();
 
 				if (i != 2)
@@ -127,13 +128,12 @@ public class GZUtil {
 		return value;
 	}
 
-	public static double limit(double value, double low, double high)
-	{
+	public static double limit(double value, double low, double high) {
 		if (value > high)
 			value = high;
 		else if (value < low)
 			value = low;
-		
+
 		return value;
 	}
 

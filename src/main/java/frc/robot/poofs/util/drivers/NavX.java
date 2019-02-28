@@ -1,10 +1,10 @@
 package frc.robot.poofs.util.drivers;
 
-import edu.wpi.first.wpilibj.SPI;
-
 import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.ITimestampedDataSubscriber;
+
+import edu.wpi.first.wpilibj.SPI;
 import frc.robot.poofs.util.math.Rotation2d;
 
 /**
@@ -16,7 +16,8 @@ public class NavX {
         public void timestampedDataReceived(long system_timestamp, long sensor_timestamp, AHRSUpdateBase update,
                 Object context) {
             synchronized (NavX.this) {
-                // This handles the fact that the sensor is inverted from our coordinate conventions.
+                // This handles the fact that the sensor is inverted from our coordinate
+                // conventions.
                 if (mLastSensorTimestampMs != kInvalidTimestamp && mLastSensorTimestampMs < sensor_timestamp) {
                     mYawRateDegreesPerSecond = 1000.0 * (-mYawDegrees - update.yaw)
                             / (double) (sensor_timestamp - mLastSensorTimestampMs);
@@ -29,6 +30,7 @@ public class NavX {
 
     protected AHRS mAHRS;
 
+    protected double mPitchOffset = 0;
     protected Rotation2d mAngleAdjustment = Rotation2d.identity();
     protected double mYawDegrees;
     protected double mYawRateDegreesPerSecond;
@@ -39,6 +41,14 @@ public class NavX {
         mAHRS = new AHRS(spi_port_id, (byte) 200);
         resetState();
         mAHRS.registerCallback(new Callback(), null);
+    }
+
+    public synchronized void zeroPitch() {
+        mPitchOffset = mAHRS.getPitch();
+    }
+
+    public synchronized double getPitch() {
+        return mAHRS.getPitch() - mPitchOffset;
     }
 
     public synchronized void reset() {
@@ -65,8 +75,7 @@ public class NavX {
         return mYawDegrees;
     }
 
-    public synchronized double getFusedHeading()
-    {
+    public synchronized double getFusedHeading() {
         return mAHRS.getFusedHeading();
     }
 
