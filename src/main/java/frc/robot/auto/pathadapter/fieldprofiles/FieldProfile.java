@@ -7,7 +7,7 @@ public abstract class FieldProfile {
 
     private static final double mCenterLineY = 162;
     private static final double mFieldWith = mCenterLineY * 2.0;
-    private static final double mMidFieldLineX = 324;
+    public static final double mMidFieldLineX = 324;
 
     // Feeder
     public FieldValues<Double> mFeederStationToDriverWall;

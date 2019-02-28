@@ -33,7 +33,7 @@ public class PathAdapter {
         return input;
     }
 
-    public static Waypoint getHABBay(Waypoint input, int bay, boolean left) {
+    public static Waypoint getCargoShipBay(Waypoint input, int bay, boolean left) {
         Translation2d translation = kCurrentField.getBay(g(), bay, left)
                 .translateBy(kReferenceField.getBay(g(), bay, left).inverse());
 
@@ -41,7 +41,7 @@ public class PathAdapter {
         return input;
     }
 
-    public static Waypoint getHABFace(Waypoint input, boolean left) {
+    public static Waypoint getCargoShipFace(Waypoint input, boolean left) {
         Translation2d translation = kCurrentField.getCargoShipFrontFace(g(), left)
                 .translateBy(kReferenceField.getCargoShipFrontFace(g(), left).inverse());
 
