@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.commands.paths.Left_CS_Bay_1_Same;
+import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
@@ -25,7 +27,6 @@ public abstract class PathContainer {
             }
         };
 
-        ret.getStartRotation();
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
 
         // Flip waypoints
@@ -57,10 +58,37 @@ public abstract class PathContainer {
     public PathContainer getReversed() {
         return getReversed(this);
     }
+    
+    public PathContainer getFlipped() {
 
+        PathContainer ret = new PathContainer(){
+        
+            @Override
+            public boolean isReversed() {
+                return this.isReversed();
+            }
+        };
+
+        for (Waypoint p : this.sWaypoints)
+        {
+            Waypoint newPoint = new Waypoint(p);
+            newPoint.position.setX(FieldProfile.mMidFieldLineX + (FieldProfile.mMidFieldLineX - p.position.x()));
+            ret.sWaypoints.add(newPoint);
+        }
+
+        return ret;
+    }
+    
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
 
     public abstract boolean isReversed();
+
+
+
+    public PathContainer get()
+    {
+        return null;
+    }
 
     public GZPIDPair getPID()
     {
