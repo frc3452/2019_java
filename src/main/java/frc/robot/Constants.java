@@ -29,8 +29,8 @@ public class Constants {
 		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .3, .3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 6, .5, .5); // 7
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 7, 4, 4); // 6
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, .5, .5); // 7
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4); // 6
 
 		// NOT CORRECT
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
@@ -51,7 +51,8 @@ public class Constants {
 
 		public static final boolean ENC_INVERT = false;
 
-		public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
+		// public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
+		public static GZPID PID = new GZPID(3.2, 0, 35, .2, 0); // TODO TUNE
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
@@ -59,6 +60,7 @@ public class Constants {
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
+		public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH * (1.0/8.0);
 
 		public static final int CARGO_SENSOR_CHANNEL = 9;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE

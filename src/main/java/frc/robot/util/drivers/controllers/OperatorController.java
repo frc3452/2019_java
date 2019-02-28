@@ -30,10 +30,10 @@ public class OperatorController extends DeepSpaceController {
 
                 this.intakeDown = new GZButton(this, () -> false, () -> false);
                 this.intakeUp = new GZButton(this, () -> false, () -> false);
-                this.slidesIn = new GZButton(this, () -> false, () -> getDLeft());
-                this.slidesOut = new GZButton(this, () -> false, () -> getDRight());
-                this.clawOpen = new GZButton(this, () -> false, () -> getDUp());
-                this.clawClosed = new GZButton(this, () -> false, () -> getDDown());
+                this.slidesIn = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
+                this.slidesOut = new GZButton(this, () -> false, () -> getRightTriggerPressed());
+                this.clawOpen = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
+                this.clawClosed = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
 
                 this.stow = new GZButton(this, () -> false, () -> false);
                 this.stowLow = new GZButton(this, () -> false, () -> false);

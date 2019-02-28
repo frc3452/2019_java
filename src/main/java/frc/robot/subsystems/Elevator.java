@@ -104,6 +104,8 @@ public class Elevator extends GZSubsystem {
 
         mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
 
+        // mElevator1.configAllowableClosedloopError(0, (int) kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
+
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
         configPID(kElevator.PID);
@@ -523,7 +525,7 @@ public class Elevator extends GZSubsystem {
             mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 3;
             if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
                 mCarriageSlide.stateChange();
-            
+
             // If we don't to change, and we slides are not fully retracted
         } else if (!mCarriageSlide.isOff()) {
             // Dont state change

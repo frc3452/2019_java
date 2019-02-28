@@ -86,6 +86,16 @@ public class GZJoystick extends Joystick {
 		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
 	}
 
+	public Boolean getLeftTriggerPressed()
+	{
+		return Math.abs(getLeftTrigger()) > .5;
+	}
+
+	public Boolean getRightTriggerPressed()
+	{
+		return Math.abs(getRightTrigger()) > .5;
+	}
+
 	public Boolean getButton(Buttons b) {
 		return this.getRawButton(b.val);
 	}
