@@ -12,6 +12,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
+import frc.robot.util.BooleanStateChange;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
@@ -35,8 +36,9 @@ public class GZOI extends GZSubsystem {
 
 	private boolean mWasTele = false, mWasAuto = false, mWasTest = false;
 
-	private boolean mPrevSafteyDisable = false;
+	private int mDisabledPrintOutLoops = 0;
 	private boolean mSafetyDisable = false;
+	private BooleanStateChange mDisabledStateChange = new BooleanStateChange();
 
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
@@ -91,9 +93,16 @@ public class GZOI extends GZSubsystem {
 		else if (mUserButton.update(RobotController.getUserButton()))
 			mSafetyDisable = !mSafetyDisable;
 
-		if (mSafetyDisable != mPrevSafteyDisable)
+		if (mDisabledStateChange.update(mSafetyDisable)) {
 			Robot.allSubsystems.disable(mSafetyDisable);
-		mPrevSafteyDisable = mSafetyDisable;
+			System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" : "enabled") + "!");
+		}
+
+		if (mSafetyDisable)
+			if (++mDisabledPrintOutLoops > 300) {
+				System.out.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
+				mDisabledPrintOutLoops = 0;
+			}
 
 		// Disabled
 		if (isDisabled())
@@ -198,6 +207,10 @@ public class GZOI extends GZSubsystem {
 			supe.runHeight(Heights.Cargo_3, queue);
 		else if (controller.cargoShip.get())
 			supe.runHeight(Heights.Cargo_Ship, queue);
+		else if (controller.elevatorJogDown.updated())
+			supe.jog(-1.0);
+		else if (controller.elevatorJogUp.updated())
+			supe.jog(1.0);
 
 		if (controller.slidesIn.get())
 			supe.retractSlides();

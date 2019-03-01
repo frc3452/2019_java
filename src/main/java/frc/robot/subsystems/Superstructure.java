@@ -155,6 +155,11 @@ public class Superstructure extends GZSubsystem {
         }
         elev.setHeight(h);
     }
+    
+    public void jog(double inches)
+    {
+        elev.jogHeight(inches);
+    }
 
     private void queueAction(Actions action) {
         if (mQueuedAction != action) {

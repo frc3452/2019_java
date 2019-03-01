@@ -1,14 +1,13 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Solenoid;
-import frc.robot.GZOI;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
+import frc.robot.GZOI;
+import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
-import frc.robot.util.GZLog.LogItem;
 
 public class Pneumatics extends GZSubsystem {
 
@@ -48,7 +47,7 @@ public class Pneumatics extends GZSubsystem {
         boolean noAir = false;
         
         if (GZOI.getInstance().isAuto() || GZOI.getInstance().isTele()) {
-            noAir = true;
+            noAir = false;
         }
 
         if (noAir) {

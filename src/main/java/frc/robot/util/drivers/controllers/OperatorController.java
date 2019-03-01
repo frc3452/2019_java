@@ -16,15 +16,16 @@ public class OperatorController extends DeepSpaceController {
                 this.idle = new GZButton(this, () -> false, () -> false);
                 this.queueAction = new GZButton(this, () -> false, () -> false);
                 this.elevatorHome = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
-                this.cargo1 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.A));
-                this.cargo2 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.B));
-                this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.Y));
+                this.cargo1 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.A));
+                this.cargo2 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.B));
+                this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.Y));
                 this.hatchPannel1 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.A) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
-                this.hatchPanel2 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.B) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
-                this.hatchPanel3 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.Y) && !getButton(Buttons.RB) && !getButton(Buttons.LB));
+                                () -> getButton(Buttons.A) && !getButton(Buttons.X));
+                this.hatchPanel2 = new GZButton(this, () -> false, () -> getButton(Buttons.B) && !getButton(Buttons.X));
+                this.hatchPanel3 = new GZButton(this, () -> false, () -> getButton(Buttons.Y) && !getButton(Buttons.X));
+
+                this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
+                this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
 
                 this.cargoShip = new GZButton(this, () -> false, () -> false);
 
@@ -39,7 +40,7 @@ public class OperatorController extends DeepSpaceController {
                 this.stowLow = new GZButton(this, () -> false, () -> false);
                 this.intakeCargo = new GZButton(this, () -> false, () -> false);
                 this.floorHatchToManip = new GZButton(this, () -> false, () -> false);
-                this.hatchFromFeed = new GZButton(this, () -> false, () -> false);
+                this.hatchFromFeed = new GZButton(this, () -> false, () -> getButton(Buttons.START));
         }
 
         public void setButtonBoard(boolean isButtonBoard) {

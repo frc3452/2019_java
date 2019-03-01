@@ -268,7 +268,7 @@ public class Elevator extends GZSubsystem {
         return mIO.ticks_position / 4096;
     }
 
-    public Double getHeightInches() {
+    public double getHeightInches() {
         return (mIO.ticks_position / kElevator.TICKS_PER_INCH) + kElevator.HOME_INCHES;
     }
 

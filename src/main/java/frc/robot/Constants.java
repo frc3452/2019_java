@@ -52,11 +52,11 @@ public class Constants {
 		public static final boolean ENC_INVERT = false;
 
 		// public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
-		public static GZPID PID = new GZPID(3.2, 0, 35, .2, 0); // TODO TUNE
+		public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
-		public static final double TOP_SOFT_LIMIT_INCHES = 80;
+		public static final double TOP_SOFT_LIMIT_INCHES = 85;
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
@@ -69,7 +69,7 @@ public class Constants {
 
 		public final static double ELEV_TURN_SCALAR = 1.00; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
-		public static final double SPEED_LIMIT_STARTING_INCHES = 20;
+		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
 
 		public static enum Heights {
 
