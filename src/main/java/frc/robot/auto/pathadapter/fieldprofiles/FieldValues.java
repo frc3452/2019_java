@@ -1,5 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class FieldValues<T> {
@@ -8,6 +10,17 @@ public class FieldValues<T> {
 
     public FieldValues(T value) {
         this(value, value, value, value);
+    }
+
+    /**
+     * 
+     * @param arr - RedLeft --> RedRight --> BlueLeft --> BlueRight
+     */
+    public FieldValues(ArrayList<T> arr) {
+        this.mRedLeft = arr.get(0);
+        this.mRedRight = arr.get(1);
+        this.mBlueLeft = arr.get(2);
+        this.mBlueRight = arr.get(3);
     }
 
     public FieldValues(T left, T right) {

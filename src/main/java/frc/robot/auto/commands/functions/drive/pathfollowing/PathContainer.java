@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.auto.commands.paths.Left_CS_Bay_1_Same;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
@@ -58,40 +57,66 @@ public abstract class PathContainer {
     public PathContainer getReversed() {
         return getReversed(this);
     }
-    
-    public PathContainer getFlipped() {
 
-        PathContainer ret = new PathContainer(){
-        
+    public static PathContainer getFlipped(PathContainer pc) {
+
+        PathContainer ret = new PathContainer() {
             @Override
             public boolean isReversed() {
                 return this.isReversed();
             }
+
+            public boolean isLeftPath() {
+                return !pc.isLeftPath();
+            }
         };
 
-        for (Waypoint p : this.sWaypoints)
-        {
+        for (Waypoint p : pc.sWaypoints) {
             Waypoint newPoint = new Waypoint(p);
-            newPoint.position.setX(FieldProfile.mMidFieldLineX + (FieldProfile.mMidFieldLineX - p.position.x()));
+            newPoint.position.setX(FieldProfile.midFieldLineX + (FieldProfile.midFieldLineX - p.position.x()));
             ret.sWaypoints.add(newPoint);
         }
 
         return ret;
     }
-    
+
+    public PathContainer getFlipped() {
+        return getFlipped(this);
+    }
+
+    public PathContainer getLeft() {
+        if (this.isLeftPath())
+            return this;
+
+        return getFlipped();
+    }
+
+    public PathContainer getRight() {
+        if (!this.isLeftPath())
+            return this;
+        return getFlipped();
+    }
+
+    public PathContainer get(boolean left) {
+        if (left)
+            return getLeft();
+
+        return getRight();
+    }
+
+    public boolean isLeftPath() {
+        return true;
+    }
+
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
 
     public abstract boolean isReversed();
 
-
-
-    public PathContainer get()
-    {
+    public PathContainer get() {
         return null;
     }
 
-    public GZPIDPair getPID()
-    {
+    public GZPIDPair getPID() {
         return kDrivetrain.PID;
     }
 
@@ -121,8 +146,7 @@ public abstract class PathContainer {
                 getEndRotation());
     }
 
-    public ArrayList<PathContainer> toList()
-    {
+    public ArrayList<PathContainer> toList() {
         ArrayList<PathContainer> ret = new ArrayList<PathContainer>();
         ret.add(this);
         return ret;
@@ -137,7 +161,8 @@ public abstract class PathContainer {
         System.out.println("|X-Y| |Radius| |Speed|");
         int counter = 1;
         for (Waypoint o : sWaypoints) {
-            System.out.println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
+            System.out
+                    .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
         }
 
         // System.out.println(this.buildPath().toString());

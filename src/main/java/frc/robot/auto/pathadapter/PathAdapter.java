@@ -1,9 +1,11 @@
 package frc.robot.auto.pathadapter;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
+import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
@@ -19,34 +21,81 @@ public class PathAdapter {
 
     private static RobotProfile kRobotProfile = new PracticeBot();
 
-    public static Alliance g() {
-        return ds.getAlliance();
+    public static final FieldValues<Translation2d> feederStation;
+    public static final FieldValues<Translation2d> cargoShipBay1;
+    public static final FieldValues<Translation2d> cargoShipBay2;
+    public static final FieldValues<Translation2d> cargoShipBay3;
+    public static final FieldValues<Translation2d> cargoShipFace;
+
+    static {
+        {
+            ArrayList<Translation2d> arr = Translation2d.getArray();
+
+            for (int color = 0; color < 2; color++) {
+                for (int left = 0; left < 2; left++) {
+                    arr.add(kCurrentField.getFeederStation(a(color), l(left))
+                            .translateBy(kReferenceField.getFeederStation(a(color), l(left))));
+                }
+            }
+            feederStation = new FieldValues<>(arr);
+        }
+
+        {
+            ArrayList<Translation2d> arr = Translation2d.getArray();
+
+            for (int color = 0; color < 2; color++) {
+                for (int left = 0; left < 2; left++) {
+                    arr.add(kCurrentField.getBay(a(color), 1, l(left))
+                            .translateBy(kReferenceField.getBay(a(color), 1, l(left))));
+                }
+            }
+            cargoShipBay1 = new FieldValues<>(arr);
+        }
+
+        {
+            ArrayList<Translation2d> arr = Translation2d.getArray();
+
+            for (int color = 0; color < 2; color++) {
+                for (int left = 0; left < 2; left++) {
+                    arr.add(kCurrentField.getBay(a(color), 2, l(left))
+                            .translateBy(kReferenceField.getBay(a(color), 2, l(left))));
+                }
+            }
+            cargoShipBay2 = new FieldValues<>(arr);
+        }
+
+        {
+            ArrayList<Translation2d> arr = Translation2d.getArray();
+
+            for (int color = 0; color < 2; color++) {
+                for (int left = 0; left < 2; left++) {
+                    arr.add(kCurrentField.getBay(a(color), 3, l(left))
+                            .translateBy(kReferenceField.getBay(a(color), 3, l(left))));
+                }
+            }
+            cargoShipBay3 = new FieldValues<>(arr);
+        }
+        {
+            ArrayList<Translation2d> arr = Translation2d.getArray();
+            for (int color = 0; color < 2; color++) {
+                for (int left = 0; left < 2; left++) {
+                    arr.add(kCurrentField.getCargoShipFrontFace(a(color), l(left))
+                            .translateBy(kReferenceField.getCargoShipFrontFace(a(color), l(left))));
+                }
+            }
+            cargoShipFace = new FieldValues<>(arr);
+        }
     }
 
-    public static Waypoint getFeederStation(Waypoint input, boolean left) {
-        Translation2d translation = kCurrentField.getFeederStation(g(), left)
-                .translateBy(kReferenceField.getFeederStation(g(), left).inverse()); //inverse
+    private static Alliance a(int input) {
+        if (input == 0)
+            return Alliance.Red;
 
-        System.out.println("Translation: " + translation);
-
-        input.translateBy(translation);
-        return input;
+        return Alliance.Blue;
     }
 
-    public static Waypoint getCargoShipBay(Waypoint input, int bay, boolean left) {
-        Translation2d translation = kCurrentField.getBay(g(), bay, left)
-                .translateBy(kReferenceField.getBay(g(), bay, left).inverse());
-
-        input.translateBy(translation);
-        return input;
-    }
-
-    public static Waypoint getCargoShipFace(Waypoint input, boolean left) {
-        Translation2d translation = kCurrentField.getCargoShipFrontFace(g(), left)
-                .translateBy(kReferenceField.getCargoShipFrontFace(g(), left).inverse());
-
-        input.translateBy(translation);
-        return input;
+    private static boolean l(int input) {
+        return input == 0;
     }
 
     public static double getWheelDiameterInches() {

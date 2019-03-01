@@ -5,9 +5,9 @@ import frc.robot.poofs.util.math.Translation2d;
 
 public abstract class FieldProfile {
 
-    private static final double mCenterLineY = 162;
-    private static final double mFieldWith = mCenterLineY * 2.0;
-    public static final double mMidFieldLineX = 324;
+    public static final double centerLineY = 162;
+    public static final double mFieldWith = centerLineY * 2.0;
+    public static final double midFieldLineX = 324;
 
     // Feeder
     public FieldValues<Double> mFeederStationToDriverWall;
@@ -147,7 +147,7 @@ public abstract class FieldProfile {
                 + mHABRamp.get(a, left) + mCargoShipFaceToHABRamp.get(a, left);
 
         // If on right, y value less than centerLine
-        final double y = mCenterLineY + (left ? 1 : -1) * mCargoShipFaceToMidLine.get(a, left);
+        final double y = centerLineY + (left ? 1 : -1) * mCargoShipFaceToMidLine.get(a, left);
 
         Translation2d trans2d = new Translation2d(x, y);
         return trans2d;

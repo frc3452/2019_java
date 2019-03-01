@@ -1,8 +1,9 @@
 package frc.robot.poofs.util.math;
 
-import frc.robot.poofs.util.Interpolable;
-
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import frc.robot.poofs.util.Interpolable;
 
 /**
  * A translation in a 2d coordinate frame. Translations are simply shifts in an (x, y) plane.
@@ -12,6 +13,11 @@ public class Translation2d implements Interpolable<Translation2d> {
 
     public static final Translation2d identity() {
         return kIdentity;
+    }
+
+    public static final ArrayList<Translation2d> getArray()
+    {
+        return new ArrayList<Translation2d>();
     }
 
     protected double x_;

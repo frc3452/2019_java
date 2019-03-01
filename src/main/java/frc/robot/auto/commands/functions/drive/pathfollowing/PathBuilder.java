@@ -2,6 +2,10 @@ package frc.robot.auto.commands.functions.drive.pathfollowing;
 
 import java.util.List;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.GZOI;
+import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
+import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathSegment;
 import frc.robot.poofs.util.math.RigidTransform2d;
@@ -21,6 +25,10 @@ public class PathBuilder {
     private static final double kReallyBigNumber = 1E9;
 
     public static synchronized Path buildPathFromWaypoints(List<Waypoint> w) {
+        for (Waypoint point : w) {
+            point.applyFieldAdaption();
+        }
+
         Path p = new Path();
         if (w.size() < 2)
             throw new Error("Path must contain at least 2 waypoints");
@@ -59,8 +67,11 @@ public class PathBuilder {
         double speed;
         String marker;
 
+        private FieldValues<Translation2d> fieldAdaption = null;
+
         public Waypoint(Waypoint other) {
             this(other.position.x(), other.position.y(), other.radius, other.speed, other.marker);
+            this.fieldAdaption = other.fieldAdaption;
         }
 
         public Waypoint(double x, double y, double r, double s) {
@@ -82,12 +93,27 @@ public class PathBuilder {
             marker = m;
         }
 
+        public Waypoint setFieldAdaption(FieldValues<Translation2d> adaption) {
+            fieldAdaption = adaption;
+            return this;
+        }
+
         public void translateBy(Translation2d translation) {
             position = position.translateBy(translation);
         }
 
-        public String toString()
-        {
+        public boolean isOnLeft() {
+            return this.position.y() >= FieldProfile.centerLineY;
+        }
+
+        public void applyFieldAdaption() {
+            Alliance a = GZOI.getInstance().getAlliance();
+
+            if (a != Alliance.Invalid && fieldAdaption != null)
+                translateBy(fieldAdaption.get(a, this.isOnLeft()));
+        }
+
+        public String toString() {
             return "T:" + position.toString() + "\tR: " + radius + "\tS: " + speed;
         }
     }
