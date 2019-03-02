@@ -67,7 +67,7 @@ public class Auton {
 
 		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
 			{
-				resetDrive(new Left_CS_Bay_1_Opp().print());
+				// resetDrive(new Left_CS_Bay_1_Opp().getLeft().print());
 				// drivePath(new Left_CS_Bay_1_Opp().getRight().print());
 				// resetDrive(new L_CS_Face_L());
 				// tele();

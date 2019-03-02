@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
@@ -29,6 +30,8 @@ import frc.robot.util.drivers.controllers.OperatorController;
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
+
+	private UsbCamera mCamera;
 
 	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.LOCK_OUT_KEY_VOLT);
 
@@ -73,6 +76,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
+		// mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 	}
 
 	@Override
@@ -222,8 +226,7 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		else if (controller.hatchFromFeed.get())
-		{
+		else if (controller.hatchFromFeed.get()) {
 			// supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 			supe.runIntake(GZOI.op.getLeftAnalogY());
 		}

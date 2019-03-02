@@ -59,11 +59,10 @@ public abstract class PathContainer {
     }
 
     public static PathContainer getFlipped(PathContainer pc) {
-
         PathContainer ret = new PathContainer() {
             @Override
             public boolean isReversed() {
-                return this.isReversed();
+                return pc.isReversed();
             }
 
             public boolean isLeftPath() {
@@ -73,7 +72,7 @@ public abstract class PathContainer {
 
         for (Waypoint p : pc.sWaypoints) {
             Waypoint newPoint = new Waypoint(p);
-            newPoint.position.setX(FieldProfile.midFieldLineX + (FieldProfile.midFieldLineX - p.position.x()));
+            newPoint.position.setY(FieldProfile.centerLineY + (FieldProfile.centerLineY - p.position.y()));
             ret.sWaypoints.add(newPoint);
         }
 
@@ -92,8 +91,9 @@ public abstract class PathContainer {
     }
 
     public PathContainer getRight() {
-        if (!this.isLeftPath())
+        if (!this.isLeftPath()) {
             return this;
+        }
         return getFlipped();
     }
 
