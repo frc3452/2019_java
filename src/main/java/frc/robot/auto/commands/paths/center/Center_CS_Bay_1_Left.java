@@ -1,4 +1,4 @@
-package frc.robot.auto.commands.paths.middle;
+package frc.robot.auto.commands.paths.center;
 
 import java.util.ArrayList;
 
