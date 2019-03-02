@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.poofs.util.control.PathSegment;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
@@ -139,6 +140,10 @@ public class GZUtil {
 
 	public static Rotation2d angleOfPathSegment(PathSegment segment) {
 		return angleBetweenPoints(segment.getStart(), segment.getEnd());
+	}
+
+	public static Rotation2d angleBetweenPoints(Waypoint point1, Waypoint point2) {
+		return angleBetweenPoints(point1.getPosition(), point2.getPosition());
 	}
 
 	public static Rotation2d angleBetweenPoints(Translation2d point1, Translation2d point2) {

@@ -9,6 +9,7 @@ import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZPID.GZPIDPair;
+import frc.robot.util.GZUtil;
 
 public abstract class PathContainer {
 
@@ -124,25 +125,31 @@ public abstract class PathContainer {
     }
 
     public Rotation2d getStartRotation() {
-        return buildPath().getStartAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
+        return GZUtil.angleBetweenPoints(sWaypoints.get(0), sWaypoints.get(1))
+                .rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
+        // return
+        // buildPath().getStartAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ?
+        // 180 : 0));
     }
 
     public Rotation2d getEndRotation() {
-        return buildPath().getEndAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
+        final int last = sWaypoints.size() - 1;
+        return GZUtil.angleBetweenPoints(sWaypoints.get(last), sWaypoints.get(last - 1))
+                .rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
+        // return buildPath().getEndAngle().rotateBy(Rotation2d.fromDegrees(isReversed()
+        // ? 180 : 0));
     }
 
     public RigidTransform2d getStartPose() {
         final Waypoint firstPoint = sWaypoints.get(0);
 
-        return new RigidTransform2d(firstPoint.position,
-                getStartRotation());
+        return new RigidTransform2d(firstPoint.position, getStartRotation());
     }
 
     public RigidTransform2d getEndPose() {
         final Waypoint lastPoint = sWaypoints.get(sWaypoints.size() - 1);
 
-        return new RigidTransform2d(lastPoint.position,
-                getEndRotation());
+        return new RigidTransform2d(lastPoint.position, getEndRotation());
     }
 
     public ArrayList<PathContainer> toList() {
@@ -154,20 +161,22 @@ public abstract class PathContainer {
     public PathContainer print() {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());
-        //TODO Can we figure out end angle without building path? Is this causing the problem?
+
+        // TODO Can we figure out end angle without building path? Is this causing the
+        // problem?
         System.out.println("Starting position: " + this.getStartPose());
-        // System.out.println("Ending position: " + this.getEndPose());a
+        System.out.println("Ending position: " + this.getEndPose());
 
-        // System.out.println("|X-Y| |Radius| |Speed|");
-        // int counter = 1;
-        // for (Waypoint o : sWaypoints) {
-        //     System.out
-        //             .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
-        // }
+        System.out.println("|X-Y| |Radius| |Speed|");
+        int counter = 1;
+        for (Waypoint o : sWaypoints) {
+            System.out
+                    .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
+        }
 
-        // // System.out.println(this.buildPath().toString());
+        // System.out.println(this.buildPath().toString());
 
-        // System.out.println("\n");
+        System.out.println("\n");
         return this;
     }
 

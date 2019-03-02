@@ -43,7 +43,7 @@ public class GZOI extends GZSubsystem {
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
-	private Auton auton = Auton.getInstance();
+	// private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
 		@Override
@@ -107,9 +107,9 @@ public class GZOI extends GZSubsystem {
 		// Disabled
 		if (isDisabled())
 			disabled();
-		else if (auton.isAutoControl()) { // running auto command
-			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
-			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
+		else if (Auton.getInstance().isAutoControl()) { // running auto command
+			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
+			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			// handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
@@ -143,7 +143,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void disabled() {
-		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
 		handleRumble();
 
