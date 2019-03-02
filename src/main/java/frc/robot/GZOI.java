@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
@@ -30,6 +31,8 @@ public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
 
+	private UsbCamera mCamera;
+
 	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.LOCK_OUT_KEY_VOLT);
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
@@ -43,7 +46,7 @@ public class GZOI extends GZSubsystem {
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
-	private Auton auton = Auton.getInstance();
+	// private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
 		@Override
@@ -73,6 +76,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
+		// mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 	}
 
 	@Override
@@ -107,9 +111,9 @@ public class GZOI extends GZSubsystem {
 		// Disabled
 		if (isDisabled())
 			disabled();
-		else if (auton.isAutoControl()) { // running auto command
-			auton.controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
-			auton.controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
+		else if (Auton.getInstance().isAutoControl()) { // running auto command
+			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
+			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			// handleSuperStructureControl(driverJoy);
 			handleSuperStructureControl(op);
@@ -143,7 +147,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void disabled() {
-		auton.toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
 		handleRumble();
 
@@ -222,8 +226,10 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		else if (controller.hatchFromFeed.updated())
-			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		else if (controller.hatchFromFeed.get()) {
+			// supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+			supe.runIntake(GZOI.op.getLeftAnalogY());
+		}
 	}
 	// }
 
@@ -284,6 +290,7 @@ public class GZOI extends GZSubsystem {
 	 * A physical key on the robot to shut off
 	 */
 	public boolean getSafteyKey() {
+		// return false;
 		return mKey.get();
 	}
 
@@ -300,7 +307,7 @@ public class GZOI extends GZSubsystem {
 		return DriverStation.getInstance().isFMSAttached();
 	}
 
-	public Alliance getAlliance() {
+	public synchronized Alliance getAlliance() {
 		return DriverStation.getInstance().getAlliance();
 	}
 

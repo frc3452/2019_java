@@ -80,6 +80,11 @@ public class PathBuilder {
             speed = s;
         }
 
+        public Translation2d getPosition()
+        {
+            return position;
+        }
+
         public Waypoint(Translation2d pos, double r, double s) {
             position = pos;
             radius = r;

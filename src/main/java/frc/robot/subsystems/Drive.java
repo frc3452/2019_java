@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.text.DecimalFormat;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -199,7 +197,7 @@ public class Drive extends GZSubsystem {
 		if (!newPID.equalTo(mCurrentPID)) {
 			setPID(mCurrentPID);
 		}
-		
+
 		mCurrentPID = newPID;
 
 		if (mCurrentPath != mPath || mState != DriveState.PATH_FOLLOWING) {
@@ -349,12 +347,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	GZPID oldPID = new GZPID();
-
-	private final DecimalFormat df = new DecimalFormat("#0.000");
-
-	public void printVelocity(double tar, double tar2) {
-		System.out.println(df.format(tar) + "\t" + df.format(tar2));
-	}
 
 	private GZPID getGainsFromFile(int line) {
 		return GZUtil.getGainsFromFile(mPIDConfigFile, line);
@@ -767,17 +759,9 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void handleAutomaticClimb(double desired_speed) {
-
 		final double pitch = mNavX.getPitch();
-		final double pitchOffset = 0 - pitch;
-		// Positive means front racks are too high, negative means were tipping back
-
+		// Positive means front racks are too high, negative means front racks are too low
 		double left, right;
-
-		if (Math.abs(pitchOffset) < 5) {
-			left = GZUtil.autoScale(pitchOffset, 0, desired_speed, -5, 5);
-			right = -GZUtil.autoScale(pitchOffset, 0, desired_speed, -5, 5);
-		}
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
