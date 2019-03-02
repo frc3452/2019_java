@@ -112,8 +112,11 @@ public class Elevator extends GZSubsystem {
         configPID(kElevator.PID);
         // configPID(kElevator.PID2);
         selectProfileSlot(0);
-        configAccelInchesPerSec(7 * 12);
-        configCruiseInchesPerSec(11 * 12);
+
+        configAccelInchesPerSec(1 * 12);
+        configCruiseInchesPerSec(5 * 12);
+        // configAccelInchesPerSec(7 * 12);
+        // configCruiseInchesPerSec(11 * 12);
 
         brake();
     }

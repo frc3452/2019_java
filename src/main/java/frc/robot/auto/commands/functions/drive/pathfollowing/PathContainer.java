@@ -8,7 +8,6 @@ import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.GZPID.GZPIDPair;
 
 public abstract class PathContainer {
@@ -135,14 +134,14 @@ public abstract class PathContainer {
     public RigidTransform2d getStartPose() {
         final Waypoint firstPoint = sWaypoints.get(0);
 
-        return new RigidTransform2d(new Translation2d(firstPoint.position.x(), firstPoint.position.y()),
+        return new RigidTransform2d(firstPoint.position,
                 getStartRotation());
     }
 
     public RigidTransform2d getEndPose() {
         final Waypoint lastPoint = sWaypoints.get(sWaypoints.size() - 1);
 
-        return new RigidTransform2d(new Translation2d(lastPoint.position.x(), lastPoint.position.y()),
+        return new RigidTransform2d(lastPoint.position,
                 getEndRotation());
     }
 
@@ -155,19 +154,20 @@ public abstract class PathContainer {
     public PathContainer print() {
         System.out.println("PRINTING PATH  " + this.getClass().getSimpleName());
         System.out.println("Reversed: " + this.isReversed());
+        //TODO Can we figure out end angle without building path? Is this causing the problem?
         System.out.println("Starting position: " + this.getStartPose());
-        System.out.println("Ending position: " + this.getEndPose());
+        // System.out.println("Ending position: " + this.getEndPose());a
 
-        System.out.println("|X-Y| |Radius| |Speed|");
-        int counter = 1;
-        for (Waypoint o : sWaypoints) {
-            System.out
-                    .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
-        }
+        // System.out.println("|X-Y| |Radius| |Speed|");
+        // int counter = 1;
+        // for (Waypoint o : sWaypoints) {
+        //     System.out
+        //             .println("Waypoint " + counter++ + " :" + o.position.toString() + "\t" + o.radius + "\t" + o.speed);
+        // }
 
-        // System.out.println(this.buildPath().toString());
+        // // System.out.println(this.buildPath().toString());
 
-        System.out.println("\n");
+        // System.out.println("\n");
         return this;
     }
 

@@ -222,8 +222,11 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		else if (controller.hatchFromFeed.updated())
-			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		else if (controller.hatchFromFeed.get())
+		{
+			// supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+			supe.runIntake(GZOI.op.getLeftAnalogY());
+		}
 	}
 	// }
 
@@ -284,6 +287,7 @@ public class GZOI extends GZSubsystem {
 	 * A physical key on the robot to shut off
 	 */
 	public boolean getSafteyKey() {
+		// return false;
 		return mKey.get();
 	}
 
@@ -300,7 +304,7 @@ public class GZOI extends GZSubsystem {
 		return DriverStation.getInstance().isFMSAttached();
 	}
 
-	public Alliance getAlliance() {
+	public synchronized Alliance getAlliance() {
 		return DriverStation.getInstance().getAlliance();
 	}
 

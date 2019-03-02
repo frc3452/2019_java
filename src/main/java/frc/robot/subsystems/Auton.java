@@ -7,6 +7,7 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
@@ -66,7 +67,8 @@ public class Auton {
 
 		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
 			{
-				
+				resetDrive(new Left_CS_Bay_1_Opp().print());
+				// drivePath(new Left_CS_Bay_1_Opp().getRight().print());
 				// resetDrive(new L_CS_Face_L());
 				// tele();
 				// drivePath(new Jank_To_Feed());

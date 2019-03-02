@@ -30,7 +30,8 @@ public class NavX {
 
     protected AHRS mAHRS;
 
-    protected double mPitchOffset = 0;
+    public double mPitchOffset = 0;
+    public double mRollOffSet = 0;
     protected Rotation2d mAngleAdjustment = Rotation2d.identity();
     protected double mYawDegrees;
     protected double mYawRateDegreesPerSecond;
@@ -49,6 +50,14 @@ public class NavX {
 
     public synchronized double getPitch() {
         return mAHRS.getPitch() - mPitchOffset;
+    }
+
+    public synchronized double getRoll() {
+        return mAHRS.getRoll() - mRollOffSet;
+    }
+
+    public synchronized void zeroRoll() {
+        mRollOffSet = mAHRS.getRoll();
     }
 
     public synchronized void reset() {
