@@ -60,7 +60,8 @@ public class Constants {
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
-		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH * (1.0/8.0);
+		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
+		// (1.0/8.0);
 
 		public static final int CARGO_SENSOR_CHANNEL = 9;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
@@ -223,8 +224,10 @@ public class Constants {
 	}
 
 	public static class kIntake {
-		public static final int INTAKE_LEFT = 1;
-		public static final int INTAKE_RIGHT = 2;
+		public static final int INTAKE_LEFT = 11;
+		public static final int INTAKE_RIGHT = 12;
+		public static final boolean INTAKE_L_INVERT = false;
+		public static final boolean INTAKE_R_INVERT = true;
 		public static final double INTAKE_SPEED = 0;
 	}
 

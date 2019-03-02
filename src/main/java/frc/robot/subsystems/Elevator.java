@@ -104,7 +104,8 @@ public class Elevator extends GZSubsystem {
 
         mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
 
-        // mElevator1.configAllowableClosedloopError(0, (int) kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
+        // mElevator1.configAllowableClosedloopError(0, (int)
+        // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
@@ -493,6 +494,14 @@ public class Elevator extends GZSubsystem {
 
     public int getSlidesTotalCounts() {
         return mCarriageSlide.getChangeCounts();
+    }
+
+    public void toggleClaw() {
+        mClaw.toggle();
+    }
+
+    public void toggleSlides() {
+        mCarriageSlide.toggleWanted();
     }
 
     public int getClawTotalCounts() {

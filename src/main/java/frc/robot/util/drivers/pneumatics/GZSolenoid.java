@@ -49,6 +49,8 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
 
     private boolean mWantedChange = false;
 
+    private boolean mLastSet = false;
+
     public SolenoidConstants getConstants() {
         return this.mConstants;
     }
@@ -87,6 +89,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
             return;
 
         super.set(on);
+        mLastSet = on;
         mChangeCounts++;
 
         if (on) {
@@ -94,6 +97,20 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         } else {
             mOffTimer.startTimer();
         }
+    }
+
+    public boolean getLastSet() {
+        return mLastSet;
+    }
+
+    public void toggle()
+    {
+        set(!mLastSet);
+    }
+
+    public void toggleWanted()
+    {
+        mWantedChange = !mWantedChange;
     }
 
     public void wantOn() {
@@ -109,8 +126,8 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     }
 
     public boolean wantsStateChange() {
-        //If we're not in desired state
-        if ( (!isOff() && !mWantedChange) || (!isOn() && mWantedChange))
+        // If we're not in desired state
+        if ((!isOff() && !mWantedChange) || (!isOn() && mWantedChange))
             return true;
         return false;
     }

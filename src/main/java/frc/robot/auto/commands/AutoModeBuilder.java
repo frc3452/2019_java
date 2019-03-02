@@ -42,22 +42,22 @@ public class AutoModeBuilder {
     }
 
     public enum ScoringPosition {
-        CARGO_SHIP_FACE(true), CARGO_SHIP_BAY_1(true), CARGO_SHIP_BAY_2(true), CARGO_SHIP_BAY_3(true), ROCKET_NEAR,
-        ROCKET_MID, ROCKET_FAR;
-
-        public final boolean isCShip;
+        CARGO_SHIP_FACE(), CARGO_SHIP_BAY_1(), CARGO_SHIP_BAY_2(), CARGO_SHIP_BAY_3(), ROCKET_NEAR, ROCKET_MID,
+        ROCKET_FAR;
 
         private ScoringPosition() {
-            this.isCShip = false;
-        }
-
-        private ScoringPosition(boolean cargoShip) {
-            this.isCShip = cargoShip;
         }
     }
 
     public enum ScoringSide {
-        LEFT, RIGHT
+        LEFT(true), RIGHT(false);
+        private final boolean onLeft;
+        private final boolean onRight;
+
+        private ScoringSide(boolean onLeft) {
+            this.onLeft = onLeft;
+            this.onRight = !this.onLeft;
+        }
     }
 
     public static boolean scoringSameSide(StartingPosition startPos, ScoringLocation location) {
@@ -79,7 +79,7 @@ public class AutoModeBuilder {
     }
 
     public enum FeederStation {
-        LEFT, RIGHT
+        LEFT, RIGHT;
     }
 
     public static ArrayList<PathContainer> getFirstPath(StartingPosition startPos, ScoringLocation score) {
@@ -87,7 +87,7 @@ public class AutoModeBuilder {
         case CARGO_SHIP_BAY_1:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_1_Left().get(score.side == ScoringSide.LEFT).toList();
+                return new Center_CS_Bay_1_Left().get(score.side.onLeft).toList();
             }
 
             // On left or right

@@ -97,6 +97,8 @@ public class Superstructure extends GZSubsystem {
                 }
                 break;
             case GRAB_HP_FROM_FEED:
+                HPFromFeed.print();
+
                 if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
                     HPFromFeed.trip(1);
                 }
@@ -159,6 +161,11 @@ public class Superstructure extends GZSubsystem {
     public void jog(double inches)
     {
         elev.jogHeight(inches);
+    }
+
+    public void runIntake(double speed)
+    {
+        intake.runIntake(speed);
     }
 
     private void queueAction(Actions action) {
@@ -235,6 +242,16 @@ public class Superstructure extends GZSubsystem {
 
     public void openClaw() {
         elev.openClaw();
+    }
+
+    public void toggleClaw()
+    {
+        elev.toggleClaw();
+    }
+
+    public void toggleSlides()
+    {
+        elev.toggleSlides();
     }
 
     public void closeClaw() {

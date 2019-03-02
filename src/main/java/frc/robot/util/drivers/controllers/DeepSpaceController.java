@@ -34,13 +34,10 @@ public class DeepSpaceController extends GZJoystick {
 
     public GZButton intakeDown;
     public GZButton intakeUp;
-    public GZButton slidesOut;
-    public GZButton slidesIn;
-    public GZButton clawOpen;
-    public GZButton clawClosed;
+    public GZButton clawToggle;
+    public GZButton slidesToggle;
 
     public GZButton stow;
-    public GZButton stowLow;
     public GZButton intakeCargo;
     public GZButton floorHatchToManip;
     public GZButton hatchFromFeed;

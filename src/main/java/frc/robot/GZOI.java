@@ -212,20 +212,12 @@ public class GZOI extends GZSubsystem {
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
 
-		if (controller.slidesIn.get())
-			supe.retractSlides();
-		else if (controller.slidesOut.get())
-			supe.extendSlides();
-
-		if (controller.clawOpen.get())
-			supe.openClaw();
-		else if (controller.clawClosed.get())
-			supe.closeClaw();
-
-		if (controller.stow.updated())
+		if (controller.slidesToggle.updated())
+			supe.toggleSlides();
+		else if (controller.clawToggle.updated())
+			supe.toggleClaw();
+		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
-		else if (controller.stowLow.updated())
-			supe.runAction(Actions.STOW_LOW, queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.floorHatchToManip.updated())

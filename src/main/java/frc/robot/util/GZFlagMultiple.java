@@ -48,6 +48,15 @@ public class GZFlagMultiple {
         return get(mFlags.size());
     }
 
+    public void print() {
+        String out = "";
+
+        for (int i = 0; i < mFlags.size() - 1; i++)
+            out += i + ": " + get(i) + "\t";
+
+        System.out.println(out);
+    }
+
     public boolean get(int flag) {
         if (isFlagInvalid(flag))
             return false;

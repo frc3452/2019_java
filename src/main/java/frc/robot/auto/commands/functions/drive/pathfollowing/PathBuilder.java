@@ -108,8 +108,7 @@ public class PathBuilder {
 
         public void applyFieldAdaption() {
             Alliance a = GZOI.getInstance().getAlliance();
-
-            if (a != Alliance.Invalid && fieldAdaption != null)
+            if (fieldAdaption != null && a != Alliance.Invalid)
                 translateBy(fieldAdaption.get(a, this.isOnLeft()));
         }
 
