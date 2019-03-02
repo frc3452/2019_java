@@ -205,8 +205,8 @@ public class Constants {
 		public static final int ELEVATOR_1 = 0;
 		public static final int ELEVATOR_2 = 15;
 
-		public static final int INTAKE_LEFT = 0;
-		public static final int INTAKE_RIGHT = 0;
+		public static final int INTAKE_LEFT = 6;
+		public static final int INTAKE_RIGHT = 9;
 	}
 
 	public static class kTempSensor {
