@@ -31,14 +31,15 @@ public class Constants {
 		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5); // 7
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4); // 6
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
+
+		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 2, 2);
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2, 6);
 
 		// NOT CORRECT
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
 		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(0, 1, 4, 4);
-		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(0, 0, 4, 4);
 	}
 
 	public static class kElevator {
@@ -64,7 +65,11 @@ public class Constants {
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
 		// (1.0/8.0);
 
-		public static final int CARGO_SENSOR_CHANNEL = 9;
+		public static final double INTAKE_LOW_HEIGHT = 25;
+		public static final double INTAKE_HIGH_HEIGHT = 45;
+
+
+		public static final int CARGO_SENSOR_CHANNEL = 2;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
@@ -72,10 +77,11 @@ public class Constants {
 		public final static double ELEV_TURN_SCALAR = 1.00; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
+		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
 
 		public static enum Heights {
 
-			Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
+			Home(HOME_INCHES), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
 			Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
 			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(h.hp_feed_jog());
 
@@ -228,7 +234,7 @@ public class Constants {
 		public static final int INTAKE_RIGHT = 12;
 		public static final boolean INTAKE_L_INVERT = false;
 		public static final boolean INTAKE_R_INVERT = true;
-		public static final double INTAKE_SPEED = 0;
+		public static final double INTAKE_SPEED = -.6;
 	}
 
 	public static class kPneumatics {

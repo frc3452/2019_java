@@ -227,11 +227,13 @@ public class GZOI extends GZSubsystem {
 		else if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.get()) {
-			// supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-			supe.runIntake(GZOI.op.getLeftAnalogY());
-		}
+			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+			// supe.runIntake(GZOI.op.getLeftAnalogY());
+		} else if (controller.intakeDown.updated())
+			supe.lowerIntake();
+		else if (controller.intakeUp.updated())
+			supe.raiseIntake();
 	}
-	// }
 
 	public String getSmallString() {
 		// no motors, so not really used but

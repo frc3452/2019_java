@@ -17,6 +17,7 @@ public class Superstructure extends GZSubsystem {
     private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(5);
+    private GZFlagMultiple IntakeCargo = new GZFlagMultiple(5);
 
     private static Superstructure mInstance = null;
 
@@ -97,7 +98,7 @@ public class Superstructure extends GZSubsystem {
                 }
                 break;
             case GRAB_HP_FROM_FEED:
-                HPFromFeed.print();
+                // HPFromFeed.print();
 
                 if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
                     HPFromFeed.trip(1);
@@ -192,8 +193,8 @@ public class Superstructure extends GZSubsystem {
             return;
         }
 
-        if (mAction == action)
-            return;
+        // if (mAction == action)
+        //     return;
 
         mAction = action;
 
@@ -202,6 +203,7 @@ public class Superstructure extends GZSubsystem {
 
         switch (action) {
         case OFF:
+            break;
         case IDLE:
             elev.stopMovement();
             intake.stop();
@@ -238,6 +240,16 @@ public class Superstructure extends GZSubsystem {
         intake.raise();
         elev.retractSlides();
         intake.stop();
+    }
+
+    public void raiseIntake()
+    {
+        intake.raise();
+    }
+
+    public void lowerIntake()
+    {
+        intake.lower();
     }
 
     public void openClaw() {

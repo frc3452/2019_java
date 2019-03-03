@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -418,9 +420,11 @@ public class Drive extends GZSubsystem {
 		boolean neutral = false;
 		neutral |= this.isSafetyDisabled();
 		neutral |= mWantedState == DriveState.NEUTRAL;
+
+		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
+
 		neutral |= eitherShifterTransitioning();
 		neutral |= mClimbState == ClimbingState.MOVING;
-		neutral |= ((mState.usesClosedLoop || mWantedState.usesClosedLoop) && !mIO.encodersValid);
 
 		if (neutral) {
 			switchToState(DriveState.NEUTRAL);

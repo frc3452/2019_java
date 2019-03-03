@@ -18,7 +18,7 @@ import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZDigitalInput;
+import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
@@ -31,7 +31,7 @@ public class Elevator extends GZSubsystem {
     public IO mIO = new IO();
 
     private GZSRX mElevator1, mElevator2;
-    private GZDigitalInput mCargoSensor;
+    private GZAnalogInput mCargoSensor;
 
     private GZSolenoid mCarriageSlide, mClaw;
 
@@ -43,7 +43,8 @@ public class Elevator extends GZSubsystem {
     private static Elevator mInstance = null;
 
     private double mDesiredHeight = Heights.Home.inches;
-    private double mLowestHeight = mDesiredHeight;
+    private double mLowestHeight = Heights.Home.inches;
+    private double mHighestHeight = kElevator.TOP_SOFT_LIMIT_INCHES;
 
     private boolean mLimiting = false;
     private boolean mSpeedLimitOverride = false;
@@ -65,7 +66,8 @@ public class Elevator extends GZSubsystem {
         mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
         mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
 
-        mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
+        mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
+                kElevator.CARGO_SENSOR_CONSTANTS);
         // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
 
         talonInit();
@@ -113,10 +115,10 @@ public class Elevator extends GZSubsystem {
         // configPID(kElevator.PID2);
         selectProfileSlot(0);
 
-        configAccelInchesPerSec(1 * 12);
-        configCruiseInchesPerSec(5 * 12);
-        // configAccelInchesPerSec(7 * 12);
-        // configCruiseInchesPerSec(11 * 12);
+        // configAccelInchesPerSec(1 * 12);
+        // configCruiseInchesPerSec(5 * 12);
+        configAccelInchesPerSec(7 * 12);
+        configCruiseInchesPerSec(11 * 12);
 
         brake();
     }
@@ -301,7 +303,8 @@ public class Elevator extends GZSubsystem {
 
     // MANIPULATOR
     public boolean nearTarget() {
-        return nearTarget(kElevator.TARGET_TOLERANCE);
+        return true;
+        // return nearTarget(kElevator.TARGET_TOLERANCE);
     }
 
     public boolean nearTarget(double with_Inches_Tolerance) {
@@ -530,26 +533,45 @@ public class Elevator extends GZSubsystem {
         private int mCargoSensorLoopCounter = 0;
     }
 
+    private double getSlidesAllowedHeight() {
+        if (mCarriageSlide.isOff())
+            return kElevator.HOME_INCHES;
+
+        return kElevator.LOWEST_WITH_SLIDES_OUT;
+    }
+
+    public boolean safeForIntakeMovement() {
+        final double height = getHeightInches();
+        return height < kElevator.INTAKE_LOW_HEIGHT || height > kElevator.INTAKE_HIGH_HEIGHT;
+    }
+
     private void out() {
-        // If we want to move the slides, make sure we're an inch above our stop limit
-        if (mCarriageSlide.wantsStateChange()) {
 
-            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 3;
-            if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
-                mCarriageSlide.stateChange();
+        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
+            mCarriageSlide.stateChange();
 
-            // If we don't to change, and we slides are not fully retracted
-        } else if (!mCarriageSlide.isOff()) {
-            // Dont state change
-            mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT;
+        if (Intake.getInstance().armWantsToMove()) {
+            final double height = getHeightInches();
+            if (GZUtil.between(height, kElevator.INTAKE_LOW_HEIGHT, kElevator.INTAKE_HIGH_HEIGHT)) {
+                mLowestHeight = getSlidesAllowedHeight();
+                mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - 2;
+            } else if (height <= kElevator.INTAKE_LOW_HEIGHT) {
+                mLowestHeight = getSlidesAllowedHeight();
+                mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - 2;
+            } else if (height >= kElevator.INTAKE_HIGH_HEIGHT) {
+                mLowestHeight = kElevator.INTAKE_HIGH_HEIGHT + 2;
+                mHighestHeight = kElevator.TOP_SOFT_LIMIT_INCHES;
+            }
         } else {
-            // We good
-            mLowestHeight = kElevator.HOME_INCHES;
+            if (mCarriageSlide.wantsStateChange())
+                mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + 2;
+            else
+                mLowestHeight = getSlidesAllowedHeight();
+            mHighestHeight = kElevator.TOP_SOFT_LIMIT_INCHES;
         }
 
         if (mState == ElevatorState.MOTION_MAGIC) {
-            double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, kElevator.TOP_SOFT_LIMIT_INCHES);
-            // System.out.println(temp);
+            double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, mHighestHeight);
             mIO.desired_output = (temp - Heights.Home.inches) * kElevator.TICKS_PER_INCH;
         } else if (mState == ElevatorState.MANUAL) {
             if (getHeightInches() < mLowestHeight && mZeroed.get())
