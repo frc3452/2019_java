@@ -15,7 +15,7 @@ public class OperatorController extends DeepSpaceController {
 
                 this.idle = new GZButton(this, () -> false, () -> false);
                 this.queueAction = new GZButton(this, () -> false, () -> false);
-                this.elevatorHome = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
+                this.elevatorHome = new GZButton(this, () -> false, () -> false);
                 this.cargo1 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.A));
                 this.cargo2 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.B));
                 this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.Y));
@@ -29,15 +29,16 @@ public class OperatorController extends DeepSpaceController {
 
                 this.cargoShip = new GZButton(this, () -> false, () -> false);
 
+                this.cancel = new GZButton(this, () -> false, () -> false);
                 this.slidesToggle = new GZButton(this, () -> false, () -> getRightTriggerPressed());
                 this.clawToggle = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
-                this.intakeDown = new GZButton(this, () -> false, () -> false);
-                this.intakeUp = new GZButton(this, () -> false, () -> false);
+                this.intakeDown = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
+                this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
 
                 this.stow = new GZButton(this, () -> false, () -> false);
-                this.intakeCargo = new GZButton(this, () -> false, () -> false);
+                this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.START));
                 this.floorHatchToManip = new GZButton(this, () -> false, () -> false);
-                this.hatchFromFeed = new GZButton(this, () -> false, () -> getButton(Buttons.START));
+                this.hatchFromFeed = new GZButton(this, () -> false, () -> false);
         }
 
         public void setButtonBoard(boolean isButtonBoard) {

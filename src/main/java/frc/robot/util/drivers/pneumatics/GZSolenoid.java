@@ -84,6 +84,16 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         runSolenoid(on, false);
     }
 
+    public void off()
+    {
+        set(false);
+    }
+
+    public void on()
+    {
+        set(true);
+    }
+
     private void runSolenoid(boolean on, boolean override) {
         if (on == super.get() || (!override && (mForcedOff || this.mSub.isSafetyDisabled())))
             return;
