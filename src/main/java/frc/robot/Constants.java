@@ -58,15 +58,16 @@ public class Constants {
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
-		public static final double TOP_SOFT_LIMIT_INCHES = 85;
+		public static final double TOP_LIMIT = 85;
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
 		// (1.0/8.0);
 
-		public static final double INTAKE_LOW_HEIGHT = 25;
+		public static final double INTAKE_LOW_HEIGHT = 20;
 		public static final double INTAKE_HIGH_HEIGHT = 45;
+		public static final double INTAKE_TOLERANCE = 2;
 
 
 		public static final int CARGO_SENSOR_CHANNEL = 2;
@@ -78,6 +79,7 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
 		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
+		public static final double SLIDES_TOLERANCE = 2;
 
 		public static enum Heights {
 

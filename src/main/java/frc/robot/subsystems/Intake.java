@@ -41,7 +41,6 @@ public class Intake extends GZSubsystem {
     }
 
     protected void stow() {
-        stop();
         raise();
     }
 
@@ -49,14 +48,18 @@ public class Intake extends GZSubsystem {
         if (Elevator.getInstance().safeForIntakeMovement())
             switch (mDesiredDropState) {
             case DOWN:
-                mIntakeDrop.set(true);
+                mIntakeDrop.on();
                 if (mIntakeDrop.isOn())
-                    mIntakeFold.stateChange();
+                    mIntakeFold.set(true);
                 break;
             case UP:
-                mIntakeFold.set(false);
+                mIntakeFold.off();
                 if (mIntakeFold.isOff())
-                    mIntakeDrop.stateChange();
+                    mIntakeDrop.set(false);
+                break;
+            case PREP_FOR_UP:
+                mIntakeDrop.on();
+                mIntakeFold.off();
                 break;
             default:
                 System.out.println("ERROR Unhandled Intake Drop State: " + mDesiredDropState);
@@ -75,14 +78,15 @@ public class Intake extends GZSubsystem {
 
     protected void lower() {
         mDesiredDropState = DesiredDropState.DOWN;
-        mIntakeDrop.wantOn();
-        mIntakeFold.wantOn();
     }
 
     protected void raise() {
         mDesiredDropState = DesiredDropState.UP;
-        mIntakeDrop.wantOff();
-        mIntakeFold.wantOff();
+    }
+
+    protected void prepToRaise()
+    {
+        mDesiredDropState = DesiredDropState.PREP_FOR_UP;
     }
 
     public enum DropState {
@@ -90,7 +94,7 @@ public class Intake extends GZSubsystem {
     }
 
     public enum DesiredDropState {
-        UP, DOWN
+        UP, DOWN, PREP_FOR_UP,
     }
 
     public enum IntakeState {
@@ -108,8 +112,13 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
+    public boolean armWantsDown() {
+        return mDesiredDropState == DesiredDropState.DOWN;
+    }
+
     public boolean armWantsToMove() {
-        return mIntakeDrop.wantsStateChange();
+        return (mDesiredDropState == DesiredDropState.UP && !mIntakeDrop.isOff())
+                || (mDesiredDropState == DesiredDropState.DOWN && !mIntakeDrop.isOn());
     }
 
     public boolean isRaised() {
@@ -118,6 +127,14 @@ public class Intake extends GZSubsystem {
 
     public boolean isLowered() {
         return getDropState() == DropState.DOWN;
+    }
+
+    public boolean isUp() {
+        return mIntakeDrop.isOff();
+    }
+
+    public boolean isOff() {
+        return mIntakeDrop.isOn();
     }
 
     protected void runIntake(double left, double right) {
