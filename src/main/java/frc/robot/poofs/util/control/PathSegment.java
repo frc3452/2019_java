@@ -2,7 +2,6 @@ package frc.robot.poofs.util.control;
 
 import java.util.Optional;
 
-import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.motion.MotionProfile;
@@ -10,6 +9,7 @@ import frc.robot.poofs.util.motion.MotionProfileConstraints;
 import frc.robot.poofs.util.motion.MotionProfileGenerator;
 import frc.robot.poofs.util.motion.MotionProfileGoal;
 import frc.robot.poofs.util.motion.MotionState;
+import frc.robot.subsystems.Drive;
 
 /**
  * Class representing a segment of the robot's autonomous path.
@@ -30,16 +30,11 @@ public class PathSegment {
     /**
      * Constructor for a linear segment
      * 
-     * @param x1
-     *            start x
-     * @param y1
-     *            start y
-     * @param x2
-     *            end x
-     * @param y2
-     *            end y
-     * @param maxSpeed
-     *            maximum speed allowed on the segment
+     * @param x1       start x
+     * @param y1       start y
+     * @param x2       end x
+     * @param y2       end y
+     * @param maxSpeed maximum speed allowed on the segment
      */
     public PathSegment(double x1, double y1, double x2, double y2, double maxSpeed, MotionState startState,
             double endSpeed) {
@@ -71,20 +66,13 @@ public class PathSegment {
     /**
      * Constructor for an arc segment
      * 
-     * @param x1
-     *            start x
-     * @param y1
-     *            start y
-     * @param x2
-     *            end x
-     * @param y2
-     *            end y
-     * @param cx
-     *            center x
-     * @param cy
-     *            center y
-     * @param maxSpeed
-     *            maximum speed allowed on the segment
+     * @param x1       start x
+     * @param y1       start y
+     * @param x2       end x
+     * @param y2       end y
+     * @param cx       center x
+     * @param cy       center y
+     * @param maxSpeed maximum speed allowed on the segment
      */
     public PathSegment(double x1, double y1, double x2, double y2, double cx, double cy, double maxSpeed,
             MotionState startState, double endSpeed) {
@@ -126,7 +114,7 @@ public class PathSegment {
 
     public void createMotionProfiler(MotionState start_state, double end_speed) {
         MotionProfileConstraints motionConstraints = new MotionProfileConstraints(maxSpeed,
-        kPathFollowing.kPathFollowingMaxAccel);
+                Drive.getInstance().getParameters().max_accel);
         MotionProfileGoal goal_state = new MotionProfileGoal(getLength(), end_speed);
         speedController = MotionProfileGenerator.generateProfile(motionConstraints, goal_state, start_state);
         // System.out.println(speedController);
@@ -158,7 +146,8 @@ public class PathSegment {
     }
 
     /**
-     * Set whether or not to extrapolate the lookahead point. Should only be true for the last segment in the path
+     * Set whether or not to extrapolate the lookahead point. Should only be true
+     * for the last segment in the path
      * 
      * @param val
      */
@@ -169,8 +158,7 @@ public class PathSegment {
     /**
      * Gets the point on the segment closest to the robot
      * 
-     * @param position
-     *            the current position of the robot
+     * @param position the current position of the robot
      * @return the point on the segment closest to the robot
      */
     public Translation2d getClosestPoint(Translation2d position) {
@@ -195,11 +183,12 @@ public class PathSegment {
     }
 
     /**
-     * Calculates the point on the segment <code>dist</code> distance from the starting point along the segment.
+     * Calculates the point on the segment <code>dist</code> distance from the
+     * starting point along the segment.
      * 
-     * @param dist
-     *            distance from the starting point
-     * @return point on the segment <code>dist</code> distance from the starting point
+     * @param dist distance from the starting point
+     * @return point on the segment <code>dist</code> distance from the starting
+     *         point
      */
     public Translation2d getPointByDistance(double dist) {
         double length = getLength();
@@ -220,8 +209,7 @@ public class PathSegment {
     /**
      * Gets the remaining distance left on the segment from point <code>point</code>
      * 
-     * @param point
-     *            result of <code>getClosestPoint()</code>
+     * @param point result of <code>getClosestPoint()</code>
      * @return distance remaining
      */
     public double getRemainingDistance(Translation2d position) {
@@ -279,8 +267,14 @@ public class PathSegment {
                                                                                       // speedController
                     + ")";
         } else {
-            return "(" + "start: " + start + ", end: " + end + ", center: " + center + ", speed: " + maxSpeed
-                    + ")"; // + ", profile: " + speedController + ")";
+            return "(" + "start: " + start + ", end: " + end + ", center: " + center + ", speed: " + maxSpeed + ")"; // +
+                                                                                                                     // ",
+                                                                                                                     // profile:
+                                                                                                                     // "
+                                                                                                                     // +
+                                                                                                                     // speedController
+                                                                                                                     // +
+                                                                                                                     // ")";
         }
     }
 }

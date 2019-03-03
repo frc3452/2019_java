@@ -9,8 +9,9 @@ import frc.robot.poofs.util.motion.MotionState;
 import frc.robot.poofs.util.motion.ProfileFollower;
 
 /**
- * A PathFollower follows a predefined path using a combination of feedforward and feedback control. It uses an
- * AdaptivePurePursuitController to choose a reference pose and generate a steering command (curvature), and then a
+ * A PathFollower follows a predefined path using a combination of feedforward
+ * and feedback control. It uses an AdaptivePurePursuitController to choose a
+ * reference pose and generate a steering command (curvature), and then a
  * ProfileFollower to generate a profile (displacement and velocity) command.
  */
 public class PathFollower {
@@ -52,10 +53,16 @@ public class PathFollower {
         public final double goal_vel_tolerance;
         public final double stop_steering_distance;
 
+        public final double segment_completion_tolerance;
+        public final double max_accel;
+        public final double track_width_inches;
+        public final double scrub_factor;
+
         public Parameters(Lookahead lookahead, double inertia_gain, double profile_kp, double profile_ki,
                 double profile_kv, double profile_kffv, double profile_kffa, double profile_max_abs_vel,
                 double profile_max_abs_acc, double goal_pos_tolerance, double goal_vel_tolerance,
-                double stop_steering_distance) {
+                double stop_steering_distance, double segment_completion_tolerance, double max_accel,
+                double track_width_inches, double scrub_factor) {
             this.lookahead = lookahead;
             this.inertia_gain = inertia_gain;
             this.profile_kp = profile_kp;
@@ -68,6 +75,11 @@ public class PathFollower {
             this.goal_pos_tolerance = goal_pos_tolerance;
             this.goal_vel_tolerance = goal_vel_tolerance;
             this.stop_steering_distance = stop_steering_distance;
+
+            this.segment_completion_tolerance = segment_completion_tolerance;
+            this.max_accel = max_accel;
+            this.track_width_inches = track_width_inches;
+            this.scrub_factor = scrub_factor;
         }
     }
 
@@ -108,14 +120,10 @@ public class PathFollower {
     /**
      * Get new velocity commands to follow the path.
      * 
-     * @param t
-     *            The current timestamp
-     * @param pose
-     *            The current robot pose
-     * @param displacement
-     *            The current robot displacement (total distance driven).
-     * @param velocity
-     *            The current robot velocity.
+     * @param t            The current timestamp
+     * @param pose         The current robot pose
+     * @param displacement The current robot displacement (total distance driven).
+     * @param velocity     The current robot velocity.
      * @return The velocity command to apply
      */
     public synchronized Twist2d update(double t, RigidTransform2d pose, double displacement, double velocity) {

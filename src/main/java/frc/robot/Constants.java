@@ -4,6 +4,8 @@ import java.util.Scanner;
 
 import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
+import frc.robot.poofs.util.control.Lookahead;
+import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -27,9 +29,9 @@ public class Constants {
 
 	public static class kSolenoids {
 		// CORRECT
-		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, .3, .3);
+		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, .5, .5); // 7
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5); // 7
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4); // 6
 
 		// NOT CORRECT
@@ -47,12 +49,11 @@ public class Constants {
 		// Peak should be half continuous
 		public final static int AMP_PEAK = 20, AMP_CONTINUOUS = 40, AMP_TIME = 50;
 
-		public static final double OPEN_LOOP_RAMP_TIME = .5;
+		public static final double OPEN_LOOP_RAMP_TIME = 0.5;
 
 		public static final boolean ENC_INVERT = false;
 
-		// public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
-		public static GZPID PID = new GZPID(3.5, 0, 35, .2, 0); // TODO TUNE
+		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0); // TODO TUNE
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
 		public static final double HOME_INCHES = 16;
@@ -107,20 +108,20 @@ public class Constants {
 
 	public static class kPathFollowing {
 
-		public static double kPathFollowingMaxAccel = 120.0; // inches per second^2
-		public static double kPathFollowingMaxVel = 120.0; // inches per second
-		public static double kTrackWidthInches = PathAdapter.getTrackWidthInches();
-		public static double kTrackScrubFactor = 0.924;
+		static double kPathFollowingMaxAccel = 120.0; // inches per second^2
+		static double kPathFollowingMaxVel = 120.0; // inches per second
+		static double kTrackWidthInches = PathAdapter.getTrackWidthInches();
+		static double kTrackScrubFactor = 0.924;
 		public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
 		// Path constants
-		public static double kMinLookAhead = 12.0; // inches
-		public static double kMinLookAheadSpeed = 9.0; // inches per second
-		public static double kMaxLookAhead = 24.0; // inches
-		public static double kMaxLookAheadSpeed = 120.0; // inches per second
-		public static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
-		public static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
-		public static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
+		static double kMinLookAhead = 12.0; // inches
+		static double kMinLookAheadSpeed = 9.0; // inches per second
+		static double kMaxLookAhead = 24.0; // inches
+		static double kMaxLookAheadSpeed = 120.0; // inches per second
+		static double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
+		static double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
+		static double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
 		// our speed
 		// in inches per sec
 
@@ -130,11 +131,11 @@ public class Constants {
 		// public static double kPathFollowingProfileKffv = 1.0;
 		// public static double kPathFollowingProfileKffa = 0.05;
 
-		public static double kPathFollowingProfileKp = 1.8;
-		public static double kPathFollowingProfileKi = 0.06;
-		public static double kPathFollowingProfileKv = 0.02;
-		public static double kPathFollowingProfileKffv = 1.0 * .7;
-		public static double kPathFollowingProfileKffa = 0.05 * 1;
+		static double kPathFollowingProfileKp = 1.8;
+		static double kPathFollowingProfileKi = 0.06;
+		static double kPathFollowingProfileKv = 0.02;
+		static double kPathFollowingProfileKffv = 1.0 * 0.7;
+		static double kPathFollowingProfileKffa = 0.05 * 1;
 
 		// "OKRR"
 		// public static double kPathFollowingProfileKp = 2.5;
@@ -143,39 +144,36 @@ public class Constants {
 		// public static double kPathFollowingProfileKffv = 1.0 * .5;
 		// public static double kPathFollowingProfileKffa = 0.05 * 1;
 
-		// V V SLOW
-		// public static double kPathFollowingProfileKp = 0.01;
-		// public static double kPathFollowingProfileKi = 0.00;
-		// public static double kPathFollowingProfileKv = 0.02;
-		// public static double kPathFollowingProfileKffv = 1 * .8;
-		// public static double kPathFollowingProfileKffa = 0.05 * .8;
-
-		public static double kSegmentCompletionTolerance = 0.1; // inches
+		static double kSegmentCompletionTolerance = 0.1; // inches
 		// public static double kPathFollowingGoalPosTolerance = 0.75;
-		public static double kPathFollowingGoalPosTolerance = 0.5;
-		public static double kPathFollowingGoalVelTolerance = 12.0;
+		static double kPathFollowingGoalPosTolerance = 0.5;
+		static double kPathFollowingGoalVelTolerance = 12.0;
 		// public static double kPathStopSteeringDistance = 9;
-		public static double kPathStopSteeringDistance = 0;
+		static double kPathStopSteeringDistance = 0;
+
+		public final static PathFollower.Parameters pathFollowingConstants = new PathFollower.Parameters(
+				new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed),
+				kInertiaSteeringGain, kPathFollowingProfileKp, kPathFollowingProfileKi, kPathFollowingProfileKv,
+				kPathFollowingProfileKffv, kPathFollowingProfileKffa, kPathFollowingMaxVel, kPathFollowingMaxAccel,
+				kPathFollowingGoalPosTolerance, kPathFollowingGoalVelTolerance, kPathStopSteeringDistance,
+				kSegmentCompletionTolerance, kPathFollowingMaxAccel, kTrackWidthInches, kTrackScrubFactor);
 	}
 
 	public static class kDrivetrain {
 
 		public static final boolean TUNING = false;
 
-		static final double p = .9; // .9
-		static final double d = 30; // 8
-		static final double f = .3; // .14
-		final static GZPID mLeft = new GZPID(p, 0, d, f, 0);
-		final static GZPID mRight = new GZPID(p, 0, d, f, 0);
-
-		public static final GZPIDPair PID = new GZPIDPair(mLeft, mRight);
+		static final double p = 0.9;
+		static final double d = 30;
+		static final double f = 0.3;
+		public static final GZPIDPair PID = new GZPIDPair(0, p, 0, d, f, 0);
 
 		public final static double WHEEL_DIAMATER_IN = PathAdapter.getWheelDiameterInches();
 
 		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
-		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = .3;
+		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
 
 		// 2019 Robot
 
@@ -188,14 +186,16 @@ public class Constants {
 		public final static int AMP_40_PEAK = 20, AMP_40_CONTINUOUS = 40, AMP_40_TIME = 50;
 		public final static int AMP_30_PEAK = 15, AMP_30_CONTINUOUS = 30, AMP_30_TIME = 50;
 
-		public final static double OPEN_LOOP_RAMP_TIME = .125; // .125
+		public final static double OPEN_LOOP_RAMP_TIME = 0.125; // .125
 
-		public final static double DEMO_DRIVE_MODIFIER = .4;
+		public final static double DEMO_DRIVE_MODIFIER = 0.4;
 
 		public final static double NEUTRAL_DEADBAND = 0.01;
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
 		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
+
+		public static final double CLIMB_PITCH_TOLERANCE = 25.0;
 	}
 
 	public static class kPDP {
@@ -249,7 +249,7 @@ public class Constants {
 		public final static double DEFAULT_STATS_RECORD_TIME = 1;
 
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
-		public final static double LOGGING_SPEED = .125;
+		public final static double LOGGING_SPEED = 0.125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";
 
 		public final static String ROBOT_NAME;
@@ -277,7 +277,7 @@ public class Constants {
 
 	public static class kOI {
 		public class Rumble {
-			public final static double ENDGAME = .6;
+			public final static double ENDGAME = 0.6;
 		}
 
 		public static final int LOCK_OUT_KEY = 3;

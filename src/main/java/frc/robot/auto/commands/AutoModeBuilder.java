@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
+import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Opp;
@@ -13,9 +15,6 @@ import frc.robot.auto.commands.paths.left.Left_CS_Face_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same;
-import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
-import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
-import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 

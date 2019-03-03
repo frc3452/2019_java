@@ -12,6 +12,10 @@ public class GZPID {
     public static class GZPIDPair {
         public final GZPID pair1, pair2;
 
+        public GZPIDPair(int parameterSlot, double p, double i, double d, double f, int iZone) {
+            this(new GZPID(parameterSlot, p, i, d, f, iZone), new GZPID(parameterSlot, p, i, d, f, iZone));
+        }
+
         public GZPIDPair(GZPID pair1, GZPID pair2) {
             this.pair1 = pair1;
             this.pair2 = pair2;

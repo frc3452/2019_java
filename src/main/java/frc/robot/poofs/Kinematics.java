@@ -1,30 +1,33 @@
 package frc.robot.poofs;
 
-import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
+import frc.robot.subsystems.Drive;
 
 /**
- * Provides forward and inverse kinematics equations for the robot modeling the wheelbase as a differential drive (with
- * a corrective factor to account for skidding).
+ * Provides forward and inverse kinematics equations for the robot modeling the
+ * wheelbase as a differential drive (with a corrective factor to account for
+ * skidding).
  */
 
 public class Kinematics {
     private static final double kEpsilon = 1E-9;
 
     /**
-     * Forward kinematics using only encoders, rotation is implicit (less accurate than below, but useful for predicting
-     * motion)
+     * Forward kinematics using only encoders, rotation is implicit (less accurate
+     * than below, but useful for predicting motion)
      */
     public static Twist2d forwardKinematics(double left_wheel_delta, double right_wheel_delta) {
-        double delta_v = (right_wheel_delta - left_wheel_delta) / 2 * kPathFollowing.kTrackScrubFactor;
-        double delta_rotation = delta_v * 2 / kPathFollowing.kTrackWidthInches;
+        double delta_v = (right_wheel_delta - left_wheel_delta) / 2
+                * (Drive.getInstance().getParameters().scrub_factor);
+        double delta_rotation = delta_v * 2 / Drive.getInstance().getParameters().track_width_inches;
         return forwardKinematics(left_wheel_delta, right_wheel_delta, delta_rotation);
     }
 
     /**
-     * Forward kinematics using encoders and explicitly measured rotation (ex. from gyro)
+     * Forward kinematics using encoders and explicitly measured rotation (ex. from
+     * gyro)
      */
     public static Twist2d forwardKinematics(double left_wheel_delta, double right_wheel_delta,
             double delta_rotation_rads) {
@@ -33,7 +36,8 @@ public class Kinematics {
     }
 
     /**
-     * For convenience, forward kinematic with an absolute rotation and previous rotation.
+     * For convenience, forward kinematic with an absolute rotation and previous
+     * rotation.
      */
     public static Twist2d forwardKinematics(Rotation2d prev_heading, double left_wheel_delta, double right_wheel_delta,
             Rotation2d current_heading) {
@@ -50,7 +54,8 @@ public class Kinematics {
     }
 
     /**
-     * For convenience, integrate forward kinematics with a Twist2d and previous rotation.
+     * For convenience, integrate forward kinematics with a Twist2d and previous
+     * rotation.
      */
     public static RigidTransform2d integrateForwardKinematics(RigidTransform2d current_pose,
             Twist2d forward_kinematics) {
@@ -71,13 +76,16 @@ public class Kinematics {
     }
 
     /**
-     * Uses inverse kinematics to convert a Twist2d into left and right wheel velocities
+     * Uses inverse kinematics to convert a Twist2d into left and right wheel
+     * velocities
      */
     public static DriveVelocity inverseKinematics(Twist2d velocity) {
         if (Math.abs(velocity.dtheta) < kEpsilon) {
             return new DriveVelocity(velocity.dx, velocity.dx);
         }
-        double delta_v = kPathFollowing.kTrackWidthInches * velocity.dtheta / (2 * kPathFollowing.kTrackScrubFactor);
+        // scrub
+        double delta_v = Drive.getInstance().getParameters().track_width_inches * velocity.dtheta
+                / (2 * Drive.getInstance().getParameters().scrub_factor);
         return new DriveVelocity(velocity.dx - delta_v, velocity.dx + delta_v);
     }
 }

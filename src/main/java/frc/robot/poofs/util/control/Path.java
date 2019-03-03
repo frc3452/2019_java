@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import frc.robot.Constants.kPathFollowing;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.motion.MotionState;
+import frc.robot.subsystems.Drive;
 import frc.robot.util.GZUtil;
 
 /**
  * Class representing the robot's autonomous path.
  * 
- * Field Coordinate System: Uses a right hand coordinate system. Positive x is right, positive y is up, and the origin
- * is at the bottom left corner of the field. For angles, 0 degrees is facing right (1, 0) and angles increase as you
- * turn counter clockwise.
+ * Field Coordinate System: Uses a right hand coordinate system. Positive x is
+ * right, positive y is up, and the origin is at the bottom left corner of the
+ * field. For angles, 0 degrees is facing right (1, 0) and angles increase as
+ * you turn counter clockwise.
  */
 
 public class Path {
@@ -34,20 +35,17 @@ public class Path {
         return segments.get(segments.size() - 1).getEnd();
     }
 
-    public Rotation2d getStartAngle()
-    {
+    public Rotation2d getStartAngle() {
         Rotation2d angle = GZUtil.angleOfPathSegment(segments.get(0));
         return angle;
     }
 
-    public Rotation2d getEndAngle() 
-    {
+    public Rotation2d getEndAngle() {
         Rotation2d angle = GZUtil.angleOfPathSegment(segments.get(segments.size() - 1));
         return angle;
     }
 
-    public RigidTransform2d getEndPosition()
-    {
+    public RigidTransform2d getEndPosition() {
         return new RigidTransform2d(getEndTranslation(), getEndAngle());
     }
 
@@ -58,8 +56,7 @@ public class Path {
     /**
      * add a segment to the Path
      * 
-     * @param segment
-     *            the segment to add
+     * @param segment the segment to add
      */
     public void addSegment(PathSegment segment) {
         segments.add(segment);
@@ -78,10 +75,10 @@ public class Path {
     }
 
     /**
-     * get the remaining distance left for the robot to travel on the current segment
+     * get the remaining distance left for the robot to travel on the current
+     * segment
      * 
-     * @param robotPos
-     *            robot position
+     * @param robotPos robot position
      * @return remaining distance on current segment
      */
     public double getSegmentRemainingDist(Translation2d robotPos) {
@@ -112,11 +109,12 @@ public class Path {
     }
 
     /**
-     * Gives the position of the lookahead point (and removes any segments prior to this point).
+     * Gives the position of the lookahead point (and removes any segments prior to
+     * this point).
      * 
-     * @param robot
-     *            Translation of the current robot pose.
-     * @return report containing everything we might want to know about the target point.
+     * @param robot Translation of the current robot pose.
+     * @return report containing everything we might want to know about the target
+     *         point.
      */
     public TargetPointReport getTargetPoint(Translation2d robot, Lookahead lookahead) {
         TargetPointReport rv = new TargetPointReport();
@@ -124,11 +122,13 @@ public class Path {
         rv.closest_point = currentSegment.getClosestPoint(robot);
         rv.closest_point_distance = new Translation2d(robot, rv.closest_point).norm();
         /*
-         * if (segments.size() > 1) { // Check next segment to see if it is closer. final Translation2d
-         * next_segment_closest_point = segments.get(1).getClosestPoint(robot); final double
-         * next_segment_closest_point_distance = new Translation2d(robot, next_segment_closest_point) .norm(); if
-         * (next_segment_closest_point_distance < rv.closest_point_distance) { rv.closest_point =
-         * next_segment_closest_point; rv.closest_point_distance = next_segment_closest_point_distance;
+         * if (segments.size() > 1) { // Check next segment to see if it is closer.
+         * final Translation2d next_segment_closest_point =
+         * segments.get(1).getClosestPoint(robot); final double
+         * next_segment_closest_point_distance = new Translation2d(robot,
+         * next_segment_closest_point) .norm(); if (next_segment_closest_point_distance
+         * < rv.closest_point_distance) { rv.closest_point = next_segment_closest_point;
+         * rv.closest_point_distance = next_segment_closest_point_distance;
          * removeCurrentSegment(); currentSegment = segments.get(0); } }
          */
         rv.remaining_segment_distance = currentSegment.getRemainingDistance(rv.closest_point);
@@ -163,8 +163,7 @@ public class Path {
     /**
      * Gives the speed the robot should be traveling at the given position
      * 
-     * @param robotPos
-     *            position of the robot
+     * @param robotPos position of the robot
      * @return speed robot should be traveling
      */
     public double getSpeed(Translation2d robotPos) {
@@ -173,15 +172,16 @@ public class Path {
     }
 
     /**
-     * Checks if the robot has finished traveling along the current segment then removes it from the path if it has
+     * Checks if the robot has finished traveling along the current segment then
+     * removes it from the path if it has
      * 
-     * @param robotPos
-     *            robot position
+     * @param robotPos robot position
      */
     public void checkSegmentDone(Translation2d robotPos) {
         PathSegment currentSegment = segments.get(0);
         double remainingDist = currentSegment.getRemainingDistance(currentSegment.getClosestPoint(robotPos));
-        if (remainingDist < kPathFollowing.kSegmentCompletionTolerance) {
+        // segment completion tolerance
+        if (remainingDist < Drive.getInstance().getParameters().segment_completion_tolerance) {
             removeCurrentSegment();
         }
     }
@@ -194,7 +194,8 @@ public class Path {
     }
 
     /**
-     * Ensures that all speeds in the path are attainable and robot can slow down in time
+     * Ensures that all speeds in the path are attainable and robot can slow down in
+     * time
      */
     public void verifySpeeds() {
         double maxStartSpeed = 0.0;
@@ -202,8 +203,9 @@ public class Path {
         startSpeeds[segments.size()] = 0.0;
         for (int i = segments.size() - 1; i >= 0; i--) {
             PathSegment segment = segments.get(i);
-            maxStartSpeed += Math
-                    .sqrt(maxStartSpeed * maxStartSpeed + 2 * kPathFollowing.kPathFollowingMaxAccel * segment.getLength());
+
+            maxStartSpeed += Math.sqrt(maxStartSpeed * maxStartSpeed
+                    + 2 * Drive.getInstance().getParameters().max_accel * segment.getLength());
             startSpeeds[i] = segment.getStartState().vel();
             // System.out.println(maxStartSpeed + ", " + startSpeeds[i]);
             if (startSpeeds[i] > maxStartSpeed) {

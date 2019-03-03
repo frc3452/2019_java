@@ -19,7 +19,6 @@ import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
-import frc.robot.poofs.util.control.Lookahead;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
@@ -85,10 +84,17 @@ public class Drive extends GZSubsystem {
 
 	private ClimbingState mClimbState = null;
 
+	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
+
 	Notifier mShiftNotifier = new Notifier(new Runnable() {
 		public void run() {
 		}
 	});
+
+	public PathFollower.Parameters getParameters()
+	{
+		return mParameters;
+	}
 
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
@@ -204,16 +210,7 @@ public class Drive extends GZSubsystem {
 			setWantedState(DriveState.PATH_FOLLOWING);
 			handleStates();
 			RobotState.getInstance().resetDistanceDriven();
-			mPathFollower = new PathFollower(mPath, reversed,
-					new PathFollower.Parameters(
-							new Lookahead(kPathFollowing.kMinLookAhead, kPathFollowing.kMaxLookAhead,
-									kPathFollowing.kMinLookAheadSpeed, kPathFollowing.kMaxLookAheadSpeed),
-							kPathFollowing.kInertiaSteeringGain, kPathFollowing.kPathFollowingProfileKp,
-							kPathFollowing.kPathFollowingProfileKi, kPathFollowing.kPathFollowingProfileKv,
-							kPathFollowing.kPathFollowingProfileKffv, kPathFollowing.kPathFollowingProfileKffa,
-							kPathFollowing.kPathFollowingMaxVel, kPathFollowing.kPathFollowingMaxAccel,
-							kPathFollowing.kPathFollowingGoalPosTolerance,
-							kPathFollowing.kPathFollowingGoalVelTolerance, kPathFollowing.kPathStopSteeringDistance));
+			mPathFollower = new PathFollower(mPath, reversed, kPathFollowing.pathFollowingConstants);
 			mCurrentPath = mPath;
 		} else {
 			// stop();
@@ -759,9 +756,21 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void handleAutomaticClimb(double desired_speed) {
-		final double pitch = mNavX.getPitch();
-		// Positive means front racks are too high, negative means front racks are too low
+		final double pitch = mNavX.getRoll();
 		double left, right;
+
+		// Positive means front racks are too high, negative means front racks are too
+		// low
+		// Front, as distance goes away from 0 in positive direction, slow down
+		// Back, as distance goes away from 0 in negative direction, speed up
+
+		// Front, as distance goes away from 0 in negative direction, speed up
+		// Back, as distance goes away from 0 in positive direction, slow down
+
+		if (Math.abs(pitch) < kDrivetrain.CLIMB_PITCH_TOLERANCE) {
+
+		}
+
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
