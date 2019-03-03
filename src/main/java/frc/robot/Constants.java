@@ -120,7 +120,7 @@ public class Constants {
 		static double kPathFollowingMaxVel = 120.0; // inches per second
 		static double kTrackWidthInches = PathAdapter.getTrackWidthInches();
 		static double kTrackScrubFactor = 0.924;
-		public static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
+		static double kDriveHighGearMaxSetpoint = 17.0 * 12.0; // 17 fps
 
 		// Path constants
 		static double kMinLookAhead = 12.0; // inches
@@ -164,7 +164,7 @@ public class Constants {
 				kInertiaSteeringGain, kPathFollowingProfileKp, kPathFollowingProfileKi, kPathFollowingProfileKv,
 				kPathFollowingProfileKffv, kPathFollowingProfileKffa, kPathFollowingMaxVel, kPathFollowingMaxAccel,
 				kPathFollowingGoalPosTolerance, kPathFollowingGoalVelTolerance, kPathStopSteeringDistance,
-				kSegmentCompletionTolerance, kPathFollowingMaxAccel, kTrackWidthInches, kTrackScrubFactor);
+				kSegmentCompletionTolerance, kPathFollowingMaxAccel, kTrackWidthInches, kTrackScrubFactor, kDriveHighGearMaxSetpoint);
 	}
 
 	public static class kDrivetrain {

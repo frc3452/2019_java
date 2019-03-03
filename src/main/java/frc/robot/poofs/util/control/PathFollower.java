@@ -57,12 +57,13 @@ public class PathFollower {
         public final double max_accel;
         public final double track_width_inches;
         public final double scrub_factor;
+        public final double high_gear_setpoint;
 
         public Parameters(Lookahead lookahead, double inertia_gain, double profile_kp, double profile_ki,
                 double profile_kv, double profile_kffv, double profile_kffa, double profile_max_abs_vel,
                 double profile_max_abs_acc, double goal_pos_tolerance, double goal_vel_tolerance,
                 double stop_steering_distance, double segment_completion_tolerance, double max_accel,
-                double track_width_inches, double scrub_factor) {
+                double track_width_inches, double scrub_factor, double high_gear_setpoint) {
             this.lookahead = lookahead;
             this.inertia_gain = inertia_gain;
             this.profile_kp = profile_kp;
@@ -80,6 +81,8 @@ public class PathFollower {
             this.max_accel = max_accel;
             this.track_width_inches = track_width_inches;
             this.scrub_factor = scrub_factor;
+
+            this.high_gear_setpoint = high_gear_setpoint;
         }
     }
 

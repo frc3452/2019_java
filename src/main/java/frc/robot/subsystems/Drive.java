@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -167,8 +165,8 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void updateVelocitySetpoint(double left_inches_per_sec, double right_inches_per_sec) {
 		final double max_desired = Math.max(Math.abs(left_inches_per_sec), Math.abs(right_inches_per_sec));
-		final double scale = max_desired > kPathFollowing.kDriveHighGearMaxSetpoint
-				? kPathFollowing.kDriveHighGearMaxSetpoint / max_desired
+		final double scale = max_desired > getParameters().high_gear_setpoint
+				? getParameters().high_gear_setpoint / max_desired
 				: 1.0;
 		mIO.left_desired_output = rpmToTicksPer100ms((inchesPerSecondToRpm(left_inches_per_sec * scale)));
 		mIO.right_desired_output = -rpmToTicksPer100ms(inchesPerSecondToRpm(right_inches_per_sec * scale));
