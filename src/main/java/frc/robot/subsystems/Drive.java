@@ -667,6 +667,9 @@ public class Drive extends GZSubsystem {
 
 		mIO.encodersValid = mIO.leftEncoderValid && mIO.rightEncoderValid;
 
+		if (!mIO.encodersValid)
+			mIO.encoder_invalid_loops++;
+
 		if (mIO.encoder_invalid_loops >= mIO.encoder_loop_printout) {
 			System.out.println("ERROR Drive encoder(s) not found!!!");
 			mIO.encoder_invalid_loops = 0;
@@ -758,37 +761,60 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	private synchronized void handleAutomaticClimb(double desired_speed) {
+	private synchronized boolean handleAutomaticClimb(double desired_speed) {
 		final double pitch = mNavX.getRoll();
-		double left, right;
+
+		if (Math.abs(pitch) > kDrivetrain.CLIMB_PITCH_TOLERANCE) {
+			return false;
+		}
 
 		// Positive means front racks are too high, negative means front racks are too
 		// low
-		// Front, as distance goes away from 0 in positive direction, slow down
-		// Back, as distance goes away from 0 in negative direction, speed up
 
-		// Front, as distance goes away from 0 in negative direction, speed up
+		// Front, as distance goes away from 0 in positive direction, slow down
 		// Back, as distance goes away from 0 in positive direction, slow down
 
-		if (Math.abs(pitch) < kDrivetrain.CLIMB_PITCH_TOLERANCE) {
+		double front, rear;
 
+		if (pitch > 0) {
+			front = desired_speed - GZUtil.scaleBetween(pitch, 0, desired_speed, 0, kDrivetrain.CLIMB_PITCH_TOLERANCE);
+			rear = desired_speed;
+			// right = desired - scaleBetween(angle, minAllowed, maxAllowed, min, max)
+		} else {
+			front = desired_speed;
+			rear = desired_speed
+					- GZUtil.scaleBetween(Math.abs(pitch), 0, desired_speed, 0, kDrivetrain.CLIMB_PITCH_TOLERANCE);
 		}
 
+		if (desired_speed < 0) {
+			double temp = front;
+			front = rear;
+			rear = temp;
+		}
+
+		runClimber(front, rear);
+		
+		return true;
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
-		switch (mClimbState) {
-		case BOTH:
-			tankNoState(-joy.getLeftAnalogY() * .25, -joy.getRightAnalogY() * .25);
-			break;
-		case FRONT:
-			tankNoState(-joy.getLeftAnalogY(), -joy.getRightAnalogY());
-			break;
-		default:
-			// System.out.println("ERROR Handle climber fall through [" + mState + "]");
-			break;
+
+		if (!handleAutomaticClimb(joy.getLeftAnalogY() * .5)) {
+			// manualcontrol
 		}
+
+		// witch (mClimbState) {
+		// case BOTH:
+		// tankNoState(joy.getLeftAnalogY() * .25, joy.getRightAnalogY() * .25);
+		// break;
+		// case FRONT:
+		// tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
+		// break;
+		// default:
+		// // System.out.println("ERROR Handle climber fall through [" + mState + "]");
+		// break;
+		// }
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
