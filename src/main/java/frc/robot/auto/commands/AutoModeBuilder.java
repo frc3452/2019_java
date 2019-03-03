@@ -7,9 +7,15 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
+import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
+import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Same;
+import frc.robot.auto.commands.paths.left.Left_CS_Bay_2_Opp;
+import frc.robot.auto.commands.paths.left.Left_CS_Bay_2_Same;
+import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Opp;
+import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
@@ -130,6 +136,33 @@ public class AutoModeBuilder {
             } else {
                 return new Left_CS_Bay_1_Opp().get(startPos.onLeft).toList();
             }
+
+        case CARGO_SHIP_BAY_2:
+            // Center
+            if (startPos == StartingPosition.CENTER) {
+                return new Center_CS_Bay_2_Left().get(score.side.onLeft).toList();
+            }
+
+            // On left or right
+            if (scoringSameSide(startPos, score)) {
+                return new Left_CS_Bay_2_Same().get(startPos.onLeft).toList();
+            } else {
+                return new Left_CS_Bay_2_Opp().get(startPos.onLeft).toList();
+            }
+
+        case CARGO_SHIP_BAY_3:
+            // Center
+            if (startPos == StartingPosition.CENTER) {
+                return new Center_CS_Bay_3_Left().get(score.side.onLeft).toList();
+            }
+
+            // On left or right
+            if (scoringSameSide(startPos, score)) {
+                return new Left_CS_Bay_3_Same().get(startPos.onLeft).toList();
+            } else {
+                return new Left_CS_Bay_3_Opp().get(startPos.onLeft).toList();
+            }
+
         default:
             return null;
         }
