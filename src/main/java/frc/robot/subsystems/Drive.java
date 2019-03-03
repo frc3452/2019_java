@@ -91,8 +91,7 @@ public class Drive extends GZSubsystem {
 		}
 	});
 
-	public PathFollower.Parameters getParameters()
-	{
+	public PathFollower.Parameters getParameters() {
 		return mParameters;
 	}
 
@@ -210,7 +209,7 @@ public class Drive extends GZSubsystem {
 			setWantedState(DriveState.PATH_FOLLOWING);
 			handleStates();
 			RobotState.getInstance().resetDistanceDriven();
-			mPathFollower = new PathFollower(mPath, reversed, kPathFollowing.pathFollowingConstants);
+			mPathFollower = new PathFollower(mPath, reversed, pathContainer.getParameters());
 			mCurrentPath = mPath;
 		} else {
 			// stop();
