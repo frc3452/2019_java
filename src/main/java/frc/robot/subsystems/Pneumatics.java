@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Compressor;
+import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
@@ -17,6 +18,8 @@ public class Pneumatics extends GZSubsystem {
     private GZAnalogInput mPressureSensor;
     private static Pneumatics mInstance = null;
 
+    private int mCrawlerPresses = 0;
+
     public static Pneumatics getInstance() {
         if (mInstance == null)
             mInstance = new Pneumatics();
@@ -27,7 +30,8 @@ public class Pneumatics extends GZSubsystem {
     private Pneumatics() {
         mCompressor = new Compressor(kPneumatics.COMPRESSOR_MODULE);
         mClimberCrawler = new GZSolenoid(kSolenoids.CRAWLER, this, "Climber crawler");
-        mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT, kPneumatics.PRESSURE_GUAGE_INFO);
+        mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT,
+                kPneumatics.PRESSURE_GUAGE_INFO);
     }
 
     public double getPressure() {
@@ -35,19 +39,16 @@ public class Pneumatics extends GZSubsystem {
     }
 
     public void dropCrawler() {
-        mClimberCrawler.set(true);
-    }
-
-    public void raiseCrawler() {
-        mClimberCrawler.set(false);
+        if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS)
+            mClimberCrawler.on();
     }
 
     @Override
     public void loop() {
         boolean noAir = false;
-        
-        if (GZOI.getInstance().isAuto() || GZOI.getInstance().isTele()) {
-            noAir = false;
+
+        if (GZOI.getInstance().isAuto() || GZOI.getInstance().isTele() || (getPressure() > 90)) {
+            noAir = true;
         }
 
         if (noAir) {

@@ -81,6 +81,7 @@ public class GZOI extends GZSubsystem {
 
 	@Override
 	public void loop() {
+
 		// FLAGS
 		if (isTele())
 			mWasTele = true;
@@ -181,8 +182,8 @@ public class GZOI extends GZSubsystem {
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
-		if (driverJoy.getButtonLatched(Buttons.B))
-			drive.toggleOpenLoop();
+		if (driverJoy.getButtonLatched(Buttons.RB))
+			drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
 	}
@@ -228,11 +229,12 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.get()) {
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-			// supe.runIntake(GZOI.op.getLeftAnalogY());
 		} else if (controller.intakeDown.updated())
 			supe.lowerIntake();
 		else if (controller.intakeUp.updated())
 			supe.raiseIntake();
+		else if (controller.dropCrawler.updated())
+			supe.dropCrawler();
 	}
 
 	public String getSmallString() {

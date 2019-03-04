@@ -88,12 +88,12 @@ public class GZJoystick extends Joystick {
 
 	public Boolean getLeftTriggerPressed()
 	{
-		return Math.abs(getLeftTrigger()) > .5;
+		return Math.abs(getLeftTrigger()) > .3;
 	}
 
 	public Boolean getRightTriggerPressed()
 	{
-		return Math.abs(getRightTrigger()) > .5;
+		return Math.abs(getRightTrigger()) > .3;
 	}
 
 	public Boolean getButton(Buttons b) {

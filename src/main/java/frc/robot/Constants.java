@@ -31,6 +31,9 @@ public class Constants {
 		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
+
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 4, 4);
+
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
 
@@ -38,7 +41,6 @@ public class Constants {
 		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2, 6);
 
 		// NOT CORRECT
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(0, 3, 4, 4);
 		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
 	}
 
@@ -59,7 +61,10 @@ public class Constants {
 
 		public static final double HOME_INCHES = 16;
 		public static final double TOP_LIMIT = 85;
-		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 4;
+
+		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 2.5;
+		public static final double SLIDES_TOLERANCE = 1;
+
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
@@ -68,7 +73,6 @@ public class Constants {
 		public static final double INTAKE_LOW_HEIGHT = 20;
 		public static final double INTAKE_HIGH_HEIGHT = 45;
 		public static final double INTAKE_TOLERANCE = 2;
-
 
 		public static final int CARGO_SENSOR_CHANNEL = 2;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
@@ -79,7 +83,6 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
 		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
-		public static final double SLIDES_TOLERANCE = 2;
 
 		public static enum Heights {
 
@@ -164,7 +167,8 @@ public class Constants {
 				kInertiaSteeringGain, kPathFollowingProfileKp, kPathFollowingProfileKi, kPathFollowingProfileKv,
 				kPathFollowingProfileKffv, kPathFollowingProfileKffa, kPathFollowingMaxVel, kPathFollowingMaxAccel,
 				kPathFollowingGoalPosTolerance, kPathFollowingGoalVelTolerance, kPathStopSteeringDistance,
-				kSegmentCompletionTolerance, kPathFollowingMaxAccel, kTrackWidthInches, kTrackScrubFactor, kDriveHighGearMaxSetpoint);
+				kSegmentCompletionTolerance, kPathFollowingMaxAccel, kTrackWidthInches, kTrackScrubFactor,
+				kDriveHighGearMaxSetpoint);
 	}
 
 	public static class kDrivetrain {
@@ -182,6 +186,8 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
+		public static final double CLIMB_PITCH_TOLERANCE = 3.0;
+		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		// 2019 Robot
 
@@ -203,7 +209,6 @@ public class Constants {
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
 		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
 
-		public static final double CLIMB_PITCH_TOLERANCE = 25.0;
 	}
 
 	public static class kPDP {

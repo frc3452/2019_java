@@ -62,7 +62,7 @@ public class ReferenceField extends FieldProfile {
 
         @Override
         public double hp_feed_jog() {
-            return hp1() + 3;
+            return hp1() + 5;
         }
     };
 

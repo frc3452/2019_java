@@ -21,6 +21,7 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton idle;
     public GZButton cancel;
     public GZButton elevatorHome;
+
     public GZButton elevatorJogUp;
     public GZButton elevatorJogDown;
 
@@ -42,6 +43,8 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton intakeCargo;
     public GZButton floorHatchToManip;
     public GZButton hatchFromFeed;
+
+    public GZButton dropCrawler;
 
 
     protected ArrayList<GZButton> allButtons = new ArrayList<GZButton>();

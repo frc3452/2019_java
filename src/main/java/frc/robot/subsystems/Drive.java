@@ -27,6 +27,7 @@ import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.subsystems.Lights.Colors;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -80,9 +81,9 @@ public class Drive extends GZSubsystem {
 	private Path mCurrentPath = null;
 	private RobotState mRobotState = RobotState.getInstance();
 
-	private boolean mDrivingOpenLoop = true;
-
 	private ClimbingState mClimbState = null;
+
+	private boolean mStraightClimb = true;
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
@@ -342,8 +343,6 @@ public class Drive extends GZSubsystem {
 		// }
 	}
 
-	GZPID oldPID = new GZPID();
-
 	private GZPID getGainsFromFile(int line) {
 		return GZUtil.getGainsFromFile(mPIDConfigFile, line);
 	}
@@ -522,8 +521,8 @@ public class Drive extends GZSubsystem {
 		switch (newState) {
 		case CLIMB:
 			brake(true);
-			// Superstructure.getInstance().stow();
-			// Superstructure.getInstance().setHeight(Heights.Home);
+			mNavX.zeroRoll();
+			Superstructure.getInstance().runAction(Actions.STOW_LOW);
 			break;
 		case PATH_FOLLOWING:
 			brake(true);
@@ -722,8 +721,11 @@ public class Drive extends GZSubsystem {
 		mClimbState = state;
 	}
 
+	/**
+	 * POSITIVE --> LIFTS SIDE
+	 */
 	public synchronized void runClimber(double front, double rear) {
-		tank(front, rear);
+		tankNoState(-front, -rear);
 	}
 
 	public synchronized double getLeftPercent() {
@@ -762,15 +764,13 @@ public class Drive extends GZSubsystem {
 	private synchronized boolean handleAutomaticClimb(double desired_speed) {
 		final double pitch = mNavX.getRoll();
 
-		if (Math.abs(pitch) > kDrivetrain.CLIMB_PITCH_TOLERANCE) {
-			return false;
-		}
+		// tons of weird inversions but we're gonna leave it cause it works
 
-		// Positive means front racks are too high, negative means front racks are too
-		// low
+		// if (Math.abs(pitch) > kDrivetrain.CLIMB_PITCH_TOLERANCE) {
+		// return false;
+		// }
 
-		// Front, as distance goes away from 0 in positive direction, slow down
-		// Back, as distance goes away from 0 in positive direction, slow down
+		desired_speed *= -1;
 
 		double front, rear;
 
@@ -790,29 +790,29 @@ public class Drive extends GZSubsystem {
 			rear = temp;
 		}
 
-		runClimber(front, rear);
-		
+		runClimber(-front, -rear);
 		return true;
+	}
+
+	public synchronized void toggleStraightClimb() {
+		mStraightClimb = !mStraightClimb;
+		GZOI.getInstance().addRumble(Level.MEDIUM);
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
+		if (mStraightClimb && handleAutomaticClimb(joy.getLeftAnalogY() * .25) && !joy.getLeftTriggerPressed()
+				&& !joy.getRightTriggerPressed()) {
 
-		if (!handleAutomaticClimb(joy.getLeftAnalogY() * .5)) {
-			// manualcontrol
+		} else {
+			if (joy.getLeftTriggerPressed()) {
+				runClimber(joy.getLeftAnalogY(), 0);
+			} else if (joy.getRightTriggerPressed()) {
+				runClimber(0, joy.getLeftAnalogY());
+			} else {
+				runClimber(joy.getLeftAnalogY(), joy.getLeftAnalogY());
+			}
 		}
-
-		// witch (mClimbState) {
-		// case BOTH:
-		// tankNoState(joy.getLeftAnalogY() * .25, joy.getRightAnalogY() * .25);
-		// break;
-		// case FRONT:
-		// tankNoState(joy.getLeftAnalogY(), joy.getRightAnalogY());
-		// break;
-		// default:
-		// // System.out.println("ERROR Handle climber fall through [" + mState + "]");
-		// break;
-		// }
 	}
 
 	private synchronized void arcadeClosedLoop(GZJoystick joy) {
@@ -1020,6 +1020,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void tankNoState(double left, double right) {
+		// System.out.println(df.format(left) + "\t" + df.format(right));
 		mIO.left_desired_output = left;
 		mIO.right_desired_output = right;
 	}
@@ -1143,18 +1144,6 @@ public class Drive extends GZSubsystem {
 
 	public int getTotalShiftCountsRear() {
 		return mShifterRear.getChangeCounts();
-	}
-
-	public synchronized void setUsingOpenLoop(boolean useOpenLoop) {
-		mDrivingOpenLoop = useOpenLoop;
-	}
-
-	public synchronized void toggleOpenLoop() {
-		setUsingOpenLoop(!usingOpenLoop());
-	}
-
-	public synchronized boolean usingOpenLoop() {
-		return mDrivingOpenLoop;
 	}
 
 	public synchronized void toggleSlowSpeed() {

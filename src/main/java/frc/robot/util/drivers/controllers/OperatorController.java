@@ -39,6 +39,8 @@ public class OperatorController extends DeepSpaceController {
                 this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.START));
                 this.floorHatchToManip = new GZButton(this, () -> false, () -> false);
                 this.hatchFromFeed = new GZButton(this, () -> false, () -> false);
+
+                this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
         }
 
         public void setButtonBoard(boolean isButtonBoard) {

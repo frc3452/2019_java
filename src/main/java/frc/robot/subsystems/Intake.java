@@ -116,6 +116,11 @@ public class Intake extends GZSubsystem {
         return mDesiredDropState == DesiredDropState.DOWN;
     }
 
+    public boolean armWantsUp()
+    {
+        return mDesiredDropState == DesiredDropState.UP;
+    }
+
     public boolean armWantsToMove() {
         return (mDesiredDropState == DesiredDropState.UP && !mIntakeDrop.isOff())
                 || (mDesiredDropState == DesiredDropState.DOWN && !mIntakeDrop.isOn());

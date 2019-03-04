@@ -335,8 +335,7 @@ public class Elevator extends GZSubsystem {
         mClaw.set(true);
     }
 
-    public boolean slidesAtDesired()
-    {
+    public boolean slidesAtDesired() {
         return !mCarriageSlide.wantsStateChange();
     }
 
@@ -560,11 +559,15 @@ public class Elevator extends GZSubsystem {
 
     public boolean safeForIntakeMovement() {
         final double height = getHeightInches();
-        return height < kElevator.INTAKE_LOW_HEIGHT || height > kElevator.INTAKE_HIGH_HEIGHT;
+        if (height < kElevator.INTAKE_LOW_HEIGHT && !areSlidesIn())
+            return false;
+        if (height > kElevator.INTAKE_LOW_HEIGHT && height < kElevator.INTAKE_HIGH_HEIGHT)
+            return false;
+
+        return true;
     }
 
     private void out() {
-
         if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
             mCarriageSlide.stateChange();
 
@@ -579,6 +582,11 @@ public class Elevator extends GZSubsystem {
 
             if (Intake.getInstance().armWantsToMove()) {
                 mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - kElevator.INTAKE_TOLERANCE;
+
+                if (Intake.getInstance().armWantsUp()) {
+                    mCarriageSlide.wantOff();
+                }
+
             } else {
                 mHighestHeight = kElevator.TOP_LIMIT;
             }
