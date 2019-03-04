@@ -14,7 +14,17 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseFromPath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
 
 public class GZCommandGroup extends CommandGroup {
-    private static final String DEFAULT_MARKER = "null";
+    private static final String DEFAULT_MARKER = "PrepForAction";
+
+    public static class InstantCompletion extends Command {
+        public InstantCompletion() {
+        }
+
+        @Override
+        protected boolean isFinished() {
+            return true;
+        }
+    }
 
     public void print(String message) {
         add(new PrintCommand(message));
