@@ -4,6 +4,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
@@ -53,6 +54,8 @@ public class GZOI extends GZSubsystem {
 		public Double getDefault() {
 			if (elev.isSpeedOverriden())
 				return .45;
+			else if (drive.isAutoClimbing())
+				return .15;
 			else if (GZUtil.between(getMatchTime(), 29.1, 30))
 				return .6;
 			else if (drive.usingCurvature())
@@ -78,10 +81,9 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 		// mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 	}
-
+	
 	@Override
 	public void loop() {
-
 		// FLAGS
 		if (isTele())
 			mWasTele = true;

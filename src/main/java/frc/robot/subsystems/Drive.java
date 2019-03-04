@@ -83,7 +83,8 @@ public class Drive extends GZSubsystem {
 
 	private ClimbingState mClimbState = null;
 
-	private boolean mStraightClimb = true;
+	private boolean mWantAutoClimb = true;
+	private boolean mIsAutoClimbing = false;
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
@@ -557,9 +558,14 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public boolean isAutoClimbing() {
+		return mIsAutoClimbing;
+	}
+
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
+			mIsAutoClimbing = false;
 			break;
 		case MOTION_MAGIC:
 			encoderDone();
@@ -790,28 +796,41 @@ public class Drive extends GZSubsystem {
 			rear = temp;
 		}
 
+		System.out.println(pitch);
 		runClimber(-front, -rear);
 		return true;
 	}
 
 	public synchronized void toggleStraightClimb() {
-		mStraightClimb = !mStraightClimb;
+		mWantAutoClimb = !mWantAutoClimb;
 		GZOI.getInstance().addRumble(Level.MEDIUM);
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
-		// RIGHT IS REAR
-		if (mStraightClimb && handleAutomaticClimb(joy.getLeftAnalogY() * .25) && !joy.getLeftTriggerPressed()
-				&& !joy.getRightTriggerPressed()) {
+		mIsSlow = true;
 
+		// RIGHT IS REAR
+		if (mWantAutoClimb && handleAutomaticClimb(joy.getLeftAnalogY() * .25) && !joy.getLeftTriggerPressed()
+				&& !joy.getRightTriggerPressed() && mClimbState == ClimbingState.BOTH) {
+			mIsAutoClimbing = true;
 		} else {
-			if (joy.getLeftTriggerPressed()) {
-				runClimber(joy.getLeftAnalogY(), 0);
-			} else if (joy.getRightTriggerPressed()) {
-				runClimber(0, joy.getLeftAnalogY());
-			} else {
-				runClimber(joy.getLeftAnalogY(), joy.getLeftAnalogY());
+
+			switch (mClimbState) {
+			case BOTH:
+				if (joy.getLeftTriggerPressed()) {
+					runClimber(joy.getLeftAnalogY() * .25, 0);
+				} else if (joy.getRightTriggerPressed()) {
+					runClimber(0, joy.getLeftAnalogY() * .25);
+				} else {
+					runClimber(joy.getLeftAnalogY() * .25, joy.getLeftAnalogY() * mModifyPercent);
+				}
+				break;
+			case FRONT:
+				runClimber(joy.getRightAnalogY(), joy.getLeftAnalogY());
+				break;
 			}
+			mIsAutoClimbing = false;
+
 		}
 	}
 

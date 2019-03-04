@@ -63,7 +63,7 @@ public class Constants {
 		public static final double TOP_LIMIT = 85;
 
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 2.5;
-		public static final double SLIDES_TOLERANCE = 1;
+		public static final double SLIDES_TOLERANCE = 1.5;
 
 		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
 		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
@@ -186,7 +186,7 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
-		public static final double CLIMB_PITCH_TOLERANCE = 3.0;
+		public static final double CLIMB_PITCH_TOLERANCE = 3;
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		// 2019 Robot

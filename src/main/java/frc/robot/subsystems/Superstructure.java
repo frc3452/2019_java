@@ -56,13 +56,13 @@ public class Superstructure extends GZSubsystem {
             switch (mAction) {
             case IDLE:
                 break;
-            case STOW_LOW:
+            case STOW:
                 if (isStowed())
-                    elev.setHeight(Heights.Home);
-
-                if (isStowed() && elev.nearTarget());
                     done();
-
+                break;
+            case STOW_LOW:
+                if (isStowed() && elev.nearTarget())
+                    done();
                 break;
             case INTAKE_CARGO:
                 if (!IntakeCargo.get(1)) {
@@ -258,8 +258,11 @@ public class Superstructure extends GZSubsystem {
             // elev.setHeight(Heights.Home);
             break;
         case STOW:
+            stow();
+            break;
         case STOW_LOW:
             stow();
+            elev.setHeight(Heights.HP_1);
             break;
         case TRNSFR_HP_FROM_FLOOR:
             done();
@@ -293,8 +296,7 @@ public class Superstructure extends GZSubsystem {
 
     public void dropCrawler() {
         Pneumatics.getInstance().dropCrawler();
-	}
-
+    }
 
     public void openClaw() {
         elev.openClaw();
@@ -340,5 +342,4 @@ public class Superstructure extends GZSubsystem {
     protected void initDefaultCommand() {
     }
 
-	
 }

@@ -16,7 +16,6 @@ import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class Robot extends TimedRobot {
 	// Force construction of files first
@@ -63,9 +62,9 @@ public class Robot extends TimedRobot {
 	}
 
 	@Override
-	public void robotPeriodic() {
-		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && drive.driveOutputLessThan(.05))
-			PersistentInfoManager.getInstance().requestRestart();
+public void robotPeriodic() {
+		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && drive.driveOutputLessThan(.05))
+		// 	PersistentInfoManager.getInstance().requestRestart();
 	}
 
 	@Override
