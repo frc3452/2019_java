@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
-import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -49,13 +48,6 @@ public class Robot extends TimedRobot {
 		
 		infoManager.initialize();
 
-
-		System.out.println("Path adapter");
-		System.out.println(PathAdapter.feederStation);
-		System.out.println(PathAdapter.cargoShipFace);
-		System.out.println(PathAdapter.cargoShipBay1);
-		System.out.println(PathAdapter.cargoShipBay2);
-		System.out.println(PathAdapter.cargoShipBay3);
 		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.25);
 
 		// Gen health file
