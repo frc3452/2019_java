@@ -8,13 +8,9 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 public class To_Feeder_Station_Same extends PathContainer {
     public To_Feeder_Station_Same() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(163, 251 - 20, 0, 30));
-        sWaypoints.add(new Waypoint(115.206, 298.28 - 20, 10, 60));
-        sWaypoints.add(new Waypoint(67.35300000000001, 298.28 - 20, 1, 30));
-
-        // sWaypoints.add(new Waypoint(163, 251, 0, 30));
-        // sWaypoints.add(new Waypoint(115.206, 298.28, 10, 60));
-        // sWaypoints.add(new Waypoint(67.35300000000001, 298.28, 1, 30));
+        sWaypoints.add(new Waypoint(163, 251, 0, 30));
+        sWaypoints.add(new Waypoint(115.206, 298.28, 10, 60));
+        sWaypoints.add(new Waypoint(67.35300000000001, 298.28, 1, 30));
 
         sWaypoints.add(new Waypoint(19.5, 298.28, 0, 30));
     }

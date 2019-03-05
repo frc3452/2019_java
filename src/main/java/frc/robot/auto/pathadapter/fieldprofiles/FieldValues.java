@@ -59,6 +59,14 @@ public class FieldValues<T> {
         return this.mBlueRight;
     }
 
+    @Override
+    public String toString() {
+        String out = "RedLeft [" + mRedLeft + "]\tRedRight [" + mRedRight + "]\tBlueLeft [" + mBlueLeft
+                + "]\tBlueRight[" + mBlueRight + "]";
+
+        return out;
+    }
+
     public T get(Alliance a, boolean left) {
         switch (a) {
         case Red:
