@@ -15,6 +15,7 @@ public class Left_CS_Face_Same extends PathContainer {
         sWaypoints.add(new Waypoint(178.3705, 172.88, 1, 30).setFieldAdaption(PathAdapter.cargoShipFace));
         sWaypoints.add(new Waypoint(200.75, 172.88, 0, 30).setFieldAdaption(PathAdapter.cargoShipFace));
     }
+    
 
     @Override
     public boolean isReversed() {
