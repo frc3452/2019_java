@@ -4,7 +4,6 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
@@ -118,8 +117,8 @@ public class GZOI extends GZSubsystem {
 			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
-			// handleSuperStructureControl(driverJoy);
-			handleSuperStructureControl(op);
+			handleSuperStructureControl(driverJoy);
+			// handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
 			// handleElevatorTesting();
@@ -166,26 +165,26 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleDriverController() {
-		if (driverJoy.getButton(Buttons.LB)) {
+		// if (driverJoy.getButton(Buttons.LB)) {
 
-			if (driverJoy.getButton(Buttons.A))
-				drive.wantShift(ClimbingState.NONE);
-			else if (driverJoy.getButton(Buttons.B))
-				drive.wantShift(ClimbingState.FRONT);
-			else if (driverJoy.getButton(Buttons.X))
-				drive.wantShift(ClimbingState.BOTH);
+		// 	if (driverJoy.getButton(Buttons.A))
+		// 		drive.wantShift(ClimbingState.NONE);
+		// 	else if (driverJoy.getButton(Buttons.B))
+		// 		drive.wantShift(ClimbingState.FRONT);
+		// 	else if (driverJoy.getButton(Buttons.X))
+		// 		drive.wantShift(ClimbingState.BOTH);
 
-		} else {
+		// } else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
-		}
+		// }
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
-		if (driverJoy.getButtonLatched(Buttons.RB))
-			drive.toggleStraightClimb();
+		// if (driverJoy.getButtonLatched(Buttons.RB))
+		// 	drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
 	}

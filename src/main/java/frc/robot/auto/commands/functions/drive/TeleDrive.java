@@ -24,7 +24,7 @@ public class TeleDrive extends Command {
     }
 
     public TeleDrive() {
-        this(false);
+        this(true);
     }
 
     protected void initialize() {

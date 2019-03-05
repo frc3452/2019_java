@@ -16,6 +16,12 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
 public class GZCommandGroup extends CommandGroup {
     private static final String DEFAULT_MARKER = "PrepForAction";
 
+    public synchronized static GZCommandGroup getTeleDrive() {
+        GZCommandGroup ret = new GZCommandGroup();
+        ret.tele();
+        return ret;
+    }
+
     public static class InstantCompletion extends Command {
         public InstantCompletion() {
         }
@@ -63,11 +69,6 @@ public class GZCommandGroup extends CommandGroup {
         add(new ResetPoseFromPath(pc));
     }
 
-    public void resetDrivePaths(ArrayList<PathContainer> paths) {
-        resetPos(paths.get(0));
-        drivePaths(paths);
-    }
-
     public void waitForMarkerThen(ArrayList<Command> c) {
         waitForMarkerThen(DEFAULT_MARKER, c);
     }
@@ -79,16 +80,18 @@ public class GZCommandGroup extends CommandGroup {
         add(ret);
     }
 
-    public void resetDrivePathsAnd(ArrayList<PathContainer> paths) {
+    public void resetDrivePaths(ArrayList<PathContainer> paths) {
+        resetDrivePaths(paths, false);
+    }
+
+    public void resetDrivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         ret.resetPos(paths.get(0));
         ret.drivePaths(paths);
-        and(ret);
-    }
-
-    public void drivePaths(ArrayList<PathContainer> paths) {
-        for (PathContainer p : paths)
-            drivePath(p);
+        if (parallel)
+            and(ret);
+        else
+            add(ret);
     }
 
     public void drivePath(PathContainer pc) {
@@ -99,11 +102,18 @@ public class GZCommandGroup extends CommandGroup {
         and(new DrivePath(pc));
     }
 
-    public void drivePathsAnd(ArrayList<PathContainer> paths) {
+    public void drivePaths(ArrayList<PathContainer> paths) {
+        drivePaths(paths, false);
+    }
+
+    public void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         for (PathContainer p : paths)
             ret.drivePath(p);
 
-        and(ret);
+        if (parallel)
+            and(ret);
+        else
+            add(ret);
     }
 }

@@ -1,11 +1,14 @@
 package frc.robot.subsystems;
 
+import java.text.DecimalFormat;
+
 import edu.wpi.first.wpilibj.Compressor;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.util.GZLog.LogItem;
+import frc.robot.util.GZNotifier;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
@@ -20,6 +23,14 @@ public class Pneumatics extends GZSubsystem {
 
     private int mCrawlerPresses = 0;
 
+    private DecimalFormat df = new DecimalFormat("#0.00");
+
+    private GZNotifier mPressurePrint = new GZNotifier(() -> {
+        if (getPressure() < kPneumatics.LOW_PRESSURE_PRINT_SETPOINT)
+            System.out.println(
+                    "Warning Pressure below " + kPneumatics.LOW_PRESSURE_PRINT_SETPOINT + ": " + df.format(getPressure()));
+    });
+
     public static Pneumatics getInstance() {
         if (mInstance == null)
             mInstance = new Pneumatics();
@@ -32,6 +43,8 @@ public class Pneumatics extends GZSubsystem {
         mClimberCrawler = new GZSolenoid(kSolenoids.CRAWLER, this, "Climber crawler");
         mPressureSensor = new GZAnalogInput(this, "Pressure sensor", kPneumatics.PRESSURE_GUAGE_PORT,
                 kPneumatics.PRESSURE_GUAGE_INFO);
+
+        // mPressurePrint.startPeriodic(2);
     }
 
     public double getPressure() {

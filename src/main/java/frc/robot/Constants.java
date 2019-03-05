@@ -79,7 +79,7 @@ public class Constants {
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 
-		public final static double ELEV_TURN_SCALAR = 1.00; // 1.67
+		public final static double ELEV_TURN_SCALAR = 1.65; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
 		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
@@ -136,31 +136,32 @@ public class Constants {
 		// our speed
 		// in inches per sec
 
+		//DEFAULT
 		// public static double kPathFollowingProfileKp = 5.00;
 		// public static double kPathFollowingProfileKi = 0.03;
 		// public static double kPathFollowingProfileKv = 0.02;
 		// public static double kPathFollowingProfileKffv = 1.0;
 		// public static double kPathFollowingProfileKffa = 0.05;
 
-		static double kPathFollowingProfileKp = 1.8;
+		static double kPathFollowingProfileKp = 3.50;
 		static double kPathFollowingProfileKi = 0.06;
 		static double kPathFollowingProfileKv = 0.02;
-		static double kPathFollowingProfileKffv = 1.0 * 0.7;
-		static double kPathFollowingProfileKffa = 0.05 * 1;
+		static double kPathFollowingProfileKffv = 1.0 * 0.5;
+		static double kPathFollowingProfileKffa = 0.05 * 1.0;
 
-		// "OKRR"
-		// public static double kPathFollowingProfileKp = 2.5;
-		// public static double kPathFollowingProfileKi = 0.06;
-		// public static double kPathFollowingProfileKv = 0.02;
-		// public static double kPathFollowingProfileKffv = 1.0 * .5;
-		// public static double kPathFollowingProfileKffa = 0.05 * 1;
+		//START OF WEEK OF SAINT JOE
+		//static double kPathFollowingProfileKp = 1.8;
+		// static double kPathFollowingProfileKi = 0.06;
+		// static double kPathFollowingProfileKv = 0.02;
+		// static double kPathFollowingProfileKffv = 1.0 * 0.7;
+		// static double kPathFollowingProfileKffa = 0.05 * 1;
 
 		static double kSegmentCompletionTolerance = 0.1; // inches
 		// public static double kPathFollowingGoalPosTolerance = 0.75;
 		static double kPathFollowingGoalPosTolerance = 0.5;
 		static double kPathFollowingGoalVelTolerance = 12.0;
-		// public static double kPathStopSteeringDistance = 9;
-		static double kPathStopSteeringDistance = 0;
+		public static double kPathStopSteeringDistance = 9;
+		// static double kPathStopSteeringDistance = 12;
 
 		public final static PathFollower.Parameters pathFollowingConstants = new PathFollower.Parameters(
 				new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed),
@@ -249,6 +250,7 @@ public class Constants {
 		// http://www.revrobotics.com/rev-11-1107/
 		public static final int PRESSURE_GUAGE_PORT = 0;
 		public static final AnalogInputConstants PRESSURE_GUAGE_INFO = new AnalogInputConstants(.5, 4.5, 0, 200);
+		public static final double LOW_PRESSURE_PRINT_SETPOINT = 60;
 	}
 
 	public static class kFiles {

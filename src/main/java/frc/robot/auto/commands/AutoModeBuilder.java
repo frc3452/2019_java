@@ -31,18 +31,20 @@ public class AutoModeBuilder {
             : GamePiece.HATCH_PANEL;
 
     public enum StartingPosition {
-        LEFT(true, false), CENTER(false, false), RIGHT(true, true);
+        LEFT(true, false, "Left"), CENTER(false, false, "Center"), RIGHT(true, true, "Right");
 
         private final boolean onLeft;
         private final boolean onRight;
+        private final String name;
 
-        private StartingPosition(boolean onLeft, boolean onRight) {
+        private StartingPosition(boolean onLeft, boolean onRight, String name) {
             this.onLeft = onLeft;
             this.onRight = onRight;
+            this.name = name;
         }
     }
 
-    public class ScoringLocation {
+    public static class ScoringLocation {
         private final ScoringPosition pos;
         private final ScoringSide side;
 
@@ -54,11 +56,19 @@ public class AutoModeBuilder {
     }
 
     public enum ScoringPosition {
-        CARGO_SHIP_FACE(), CARGO_SHIP_BAY_1(), CARGO_SHIP_BAY_2(), CARGO_SHIP_BAY_3(), ROCKET_NEAR, ROCKET_MID,
-        ROCKET_FAR;
+        CARGO_SHIP_FACE(), CARGO_SHIP_BAY_1(), CARGO_SHIP_BAY_2(), CARGO_SHIP_BAY_3(), ROCKET_NEAR(false),
+        ROCKET_MID(false), ROCKET_FAR(false);
+
+        public final boolean cargoShip;
+
+        private ScoringPosition(boolean isCargoShip) {
+            this.cargoShip = isCargoShip;
+        }
 
         private ScoringPosition() {
+            this(true);
         }
+
     }
 
     public enum GamePiece {
@@ -77,13 +87,15 @@ public class AutoModeBuilder {
     }
 
     public enum ScoringSide {
-        LEFT(true), RIGHT(false);
+        LEFT(true, "L"), RIGHT(false, "R");
         private final boolean onLeft;
         private final boolean onRight;
+        private final String text;
 
-        private ScoringSide(boolean onLeft) {
+        private ScoringSide(boolean onLeft, String text) {
             this.onLeft = onLeft;
             this.onRight = !this.onLeft;
+            this.text = text;
         }
     }
 
@@ -194,20 +206,20 @@ public class AutoModeBuilder {
             ArrayList<PathContainer> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
                 ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same().get(station.onLeft));
             } else {
                 ret.add(new CS_Face_Turn_Around_Opp().get(location.side.onLeft));
             }
-            ret.add(new To_Feeder_Station_Same().get(station.onLeft));
             return ret;
         }
         return null;
     }
 
-    public static Command prepForFeederStation() {
+    public static ArrayList<Command> prepForFeederStation() {
         return null;
     }
 
-    public static Command retrieveFromFeederStation() {
+    public static ArrayList<Command> retrieveFromFeederStation() {
         return null;
     }
 
@@ -219,31 +231,52 @@ public class AutoModeBuilder {
 
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation scoringLocation,
             final FeederStation nextStation, final Supplier<GamePiece> gamePiece) {
+
         GZCommandGroup com = new GZCommandGroup() {
             {
                 {
+                    ArrayList<Command> prepForScore = prepForScoring(scoringLocation, gamePiece.get());
+
                     // Drive first path
                     GZCommandGroup driveOne = new GZCommandGroup();
-                    driveOne.resetDrivePathsAnd(getFirstPath(startPos, scoringLocation));
+
+                    // Parallel if we have a score command
+                    driveOne.resetDrivePaths(getFirstPath(startPos, scoringLocation), prepForScore != null);
 
                     // While waiting to prep superstructure
-                    driveOne.waitForMarkerThen(prepForScoring(scoringLocation, gamePiece.get()));
+                    if (prepForScore != null)
+                        driveOne.waitForMarkerThen(prepForScore);
 
                     this.add(driveOne);
                 }
 
-                add(getScoringCommand(scoringLocation, gamePiece.get()));
+                {
+                    ArrayList<Command> score = getScoringCommand(scoringLocation, gamePiece.get());
+                    if (score != null)
+                        add(score);
+                }
                 {
                     GZCommandGroup driveTwo = new GZCommandGroup();
-                    driveTwo.drivePathsAnd(getScoredPosToFeederStation(scoringLocation, nextStation));
-                    driveTwo.add(prepForFeederStation());
+                    ArrayList<Command> prepForFeeder = prepForFeederStation();
+
+                    driveTwo.drivePaths(getScoredPosToFeederStation(scoringLocation, nextStation),
+                            prepForFeeder != null);
+
+                    if (prepForFeeder != null)
+                        driveTwo.waitForMarkerThen(prepForFeeder);
                     this.add(driveTwo);
                 }
-                add(retrieveFromFeederStation());
+
+                {
+                    ArrayList<Command> retrieve = retrieveFromFeederStation();
+                    if (retrieve != null)
+                        add(retrieve);
+                }
             }
         };
 
-        GZCommand ret = new GZCommand("", () -> com);
+        GZCommand ret = new GZCommand(startPos.name + " --> " + scoringLocation.side.text + " " + scoringLocation.pos,
+                () -> com);
         return ret;
     }
 

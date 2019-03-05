@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
-import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
 import frc.robot.auto.pathadapter.robotprofiles.PracticeBot;
 import frc.robot.auto.pathadapter.robotprofiles.RobotProfile;
@@ -17,7 +16,7 @@ public class PathAdapter {
     private static final DriverStation ds = DriverStation.getInstance();
 
     public static FieldProfile kReferenceField = new ReferenceField();
-    public static FieldProfile kCurrentField = new PracticeField();
+    public static FieldProfile kCurrentField = new ReferenceField();
 
     private static RobotProfile kRobotProfile = new PracticeBot();
 

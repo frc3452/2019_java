@@ -80,8 +80,7 @@ public class PathBuilder {
             speed = s;
         }
 
-        public Translation2d getPosition()
-        {
+        public Translation2d getPosition() {
             return position;
         }
 

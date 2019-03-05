@@ -5,9 +5,14 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
+import frc.robot.auto.commands.AutoModeBuilder;
+import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
+import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
@@ -65,6 +70,15 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
+		// commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
+		// {
+		// ArrayList<PathContainer> list = new Left_CS_Face_Same().toList();
+		// resetDrivePaths(list);
+		// }
+		// }));
+
+		commandArray.add(AutoModeBuilder.getCommand(StartingPosition.LEFT,
+				new ScoringLocation(ScoringPosition.CARGO_SHIP_FACE, ScoringSide.LEFT), FeederStation.LEFT));
 		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
 			{
 				// resetDrive(new Left_CS_Bay_1_Opp().getLeft().print());
