@@ -3,8 +3,8 @@ package frc.robot.util.drivers.controllers;
 public class OperatorController extends DeepSpaceController {
         private boolean firstSet = false;
 
-        private boolean isButtonBoard = true;
-        private boolean p_isButtonBoard = false;
+        private boolean isButtonBoard = false;
+        private boolean p_isButtonBoard = true;
 
         public OperatorController() {
                 this(1);

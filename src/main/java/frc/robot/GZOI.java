@@ -8,6 +8,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Superstructure;
@@ -28,6 +29,7 @@ import frc.robot.util.drivers.controllers.OperatorController;
 
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
+	// public static GZJoystick driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
 
 	private UsbCamera mCamera;
@@ -116,8 +118,8 @@ public class GZOI extends GZSubsystem {
 			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
-			handleSuperStructureControl(driverJoy);
-			// handleSuperStructureControl(op);
+			// handleSuperStructureControl(driverJoy);
+			handleSuperStructureControl(op);
 			handleDriverController();
 			handleRumble();
 			// handleElevatorTesting();
@@ -164,26 +166,28 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleDriverController() {
-		// if (driverJoy.getButton(Buttons.LB)) {
+		if (driverJoy.getButton(Buttons.LB)) {
 
-		// if (driverJoy.getButton(Buttons.A))
-		// drive.wantShift(ClimbingState.NONE);
-		// else if (driverJoy.getButton(Buttons.B))
-		// drive.wantShift(ClimbingState.FRONT);
-		// else if (driverJoy.getButton(Buttons.X))
-		// drive.wantShift(ClimbingState.BOTH);
+			if (driverJoy.getButton(Buttons.A))
+				drive.wantShift(ClimbingState.NONE);
+			else if (driverJoy.getButton(Buttons.B))
+				drive.wantShift(ClimbingState.FRONT);
+			else if (driverJoy.getButton(Buttons.Y))
+				drive.wantShift(ClimbingState.REAR);
+			else if (driverJoy.getButton(Buttons.X))
+				drive.wantShift(ClimbingState.BOTH);
 
-		// } else {
-		if (driverJoy.getButtonLatched(Buttons.A)) {
-			drive.toggleSlowSpeed();
+		} else {
+			if (driverJoy.getButtonLatched(Buttons.A)) {
+				drive.toggleSlowSpeed();
+			}
 		}
-		// }
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
-		// if (driverJoy.getButtonLatched(Buttons.RB))
-		// drive.toggleStraightClimb();
+		if (driverJoy.getButtonLatched(Buttons.RB))
+			drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
 	}
@@ -233,7 +237,8 @@ public class GZOI extends GZSubsystem {
 			supe.lowerIntake();
 		else if (controller.intakeUp.updated())
 			supe.raiseIntake();
-		else if (controller.dropCrawler.updated())
+
+		if (controller.dropCrawler.updated())
 			supe.dropCrawler();
 	}
 

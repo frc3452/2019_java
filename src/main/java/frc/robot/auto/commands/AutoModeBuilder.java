@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.superstructure.GoToHeight;
+import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -25,8 +28,8 @@ import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around_2;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_1;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_2;
-import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 
@@ -62,6 +65,10 @@ public class AutoModeBuilder {
         @Override
         public String toString() {
             return this.side.toString() + " " + this.pos.toString();
+        }
+
+        public boolean isOnCargoShip() {
+            return this.pos.cargoShip;
         }
     }
 
@@ -212,13 +219,24 @@ public class AutoModeBuilder {
 
     }
 
-    public static ArrayList<Command> getScoringCommand(ScoringLocation location, GamePiece gamepiece) {
-        switch (location.pos) {
-        case CARGO_SHIP_BAY_1:
-            break;
+    public static Command getScoringCommand(ScoringLocation location, GamePiece gamepiece) {
+        GZCommandGroup ret = new GZCommandGroup();
+
+        if (location.isOnCargoShip()) {
+            switch (gamepiece) {
+            case CARGO:
+                ret.add(new GoToHeight(Heights.Cargo_Ship));
+                ret.add(new RunAction(Actions.THROW_CARGO));
+                break;
+            case HATCH_PANEL:
+                ret.add(new RunAction(Actions.SCORE_HATCH));
+                break;
+            }
+        } else {
+            // I guess we die?
         }
 
-        return null;
+        return ret;
     }
 
     public static ArrayList<Command> prepForScoring(ScoringLocation location, GamePiece gamepiece) {
@@ -264,19 +282,19 @@ public class AutoModeBuilder {
                 return null;
             }
             return ret;
-            }   
+        }
 
-            case CARGO_SHIP_BAY_3: {
-                ArrayList<PathContainer> ret = new ArrayList<>();
-                if (feederSameSide(location, station)) {
-                    ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
-                    ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
-                    ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-                } else {
-                    return null;
-                }
-                return ret;
-                }   
+        case CARGO_SHIP_BAY_3: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
+                ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+        }
         }
 
         return null;
@@ -294,6 +312,11 @@ public class AutoModeBuilder {
             final FeederStation nextStation) {
 
         return getCommand(startPos, location, nextStation, mGamePieceSupplier);
+    }
+
+    public static ArrayList<GZCommand> get()
+    {
+        return null;
     }
 
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation scoringLocation,
@@ -318,7 +341,7 @@ public class AutoModeBuilder {
                 }
 
                 {
-                    ArrayList<Command> score = getScoringCommand(scoringLocation, gamePiece.get());
+                    Command score = getScoringCommand(scoringLocation, gamePiece.get());
                     if (score != null)
                         add(score);
                 }
@@ -342,7 +365,8 @@ public class AutoModeBuilder {
             }
         };
 
-        GZCommand ret = new GZCommand(startPos.name + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(), () -> com);
+        GZCommand ret = new GZCommand(
+                startPos.name + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(), () -> com);
         return ret;
     }
 

@@ -3,18 +3,22 @@ package frc.robot.auto.commands.functions.superstructure;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Superstructure;
 
 public class GoToHeight extends Command {
 
-  private Heights mHeight;
+  private double inches;
+
+  public GoToHeight(double inches) {
+    this.inches = inches;
+  }
+
   public GoToHeight(Heights h) {
-    this.mHeight = h;
+    this(h.inches);
   }
 
   @Override
   protected void initialize() {
-    Superstructure.getInstance().runHeight(mHeight);
+    Elevator.getInstance().setHeight(inches);
   }
 
   @Override

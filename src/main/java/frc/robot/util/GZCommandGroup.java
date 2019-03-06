@@ -84,6 +84,13 @@ public class GZCommandGroup extends CommandGroup {
         resetDrivePaths(paths, false);
     }
 
+    public ArrayList<GZCommandGroup> toList()
+    {
+        ArrayList<GZCommandGroup> ret = new ArrayList<GZCommandGroup>();
+        ret.add(this);
+        return ret;
+    }
+
     public void resetDrivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         ret.resetPos(paths.get(0));

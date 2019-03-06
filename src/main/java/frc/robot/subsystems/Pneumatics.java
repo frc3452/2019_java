@@ -27,8 +27,8 @@ public class Pneumatics extends GZSubsystem {
 
     private GZNotifier mPressurePrint = new GZNotifier(() -> {
         if (getPressure() < kPneumatics.LOW_PRESSURE_PRINT_SETPOINT)
-            System.out.println(
-                    "Warning Pressure below " + kPneumatics.LOW_PRESSURE_PRINT_SETPOINT + ": " + df.format(getPressure()));
+            System.out.println("Warning Pressure below " + kPneumatics.LOW_PRESSURE_PRINT_SETPOINT + ": "
+                    + df.format(getPressure()));
     });
 
     public static Pneumatics getInstance() {
@@ -54,6 +54,7 @@ public class Pneumatics extends GZSubsystem {
     public void dropCrawler() {
         if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS)
             mClimberCrawler.on();
+        System.out.println("CRAWLER PRESSED : " + mCrawlerPresses);
     }
 
     @Override

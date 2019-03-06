@@ -168,7 +168,7 @@ public class PersistentInfoManager {
 
         @Override
         public void readSetting() {
-            GZOI.op.setButtonBoard(this.getValue() == 0);
+            // GZOI.op.setButtonBoard(this.getValue() == 0);
         }
     };
 

@@ -723,7 +723,7 @@ public class Drive extends GZSubsystem {
 
 	private void shift(ClimbingState state) {
 		mShifterFront.set(state == ClimbingState.BOTH || state == ClimbingState.FRONT);
-		mShifterRear.set(state == ClimbingState.BOTH);
+		mShifterRear.set(state == ClimbingState.BOTH || state == ClimbingState.REAR);
 		mClimbState = state;
 	}
 
@@ -767,7 +767,7 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	private synchronized boolean handleAutomaticClimb(double desired_speed) {
+	private synchronized void handleAutomaticClimb(double desired_speed) {
 		final double pitch = mNavX.getRoll();
 
 		// tons of weird inversions but we're gonna leave it cause it works
@@ -797,7 +797,6 @@ public class Drive extends GZSubsystem {
 		}
 
 		runClimber(-front, -rear);
-		return true;
 	}
 
 	public synchronized void toggleStraightClimb() {
@@ -810,21 +809,26 @@ public class Drive extends GZSubsystem {
 
 		// RIGHT IS REAR
 		if (mWantAutoClimb && !joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
-				&& mClimbState == ClimbingState.BOTH && handleAutomaticClimb(joy.getLeftAnalogY() * .25)) {
+				&& mClimbState == ClimbingState.BOTH) {
+			handleAutomaticClimb(joy.getLeftAnalogY() * .25);
 			mIsAutoClimbing = true;
 		} else {
 			switch (mClimbState) {
 			case BOTH:
-				if (joy.getLeftTriggerPressed()) {
-					runClimber(joy.getLeftAnalogY() * .25, 0);
-				} else if (joy.getRightTriggerPressed()) {
-					runClimber(0, joy.getLeftAnalogY() * .25);
-				} else {
-					runClimber(joy.getLeftAnalogY() * .25, joy.getLeftAnalogY() * .25);
-				}
+
+				final double val = joy.getLeftAnalogY() * .25;
+				double rear = 0, front = 0;
+
+				front = val * (1 - Math.abs(joy.getLeftTrigger()));
+				rear = val * (1 - Math.abs(joy.getRightTrigger()));
+
+				runClimber(front, rear);
 				break;
 			case FRONT:
-				runClimber(joy.getRightAnalogY(), joy.getLeftAnalogY());
+				runClimber(joy.getRightAnalogY() * .75, joy.getLeftAnalogY() * .25);
+				break;
+			case REAR:
+				runClimber(0, joy.getLeftAnalogY() * .25);
 				break;
 			}
 			mIsAutoClimbing = false;
@@ -1186,7 +1190,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public enum ClimbingState {
-		FRONT, BOTH, NONE, MOVING
+		FRONT, BOTH, NONE, MOVING, REAR
 	}
 
 	protected void initDefaultCommand() {

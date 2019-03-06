@@ -32,13 +32,13 @@ public class Constants {
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
 
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 4, 4);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 4.0, 4.0);
 
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 4, 4);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 0.75, 0.75);
 
-		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 2, 2);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2, 6);
+		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 6.0);
 
 		// NOT CORRECT
 		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
@@ -74,6 +74,8 @@ public class Constants {
 		public static final double INTAKE_HIGH_HEIGHT = 45;
 		public static final double INTAKE_TOLERANCE = 2;
 
+		public static final double HATCH_PLACING_JOG = 2;
+
 		public static final int CARGO_SENSOR_CHANNEL = 2;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
 
@@ -82,7 +84,9 @@ public class Constants {
 		public final static double ELEV_TURN_SCALAR = 1.65; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
+
 		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
+		public static final double THROW_CARGO_DELAY = 0.1;
 
 		public static enum Heights {
 
@@ -136,7 +140,7 @@ public class Constants {
 		// our speed
 		// in inches per sec
 
-		//DEFAULT
+		// DEFAULT
 		// public static double kPathFollowingProfileKp = 5.00;
 		// public static double kPathFollowingProfileKi = 0.03;
 		// public static double kPathFollowingProfileKv = 0.02;
@@ -149,8 +153,8 @@ public class Constants {
 		static double kPathFollowingProfileKffv = 1.0 * 0.5;
 		static double kPathFollowingProfileKffa = 0.05 * 1.0;
 
-		//START OF WEEK OF SAINT JOE
-		//static double kPathFollowingProfileKp = 1.8;
+		// START OF WEEK OF SAINT JOE
+		// static double kPathFollowingProfileKp = 1.8;
 		// static double kPathFollowingProfileKi = 0.06;
 		// static double kPathFollowingProfileKv = 0.02;
 		// static double kPathFollowingProfileKffv = 1.0 * 0.7;

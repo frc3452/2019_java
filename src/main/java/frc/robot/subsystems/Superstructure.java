@@ -5,6 +5,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
+import frc.robot.util.GZNotifier;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 
@@ -13,9 +14,16 @@ public class Superstructure extends GZSubsystem {
     private Elevator elev = Elevator.getInstance();
     private Intake intake = Intake.getInstance();
 
+    private GZNotifier mThrowCargo = new GZNotifier(() -> {
+        {
+            openClaw();
+        }
+    });
+
     private GZSubsystemManager subsystems;
 
     private GZFlag mActionDone = new GZFlag();
+    private GZFlagMultiple ScoreHP = new GZFlagMultiple(-1);
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
@@ -37,7 +45,8 @@ public class Superstructure extends GZSubsystem {
     private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_QUEUED_HEIGHT;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, TRNSFR_HP_FROM_FLOOR, GRAB_HP_FROM_FEED, GO_TO_QUEUED_HEIGHT,
+        THROW_CARGO, SCORE_HATCH;
 
         // MOVE CARGO ACROSS FLOOR
     }
@@ -58,6 +67,13 @@ public class Superstructure extends GZSubsystem {
                 break;
             case STOW:
                 if (isStowed())
+                    done();
+                break;
+
+            case SCORE_HATCH:
+                break;
+            case THROW_CARGO:
+                if (elev.areSlidesOut() && elev.isClawOpen())
                     done();
                 break;
             case STOW_LOW:
@@ -112,7 +128,7 @@ public class Superstructure extends GZSubsystem {
                 break;
             case TRNSFR_HP_FROM_FLOOR:
                 done();
-                if (1 == 1)
+                if (true)
                     return;
                 elev.setHeight(Heights.HP_Floor_Grab);
                 if (elev.nearTarget()) {
@@ -263,6 +279,10 @@ public class Superstructure extends GZSubsystem {
         case STOW_LOW:
             stow();
             elev.setHeight(Heights.HP_1);
+            break;
+        case THROW_CARGO:
+            elev.extendSlides();
+            mThrowCargo.startSingle(kElevator.THROW_CARGO_DELAY);
             break;
         case TRNSFR_HP_FROM_FLOOR:
             done();

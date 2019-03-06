@@ -213,7 +213,7 @@ public class Elevator extends GZSubsystem {
         setHeight(Heights.Home);
     }
 
-    protected void setHeight(double heightInInches) {
+    public void setHeight(double heightInInches) {
         setHeight(heightInInches, false);
     }
 
@@ -380,7 +380,7 @@ public class Elevator extends GZSubsystem {
     private void handleNonZero() {
         setWantedState(ElevatorState.MANUAL);
         switchToState(ElevatorState.MANUAL);
-        mIO.desired_output = -.15;
+        mIO.desired_output = -.1;
         if (this.mIO.bottom_limit_switch) {
             mElevator1.zero();
             this.mZeroed.tripFlag();
@@ -568,7 +568,7 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
-        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT)
+        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0))
             mCarriageSlide.stateChange();
 
         if (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT) {

@@ -14,7 +14,6 @@ import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.util.GZCommand;
-import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
@@ -70,24 +69,10 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		// commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
-		// {
-		// ArrayList<PathContainer> list = new Left_CS_Face_Same().toList();
-		// resetDrivePaths(list);
-		// }
-		// }));
+		commandArray.addAll(AutoModeBuilder.get());
 
 		commandArray.add(AutoModeBuilder.getCommand(StartingPosition.LEFT,
 				new ScoringLocation(ScoringPosition.CARGO_SHIP_FACE, ScoringSide.LEFT), FeederStation.LEFT));
-		commandArray.add(new GZCommand("The 1", () -> new GZCommandGroup() {
-			{
-				// resetDrive(new Left_CS_Bay_1_Opp().getLeft().print());
-				// drivePath(new Left_CS_Bay_1_Opp().getRight().print());
-				// resetDrive(new L_CS_Face_L());
-				// tele();
-				// drivePath(new Jank_To_Feed());
-			}
-		}));
 
 		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
 
