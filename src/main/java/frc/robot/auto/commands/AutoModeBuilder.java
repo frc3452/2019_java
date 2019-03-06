@@ -13,6 +13,9 @@ import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
+import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_1;
+import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Opp_2;
+import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Same_2;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_2_Opp;
@@ -146,6 +149,7 @@ public class AutoModeBuilder {
             return true;
         else if (location.side == ScoringSide.RIGHT && station == FeederStation.RIGHT)
             return true;
+            
         return false;
     }
 
@@ -300,6 +304,24 @@ public class AutoModeBuilder {
         return null;
     }
 
+    private static ArrayList<PathContainer> getFeederStationToSecondPlacement(FeederStation station,
+            ScoringLocation location) {
+        switch (location.pos) {
+        case CARGO_SHIP_FACE: {
+
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            ret.add(new Feeder_Station_To_CS_Face_1().get(station.onLeft));
+            if (feederSameSide(location, station)) {
+                ret.add(new Feeder_Station_To_CS_Face_Same_2().get(station.onLeft));
+            } else {
+                ret.add(new Feeder_Station_To_CS_Face_Opp_2().get(station.onLeft));
+            }
+            return ret;
+        }
+        }
+        return null;
+    }
+
     public static ArrayList<Command> prepForFeederStation() {
         return null;
     }
@@ -361,6 +383,11 @@ public class AutoModeBuilder {
                     ArrayList<Command> retrieve = retrieveFromFeederStation();
                     if (retrieve != null)
                         add(retrieve);
+                }
+
+                {
+                    GZCommandGroup driveThree = new GZCommandGroup();
+                    driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation, scoringLocation));
                 }
             }
         };
