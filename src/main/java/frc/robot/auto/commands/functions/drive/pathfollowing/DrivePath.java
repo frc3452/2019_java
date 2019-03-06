@@ -10,7 +10,6 @@ public class DrivePath extends Command {
 
   public DrivePath(PathContainer p) {
     requires(drive);
-
     mPathContainer = p;
   }
 

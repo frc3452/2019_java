@@ -796,7 +796,6 @@ public class Drive extends GZSubsystem {
 			rear = temp;
 		}
 
-		System.out.println(pitch);
 		runClimber(-front, -rear);
 		return true;
 	}
@@ -810,11 +809,10 @@ public class Drive extends GZSubsystem {
 		mIsSlow = true;
 
 		// RIGHT IS REAR
-		if (mWantAutoClimb && handleAutomaticClimb(joy.getLeftAnalogY() * .25) && !joy.getLeftTriggerPressed()
-				&& !joy.getRightTriggerPressed() && mClimbState == ClimbingState.BOTH) {
+		if (mWantAutoClimb && !joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
+				&& mClimbState == ClimbingState.BOTH && handleAutomaticClimb(joy.getLeftAnalogY() * .25)) {
 			mIsAutoClimbing = true;
 		} else {
-
 			switch (mClimbState) {
 			case BOTH:
 				if (joy.getLeftTriggerPressed()) {
@@ -822,7 +820,7 @@ public class Drive extends GZSubsystem {
 				} else if (joy.getRightTriggerPressed()) {
 					runClimber(0, joy.getLeftAnalogY() * .25);
 				} else {
-					runClimber(joy.getLeftAnalogY() * .25, joy.getLeftAnalogY() * mModifyPercent);
+					runClimber(joy.getLeftAnalogY() * .25, joy.getLeftAnalogY() * .25);
 				}
 				break;
 			case FRONT:

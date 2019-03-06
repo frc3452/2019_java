@@ -55,24 +55,36 @@ public class AutoModeBuilder {
         private final ScoringSide side;
 
         public ScoringLocation(ScoringPosition pos, ScoringSide side) {
-
             this.pos = pos;
             this.side = side;
+        }
+
+        @Override
+        public String toString() {
+            return this.side.toString() + " " + this.pos.toString();
         }
     }
 
     public enum ScoringPosition {
-        CARGO_SHIP_FACE(), CARGO_SHIP_BAY_1(), CARGO_SHIP_BAY_2(), CARGO_SHIP_BAY_3(), ROCKET_NEAR(false),
-        ROCKET_MID(false), ROCKET_FAR(false);
+        CARGO_SHIP_FACE("Cargo Ship Face"), CARGO_SHIP_BAY_1("Cargo Ship Bay 1"), CARGO_SHIP_BAY_2("Cargo Ship Bay 2"),
+        CARGO_SHIP_BAY_3("Cargo Ship Bay 3"), ROCKET_NEAR("Rocket Near Face", false),
+        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false);
 
+        public final String text;
         public final boolean cargoShip;
 
-        private ScoringPosition(boolean isCargoShip) {
+        private ScoringPosition(String text, boolean isCargoShip) {
             this.cargoShip = isCargoShip;
+            this.text = text;
         }
 
-        private ScoringPosition() {
-            this(true);
+        private ScoringPosition(String text) {
+            this(text, true);
+        }
+
+        @Override
+        public String toString() {
+            return text;
         }
 
     }
@@ -82,18 +94,26 @@ public class AutoModeBuilder {
     }
 
     public enum FeederStation {
-        LEFT(true), RIGHT(false);
+        LEFT("Left Station", true), RIGHT("Right Station", false);
         private final boolean onLeft;
         private final boolean onRight;
+        private final String text;
 
-        private FeederStation(boolean onLeft) {
+        private FeederStation(String text, boolean onLeft) {
             this.onLeft = onLeft;
             this.onRight = !this.onLeft;
+            this.text = text;
         }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
     }
 
     public enum ScoringSide {
-        LEFT(true, "L"), RIGHT(false, "R");
+        LEFT(true, "Left"), RIGHT(false, "Right");
         private final boolean onLeft;
         private final boolean onRight;
         private final String text;
@@ -102,6 +122,11 @@ public class AutoModeBuilder {
             this.onLeft = onLeft;
             this.onRight = !this.onLeft;
             this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
         }
     }
 
@@ -317,8 +342,7 @@ public class AutoModeBuilder {
             }
         };
 
-        GZCommand ret = new GZCommand(startPos.name + " --> " + scoringLocation.side.text + " " + scoringLocation.pos,
-                () -> com);
+        GZCommand ret = new GZCommand(startPos.name + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(), () -> com);
         return ret;
     }
 
