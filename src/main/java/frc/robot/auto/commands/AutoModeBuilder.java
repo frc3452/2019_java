@@ -20,7 +20,13 @@ import frc.robot.auto.commands.paths.left.Left_CS_Face_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
+import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_1_Turn_Around;
+import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around_1;
+import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around_2;
+import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_1;
+import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_2;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same;
+import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 
@@ -201,17 +207,53 @@ public class AutoModeBuilder {
     public static ArrayList<PathContainer> getScoredPosToFeederStation(final ScoringLocation location,
             final FeederStation station) {
         switch (location.pos) {
-        case CARGO_SHIP_FACE:
-
+        case CARGO_SHIP_FACE: {
             ArrayList<PathContainer> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
                 ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same().get(station.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
             } else {
                 ret.add(new CS_Face_Turn_Around_Opp().get(location.side.onLeft));
             }
             return ret;
         }
+
+        case CARGO_SHIP_BAY_1: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Left_CS_Bay_1_Turn_Around().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+        }
+
+        case CARGO_SHIP_BAY_2: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Left_CS_Bay_2_Turn_Around_1().get(location.side.onLeft));
+                ret.add(new Left_CS_Bay_2_Turn_Around_2().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+            }   
+
+            case CARGO_SHIP_BAY_3: {
+                ArrayList<PathContainer> ret = new ArrayList<>();
+                if (feederSameSide(location, station)) {
+                    ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
+                    ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
+                    ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                } else {
+                    return null;
+                }
+                return ret;
+                }   
+        }
+
         return null;
     }
 
