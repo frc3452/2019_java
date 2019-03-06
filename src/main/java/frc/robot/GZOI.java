@@ -8,7 +8,6 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Superstructure;
@@ -80,7 +79,7 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 		// mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 	}
-	
+
 	@Override
 	public void loop() {
 		// FLAGS
@@ -167,24 +166,24 @@ public class GZOI extends GZSubsystem {
 	private void handleDriverController() {
 		// if (driverJoy.getButton(Buttons.LB)) {
 
-		// 	if (driverJoy.getButton(Buttons.A))
-		// 		drive.wantShift(ClimbingState.NONE);
-		// 	else if (driverJoy.getButton(Buttons.B))
-		// 		drive.wantShift(ClimbingState.FRONT);
-		// 	else if (driverJoy.getButton(Buttons.X))
-		// 		drive.wantShift(ClimbingState.BOTH);
+		// if (driverJoy.getButton(Buttons.A))
+		// drive.wantShift(ClimbingState.NONE);
+		// else if (driverJoy.getButton(Buttons.B))
+		// drive.wantShift(ClimbingState.FRONT);
+		// else if (driverJoy.getButton(Buttons.X))
+		// drive.wantShift(ClimbingState.BOTH);
 
 		// } else {
-			if (driverJoy.getButtonLatched(Buttons.A)) {
-				drive.toggleSlowSpeed();
-			}
+		if (driverJoy.getButtonLatched(Buttons.A)) {
+			drive.toggleSlowSpeed();
+		}
 		// }
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
 		// if (driverJoy.getButtonLatched(Buttons.RB))
-		// 	drive.toggleStraightClimb();
+		// drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
 	}
