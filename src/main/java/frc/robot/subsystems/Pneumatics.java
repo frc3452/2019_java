@@ -53,8 +53,10 @@ public class Pneumatics extends GZSubsystem {
 
     public void dropCrawler() {
         if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS)
+        {
             mClimberCrawler.on();
-        System.out.println("CRAWLER PRESSED : " + mCrawlerPresses);
+            System.out.println("CRAWLER PRESSED: " + mCrawlerPresses);
+        }
     }
 
     @Override

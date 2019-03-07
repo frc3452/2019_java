@@ -71,6 +71,25 @@ public class Superstructure extends GZSubsystem {
                 break;
 
             case SCORE_HATCH:
+                if (!ScoreHP.get(1)) {
+                    extendSlides();
+
+                    if (elev.areSlidesOut())
+                        ScoreHP.trip(1);
+
+                } else if (!ScoreHP.getNext()) {
+                    closeClaw();
+
+                    if (elev.isClawClosed())
+                        ScoreHP.tripNext();
+                } else if (!ScoreHP.getNext()) {
+                    elev.jogHeight(kElevator.HATCH_PLACING_JOG);
+                    if (elev.nearTarget())
+                        ScoreHP.tripNext();
+                } else if (!ScoreHP.getNext()) {
+                    
+                }
+
                 break;
             case THROW_CARGO:
                 if (elev.areSlidesOut() && elev.isClawOpen())

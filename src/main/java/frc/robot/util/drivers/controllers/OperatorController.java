@@ -16,13 +16,13 @@ public class OperatorController extends DeepSpaceController {
                 this.idle = new GZButton(this, () -> false, () -> false);
                 this.queueAction = new GZButton(this, () -> false, () -> false);
                 this.elevatorHome = new GZButton(this, () -> false, () -> false);
-                this.cargo1 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.A));
-                this.cargo2 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.B));
-                this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.X) && getButton(Buttons.Y));
+                this.cargo1 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.A));
+                this.cargo2 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.B));
+                this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.Y));
                 this.hatchPannel1 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.A) && !getButton(Buttons.X));
-                this.hatchPanel2 = new GZButton(this, () -> false, () -> getButton(Buttons.B) && !getButton(Buttons.X));
-                this.hatchPanel3 = new GZButton(this, () -> false, () -> getButton(Buttons.Y) && !getButton(Buttons.X));
+                                () -> getButton(Buttons.A) && !getButton(Buttons.LB));
+                this.hatchPanel2 = new GZButton(this, () -> false, () -> getButton(Buttons.B) && !getButton(Buttons.LB));
+                this.hatchPanel3 = new GZButton(this, () -> false, () -> getButton(Buttons.Y) && !getButton(Buttons.LB));
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
@@ -32,7 +32,7 @@ public class OperatorController extends DeepSpaceController {
                 this.cancel = new GZButton(this, () -> false, () -> false);
                 this.slidesToggle = new GZButton(this, () -> false, () -> getRightTriggerPressed());
                 this.clawToggle = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
-                this.intakeDown = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
+                this.intakeDown = new GZButton(this, () -> false, () -> false);
                 this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
 
                 this.stow = new GZButton(this, () -> false, () -> false);
