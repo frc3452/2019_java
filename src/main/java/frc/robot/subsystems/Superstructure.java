@@ -23,7 +23,7 @@ public class Superstructure extends GZSubsystem {
     private GZSubsystemManager subsystems;
 
     private GZFlag mActionDone = new GZFlag();
-    private GZFlagMultiple ScoreHP = new GZFlagMultiple(-1);
+    private GZFlagMultiple ScoreHP = new GZFlagMultiple(4);
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
@@ -87,7 +87,10 @@ public class Superstructure extends GZSubsystem {
                     if (elev.nearTarget())
                         ScoreHP.tripNext();
                 } else if (!ScoreHP.getNext()) {
-                    
+                    elev.retractSlides();
+
+                    if (elev.areSlidesIn())
+                        done();
                 }
 
                 break;
@@ -195,7 +198,7 @@ public class Superstructure extends GZSubsystem {
                     if (elev.nearTarget())
                         retractSlides();
                     if (elev.areSlidesIn())
-                        HPFromFeed.tripNext();
+                        done();
                 } else {
                     done();
                 }
@@ -380,5 +383,9 @@ public class Superstructure extends GZSubsystem {
 
     protected void initDefaultCommand() {
     }
+
+	public void elevManual(Double leftAnalogY) {
+        elev.manual(leftAnalogY);
+	}
 
 }

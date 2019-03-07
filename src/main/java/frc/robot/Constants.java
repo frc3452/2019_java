@@ -38,10 +38,10 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 0.75, 0.75);
 
 		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 6.0);
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 2.0); //TODO TUNE ME
 
 		// NOT CORRECT
-		public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
+		// public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
 	}
 
 	public static class kElevator {
@@ -56,17 +56,17 @@ public class Constants {
 
 		public static final boolean ENC_INVERT = false;
 
-		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0); // TODO TUNE
+		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0);
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
-		public static final double HOME_INCHES = 16;
-		public static final double TOP_LIMIT = 85;
+		public static final double HOME_INCHES = 16.0;
+		public static final double TOP_LIMIT = 85.0;
 
 		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 2.5;
 		public static final double SLIDES_TOLERANCE = 1.5;
 
-		public static final int TICKS_PER_INCH = 353; // 352.944782; // TODO TUNE ME
-		public static final double TARGET_TOLERANCE = 1; // TODO TUNE
+		public static final int TICKS_PER_INCH = 353; // 352.944782;
+		public static final double TARGET_TOLERANCE = 1;
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
 		// (1.0/8.0);
 
@@ -77,16 +77,16 @@ public class Constants {
 		public static final double HATCH_PLACING_JOG = 2;
 
 		public static final int CARGO_SENSOR_CHANNEL = 2;
-		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200; // TODO TUNE
+		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200;
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 
 		public final static double ELEV_TURN_SCALAR = 1.65; // 1.67
-		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.17;
-		public static final double SPEED_LIMIT_STARTING_INCHES = 18;
+		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
+		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
 		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
-		public static final double THROW_CARGO_DELAY = 0.1;
+		public static final double THROW_CARGO_DELAY = 0.05;
 
 		public static enum Heights {
 
@@ -255,6 +255,8 @@ public class Constants {
 		public static final int PRESSURE_GUAGE_PORT = 0;
 		public static final AnalogInputConstants PRESSURE_GUAGE_INFO = new AnalogInputConstants(.5, 4.5, 0, 200);
 		public static final double LOW_PRESSURE_PRINT_SETPOINT = 60;
+		public static final double LOW_PRESSURE = 80;
+		public static final double HIGH_PRESSURE = 100;
 	}
 
 	public static class kFiles {

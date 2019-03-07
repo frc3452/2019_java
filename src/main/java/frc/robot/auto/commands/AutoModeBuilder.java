@@ -258,14 +258,17 @@ public class AutoModeBuilder {
     public static Command getScoringCommand(ScoringLocation location, GamePiece gamepiece) {
         GZCommandGroup ret = new GZCommandGroup();
 
+        ret.tele();
         if (location.isOnCargoShip()) {
             switch (gamepiece) {
             case CARGO:
                 ret.add(new GoToHeight(Heights.Cargo_Ship));
                 ret.add(new RunAction(Actions.THROW_CARGO));
+                ret.tele();
                 break;
             case HATCH_PANEL:
                 ret.add(new RunAction(Actions.SCORE_HATCH));
+                ret.tele();
                 break;
             }
         } else {
@@ -275,7 +278,7 @@ public class AutoModeBuilder {
         return ret;
     }
 
-    public static ArrayList<Command> prepForScoring(ScoringLocation location, GamePiece gamepiece) {
+    public static Command prepForScoring(ScoringLocation location, GamePiece gamepiece) {
         switch (location.pos) {
         case CARGO_SHIP_BAY_1:
             break;
@@ -354,12 +357,19 @@ public class AutoModeBuilder {
         return null;
     }
 
-    public static ArrayList<Command> prepForFeederStation() {
-        return null;
+    public static Command prepForFeederStation() {
+        GZCommandGroup ret = new GZCommandGroup();
+
+        // ret.add(new GoToHeight(Heights.HP_1));
+        ret = null;
+
+        return ret;
     }
 
-    public static ArrayList<Command> retrieveFromFeederStation() {
-        return null;
+    public static Command retrieveFromFeederStation() {
+        GZCommandGroup ret = new GZCommandGroup();
+        ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
+        return ret;
     }
 
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation location,
@@ -372,7 +382,6 @@ public class AutoModeBuilder {
         ArrayList<GZCommand> allCommands = new ArrayList<GZCommand>();
 
         for (StartingPosition startPosition : AllStartingPositions) {
-            System.out.println("STARTING POSITION " + startPosition);
 
             for (ScoringPosition scorePosition : AllScoringPositions) {
 
@@ -421,8 +430,10 @@ public class AutoModeBuilder {
 
         GZCommandGroup com = new GZCommandGroup() {
             {
+                this.add(new GoToHeight(Heights.Home));
+
                 {
-                    ArrayList<Command> prepForScore = prepForScoring(scoringLocation, gamePiece.get());
+                    Command prepForScore = prepForScoring(scoringLocation, gamePiece.get());
 
                     // Drive first path
                     GZCommandGroup driveOne = new GZCommandGroup();
@@ -444,7 +455,7 @@ public class AutoModeBuilder {
                 }
                 {
                     GZCommandGroup driveTwo = new GZCommandGroup();
-                    ArrayList<Command> prepForFeeder = prepForFeederStation();
+                    Command prepForFeeder = prepForFeederStation();
 
                     driveTwo.drivePaths(getScoredPosToFeederStation(scoringLocation, nextStation),
                             prepForFeeder != null);
@@ -455,14 +466,15 @@ public class AutoModeBuilder {
                 }
 
                 {
-                    ArrayList<Command> retrieve = retrieveFromFeederStation();
+                    Command retrieve = retrieveFromFeederStation();
                     if (retrieve != null)
                         add(retrieve);
                 }
 
                 // {
-                //     GZCommandGroup driveThree = new GZCommandGroup();
-                //     driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation, scoringLocation));
+                // GZCommandGroup driveThree = new GZCommandGroup();
+                // driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation,
+                // scoringLocation));
                 // }
             }
         };

@@ -69,11 +69,11 @@ public class GZCommandGroup extends CommandGroup {
         add(new ResetPoseFromPath(pc));
     }
 
-    public void waitForMarkerThen(ArrayList<Command> c) {
+    public void waitForMarkerThen(Command c) {
         waitForMarkerThen(DEFAULT_MARKER, c);
     }
 
-    public void waitForMarkerThen(String marker, ArrayList<Command> c) {
+    public void waitForMarkerThen(String marker, Command c) {
         GZCommandGroup ret = new GZCommandGroup();
         ret.waitForMarker(marker);
         ret.add(c);

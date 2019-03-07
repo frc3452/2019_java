@@ -10,6 +10,7 @@ import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
+import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Superstructure;
@@ -35,7 +36,8 @@ public class GZOI extends GZSubsystem {
 
 	private UsbCamera mCamera;
 
-	private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key", kOI.LOCK_OUT_KEY, kOI.LOCK_OUT_KEY_VOLT);
+	// private GZAnalogInput mKey = new GZAnalogInput(this, "Lockout key",
+	// kOI.LOCK_OUT_KEY, kOI.LOCK_OUT_KEY_VOLT);
 
 	private LatchedBoolean mUserButton = new LatchedBoolean();
 
@@ -153,12 +155,15 @@ public class GZOI extends GZSubsystem {
 	private void disabled() {
 		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 
-		handleRumble();
+		rumble(0);
+		// handleRumble();
 
-		if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.X))
-			op.setButtonBoard();
-		else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK, Buttons.Y))
-			op.setXboxController();
+		// if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK,
+		// Buttons.X))
+		// op.setButtonBoard();
+		// else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK,
+		// Buttons.RIGHT_CLICK, Buttons.Y))
+		// op.setXboxController();
 	}
 
 	private void handleElevatorTesting() {
@@ -173,10 +178,11 @@ public class GZOI extends GZSubsystem {
 				drive.wantShift(ClimbingState.NONE);
 			else if (driverJoy.getButton(Buttons.B))
 				drive.wantShift(ClimbingState.FRONT);
-			else if (driverJoy.getButton(Buttons.Y))
-				drive.wantShift(ClimbingState.REAR);
 			else if (driverJoy.getButton(Buttons.X))
 				drive.wantShift(ClimbingState.BOTH);
+				
+			// else if (driverJoy.getButton(Buttons.Y))
+			// drive.wantShift(ClimbingState.REAR);
 
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
@@ -187,7 +193,7 @@ public class GZOI extends GZSubsystem {
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
-		if (driverJoy.getButtonLatched(Buttons.RB))
+		if (drive.getState() == DriveState.CLIMB && driverJoy.getButtonLatched(Buttons.RB))
 			drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
@@ -199,9 +205,7 @@ public class GZOI extends GZSubsystem {
 		// if (controller.idle.get()) {
 		// supe.idle();
 		// } else {
-		if (controller.elevatorHome.get())
-			supe.runHeight(Heights.Home);
-		else if (controller.hatchPannel1.get())
+		if (controller.hatchPannel1.get())
 			supe.runHeight(Heights.HP_1, queue);
 		else if (controller.hatchPanel2.get())
 			supe.runHeight(Heights.HP_2, queue);
@@ -215,29 +219,33 @@ public class GZOI extends GZSubsystem {
 			supe.runHeight(Heights.Cargo_2, queue);
 		else if (controller.cargo3.get())
 			supe.runHeight(Heights.Cargo_3, queue);
-		else if (controller.cargoShip.get())
-			supe.runHeight(Heights.Cargo_Ship, queue);
 		else if (controller.elevatorJogDown.updated())
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
+		else if (controller.elevatorManual.get()) {
+			supe.elevManual(controller.getLeftAnalogY());
+		} else if (controller.cargoShip.get())
+			supe.runHeight(Heights.Cargo_Ship, queue);
+		else if (controller.elevatorHome.get())
+			supe.runHeight(Heights.Home);
 
 		if (controller.slidesToggle.updated())
 			supe.toggleSlides();
 		else if (controller.clawToggle.updated())
 			supe.toggleClaw();
-		else if (controller.stow.updated())
-			supe.runAction(Actions.STOW, queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
-		else if (controller.floorHatchToManip.updated())
-			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		else if (controller.hatchFromFeed.get()) {
-			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		} else if (controller.intakeDown.updated())
+		else if (controller.intakeDown.updated())
 			supe.lowerIntake();
 		else if (controller.intakeUp.updated())
 			supe.raiseIntake();
+		else if (controller.stow.updated())
+			supe.runAction(Actions.STOW, queue);
+		else if (controller.floorHatchToManip.updated())
+			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
+		else if (controller.hatchFromFeed.updated())
+			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();
@@ -300,8 +308,8 @@ public class GZOI extends GZSubsystem {
 	 * A physical key on the robot to shut off
 	 */
 	public boolean getSafteyKey() {
-		// return false;
-		return mKey.get();
+		return false;
+		// return mKey.get();
 	}
 
 	public void setSafteyDisableForAllSystems(boolean disable) {
@@ -375,7 +383,7 @@ public class GZOI extends GZSubsystem {
 
 	public void alert(Level level) {
 		addRumble(level);
-		Lights.getInstance().addAlert(level);
+		// Lights.getInstance().addAlert(level);
 	}
 
 	public void addRumble(Level r) {

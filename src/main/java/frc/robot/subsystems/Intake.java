@@ -45,6 +45,10 @@ public class Intake extends GZSubsystem {
     }
 
     private void handleDrop() {
+        if (mDesiredDropState == DesiredDropState.UP) {
+            stop();
+        }
+
         if (Elevator.getInstance().safeForIntakeMovement())
             switch (mDesiredDropState) {
             case DOWN:
@@ -84,8 +88,7 @@ public class Intake extends GZSubsystem {
         mDesiredDropState = DesiredDropState.UP;
     }
 
-    protected void prepToRaise()
-    {
+    protected void prepToRaise() {
         mDesiredDropState = DesiredDropState.PREP_FOR_UP;
     }
 
@@ -116,8 +119,7 @@ public class Intake extends GZSubsystem {
         return mDesiredDropState == DesiredDropState.DOWN;
     }
 
-    public boolean armWantsUp()
-    {
+    public boolean armWantsUp() {
         return mDesiredDropState == DesiredDropState.UP;
     }
 

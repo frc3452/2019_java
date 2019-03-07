@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import org.junit.Test.None;
+
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
@@ -43,6 +45,7 @@ import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
+import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
@@ -140,11 +143,24 @@ public class Drive extends GZSubsystem {
 
 		talonInit();
 
+		// REMOTE LIMIT SWITCHES
+		// For applications where the Talon Tach is pointing to a non-reflective surface
+		// or open air (LED is on) when motor
+		// movement is allowed, the Talon Tach should be treated as a NC limit switch.
+		// For applications where the Talon Tach is pointing to a reflective surface
+		// when motor movement is allowed (LED is
+		// off), it should be treated as a NO limit switch.
+
+		// https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
+
+		L1.setUsingRemoteLimitSwitchOnTalon(this, L2, LimitSwitchNormal.NormallyClosed, LimitSwitchDirections.BOTH);
+		R1.setUsingRemoteLimitSwitchOnTalon(this, R2, LimitSwitchNormal.NormallyClosed, LimitSwitchDirections.BOTH);
+
+		// L1.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+		// R1.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+
 		setPID(L1, R1, kDrivetrain.PID);
 
-		// im gonna kill the electrical team if they ever make
-		// me do remote sensors again
-		// L1.setUsingRemoteEncoderOnTalon(this, R3);
 		zeroEncoders();
 
 		enableFollower();
@@ -431,6 +447,9 @@ public class Drive extends GZSubsystem {
 		} else {
 			switchToState(mWantedState);
 		}
+
+		if (GZOI.getInstance().isDisabled())
+			mClimbState = ClimbingState.NONE;
 	}
 
 	private void talonInit() {
@@ -565,7 +584,8 @@ public class Drive extends GZSubsystem {
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
-			mIsAutoClimbing = false;
+			// mIsAutoClimbing = false;
+			slowSpeed(true);
 			break;
 		case MOTION_MAGIC:
 			encoderDone();
@@ -678,6 +698,7 @@ public class Drive extends GZSubsystem {
 			mIO.encoder_invalid_loops = 0;
 		}
 
+		// TODO TUNE ME
 		mIO.ls_left_fwd = L1.getSensorCollection().isFwdLimitSwitchClosed();
 		mIO.ls_left_rev = L1.getSensorCollection().isRevLimitSwitchClosed();
 
@@ -707,7 +728,8 @@ public class Drive extends GZSubsystem {
 	public void wantShift(ClimbingState state) {
 		if (state != mClimbState && mClimbState != ClimbingState.MOVING) {
 			GZOI.getInstance().addRumble(Level.HIGH);
-			Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1, 5, true);
+			// Lights.getInstance().blink(new TimeValue<Lights.Colors>(Colors.RED, .1), .1,
+			// 5, true);
 			shiftDelay(state);
 			mClimbState = ClimbingState.MOVING;
 		}
@@ -805,8 +827,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void handleClimbing(GZJoystick joy) {
-		mIsSlow = true;
-
 		// RIGHT IS REAR
 		if (mWantAutoClimb && !joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
 				&& mClimbState == ClimbingState.BOTH) {
@@ -816,7 +836,7 @@ public class Drive extends GZSubsystem {
 			switch (mClimbState) {
 			case BOTH:
 
-				final double val = joy.getLeftAnalogY() * .25;
+				final double val = joy.getLeftAnalogY() * .50;
 				double rear = 0, front = 0;
 
 				front = val * (1 - Math.abs(joy.getLeftTrigger()));
@@ -1169,12 +1189,15 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void toggleSlowSpeed() {
 		slowSpeed(!isSlow());
-		System.out.println("Drivetrain speed: " + (isSlow() ? "slow" : "faster"));
 	}
 
 	public synchronized void slowSpeed(boolean isSlow) {
-		mIsSlow = isSlow;
-		GZOI.getInstance().addRumble(mIsSlow ? Level.LOW : Level.MEDIUM);
+		if (mIsSlow != isSlow) {
+			mIsSlow = isSlow;
+			System.out.println("Drivetrain speed: " + (isSlow() ? "slow" : "faster"));
+			GZOI.getInstance().addRumble(isSlow() ? Level.LOW : Level.MEDIUM);
+		}
+
 	}
 
 	public Boolean isSlow() {

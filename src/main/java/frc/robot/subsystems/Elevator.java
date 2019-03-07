@@ -395,7 +395,7 @@ public class Elevator extends GZSubsystem {
             neutral = true;
         } else if (this.isSafetyDisabled()) {
             neutral = true;
-        } else if (!mZeroed.get()) {
+        } else if (!mZeroed.get() && mWantedState.usesClosedLoop) {
             handleNonZero();
         } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
@@ -427,7 +427,6 @@ public class Elevator extends GZSubsystem {
                 // Encoder value good, limit
             } else if (pos > kElevator.SPEED_LIMIT_STARTING_INCHES) {
                 return 1 - (pos / kElevator.TOP_LIMIT) + kElevator.SPEED_LIMIT_SLOWEST_SPEED;
-
                 // Encoder value lower than limit
             } else {
                 mLimiting = false;
@@ -482,8 +481,8 @@ public class Elevator extends GZSubsystem {
     }
 
     private void in() {
-        mIO.encoders_valid = true;
-        // mIO.encoders_valid = mElevator1.isEncoderValid();
+        // mIO.encoders_valid = true;
+        mIO.encoders_valid = mElevator1.isEncoderValid();
 
         if (!mIO.encoders_valid)
             mIO.encoder_invalid_loops++;
@@ -558,6 +557,9 @@ public class Elevator extends GZSubsystem {
     }
 
     public boolean safeForIntakeMovement() {
+        if (!mIO.encoders_valid)
+            return true;
+
         final double height = getHeightInches();
         if (height < kElevator.INTAKE_LOW_HEIGHT && !areSlidesIn())
             return false;
@@ -568,7 +570,8 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
-        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0))
+        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0)
+                || !mIO.encoders_valid)
             mCarriageSlide.stateChange();
 
         if (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT) {
@@ -605,8 +608,11 @@ public class Elevator extends GZSubsystem {
             double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, mHighestHeight);
             mIO.desired_output = (temp - Heights.Home.inches) * kElevator.TICKS_PER_INCH;
         } else if (mState == ElevatorState.MANUAL) {
-            if (getHeightInches() < mLowestHeight && mZeroed.get())
-                mIO.desired_output = 0.0;
+            if (getHeightInches() > (kElevator.TOP_LIMIT - 1) && mZeroed.get()) {
+
+                mIO.desired_output = Math.min(mIO.desired_output, 0);
+
+            }
         }
 
         if (mState != ElevatorState.NEUTRAL) {

@@ -1,10 +1,10 @@
 package frc.robot.util.drivers.controllers;
 
 public class OperatorController extends DeepSpaceController {
-        private boolean firstSet = false;
 
+        private boolean firstSet = false;
         private boolean isButtonBoard = false;
-        private boolean p_isButtonBoard = true;
+        private boolean p_isButtonBoard = false;
 
         public OperatorController() {
                 this(1);
@@ -21,11 +21,14 @@ public class OperatorController extends DeepSpaceController {
                 this.cargo3 = new GZButton(this, () -> false, () -> getButton(Buttons.LB) && getButton(Buttons.Y));
                 this.hatchPannel1 = new GZButton(this, () -> false,
                                 () -> getButton(Buttons.A) && !getButton(Buttons.LB));
-                this.hatchPanel2 = new GZButton(this, () -> false, () -> getButton(Buttons.B) && !getButton(Buttons.LB));
-                this.hatchPanel3 = new GZButton(this, () -> false, () -> getButton(Buttons.Y) && !getButton(Buttons.LB));
+                this.hatchPanel2 = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.B) && !getButton(Buttons.LB));
+                this.hatchPanel3 = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.Y) && !getButton(Buttons.LB));
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
+                this.elevatorManual = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
 
                 this.cargoShip = new GZButton(this, () -> false, () -> false);
 

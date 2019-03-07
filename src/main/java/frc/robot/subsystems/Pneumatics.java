@@ -21,6 +21,8 @@ public class Pneumatics extends GZSubsystem {
     private GZAnalogInput mPressureSensor;
     private static Pneumatics mInstance = null;
 
+    private boolean mLowPressure = false;
+
     private int mCrawlerPresses = 0;
 
     private DecimalFormat df = new DecimalFormat("#0.00");
@@ -52,8 +54,7 @@ public class Pneumatics extends GZSubsystem {
     }
 
     public void dropCrawler() {
-        if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS)
-        {
+        if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS) {
             mClimberCrawler.on();
             System.out.println("CRAWLER PRESSED: " + mCrawlerPresses);
         }
@@ -63,7 +64,16 @@ public class Pneumatics extends GZSubsystem {
     public void loop() {
         boolean noAir = false;
 
-        if (GZOI.getInstance().isAuto() || GZOI.getInstance().isTele() || (getPressure() > 90)) {
+        final double pressure = getPressure();
+
+        if (pressure < kPneumatics.LOW_PRESSURE)
+            mLowPressure = true;
+
+        if (mLowPressure && pressure > kPneumatics.HIGH_PRESSURE) {
+            mLowPressure = false;
+        }
+
+        if (GZOI.getInstance().isAuto() || !mLowPressure) {
             noAir = true;
         }
 
