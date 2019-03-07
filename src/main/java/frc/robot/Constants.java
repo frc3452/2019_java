@@ -116,9 +116,9 @@ public class Constants {
 		public final static int SAFTEY_SWITCH = 96;
 
 		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Tens selector", true,
-				0, 1, 2, 3);
+				3, 2, 1, 0);
 		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Ones selector", true,
-				5, 6, 7, 8);
+				7, 6, 5, 4);
 	}
 
 	public static class kPathFollowing {

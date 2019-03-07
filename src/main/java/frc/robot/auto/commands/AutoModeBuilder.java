@@ -42,8 +42,31 @@ public class AutoModeBuilder {
             ? GamePiece.CARGO
             : GamePiece.HATCH_PANEL;
 
-    public enum StartingPosition {
-        LEFT(true, false, "Left"), CENTER(false, false, "Center"), RIGHT(true, true, "Right");
+    public static final ArrayList<StartingPosition> AllStartingPositions = new ArrayList<StartingPosition>();
+    public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
+    public static final ArrayList<FeederStation> AllFeederStations = new ArrayList<FeederStation>();
+    public static final ArrayList<ScoringSide> AllScoringSides = new ArrayList<ScoringSide>();
+
+    static {
+        if (StartingPosition.LEFT == null) {
+
+        }
+
+        if (ScoringPosition.CARGO_SHIP_BAY_1 == null) {
+
+        }
+
+        if (FeederStation.LEFT == null) {
+
+        }
+
+        if (ScoringSide.LEFT == null) {
+
+        }
+    }
+
+    public static enum StartingPosition {
+        CENTER(false, false, "Center"), LEFT(true, false, "Left"), RIGHT(true, true, "Right");
 
         private final boolean onLeft;
         private final boolean onRight;
@@ -53,7 +76,10 @@ public class AutoModeBuilder {
             this.onLeft = onLeft;
             this.onRight = onRight;
             this.name = name;
+
+            AllStartingPositions.add(this);
         }
+
     }
 
     public static class ScoringLocation {
@@ -67,7 +93,7 @@ public class AutoModeBuilder {
 
         @Override
         public String toString() {
-            return this.side.toString() + " " + this.pos.toString();
+            return this.pos.toString() + " (" + this.side.toString() + ")";
         }
 
         public boolean isOnCargoShip() {
@@ -86,6 +112,8 @@ public class AutoModeBuilder {
         private ScoringPosition(String text, boolean isCargoShip) {
             this.cargoShip = isCargoShip;
             this.text = text;
+
+            AllScoringPositions.add(this);
         }
 
         private ScoringPosition(String text) {
@@ -113,6 +141,8 @@ public class AutoModeBuilder {
             this.onLeft = onLeft;
             this.onRight = !this.onLeft;
             this.text = text;
+
+            AllFeederStations.add(this);
         }
 
         @Override
@@ -132,6 +162,8 @@ public class AutoModeBuilder {
             this.onLeft = onLeft;
             this.onRight = !this.onLeft;
             this.text = text;
+
+            AllScoringSides.add(this);
         }
 
         @Override
@@ -149,7 +181,7 @@ public class AutoModeBuilder {
             return true;
         else if (location.side == ScoringSide.RIGHT && station == FeederStation.RIGHT)
             return true;
-            
+
         return false;
     }
 
@@ -336,9 +368,52 @@ public class AutoModeBuilder {
         return getCommand(startPos, location, nextStation, mGamePieceSupplier);
     }
 
-    public static ArrayList<GZCommand> get()
-    {
-        return null;
+    public static ArrayList<GZCommand> getAllPaths() {
+        ArrayList<GZCommand> allCommands = new ArrayList<GZCommand>();
+
+        for (StartingPosition startPosition : AllStartingPositions) {
+            System.out.println("STARTING POSITION " + startPosition);
+
+            for (ScoringPosition scorePosition : AllScoringPositions) {
+
+                if (scorePosition.cargoShip) {
+
+                    if (scorePosition == ScoringPosition.CARGO_SHIP_FACE) {
+
+                        for (ScoringSide scoringSide : AllScoringSides) {
+
+                            for (FeederStation feederStation : AllFeederStations) {
+                                allCommands.add(getCommand(startPosition,
+                                        new ScoringLocation(scorePosition, scoringSide), feederStation));
+                            }
+                        }
+
+                        // If scoring on cargo ship face
+                    } else {
+
+                        for (ScoringSide scoringSide : AllScoringSides) {
+                            allCommands.add(getCommand(startPosition, new ScoringLocation(scorePosition, scoringSide),
+                                    getFeederStationFromScoringSide(scoringSide)));
+                        }
+
+                    }
+
+                    // If we are scoring on cargo ship
+                }
+
+                // For every scoring position
+            }
+
+            // For every starting position
+        }
+        return allCommands;
+    }
+
+    public static FeederStation getFeederStationFromScoringSide(ScoringSide side) {
+        if (side == ScoringSide.LEFT)
+            return FeederStation.LEFT;
+
+        return FeederStation.RIGHT;
     }
 
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation scoringLocation,
@@ -385,10 +460,10 @@ public class AutoModeBuilder {
                         add(retrieve);
                 }
 
-                {
-                    GZCommandGroup driveThree = new GZCommandGroup();
-                    driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation, scoringLocation));
-                }
+                // {
+                //     GZCommandGroup driveThree = new GZCommandGroup();
+                //     driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation, scoringLocation));
+                // }
             }
         };
 

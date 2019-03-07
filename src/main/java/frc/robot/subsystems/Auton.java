@@ -65,16 +65,17 @@ public class Auton {
 			return;
 
 		// TODO remove
-		m_controllerOverrideValue = 0;
+		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
 
-		commandArray.addAll(AutoModeBuilder.get());
+		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
+		for (GZCommand c : commandsIn) {
+			commandArray.add(c);
+		}
 
-		commandArray.add(AutoModeBuilder.getCommand(StartingPosition.LEFT,
-				new ScoringLocation(ScoringPosition.CARGO_SHIP_FACE, ScoringSide.LEFT), FeederStation.LEFT));
-
-		commandArray.add(new GZCommand("Marker command group", () -> new MarkerCommandGroup()));
+		// commandArray.add(new GZCommand("Marker command group", () -> new
+		// MarkerCommandGroup()));
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
@@ -164,7 +165,6 @@ public class Auton {
 	 */
 	private void controllerChooser() {
 		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
-
 			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
 				m_controllerOverrideValue++;
 			} else if (GZOI.driverJoy.getButtonLatched(Buttons.B)) {
@@ -213,6 +213,7 @@ public class Auton {
 			if (m_controllerOverrideValue != p_controllerOverrideValue)
 				System.out.println("Auton Controller override: (" + m_controllerOverrideValue + ") "
 						+ commandArray.get(m_controllerOverrideValue).getName());
+			// System.out.println(commandArray.get(m_controllerOverrideValue).getName());
 		}
 
 		p_selectorValue = m_selectorValue;

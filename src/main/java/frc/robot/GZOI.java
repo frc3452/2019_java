@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
@@ -79,7 +80,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private GZOI() {
-		// mCamera = CameraServer.getInstance().startAutomaticCapture(0);
+		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 	}
 
 	@Override
