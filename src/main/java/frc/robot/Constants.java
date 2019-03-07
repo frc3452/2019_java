@@ -76,8 +76,8 @@ public class Constants {
 
 		public static final double HATCH_PLACING_JOG = 2;
 
-		public static final int CARGO_SENSOR_CHANNEL = 2;
-		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 200;
+		public static final int CARGO_SENSOR_CHANNEL = 8;
+		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 10;
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 
@@ -85,7 +85,6 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
-		public static final AnalogInputConstants CARGO_SENSOR_CONSTANTS = new AnalogInputConstants();
 		public static final double THROW_CARGO_DELAY = 0.05;
 
 		public static enum Heights {

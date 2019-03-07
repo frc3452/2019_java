@@ -20,7 +20,7 @@ import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZAnalogInput;
+import frc.robot.util.drivers.GZDigitalInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
@@ -33,7 +33,7 @@ public class Elevator extends GZSubsystem {
     public IO mIO = new IO();
 
     private GZSRX mElevator1, mElevator2;
-    private GZAnalogInput mCargoSensor;
+    private GZDigitalInput mCargoSensor;
 
     private GZSolenoid mCarriageSlide, mClaw;
 
@@ -68,8 +68,7 @@ public class Elevator extends GZSubsystem {
         mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
         mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
 
-        mCargoSensor = new GZAnalogInput(this, "Cargo sensor", kElevator.CARGO_SENSOR_CHANNEL,
-                kElevator.CARGO_SENSOR_CONSTANTS);
+        mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
         // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
 
         talonInit();
