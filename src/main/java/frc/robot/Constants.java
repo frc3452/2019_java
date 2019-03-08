@@ -81,7 +81,7 @@ public class Constants {
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 
-		public final static double ELEV_TURN_SCALAR = 1.65; // 1.67
+		public final static double ELEV_TURN_SCALAR = 1.0; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
@@ -251,7 +251,7 @@ public class Constants {
 	public static class kPneumatics {
 		public static final int COMPRESSOR_MODULE = 1;
 		// http://www.revrobotics.com/rev-11-1107/
-		public static final int PRESSURE_GUAGE_PORT = 0;
+		public static final int PRESSURE_GUAGE_PORT = 3;
 		public static final AnalogInputConstants PRESSURE_GUAGE_INFO = new AnalogInputConstants(.5, 4.5, 0, 200);
 		public static final double LOW_PRESSURE_PRINT_SETPOINT = 60;
 		public static final double LOW_PRESSURE = 80;

@@ -3,7 +3,7 @@ package frc.robot.util.drivers.controllers;
 public class OperatorController extends DeepSpaceController {
 
         private boolean firstSet = false;
-        private boolean isButtonBoard = false;
+        private boolean isButtonBoard = true;
         private boolean p_isButtonBoard = false;
 
         public OperatorController() {
@@ -36,14 +36,18 @@ public class OperatorController extends DeepSpaceController {
                 this.slidesToggle = new GZButton(this, () -> false, () -> getRightTriggerPressed());
                 this.clawToggle = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
                 this.intakeDown = new GZButton(this, () -> false, () -> false);
-                this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
+                this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.LEFT_CLICK));
 
                 this.stow = new GZButton(this, () -> false, () -> false);
                 this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.START));
                 this.floorHatchToManip = new GZButton(this, () -> false, () -> false);
-                this.hatchFromFeed = new GZButton(this, () -> false, () -> false);
+                this.hatchFromFeed = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
 
                 this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
+
+                this.scoreHatch = new GZButton(this, () -> false, () -> false);
+
+                this.shootCargo = new GZButton(this, () -> false, () -> false);
         }
 
         public void setButtonBoard(boolean isButtonBoard) {

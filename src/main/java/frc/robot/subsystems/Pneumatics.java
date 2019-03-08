@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import java.text.DecimalFormat;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.SolenoidBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
@@ -64,18 +66,21 @@ public class Pneumatics extends GZSubsystem {
     public void loop() {
         boolean noAir = false;
 
-        final double pressure = getPressure();
+        // final double pressure = getPressure();
 
-        if (pressure < kPneumatics.LOW_PRESSURE)
-            mLowPressure = true;
+        // if (pressure < kPneumatics.LOW_PRESSURE)
+        // mLowPressure = true;
 
-        if (mLowPressure && pressure > kPneumatics.HIGH_PRESSURE) {
-            mLowPressure = false;
-        }
+        // if (mLowPressure && pressure > kPneumatics.HIGH_PRESSURE) {
+        // mLowPressure = false;
+        // }
 
-        if (GZOI.getInstance().isAuto() || !mLowPressure) {
+        if (GZOI.getInstance().isAuto())
             noAir = true;
-        }
+
+        // if (GZOI.getInstance().isAuto() || !mLowPressure) {
+        // noAir = true;
+        // }
 
         if (noAir) {
             mCompressor.stop();

@@ -83,6 +83,7 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
+		op.setXboxController();
 	}
 
 	@Override
@@ -180,7 +181,7 @@ public class GZOI extends GZSubsystem {
 				drive.wantShift(ClimbingState.FRONT);
 			else if (driverJoy.getButton(Buttons.X))
 				drive.wantShift(ClimbingState.BOTH);
-				
+
 			// else if (driverJoy.getButton(Buttons.Y))
 			// drive.wantShift(ClimbingState.REAR);
 
@@ -224,7 +225,7 @@ public class GZOI extends GZSubsystem {
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
 		else if (controller.elevatorManual.get()) {
-			supe.elevManual(controller.getLeftAnalogY());
+			supe.elevManual(controller.getRightAnalogY() * .25);
 		} else if (controller.cargoShip.get())
 			supe.runHeight(Heights.Cargo_Ship, queue);
 		else if (controller.elevatorHome.get())
@@ -246,6 +247,10 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.updated())
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		else if (controller.shootCargo.updated())
+			supe.runAction(Actions.THROW_CARGO);
+		else if (controller.scoreHatch.updated())
+			supe.runAction(Actions.SCORE_HATCH);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();

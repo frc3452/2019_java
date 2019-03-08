@@ -21,7 +21,7 @@ public class PracticeField extends FieldProfile {
 
     private HeightsContainer mHeights = new HeightsContainer() {
 
-        private final double mod = 3;
+        private final double mod = 0.5;
 
         @Override
         public double hp_floor_Grab() {
