@@ -203,17 +203,14 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
-		// if (controller.idle.get()) {
-		// supe.idle();
-		// } else {
-		if (controller.hatchPannel1.get())
+		if (controller.hatchPannel1.pressedFor(0.75))
+			supe.runHeight(Heights.Home);
+		else if (controller.hatchPannel1.get())
 			supe.runHeight(Heights.HP_1, queue);
 		else if (controller.hatchPanel2.get())
 			supe.runHeight(Heights.HP_2, queue);
 		else if (controller.hatchPanel3.get())
 			supe.runHeight(Heights.HP_3, queue);
-		else if (controller.hatchFromFeed.get())
-			supe.runHeight(Heights.HP_1, queue);
 		else if (controller.cargo1.get())
 			supe.runHeight(Heights.Cargo_1, queue);
 		else if (controller.cargo2.get())
@@ -225,17 +222,16 @@ public class GZOI extends GZSubsystem {
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
 		else if (controller.elevatorManual.get()) {
-			supe.elevManual(controller.getRightAnalogY() * .25);
+			supe.elevManual(controller.getRightAnalogY() * 0.25);
 		} else if (controller.cargoShip.get())
 			supe.runHeight(Heights.Cargo_Ship, queue);
-		else if (controller.elevatorHome.get())
-			supe.runHeight(Heights.Home);
 
 		if (controller.slidesToggle.updated())
 			supe.toggleSlides();
 		else if (controller.clawToggle.updated())
 			supe.toggleClaw();
-		else if (controller.intakeCargo.updated())
+
+		if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeDown.updated())
 			supe.lowerIntake();
@@ -243,7 +239,8 @@ public class GZOI extends GZSubsystem {
 			supe.raiseIntake();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
-		else if (controller.floorHatchToManip.updated())
+		
+		if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.updated())
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
@@ -252,7 +249,7 @@ public class GZOI extends GZSubsystem {
 		else if (controller.scoreHatch.updated())
 			supe.runAction(Actions.SCORE_HATCH);
 
-		if (controller.dropCrawler.updated())
+		if (controller.dropCrawler.updated() )
 			supe.dropCrawler();
 	}
 

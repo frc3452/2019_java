@@ -11,7 +11,6 @@ public class DriverController extends DeepSpaceController {
         this.queueAction = new GZButton(this, () -> false);
         this.idle = new GZButton(this, () -> false);
         this.cancel = new GZButton(this, () -> false);
-        this.elevatorHome = new GZButton(this, () -> false);
 
         this.elevatorJogUp = new GZButton(this, () -> getDUp());
         this.elevatorJogDown = new GZButton(this, () -> getDDown());

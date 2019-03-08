@@ -4,10 +4,6 @@ import frc.robot.Constants.kElevator;
 
 public abstract class HeightsContainer {
     
-    public double home() {
-        return kElevator.HOME_INCHES + 1;
-    }
-
     public abstract double hp_floor_Grab();
 
     public abstract double hp1();

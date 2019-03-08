@@ -38,10 +38,11 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 0.75, 0.75);
 
 		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 2.0); //TODO TUNE ME
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 2.0); // TODO TUNE ME
 
 		// NOT CORRECT
-		// public static final SolenoidConstants SOLENOID_RAMP_DROP = new SolenoidConstants(0, 2, 6, 4);
+		// public static final SolenoidConstants SOLENOID_RAMP_DROP = new
+		// SolenoidConstants(0, 2, 6, 4);
 	}
 
 	public static class kElevator {
@@ -89,7 +90,7 @@ public class Constants {
 
 		public static enum Heights {
 
-			Home(HOME_INCHES), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
+			Home(HOME_INCHES + 0.25), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
 			Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
 			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(h.hp_feed_jog());
 

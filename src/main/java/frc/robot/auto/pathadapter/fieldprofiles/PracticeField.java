@@ -30,7 +30,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 19 + mod;
+            return 19 + mod + 3;
         }
 
         @Override

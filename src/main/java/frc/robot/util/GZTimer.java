@@ -37,6 +37,12 @@ public class GZTimer extends Timer {
 		}
 	}
 
+	public void startIfStopped() {
+		if (!this.mTiming) {
+			startTimer();
+		}
+	}
+
 	/**
 	 * Only allows timer to be started once, never restarted
 	 */
@@ -56,7 +62,7 @@ public class GZTimer extends Timer {
 	 * Stops timer, accumulates total runtime
 	 */
 	public void stopTimer() {
-		if (this.isTiming()){
+		if (this.isTiming()) {
 			this.mAccumulatedTimeRunning += this.get();
 			this.mTiming = false;
 			super.stop();
@@ -64,15 +70,13 @@ public class GZTimer extends Timer {
 	}
 
 	/**
-	 * @return total running time, only valid accumulation when timer is stopped 
+	 * @return total running time, only valid accumulation when timer is stopped
 	 */
-	public double getTotalTimeRunning()
-	{
+	public double getTotalTimeRunning() {
 		return this.mAccumulatedTimeRunning;
 	}
 
-	public void clearTotalTimeRunning()
-	{
+	public void clearTotalTimeRunning() {
 		this.mAccumulatedTimeRunning = 0;
 	}
 

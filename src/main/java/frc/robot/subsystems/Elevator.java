@@ -40,8 +40,6 @@ public class Elevator extends GZSubsystem {
     private boolean mPrevMovingHP = true;
     private boolean mMovingHP = false;
 
-    private GZFlag mZeroed = new GZFlag();
-
     private static Elevator mInstance = null;
 
     private double mDesiredHeight = Heights.Home.inches;
@@ -83,9 +81,17 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
-        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+        // ABS
+        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0,
                 GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
+
+        // REL
+        // GZSRX.logError(() ->
+        // mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,
+        // 0,
+        // GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
+        // mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.REV);
@@ -376,16 +382,6 @@ public class Elevator extends GZSubsystem {
         brake();
     }
 
-    private void handleNonZero() {
-        setWantedState(ElevatorState.MANUAL);
-        switchToState(ElevatorState.MANUAL);
-        mIO.desired_output = -.1;
-        if (this.mIO.bottom_limit_switch) {
-            mElevator1.zero();
-            this.mZeroed.tripFlag();
-        }
-    }
-
     // GZ SUBSYSTEM STUFF
     private void handleStates() {
         boolean neutral = false;
@@ -394,8 +390,6 @@ public class Elevator extends GZSubsystem {
             neutral = true;
         } else if (this.isSafetyDisabled()) {
             neutral = true;
-        } else if (!mZeroed.get() && mWantedState.usesClosedLoop) {
-            handleNonZero();
         } else if (!mIO.encoders_valid && (mWantedState.usesClosedLoop || mState.usesClosedLoop)) {
             neutral = true;
         }
@@ -607,10 +601,13 @@ public class Elevator extends GZSubsystem {
             double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, mHighestHeight);
             mIO.desired_output = (temp - Heights.Home.inches) * kElevator.TICKS_PER_INCH;
         } else if (mState == ElevatorState.MANUAL) {
-            if (getHeightInches() > (kElevator.TOP_LIMIT - 1) && mZeroed.get()) {
-
+            if (getHeightInches() > (kElevator.TOP_LIMIT - 1)) {
                 mIO.desired_output = Math.min(mIO.desired_output, 0);
-
+            }
+        } else if (mState == ElevatorState.ZEROING) {
+            mIO.desired_output = -.1;
+            if (this.mIO.bottom_limit_switch) {
+                mElevator1.zero();
             }
         }
 
@@ -648,7 +645,7 @@ public class Elevator extends GZSubsystem {
 
     public enum ElevatorState {
         NEUTRAL(false, ControlMode.Disabled), MANUAL(false, ControlMode.PercentOutput),
-        MOTION_MAGIC(true, ControlMode.MotionMagic);
+        MOTION_MAGIC(true, ControlMode.MotionMagic), ZEROING(false, ControlMode.PercentOutput);
 
         public final boolean usesClosedLoop;
         public final ControlMode controlMode;

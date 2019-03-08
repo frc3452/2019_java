@@ -56,6 +56,63 @@ public class Superstructure extends GZSubsystem {
     }
 
     // ACTIONS
+    
+    public void runAction(Actions action, boolean queue) {
+        if (queue) {
+            queueAction(action);
+            return;
+        }
+
+        // if (mAction == action)
+        // return;
+
+        mAction = action;
+
+        if (mAction != Actions.IDLE && mAction != Actions.OFF)
+            mActionDone.rst();
+
+        switch (action) {
+        case OFF:
+            break;
+        case IDLE:
+            elev.stopMovement();
+            intake.stop();
+            break;
+        case GO_TO_QUEUED_HEIGHT:
+            elev.setHeight(mQueuedHeight);
+            break;
+        case INTAKE_CARGO:
+            IntakeCargo.reset();
+            // intake.lower();
+            // elev.setHeight(Heights.Home);
+            break;
+        case STOW:
+            stow();
+            break;
+        case STOW_LOW:
+            stow();
+            elev.setHeight(Heights.Home);
+            break;
+        case THROW_CARGO:
+            elev.extendSlides();
+            mThrowCargo.startSingle(kElevator.THROW_CARGO_DELAY);
+            break;
+        case TRNSFR_HP_FROM_FLOOR:
+            done();
+            // HPFromFloor.reset();
+            // elev.closeClaw();
+            // elev.retractSlides();
+            break;
+        case GRAB_HP_FROM_FEED:
+            HPFromFeed.reset();
+            stow();
+            elev.setHeight(Heights.HP_1);
+            elev.closeClaw();
+            elev.retractSlides();
+            break;
+        }
+    }
+
     @Override
     public void loop() {
         if (mAction == Actions.OFF || this.isSafetyDisabled())
@@ -266,61 +323,6 @@ public class Superstructure extends GZSubsystem {
         runAction(action, false);
     }
 
-    public void runAction(Actions action, boolean queue) {
-        if (queue) {
-            queueAction(action);
-            return;
-        }
-
-        // if (mAction == action)
-        // return;
-
-        mAction = action;
-
-        if (mAction != Actions.IDLE && mAction != Actions.OFF)
-            mActionDone.rst();
-
-        switch (action) {
-        case OFF:
-            break;
-        case IDLE:
-            elev.stopMovement();
-            intake.stop();
-            break;
-        case GO_TO_QUEUED_HEIGHT:
-            elev.setHeight(mQueuedHeight);
-            break;
-        case INTAKE_CARGO:
-            IntakeCargo.reset();
-            // intake.lower();
-            // elev.setHeight(Heights.Home);
-            break;
-        case STOW:
-            stow();
-            break;
-        case STOW_LOW:
-            stow();
-            elev.setHeight(Heights.HP_1);
-            break;
-        case THROW_CARGO:
-            elev.extendSlides();
-            mThrowCargo.startSingle(kElevator.THROW_CARGO_DELAY);
-            break;
-        case TRNSFR_HP_FROM_FLOOR:
-            done();
-            // HPFromFloor.reset();
-            // elev.closeClaw();
-            // elev.retractSlides();
-            break;
-        case GRAB_HP_FROM_FEED:
-            HPFromFeed.reset();
-            stow();
-            elev.setHeight(Heights.HP_1);
-            elev.closeClaw();
-            elev.retractSlides();
-            break;
-        }
-    }
 
     public void stow() {
         intake.raise();

@@ -10,11 +10,13 @@ import frc.robot.util.LatchedBoolean;
 
 public class GZJoystick extends Joystick {
 
+	private double mTriggerPress = 0.3;
+
 	private DPad mUp, mDown, mRight, mLeft;
 	private LatchedBoolean dUp = new LatchedBoolean(), dDown = new LatchedBoolean(), dLeft = new LatchedBoolean(),
 			dRight = new LatchedBoolean();
 
-	private double mDeadband = .04;
+	private double mDeadband = 0.04;
 
 	public GZJoystick(int port, double deadband) {
 		this(port);
@@ -88,12 +90,12 @@ public class GZJoystick extends Joystick {
 
 	public Boolean getLeftTriggerPressed()
 	{
-		return Math.abs(getLeftTrigger()) > .3;
+		return Math.abs(getLeftTrigger()) > mTriggerPress;
 	}
 
 	public Boolean getRightTriggerPressed()
 	{
-		return Math.abs(getRightTrigger()) > .3;
+		return Math.abs(getRightTrigger()) > mTriggerPress;
 	}
 
 	public Boolean getButton(Buttons b) {
