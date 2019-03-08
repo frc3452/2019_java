@@ -10,7 +10,7 @@ public class Left_CS_Bay_1_Turn_Around extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(260.75, 210.37, 0, 30).setFieldAdaption(PathAdapter.cargoShipBay1));
         sWaypoints.add(new Waypoint(260.75, 243, 15, 30).setFieldAdaption(PathAdapter.cargoShipBay1));
-        sWaypoints.add(new Waypoint(290, 243, 0, 60).setFieldAdaption(PathAdapter.cargoShipBay1));
+        sWaypoints.add(new Waypoint(290, 243, 0, 30).setFieldAdaption(PathAdapter.cargoShipBay1));
     }
 
     @Override

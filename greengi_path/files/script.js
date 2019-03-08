@@ -21,6 +21,8 @@ var image;
 var imageFlipped;
 var wto;
 
+var currentFile = 0;
+
 var lastSetStartingPosition = 0;
 const level1StartX = (48 + halfL);
 var startingPositions = [[22, 205], [22, 117], [level1StartX, 205], [level1StartX, 162], [level1StartX, 119]];
@@ -412,16 +414,16 @@ function setAngle(row) {
 
 	var newPos = movePointAroundPoint(lastX, lastY, angle, movingX, movingY);
 
-	
+
 	if (angle != undefined) {
-		setRowValue(row-1,0,newPos.x);
-		setRowValue(row-1,1,newPos.y);
+		setRowValue(row - 1, 0, newPos.x);
+		setRowValue(row - 1, 1, newPos.y);
 		// $($($($('tbody').children()[row - 1]).children()[1]).children()).val(newPos.y);
 		// $($($($('tbody').children()[row - 1]).children()[0]).children()).val(newPos.x);
 
 
 		var centerPoint = translateAtAngle(lastX, lastY, angle, pointDistance(lastX, lastY, newPos.x, newPos.y) / 2.0);
-		addRawPointAt(row-1, centerPoint.x,centerPoint.y, 1, 30,"");
+		addRawPointAt(row - 1, centerPoint.x, centerPoint.y, 1, 30, "");
 
 		update();
 	}
@@ -535,6 +537,11 @@ function reDrawCanvas() {
 		update();
 	}
 }
+// $("#multiplePaths").onchange = function(event) {
+// 	var fileList = inputElement.files;
+// 	console.log(1);
+// 	//TODO do something with fileList.  
+//  }
 
 function myUpdate(toGetFromFile) {
 	if ($("table tr").length > 1) {
@@ -789,6 +796,136 @@ function importData() {
 	});
 	update();
 }
+
+// function nextFile() {
+// 	var files = document.getElementById("multiplePaths");
+// 	files = files.files;
+// 	currentFile++;
+
+// 	if (currentFile > files.length)
+// 		currentFile = 0;
+
+// 	console.log(files[currentFile]);
+// 	importData(currentFile);
+// }
+
+
+
+// function importData(fileNumber) {
+// 	let u = $('#multiplePaths')[fileNumber];
+
+// 	var file = u;
+// 	var fr = new FileReader();
+// 	fr.onload = function (e) {
+// 		var c = fr.result;
+// 		var s1 = c.split("\n");
+// 		var tmpWaypoints = [];
+// 		var tmpLine = [];
+// 		let searchString1 = "new Waypoint(";
+// 		let searchString2 = ")";
+// 		let searchReversed1 = "public boolean isReversed() {";
+// 		let searchReversed2 = "}";
+// 		let searchName1 = "public class";
+// 		let searchName2 = "extends";
+// 		let searchAdaption1 = "PathAdapter.";
+// 		let searchAdaption2 = "(";
+// 		$("#title").val(c.split(searchName1)[1].split(searchName2)[0].trim());
+// 		$("#isReversed").prop('checked', c.split(searchReversed1)[1].split(searchReversed2)[0].trim().includes("true"));
+
+// 		s1.forEach((line) => {
+// 			if (line.indexOf("//") != 0 && line.indexOf(searchString1) >= 0) {
+// 				tmpLine.push(line);
+// 				tmpWaypoints.push(line.split(searchString1)[1].split(searchString2)[0].split(","));
+// 			}
+// 		});
+
+// 		if (tmpLine[0].indexOf(searchAdaption1) >= 0) {
+// 			var adaptStr = tmpLine[0].split(searchAdaption1)[1].split(searchAdaption2)[0].trim();
+// 			switch (adaptStr) {
+// 				case "getAdaptedLeftSwitchWaypoint":
+// 					$("#startAdaptionValue").val("startswitchleft").prop('selected', true);
+// 					break;
+// 				case "getAdaptedRightSwitchWaypoint":
+// 					$("#startAdaptionValue").val("startswitchright").prop('selected', true);
+// 					break;
+// 				case "getAdaptedLeftScaleWaypoint":
+// 					$("#startAdaptionValue").val("startscaleleft").prop('selected', true);
+// 					break;
+// 				case "getAdaptedRightScaleWaypoint":
+// 					$("#startAdaptionValue").val("startscaleright").prop('selected', true);
+// 					break;
+// 				default:
+// 					$("#startAdaptionValue").val("startnone").prop('selected', true);
+// 					break;
+// 			}
+// 		} else {
+// 			$("#startAdaptionValue").val("startnone").prop('selected', true);
+// 		}
+
+// 		if (tmpLine[tmpLine.length - 1].indexOf(searchAdaption1) >= 0) {
+// 			var adaptStr = tmpLine[tmpLine.length - 1].split(searchAdaption1)[1].split(searchAdaption2)[0].trim();
+// 			switch (adaptStr) {
+// 				case "getAdaptedLeftSwitchWaypoint":
+// 					$("#endAdaptionValue").val("endswitchleft").prop('selected', true);
+// 					break;
+// 				case "getAdaptedRightSwitchWaypoint":
+// 					$("#endAdaptionValue").val("endswitchright").prop('selected', true);
+// 					break;
+// 				case "getAdaptedLeftScaleWaypoint":
+// 					$("#endAdaptionValue").val("endscaleleft").prop('selected', true);
+// 					break;
+// 				case "getAdaptedRightScaleWaypoint":
+// 					$("#endAdaptionValue").val("endscaleright").prop('selected', true);
+// 					break;
+// 				default:
+// 					$("#endAdaptionValue").val("endnone").prop('selected', true);
+// 					break;
+// 			}
+// 		} else {
+// 			$("#endAdaptionValue").val("endnone").prop('selected', true);
+// 		}
+
+// 		waypoints = [];
+// 		$("tbody").empty();
+// 		tmpWaypoints.forEach((wptmp, i) => {
+// 			var wp;
+// 			var x = 0;
+// 			var y = 0;
+// 			var radius = 0;
+// 			var speed = 0;
+// 			var marker = "";
+// 			if (wptmp.length >= 4) {
+// 				x = wptmp[0];
+// 				y = wptmp[1];
+// 				radius = wptmp[2];
+// 				speed = wptmp[3];
+// 			}
+// 			if (wptmp.length >= 5) {
+// 				marker = wptmp[4].replace(/"/g, "");
+// 			}
+
+// 			if (marker == " undefined")
+// 				marker = "";
+
+// 			wp = new Waypoint(new Translation2d(x, y), speed, radius, marker);
+// 			addRawPoint(wp.position.x, wp.position.y, wp.radius, wp.speed, wp.marker);
+// 		});
+// 		update();
+
+// 		$('input').unbind("change paste keyup");
+// 		$('input').bind("change paste keyup", function () {
+// 			console.log("change");
+// 			clearTimeout(wto);
+// 			wto = setTimeout(function () {
+// 				update();
+// 			}, 500);
+// 		});
+
+// 	}
+// 	fr.readAsText(file);
+// 	update();
+// }
+
 //JSON Functions
 // function importData() {
 // 	$('#upl').click();
@@ -1472,10 +1609,10 @@ function addPlotterPoint() {
 	addPointRound(position.x, position.y, 15, 30, true);
 	const size = $('tbody').children('tr').length;
 
-	setRowValue(size-1,6,position.angle);
+	setRowValue(size - 1, 6, position.angle);
 	setAngle(size);
 	// setRowValue(size-1,2,15);
-	setRowValue(size-2,2,15);
+	setRowValue(size - 2, 2, 15);
 
 	update();
 	return;

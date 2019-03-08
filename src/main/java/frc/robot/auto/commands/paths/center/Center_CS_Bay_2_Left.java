@@ -9,7 +9,7 @@ public class Center_CS_Bay_2_Left extends PathContainer {
     public Center_CS_Bay_2_Left() {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(67.5, 162, 0, 0));
-        sWaypoints.add(new Waypoint(141, 162, 15, 60));
+        sWaypoints.add(new Waypoint(141, 162, 15, 30));
         sWaypoints.add(new Waypoint(231, 254, 20, 60));
         sWaypoints.add(new Waypoint(282.5, 249.462, 20, 60).setFieldAdaption(PathAdapter.cargoShipBay2));
         sWaypoints.add(new Waypoint(282.5, 229.916, 1, 30).setFieldAdaption(PathAdapter.cargoShipBay2));

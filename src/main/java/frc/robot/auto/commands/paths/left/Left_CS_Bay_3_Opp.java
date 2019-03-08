@@ -9,7 +9,7 @@ public class Left_CS_Bay_3_Opp extends PathContainer {
     public Left_CS_Bay_3_Opp() {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(67.5, 205, 0, 0));
-        sWaypoints.add(new Waypoint(133, 205, 15, 60));
+        sWaypoints.add(new Waypoint(133, 205, 15, 30));
         sWaypoints.add(new Waypoint(223, 72, 30, 60));
         sWaypoints.add(new Waypoint(304.25, 72.981, 20, 60).setFieldAdaption(PathAdapter.cargoShipBay3));
         sWaypoints.add(new Waypoint(304.25, 93.3055, 1, 30).setFieldAdaption(PathAdapter.cargoShipBay3));

@@ -195,7 +195,7 @@
 		.fa:hover {
 			-webkit-animation: fa-spin 1s infinite linear;
 			animation: fa-spin 1s infinite linear;
-			
+
 		}
 
 		button {
@@ -258,9 +258,10 @@
 		<input id="title" placeholder="Title"></input>
 		<input class="folder" list="folders" id="folder" placeholder="Folder"></input>
 	</div>
+
 	<!-- <canvas onclick="canvasClick(this, event)" id="field"></canvas> -->
-	<canvas onclick="canvasClick(this, event)" ondragstart="storeNearestCoordinate(this,event)"
-		ondrag="canvasDrag(this,event)" ondragend="update()" draggable="true" id="field"></canvas>
+	<canvas onclick="canvasClick(this, event)" ondragstart="storeNearestCoordinate(this,event)" ondrag="canvasDrag(this,event)"
+	 ondragend="update()" draggable="true" id="field"></canvas>
 	<div class="buttonContainer">
 		<div>
 			<!-- <button title="Add Point" onclick="addPoint()"><i class="fa fa-plus-circle"></i></button> -->
@@ -270,10 +271,8 @@
 			<!-- <button title="Download File" onclick="exportData()"><i class="fa fa-download"></i></button> -->
 			<button title="Import File" onclick="importData()"><i class="fa fa-arrow-circle-up"></i></button>
 			<button title="Change Start Point" onclick="changeStartPoint()"><i class="fa fa-arrows-v"></i></button>
-			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i
-					class="fa fa-refresh fa-fw"></i></button>
-			<button title="New path from last two points" onclick="newPathTwoPoints()"><i
-					class="fa fa-sort-alpha-desc"></i></button>
+			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i class="fa fa-refresh fa-fw"></i></button>
+			<button title="New path from last two points" onclick="newPathTwoPoints()"><i class="fa fa-sort-alpha-desc"></i></button>
 
 			<button title="Duplicate last point" onclick="copyLastPoint()"><i class="fa fa-plus-circle"></i></button>
 
@@ -301,9 +300,14 @@
 			</div>
 		</div>
 		<div class="slidecontainer">
-			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider"
-				onmouseup="update();reDrawCanvas();">
+			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider" onmouseup="update();reDrawCanvas();">
 		</div>
+		<!-- <div> -->
+			<!-- <input id="multiplePaths" type="file" multiple /> -->
+
+			<!-- <button title="Previous File" onclick=""><i class="fa fa-arrow-left"></i></button> -->
+			<!-- <button title="Next File" onclick="nextFile()"><i class="fa fa-arrow-right"></i></button> -->
+		<!-- </div> -->
 		<!-- <div>
 		<select id="endAdaptionValue">
 			<option value="endnone">Don't Adapt Last Point</option>
@@ -361,7 +365,7 @@
 	<option value="left">
 		Left
 	</option>
-	<option value ="to_feeder_station">
+	<option value="to_feeder_station">
 		To Feeder Station
 	</option>
 	<option value="center">
