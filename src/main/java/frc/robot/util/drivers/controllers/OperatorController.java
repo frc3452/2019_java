@@ -12,12 +12,12 @@ public class OperatorController extends DeepSpaceController {
 
         public OperatorController(int port) {
                 super(port);
-                
+
                 this.idle = new GZButton(this, () -> false, () -> false);
                 this.cancel = new GZButton(this, () -> false, () -> false);
 
                 this.queueAction = new GZButton(this, () -> false, () -> false);
-                
+
                 this.hatchPannel1 = new GZButton(this, true, () -> false,
                                 () -> getButton(Buttons.A) && !getButton(Buttons.LEFT_CLICK));
                 this.hatchPanel2 = new GZButton(this, () -> false,
@@ -40,12 +40,11 @@ public class OperatorController extends DeepSpaceController {
 
                 this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
                 this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
-                
+
                 this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.START));
                 this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
                 this.intakeDown = new GZButton(this, () -> false, () -> false);
-                
-                
+
                 this.stow = new GZButton(this, () -> false, () -> false);
 
                 this.floorHatchToManip = new GZButton(this, () -> false, () -> false);
@@ -55,7 +54,6 @@ public class OperatorController extends DeepSpaceController {
                 this.scoreHatch = new GZButton(this, () -> false, () -> getRightTriggerPressed());
 
                 this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
-
 
         }
 

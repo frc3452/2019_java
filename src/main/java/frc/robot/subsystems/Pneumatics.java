@@ -24,6 +24,11 @@ public class Pneumatics extends GZSubsystem {
     private static Pneumatics mInstance = null;
 
     private boolean mLowPressure = false;
+    private boolean mIsMotorTesting = false;
+
+    public void setMotorTesting(boolean testing) {
+        this.mIsMotorTesting = testing;
+    }
 
     private int mCrawlerPresses = 0;
 
@@ -74,6 +79,9 @@ public class Pneumatics extends GZSubsystem {
         // if (mLowPressure && pressure > kPneumatics.HIGH_PRESSURE) {
         // mLowPressure = false;
         // }
+
+        if (mIsMotorTesting)
+            noAir = true;
 
         if (GZOI.getInstance().isAuto())
             noAir = true;

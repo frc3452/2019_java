@@ -69,6 +69,14 @@ public class Elevator extends GZSubsystem {
         mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
         // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
 
+        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0,
+                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
+
+        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
+
+        final int startingPositionTicks = -mElevator1.getSelectedSensorPosition(0);
+        System.out.println("Elevator starting ticks: " + startingPositionTicks);
+
         talonInit();
 
         // REMOTE LIMIT SWITCHES
@@ -114,6 +122,9 @@ public class Elevator extends GZSubsystem {
         // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
+        mElevator1.setSelectedSensorPosition(startingPositionTicks, 0, GZSRX.TIMEOUT);
+
+        System.out.println("Elevator ending ticks: " + mElevator1.getSelectedSensorPosition());
 
         configPID(kElevator.PID);
         // configPID(kElevator.PID2);
@@ -193,6 +204,10 @@ public class Elevator extends GZSubsystem {
     @Override
     public void stop() {
         setWantedState(ElevatorState.NEUTRAL);
+    }
+
+    public void zero() {
+        setWantedState(ElevatorState.ZEROING);
     }
 
     @Override
@@ -608,6 +623,7 @@ public class Elevator extends GZSubsystem {
             mIO.desired_output = -.1;
             if (this.mIO.bottom_limit_switch) {
                 mElevator1.zero();
+                stop();
             }
         }
 

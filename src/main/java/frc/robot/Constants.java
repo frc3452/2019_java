@@ -37,8 +37,9 @@ public class Constants {
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 0.75, 0.75);
 
+		// fold 3 then 4 on practice
 		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 4, 2.0, 2.0); // TODO TUNE ME
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 6, 2.0, 2.0); // TODO TUNE ME
 
 		// NOT CORRECT
 		// public static final SolenoidConstants SOLENOID_RAMP_DROP = new
@@ -115,10 +116,12 @@ public class Constants {
 	public static class kAuton {
 		public final static int SAFTEY_SWITCH = 96;
 
-		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Tens selector", true,
-				3, 2, 1, 0);
-		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Ones selector", true,
-				7, 6, 5, 4);
+		// 1D C B A
+		// 10D C B A
+		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true,
+				0, 1, 2, 3);
+		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true,
+				4, 5, 6, 7);
 	}
 
 	public static class kPathFollowing {
@@ -244,8 +247,8 @@ public class Constants {
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
 		public static final int INTAKE_RIGHT = 12;
-		public static final boolean INTAKE_L_INVERT = false;
-		public static final boolean INTAKE_R_INVERT = true;
+		public static final boolean INTAKE_L_INVERT = true;
+		public static final boolean INTAKE_R_INVERT = false;
 		public static final double INTAKE_SPEED = -.6;
 	}
 

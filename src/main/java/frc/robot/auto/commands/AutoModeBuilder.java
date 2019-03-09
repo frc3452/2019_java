@@ -8,6 +8,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
+import frc.robot.auto.commands.functions.superstructure.HomeElevator;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
@@ -262,11 +263,16 @@ public class AutoModeBuilder {
         if (location.isOnCargoShip()) {
             switch (gamepiece) {
             case CARGO:
+                ret.add(new GoToHeight(Heights.Cargo_1));
+                ret.add(new HomeElevator());
                 ret.add(new GoToHeight(Heights.Cargo_Ship));
                 ret.add(new RunAction(Actions.THROW_CARGO));
                 ret.tele();
                 break;
             case HATCH_PANEL:
+                ret.add(new GoToHeight(Heights.Cargo_1));
+                ret.add(new HomeElevator());
+                ret.add(new GoToHeight(Heights.HP_1));
                 ret.add(new RunAction(Actions.SCORE_HATCH));
                 ret.tele();
                 break;

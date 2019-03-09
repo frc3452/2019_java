@@ -26,6 +26,11 @@ public abstract class PathContainer {
             public Rotation2d getStartRotation() {
                 return other.getEndRotation();
             }
+
+            @Override
+            public String toString() {
+                return other.toString() + " REVERSED";
+            }
         };
 
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
@@ -56,6 +61,11 @@ public abstract class PathContainer {
         return ret;
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+
     public PathContainer getReversed() {
         return getReversed(this);
     }
@@ -69,6 +79,11 @@ public abstract class PathContainer {
 
             public boolean isLeftPath() {
                 return !pc.isLeftPath();
+            }
+
+            @Override
+            public String toString() {
+                return pc.toString() + " FLIPPED";
             }
         };
 

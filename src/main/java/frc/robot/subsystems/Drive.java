@@ -880,7 +880,7 @@ public class Drive extends GZSubsystem {
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		final double rotate = joy.getRightTrigger() - joy.getLeftTrigger() * getTurnModifier();
+		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
 		cheesyNoState(move, rotate * .5, !usingCurvature());
 	}

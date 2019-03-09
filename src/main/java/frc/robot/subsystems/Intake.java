@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.GZOI;
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
@@ -165,6 +166,9 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
+        if (GZOI.getInstance().isDisabled())
+            mDesiredDropState = DesiredDropState.UP;
+
         handleStates();
         in();
         out();

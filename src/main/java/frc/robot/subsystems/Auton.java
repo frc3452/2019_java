@@ -83,8 +83,8 @@ public class Auton {
 	}
 
 	private Auton() {
-		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
+		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		fillAutonArray();
 	}
 
@@ -93,7 +93,9 @@ public class Auton {
 	}
 
 	public int getSelector() {
-		return DigitalSelector.get(mSelectorTens, mSelectorOnes);
+		return -1;
+		// return mSelectorOnes.get();
+		// return DigitalSelector.get(mSelectorTens, mSelectorOnes);
 	}
 
 	public void autonChooser() {
@@ -222,7 +224,7 @@ public class Auton {
 
 	private void printSelectors() {
 		// if is valid
-		if (m_selectorValue >= 0 && m_selectorValue <= 99) {
+		if (m_selectorValue >= 0 && m_selectorValue <= commandArray.size()) {
 			System.out.println(
 					"Auton selected: (" + m_selectorValue + ") " + commandArray.get(m_selectorValue).getName());
 		} else {

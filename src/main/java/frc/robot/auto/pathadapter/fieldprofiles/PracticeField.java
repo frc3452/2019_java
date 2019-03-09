@@ -50,7 +50,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 27.5 + mod;
+            return 27.5 + mod + 1.5;
         }
 
         @Override
@@ -60,7 +60,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo3() {
-            return 83.5 + mod;
+            return 83.5 + mod - 1;
         }
 
         @Override

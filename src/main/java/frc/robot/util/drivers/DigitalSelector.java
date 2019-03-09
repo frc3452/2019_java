@@ -54,29 +54,37 @@ public class DigitalSelector {
     }
 
     public static int get(DigitalSelector tensSelector, DigitalSelector onesSelector) {
-        if (tensSelector == null || onesSelector == null)
+        if (tensSelector == null || onesSelector == null) {
+            System.out.println("ONE OF SELECTORS IS NULL!");
             return -1;
+        }
 
         int ret;
 
         int tensValue = tensSelector.get();
         int onesValue = onesSelector.get();
 
-        if (tensValue == -1 || onesValue == -1)
+        if (tensValue == -1 || onesValue == -1) {
+            System.out.println("TENS VALUE " + tensValue + " \tOnes VALUE" + onesValue);
             return -1;
+        }
 
         ret = (tensValue * 10) + onesValue;
 
         // Saftey check, shouldn't be possible but just in case
-        if (ret < 0 || ret > 99)
+        if (ret < 0 || ret > 99) {
+            System.out.println("BIG OR SMALL VAL: " + ret);
             return -1;
+        }
 
         return ret;
     }
 
     public int get() {
-        if (areAnyNull())
+        if (areAnyNull()) {
+            System.out.println("ONE OF SELECTORS IS NULL!!!!!");
             return -1;
+        }
 
         // Datasheet found at
         // http://www.ia.omron.com/data_pdf/cat/a7bs_a7bl_ds_e_6_2_csm25.pdf

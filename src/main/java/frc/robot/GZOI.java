@@ -61,8 +61,8 @@ public class GZOI extends GZSubsystem {
 				return .15;
 			else if (GZUtil.between(getMatchTime(), 29.1, 30))
 				return .6;
-			else if (drive.usingCurvature())
-				return .4;
+			// else if (drive.usingCurvature())
+			// 	return .4;
 
 			return 0.0;
 		}
@@ -173,6 +173,10 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void handleDriverController() {
+		if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
+			Elevator.getInstance().zero();
+		}
+
 		if (driverJoy.getButton(Buttons.LB)) {
 
 			if (driverJoy.getButton(Buttons.A))
@@ -191,7 +195,7 @@ public class GZOI extends GZSubsystem {
 			}
 		}
 
-		if (driverJoy.getButtonLatched(Buttons.BACK))
+		if (driverJoy.getButtonLatched(Buttons.BACK) && !driverJoy.getButton(Buttons.START))
 			elev.toggleSpeedOverride();
 
 		if (drive.getState() == DriveState.CLIMB && driverJoy.getButtonLatched(Buttons.RB))
@@ -203,7 +207,9 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
 
-		if (controller.hatchPannel1.pressedFor(0.75))
+		if (controller.idle.get())
+			supe.idle();
+		else if (controller.hatchPannel1.pressedFor(0.75))
 			supe.runHeight(Heights.Home);
 		else if (controller.hatchPannel1.get())
 			supe.runHeight(Heights.HP_1, queue);
@@ -221,10 +227,10 @@ public class GZOI extends GZSubsystem {
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
-		else if (controller.elevatorManual.get()) {
-			supe.elevManual(controller.getRightAnalogY() * 0.25);
-		} else if (controller.cargoShip.get())
+		else if (controller.cargoShip.get())
 			supe.runHeight(Heights.Cargo_Ship, queue);
+		// else if (controller.elevatorManual.get())
+		// supe.elevManual(controller.getRightAnalogY() * 0.25);
 
 		if (controller.slidesToggle.updated())
 			supe.toggleSlides();
@@ -239,7 +245,7 @@ public class GZOI extends GZSubsystem {
 			supe.raiseIntake();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
-		
+
 		if (controller.floorHatchToManip.updated())
 			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
 		else if (controller.hatchFromFeed.updated())
@@ -249,7 +255,7 @@ public class GZOI extends GZSubsystem {
 		else if (controller.scoreHatch.updated())
 			supe.runAction(Actions.SCORE_HATCH);
 
-		if (controller.dropCrawler.updated() )
+		if (controller.dropCrawler.updated())
 			supe.dropCrawler();
 	}
 
