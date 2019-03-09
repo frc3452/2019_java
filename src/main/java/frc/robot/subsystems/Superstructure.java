@@ -108,7 +108,8 @@ public class Superstructure extends GZSubsystem {
             break;
         case GRAB_HP_FROM_FEED:
             HPFromFeed.reset();
-            stow();
+            intake.raise();
+            intake.stop();
             elev.setHeight(Heights.HP_1);
             elev.closeClaw();
             break;

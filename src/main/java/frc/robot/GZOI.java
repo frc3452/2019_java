@@ -185,9 +185,9 @@ public class GZOI extends GZSubsystem {
 				drive.wantShift(ClimbingState.FRONT);
 			else if (driverJoy.getButton(Buttons.X))
 				drive.wantShift(ClimbingState.BOTH);
+				else if (driverJoy.getButton(Buttons.Y))
+				drive.wantShift(ClimbingState.REAR);
 
-			// else if (driverJoy.getButton(Buttons.Y))
-			// drive.wantShift(ClimbingState.REAR);
 
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {

@@ -846,7 +846,7 @@ public class Drive extends GZSubsystem {
 				runClimber(joy.getRightAnalogY() * .75, joy.getLeftAnalogY() * .25);
 				break;
 			case REAR:
-				runClimber(0, joy.getLeftAnalogY() * .25);
+				runClimber(joy.getLeftAnalogY() * .75, joy.getRightAnalogY() * .25);
 				break;
 			}
 			mIsAutoClimbing = false;

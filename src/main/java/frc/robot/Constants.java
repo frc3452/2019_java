@@ -76,7 +76,7 @@ public class Constants {
 		public static final double INTAKE_HIGH_HEIGHT = 45;
 		public static final double INTAKE_TOLERANCE = 2;
 
-		public static final double HATCH_PLACING_JOG = 2;
+		public static final double HATCH_PLACING_JOG = 4;
 
 		public static final int CARGO_SENSOR_CHANNEL = 8;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 10;
