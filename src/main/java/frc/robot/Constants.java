@@ -116,11 +116,9 @@ public class Constants {
 	public static class kAuton {
 		public final static int SAFTEY_SWITCH = 96;
 
-		// 1D C B A
-		// 10D C B A
-		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true,
+		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Ones selector", true,
 				0, 1, 2, 3);
-		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true,
+		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Tens selector", true,
 				4, 5, 6, 7);
 	}
 

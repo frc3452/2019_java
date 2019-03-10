@@ -93,9 +93,9 @@ public class Auton {
 	}
 
 	public int getSelector() {
-		return -1;
+		// return -1;
 		// return mSelectorOnes.get();
-		// return DigitalSelector.get(mSelectorTens, mSelectorOnes);
+		return DigitalSelector.get(mSelectorTens, mSelectorOnes);
 	}
 
 	public void autonChooser() {
@@ -107,7 +107,7 @@ public class Auton {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue);
 		} else {
 			// Check if auton selectors are returning what they should be
-			if (m_selectorValue <= commandArray.size() && m_selectorValue >= 0) {
+			if (m_selectorValue <= (commandArray.size()-1) && m_selectorValue >= 0) {
 				autonomousCommand = commandArray.get(m_selectorValue);
 			} else {
 				autonomousCommand = defaultCommand;
@@ -207,6 +207,7 @@ public class Auton {
 	}
 
 	private void printSelected() {
+
 		if (m_controllerOverrideValue == -1) {
 			if (m_selectorValue != p_selectorValue) {
 				printSelectors();
@@ -224,7 +225,7 @@ public class Auton {
 
 	private void printSelectors() {
 		// if is valid
-		if (m_selectorValue >= 0 && m_selectorValue <= commandArray.size()) {
+		if (m_selectorValue >= 0 && m_selectorValue <= (commandArray.size() - 1)) {
 			System.out.println(
 					"Auton selected: (" + m_selectorValue + ") " + commandArray.get(m_selectorValue).getName());
 		} else {
