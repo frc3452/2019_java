@@ -2,8 +2,8 @@ package frc.robot.auto.pathadapter.fieldprofiles;
 
 import frc.robot.Constants.kElevator;
 
-public class PracticeField extends FieldProfile {
-    public PracticeField() {
+public class MISJO extends FieldProfile {
+    public MISJO() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
         this.mFeederStationToWall = new FieldValues<Double>(25.72);
         this.mBay1ToWall = new FieldValues<Double>(133.13);
@@ -19,7 +19,10 @@ public class PracticeField extends FieldProfile {
         this.mHABRamp = new FieldValues<Double>(10.9632);
     }
 
-    private HeightsContainer mHeight = new HeightsContainer() {
+    private HeightsContainer mHeights = new HeightsContainer() {
+
+        private final double mod = 0.5;
+
         @Override
         public double hp_floor_Grab() {
             return kElevator.HOME_INCHES + 1;
@@ -27,48 +30,48 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 19;
+            return 19 + mod + 3;
         }
 
         @Override
         public double hp2() {
-            return 47;
+            return 47 + mod;
         }
 
         @Override
         public double hp3() {
-            return 75;
+            return 75 + mod;
         }
 
         @Override
         public double cargo_ship() {
-            return 46;
+            return 46 + mod;
         }
 
         @Override
         public double cargo1() {
-            return 27.5;
+            return 27.5 + mod + 1.5;
         }
 
         @Override
         public double cargo2() {
-            return 55.5;
+            return 55.5 + mod;
         }
 
         @Override
         public double cargo3() {
-            return 83.5;
+            return 83.5 + mod - 1;
         }
 
         @Override
         public double hp_feed_jog() {
-            return hp1() + 5;
+            return hp1() + 5 + mod;
         }
     };
 
     @Override
     public HeightsContainer getElevatorHeights() {
-        return mHeight;
+        return mHeights;
     }
 
 }

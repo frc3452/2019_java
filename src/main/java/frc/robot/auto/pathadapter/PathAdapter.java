@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
+import frc.robot.auto.pathadapter.fieldprofiles.MISJO;
 import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
 import frc.robot.auto.pathadapter.robotprofiles.PracticeBot;
