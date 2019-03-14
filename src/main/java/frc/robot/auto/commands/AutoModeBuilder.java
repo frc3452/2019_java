@@ -30,7 +30,12 @@ import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Same;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Opp;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Opp;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Opp;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_1_Turn_Around;
@@ -264,7 +269,7 @@ public class AutoModeBuilder {
             if (scoringSameSide(startPos, score)) {
                 return new Left_Rocket_Close_Same().get(startPos.onLeft).toList();
             } else {
-                return new ().get(startPos.onLeft).toList();
+                return new Left_Rocket_Close_Opp().get(startPos.onLeft).toList();
             }
 
         case ROCKET_MID:
@@ -275,10 +280,10 @@ public class AutoModeBuilder {
             if (scoringSameSide(startPos, score)) {
                 return new Left_Rocket_Mid_Same().get(startPos.onLeft).toList();
             } else {
-                return new ().get(startPos.onLeft).toList();
+                return new Left_Rocket_Mid_Opp().get(startPos.onLeft).toList();
             }
 
-        case ROCKET_MID:
+        case ROCKET_FAR:
             // Center
 
 
@@ -286,7 +291,7 @@ public class AutoModeBuilder {
             if (scoringSameSide(startPos, score)) {
                 return new Left_Rocket_Far_Same().get(startPos.onLeft).toList();
             } else {
-                return new ().get(startPos.onLeft).toList();
+                return new Left_Rocket_Far_Opp().get(startPos.onLeft).toList();
             }
 
         default:
