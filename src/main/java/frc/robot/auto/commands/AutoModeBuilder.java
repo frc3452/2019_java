@@ -14,6 +14,9 @@ import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
+import frc.robot.auto.commands.paths.center.Center_Rocket_Close_Left;
+import frc.robot.auto.commands.paths.center.Center_Rocket_Far_Left;
+import frc.robot.auto.commands.paths.center.Center_Rocket_Mid_Left;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_1;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Opp_2;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Same_2;
@@ -263,7 +266,9 @@ public class AutoModeBuilder {
         
         case ROCKET_NEAR:
             // Center
-
+            if (startPos == StartingPosition.CENTER) {
+                return new Center_Rocket_Close_Left().get(score.side.onLeft).toList();
+            }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
@@ -274,7 +279,9 @@ public class AutoModeBuilder {
 
         case ROCKET_MID:
             // Center
-
+            if (startPos == StartingPosition.CENTER) {
+                return new Center_Rocket_Mid_Left().get(score.side.onLeft).toList();
+            }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
@@ -285,7 +292,9 @@ public class AutoModeBuilder {
 
         case ROCKET_FAR:
             // Center
-
+            if (startPos == StartingPosition.CENTER) {
+                return new Center_Rocket_Far_Left().get(score.side.onLeft).toList();
+            }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
