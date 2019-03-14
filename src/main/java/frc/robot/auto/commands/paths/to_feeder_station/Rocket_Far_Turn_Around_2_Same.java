@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 
-public class Rocket_Far_Turn_Around_2 extends PathContainer {
-    public Rocket_Far_Turn_Around_2() {
+public class Rocket_Far_Turn_Around_2_Same extends PathContainer {
+    public Rocket_Far_Turn_Around_2_Same() {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(293, 242, 0, 60));
         sWaypoints.add(new Waypoint(288, 271, 15, 30));
