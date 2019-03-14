@@ -30,6 +30,7 @@ import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_3_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Face_Same;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_1_Turn_Around;
@@ -253,6 +254,39 @@ public class AutoModeBuilder {
                 return new Left_CS_Bay_3_Same().get(startPos.onLeft).toList();
             } else {
                 return new Left_CS_Bay_3_Opp().get(startPos.onLeft).toList();
+            }
+        
+        case ROCKET_NEAR:
+            // Center
+
+
+            // On left or right
+            if (scoringSameSide(startPos, score)) {
+                return new Left_Rocket_Close_Same().get(startPos.onLeft).toList();
+            } else {
+                return new ().get(startPos.onLeft).toList();
+            }
+
+        case ROCKET_MID:
+            // Center
+
+
+            // On left or right
+            if (scoringSameSide(startPos, score)) {
+                return new Left_Rocket_Mid_Same().get(startPos.onLeft).toList();
+            } else {
+                return new ().get(startPos.onLeft).toList();
+            }
+
+        case ROCKET_MID:
+            // Center
+
+
+            // On left or right
+            if (scoringSameSide(startPos, score)) {
+                return new Left_Rocket_Far_Same().get(startPos.onLeft).toList();
+            } else {
+                return new ().get(startPos.onLeft).toList();
             }
 
         default:
