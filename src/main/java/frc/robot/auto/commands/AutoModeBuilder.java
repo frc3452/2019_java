@@ -46,6 +46,10 @@ import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_2_Turn_Around_2;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_1;
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_2;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_1;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_2;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
@@ -387,6 +391,40 @@ public class AutoModeBuilder {
             if (feederSameSide(location, station)) {
                 ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
                 ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+        }
+
+        case ROCKET_NEAR: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Rocket_Close_Turn_Around().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+        }
+
+        case ROCKET_MID: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Rocket_Mid_Turn_Around().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+            } else {
+                return null;
+            }
+            return ret;
+        }
+
+        case ROCKET_FAR: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Rocket_Far_Turn_Around_1().get(location.side.onLeft));
+                ret.add(new Rocket_Far_Turn_Around_2().get(location.side.onLeft));
                 ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
             } else {
                 return null;
