@@ -1,9 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
-import frc.robot.Constants.kElevator;
-
 public abstract class HeightsContainer {
-    
+
     public abstract double hp_floor_Grab();
 
     public abstract double hp1();
@@ -21,4 +19,14 @@ public abstract class HeightsContainer {
     public abstract double cargo3();
 
     public abstract double hp_feed_jog();
+
+    public abstract double zero();
+
+    public abstract double lowest_with_slides_out();
+
+    public abstract double home();
+
+    public abstract int ticks_per_inch();
+
+    public abstract double hatch_place_jog();
 }

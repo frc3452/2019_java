@@ -78,19 +78,15 @@ public class AutoModeBuilder {
 
     static {
         if (StartingPosition.LEFT == null) {
-
         }
 
         if (ScoringPosition.CARGO_SHIP_BAY_1 == null) {
-
         }
 
         if (FeederStation.LEFT == null) {
-
         }
 
         if (ScoringSide.LEFT == null) {
-
         }
     }
 
@@ -277,7 +273,7 @@ public class AutoModeBuilder {
             } else {
                 return new Left_CS_Bay_3_Opp().get(startPos.onLeft).toList();
             }
-        
+
         case ROCKET_NEAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
