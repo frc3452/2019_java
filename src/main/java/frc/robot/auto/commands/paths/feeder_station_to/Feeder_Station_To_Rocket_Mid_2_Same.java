@@ -15,6 +15,6 @@ public class Feeder_Station_To_Rocket_Mid_2_Same extends PathContainer {
 
     @Override
     public boolean isReversed() {
-        return true;
+        return false;
     }
 }
