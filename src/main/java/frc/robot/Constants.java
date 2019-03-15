@@ -59,14 +59,15 @@ public class Constants {
 		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0);
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
-		public static final double HOME_INCHES = 16.0;
 		public static final double TOP_LIMIT = 85.0;
 
-		public static final double LOWEST_WITH_SLIDES_OUT = HOME_INCHES + 2.5;
+		private final static HeightsContainer h = PathAdapter.getHeights();
+		public static final double TARGET_TOLERANCE = 1;
+
+		public static final double LOWEST_WITH_SLIDES_OUT = h.lowest_with_slides_out();
 		public static final double SLIDES_TOLERANCE = 1.5;
 
-		public static final int TICKS_PER_INCH = 353; // 352.944782;
-		public static final double TARGET_TOLERANCE = 1;
+		public static final int TICKS_PER_INCH = h.ticks_per_inch(); // 352.944782;
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
 		// (1.0/8.0);
 
@@ -74,12 +75,10 @@ public class Constants {
 		public static final double INTAKE_HIGH_HEIGHT = 45;
 		public static final double INTAKE_TOLERANCE = 2;
 
-		public static final double HATCH_PLACING_JOG = 4;
+		public static final double HATCH_PLACING_JOG = h.hatch_place_jog();
 
 		public static final int CARGO_SENSOR_CHANNEL = 8;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 10;
-
-		private final static HeightsContainer h = PathAdapter.getHeights();
 
 		public final static double ELEV_TURN_SCALAR = 1.0; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
@@ -89,8 +88,8 @@ public class Constants {
 
 		public static enum Heights {
 
-			Home(HOME_INCHES + 0.25), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()), HP_3(h.hp3()),
-			Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
+			Zero(h.zero()), Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()),
+			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
 			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;

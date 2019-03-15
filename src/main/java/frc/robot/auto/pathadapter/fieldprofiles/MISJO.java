@@ -1,7 +1,5 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
-import frc.robot.Constants.kElevator;
-
 public class MISJO extends FieldProfile {
     public MISJO() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
@@ -25,7 +23,7 @@ public class MISJO extends FieldProfile {
 
         @Override
         public double hp_floor_Grab() {
-            return kElevator.HOME_INCHES + 1;
+            return 16 + 1;
         }
 
         @Override
@@ -66,6 +64,31 @@ public class MISJO extends FieldProfile {
         @Override
         public double hp_feed_jog() {
             return hp1() + 5 + mod;
+        }
+
+        @Override
+        public double zero() {
+            return 16;
+        }
+
+        @Override
+        public double lowest_with_slides_out() {
+            return 17.5;
+        }
+
+        @Override
+        public double home() {
+            return 16.25;
+        }
+
+        @Override
+        public int ticks_per_inch() {
+            return 353;
+        }
+
+        @Override
+        public double hatch_place_jog() {
+            return 4;
         }
     };
 

@@ -1,7 +1,5 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
-import frc.robot.Constants.kElevator;
-
 public class PracticeField extends FieldProfile {
     public PracticeField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
@@ -22,7 +20,7 @@ public class PracticeField extends FieldProfile {
     private HeightsContainer mHeight = new HeightsContainer() {
         @Override
         public double hp_floor_Grab() {
-            return kElevator.HOME_INCHES + 1;
+            return zero() + 1;
         }
 
         @Override
@@ -63,6 +61,30 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hp_feed_jog() {
             return hp1() + 5;
+        }
+        @Override
+        public double zero() {
+            return 16;
+        }
+
+        @Override
+        public double lowest_with_slides_out() {
+            return 17.5;
+        }
+
+        @Override
+        public double home() {
+            return 16.25;
+        }
+
+        @Override
+        public int ticks_per_inch() {
+            return 353;
+        }
+
+        @Override
+        public double hatch_place_jog() {
+            return 4;
         }
     };
 

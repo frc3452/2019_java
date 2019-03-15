@@ -15,7 +15,6 @@ import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.GZFlag;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
@@ -69,14 +68,6 @@ public class Elevator extends GZSubsystem {
         mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
         // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
 
-        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0,
-                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
-
-        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
-
-        final int startingPositionTicks = -mElevator1.getSelectedSensorPosition(0);
-        System.out.println("Elevator starting ticks: " + startingPositionTicks);
-
         talonInit();
 
         // REMOTE LIMIT SWITCHES
@@ -104,9 +95,11 @@ public class Elevator extends GZSubsystem {
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.REV);
 
-        GZSRX.logError(() -> mElevator1.configForwardSoftLimitThreshold(
-                (int) ((kElevator.TOP_LIMIT - kElevator.HOME_INCHES) * kElevator.TICKS_PER_INCH), GZSRX.TIMEOUT), this,
-                AlertLevel.ERROR, "Could not set top limit to " + kElevator.TOP_LIMIT + " inches from ground");
+        GZSRX.logError(
+                () -> mElevator1.configForwardSoftLimitThreshold(
+                        (int) ((kElevator.TOP_LIMIT - kElevator.Heights.Zero.inches) * kElevator.TICKS_PER_INCH),
+                        GZSRX.TIMEOUT),
+                this, AlertLevel.ERROR, "Could not set top limit to " + kElevator.TOP_LIMIT + " inches from ground");
 
         GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
                 "Could not enable top limit!");
@@ -122,9 +115,6 @@ public class Elevator extends GZSubsystem {
         // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
-        mElevator1.setSelectedSensorPosition(startingPositionTicks, 0, GZSRX.TIMEOUT);
-
-        System.out.println("Elevator ending ticks: " + mElevator1.getSelectedSensorPosition());
 
         configPID(kElevator.PID);
         // configPID(kElevator.PID2);
@@ -136,6 +126,8 @@ public class Elevator extends GZSubsystem {
         configCruiseInchesPerSec(11 * 12);
 
         brake();
+
+        mElevator1.setSelectedSensorPosition((int) (kElevator.TICKS_PER_INCH * kElevator.Heights.Zero.inches));
     }
 
     private void selectProfileSlot(ElevatorPIDConfig e) {
@@ -294,7 +286,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public double getHeightInches() {
-        return (mIO.ticks_position / kElevator.TICKS_PER_INCH) + kElevator.HOME_INCHES;
+        return (mIO.ticks_position / kElevator.TICKS_PER_INCH) + kElevator.Heights.Zero.inches;
     }
 
     public boolean isCargoSensorTripped() {
@@ -559,7 +551,7 @@ public class Elevator extends GZSubsystem {
 
     private double getSlidesAllowedHeight() {
         if (mCarriageSlide.isOff())
-            return kElevator.HOME_INCHES;
+            return kElevator.Heights.Zero.inches;
 
         return kElevator.LOWEST_WITH_SLIDES_OUT;
     }
@@ -588,7 +580,7 @@ public class Elevator extends GZSubsystem {
             } else if (!mCarriageSlide.isOff()) {
                 mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT;
             } else {
-                mLowestHeight = kElevator.HOME_INCHES;
+                mLowestHeight = kElevator.Heights.Zero.inches;
             }
 
             if (Intake.getInstance().armWantsToMove()) {
@@ -607,7 +599,7 @@ public class Elevator extends GZSubsystem {
             if (Intake.getInstance().armWantsToMove()) {
                 mLowestHeight = kElevator.INTAKE_HIGH_HEIGHT + kElevator.INTAKE_TOLERANCE;
             } else {
-                mLowestHeight = kElevator.HOME_INCHES;
+                mLowestHeight = kElevator.Heights.Zero.inches;
             }
             mHighestHeight = kElevator.TOP_LIMIT;
         }
