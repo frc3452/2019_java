@@ -6,13 +6,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kElevator.Heights;
-import frc.robot.Constants.kOI;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.BooleanStateChange;
@@ -23,7 +21,6 @@ import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
@@ -210,7 +207,7 @@ public class GZOI extends GZSubsystem {
 		if (controller.idle.get())
 			supe.idle();
 		else if (controller.hatchPannel1.pressedFor(0.75))
-			supe.runHeight(Heights.Home);
+			supe.zeroElevator();
 		else if (controller.hatchPannel1.get())
 			supe.runHeight(Heights.HP_1, queue);
 		else if (controller.hatchPanel2.get())

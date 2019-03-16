@@ -334,6 +334,11 @@ public class Superstructure extends GZSubsystem {
         intake.stop();
     }
 
+    public void zeroElevator()
+    {
+        elev.zero();
+    }
+
     public void raiseIntake() {
         intake.raise();
     }

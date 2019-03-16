@@ -16,6 +16,7 @@ import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
+import frc.robot.util.GZNotifier;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -48,6 +49,10 @@ public class Elevator extends GZSubsystem {
     private boolean mLimiting = false;
     private boolean mSpeedLimitOverride = false;
 
+    private GZNotifier printer = new GZNotifier(() -> {
+        System.out.println("TICKS: " + mIO.ticks_position);
+    });
+
     public static Elevator getInstance() {
         if (mInstance == null)
             mInstance = new Elevator();
@@ -57,6 +62,8 @@ public class Elevator extends GZSubsystem {
 
     // INIT AND LIFT
     private Elevator() {
+        printer.startPeriodic(1);
+
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_1_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
                 .build();
         mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
@@ -583,30 +590,30 @@ public class Elevator extends GZSubsystem {
                 mLowestHeight = kElevator.Heights.Zero.inches;
             }
 
-            if (Intake.getInstance().armWantsToMove()) {
-                mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - kElevator.INTAKE_TOLERANCE;
+            // if (Intake.getInstance().armWantsToMove()) {
+            // mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - kElevator.INTAKE_TOLERANCE;
 
-                if (Intake.getInstance().armWantsUp()) {
-                    mCarriageSlide.wantOff();
-                }
+            // if (Intake.getInstance().armWantsUp()) {
+            // mCarriageSlide.wantOff();
+            // }
 
-            } else {
-                mHighestHeight = kElevator.TOP_LIMIT;
-            }
+            // } else {
+            mHighestHeight = kElevator.TOP_LIMIT;
+            // }
 
             // Above top intake safe zone
         } else {
-            if (Intake.getInstance().armWantsToMove()) {
-                mLowestHeight = kElevator.INTAKE_HIGH_HEIGHT + kElevator.INTAKE_TOLERANCE;
-            } else {
-                mLowestHeight = kElevator.Heights.Zero.inches;
-            }
+            // if (Intake.getInstance().armWantsToMove()) {
+            // mLowestHeight = kElevator.INTAKE_HIGH_HEIGHT + kElevator.INTAKE_TOLERANCE;
+            // } else {
+            mLowestHeight = kElevator.Heights.Zero.inches;
+            // }
             mHighestHeight = kElevator.TOP_LIMIT;
         }
 
         if (mState == ElevatorState.MOTION_MAGIC) {
             double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, mHighestHeight);
-            mIO.desired_output = (temp - Heights.Home.inches) * kElevator.TICKS_PER_INCH;
+            mIO.desired_output = (temp - Heights.Zero.inches) * kElevator.TICKS_PER_INCH;
         } else if (mState == ElevatorState.MANUAL) {
             if (getHeightInches() > (kElevator.TOP_LIMIT - 1)) {
                 mIO.desired_output = Math.min(mIO.desired_output, 0);
