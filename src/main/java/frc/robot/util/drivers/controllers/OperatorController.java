@@ -18,7 +18,9 @@ public class OperatorController extends DeepSpaceController {
 
                 this.queueAction = new GZButton(this, () -> false, () -> false);
 
-                this.hatchPannel1 = new GZButton(this, true, () -> false,
+                this.elevatorZero = new GZButton(this, () -> false, () -> getButton(Buttons.X));
+
+                this.hatchPanel1 = new GZButton(this, true,() -> false,
                                 () -> getButton(Buttons.A) && !getButton(Buttons.LEFT_CLICK));
                 this.hatchPanel2 = new GZButton(this, () -> false,
                                 () -> getButton(Buttons.B) && !getButton(Buttons.LEFT_CLICK));

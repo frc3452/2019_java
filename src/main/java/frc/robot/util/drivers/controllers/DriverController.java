@@ -18,7 +18,7 @@ public class DriverController extends DeepSpaceController {
         this.cargo1 = new GZButton(this, () -> getButton(Buttons.RB) && getButton(Buttons.X));
         this.cargo2 = new GZButton(this, () -> getButton(Buttons.RB) && getButton(Buttons.B));
         this.cargo3 = new GZButton(this, () -> getButton(Buttons.RB) && getButton(Buttons.Y));
-        this.hatchPannel1 = new GZButton(this, () -> getButton(Buttons.X) && getButton(Buttons.LB));
+        this.hatchPanel1 = new GZButton(this, () -> getButton(Buttons.X) && getButton(Buttons.LB));
         this.hatchPanel2 = new GZButton(this, () -> getButton(Buttons.B) && getButton(Buttons.LB));
         this.hatchPanel3 = new GZButton(this, () -> getButton(Buttons.Y) && getButton(Buttons.LB));
 

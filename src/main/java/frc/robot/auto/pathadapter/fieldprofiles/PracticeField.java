@@ -25,17 +25,17 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 19;
+            return 22; //19
         }
 
         @Override
         public double hp2() {
-            return 47;
+            return 47 + 3;
         }
 
         @Override
         public double hp3() {
-            return 75;
+            return 75 + 3;
         }
 
         @Override
@@ -45,41 +45,41 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 27.5;
+            return 27.5 + 2;
         }
 
         @Override
         public double cargo2() {
-            return 55.5;
+            return 55.5 + 2;
         }
 
         @Override
         public double cargo3() {
-            return 83.5;
+            return 83.5 + 2;
         }
 
         @Override
         public double hp_feed_jog() {
-            return hp1() + 5;
+            return hp1() + 7;
         }
         @Override
         public double zero() {
-            return 16;
+            return 16.5;
         }
 
         @Override
         public double lowest_with_slides_out() {
-            return 17.5;
+            return 18.5;
         }
 
         @Override
         public double home() {
-            return 16.25;
+            return zero() + 0.5;
         }
 
         @Override
         public int ticks_per_inch() {
-            return 353;
+            return 350;
         }
 
         @Override

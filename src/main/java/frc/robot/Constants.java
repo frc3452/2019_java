@@ -24,7 +24,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
  */
 
 public class Constants {
-	static final boolean mCompBot = true;
+	public static final boolean COMP_BOT = false;
 
 	public static class kLoop {
 	}
@@ -36,12 +36,12 @@ public class Constants {
 
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 4.0, 4.0);
 
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, 7, 0.5, 0.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, 6, 0.75, 0.75);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, COMP_BOT ? 7 : 6, 0.5, 0.5);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.75, 0.75);
 
 		// fold 3 then 4 on practice
 		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, 6, 2.0, 2.0); // TODO TUNE ME
+		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 2.0, 2.0);
 	}
 
 	public static class kElevator {

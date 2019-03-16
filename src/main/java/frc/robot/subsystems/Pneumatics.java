@@ -90,6 +90,8 @@ public class Pneumatics extends GZSubsystem {
         // noAir = true;
         // }
 
+        noAir = true;
+
         if (noAir) {
             mCompressor.stop();
         } else {

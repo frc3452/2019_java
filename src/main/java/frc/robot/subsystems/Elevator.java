@@ -50,7 +50,7 @@ public class Elevator extends GZSubsystem {
     private boolean mSpeedLimitOverride = false;
 
     private GZNotifier printer = new GZNotifier(() -> {
-        System.out.println("TICKS: " + mIO.ticks_position);
+        System.out.println("INCHES: " + getHeightInches());
     });
 
     public static Elevator getInstance() {
@@ -62,8 +62,6 @@ public class Elevator extends GZSubsystem {
 
     // INIT AND LIFT
     private Elevator() {
-        printer.startPeriodic(1);
-
         mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_1_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
                 .build();
         mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
@@ -88,16 +86,16 @@ public class Elevator extends GZSubsystem {
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
         // ABS
-        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0,
-                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
-        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
-
-        // REL
         // GZSRX.logError(() ->
-        // mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,
+        // mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,
         // 0,
         // GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         // mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
+
+        // REL
+        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
+        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
         mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
                 LimitSwitchDirections.REV);
@@ -127,14 +125,15 @@ public class Elevator extends GZSubsystem {
         // configPID(kElevator.PID2);
         selectProfileSlot(0);
 
-        // configAccelInchesPerSec(1 * 12);
-        // configCruiseInchesPerSec(5 * 12);
-        configAccelInchesPerSec(7 * 12);
-        configCruiseInchesPerSec(11 * 12);
+        // configAccelInchesPerSec(7 * 12);
+        // configCruiseInchesPerSec(11 * 12);
+
+        configAccelInchesPerSec(16 * 12);
+        configCruiseInchesPerSec(16 * 12);
 
         brake();
 
-        mElevator1.setSelectedSensorPosition((int) (kElevator.TICKS_PER_INCH * kElevator.Heights.Zero.inches));
+        mElevator1.setSelectedSensorPosition(0);
     }
 
     private void selectProfileSlot(ElevatorPIDConfig e) {
@@ -488,8 +487,11 @@ public class Elevator extends GZSubsystem {
     }
 
     private void in() {
-        // mIO.encoders_valid = true;
-        mIO.encoders_valid = mElevator1.isEncoderValid();
+        if (Constants.COMP_BOT) {
+            mIO.encoders_valid = mElevator1.isEncoderValid();
+        } else {
+            mIO.encoders_valid = true;
+        }
 
         if (!mIO.encoders_valid)
             mIO.encoder_invalid_loops++;
@@ -578,8 +580,9 @@ public class Elevator extends GZSubsystem {
 
     private void out() {
         if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0)
-                || !mIO.encoders_valid)
+                || !mIO.encoders_valid) {
             mCarriageSlide.stateChange();
+        }
 
         if (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT) {
             if (mCarriageSlide.wantsStateChange()) {

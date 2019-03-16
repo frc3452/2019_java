@@ -59,7 +59,7 @@ public class GZOI extends GZSubsystem {
 			else if (GZUtil.between(getMatchTime(), 29.1, 30))
 				return .6;
 			// else if (drive.usingCurvature())
-			// 	return .4;
+			// return .4;
 
 			return 0.0;
 		}
@@ -167,6 +167,9 @@ public class GZOI extends GZSubsystem {
 	private void handleElevatorTesting() {
 		if (Math.abs(op.getLeftTrigger()) > .5)
 			Elevator.getInstance().manual(op.getRightAnalogY() * .25);
+		else if (op.getButtonLatched(Buttons.A)) {
+			Elevator.getInstance().zero();
+		}
 	}
 
 	private void handleDriverController() {
@@ -176,15 +179,14 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.getButton(Buttons.LB)) {
 
-			if (driverJoy.getButton(Buttons.A))
-				drive.wantShift(ClimbingState.NONE);
-			else if (driverJoy.getButton(Buttons.B))
-				drive.wantShift(ClimbingState.FRONT);
-			else if (driverJoy.getButton(Buttons.X))
-				drive.wantShift(ClimbingState.BOTH);
-				else if (driverJoy.getButton(Buttons.Y))
-				drive.wantShift(ClimbingState.REAR);
-
+			// if (driverJoy.getButton(Buttons.A))
+			// drive.wantShift(ClimbingState.NONE);
+			// else if (driverJoy.getButton(Buttons.B))
+			// drive.wantShift(ClimbingState.FRONT);
+			// else if (driverJoy.getButton(Buttons.X))
+			// drive.wantShift(ClimbingState.BOTH);
+			// else if (driverJoy.getButton(Buttons.Y))
+			// drive.wantShift(ClimbingState.REAR);
 
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
@@ -206,9 +208,11 @@ public class GZOI extends GZSubsystem {
 
 		if (controller.idle.get())
 			supe.idle();
-		else if (controller.hatchPannel1.pressedFor(0.75))
+		else if (controller.elevatorZero.get())
 			supe.zeroElevator();
-		else if (controller.hatchPannel1.get())
+		else if (controller.hatchPanel1.pressedFor(.75))
+			supe.runHeight(Heights.Home);
+		else if (controller.hatchPanel1.get())
 			supe.runHeight(Heights.HP_1, queue);
 		else if (controller.hatchPanel2.get())
 			supe.runHeight(Heights.HP_2, queue);
