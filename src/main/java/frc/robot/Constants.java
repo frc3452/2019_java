@@ -30,7 +30,6 @@ public class Constants {
 	}
 
 	public static class kSolenoids {
-		// CORRECT
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
 
