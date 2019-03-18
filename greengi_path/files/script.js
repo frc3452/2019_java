@@ -691,6 +691,8 @@ function importData() {
 			var s1 = c.split("\n");
 			var tmpWaypoints = [];
 			var tmpLine = [];
+			let searchFolder1 = "paths";
+			let searchFolder2 = ";";
 			let searchString1 = "new Waypoint(";
 			let searchString2 = ")";
 			let searchReversed1 = "public boolean isReversed() {";
@@ -699,8 +701,17 @@ function importData() {
 			let searchName2 = "extends";
 			let searchAdaption1 = "PathAdapter.";
 			let searchAdaption2 = "(";
+
 			$("#title").val(c.split(searchName1)[1].split(searchName2)[0].trim());
 			$("#isReversed").prop('checked', c.split(searchReversed1)[1].split(searchReversed2)[0].trim().includes("true"));
+
+			var daFolder = c.split(searchFolder1)[1].split(searchFolder2)[0].trim();
+			if (daFolder.length > 0 && daFolder[0] == '.') {
+				daFolder = daFolder.slice(1, daFolder.length);
+			}
+
+			$("#folder").val(daFolder);
+
 
 			s1.forEach((line) => {
 				if (line.indexOf("//") != 0 && line.indexOf(searchString1) >= 0) {

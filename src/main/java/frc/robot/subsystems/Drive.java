@@ -208,6 +208,13 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public synchronized void zeroOdometry(PathContainer pathContainer)
+	{
+		RigidTransform2d startPose = pathContainer.getStartPose();
+        RobotState.getInstance().reset(Timer.getFPGATimestamp(), startPose);
+        Drive.getInstance().setGyroAngle(startPose.getRotation());
+	}
+
 	public synchronized void setWantDrivePath(PathContainer pathContainer) {
 		Path mPath = pathContainer.buildPath();
 		final boolean reversed = pathContainer.isReversed();

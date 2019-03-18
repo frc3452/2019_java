@@ -114,6 +114,9 @@ public class AutoModeBuilder {
             AllStartingPositions.add(this);
         }
 
+        public String toString() {
+            return name;
+        }
     }
 
     public static class ScoringLocation {
@@ -532,7 +535,8 @@ public class AutoModeBuilder {
                 ret.add(new Feeder_Station_To_Rocket_Mid_2_Same().get(station.onLeft));
             } else {
                 ret.add(new Feeder_Station_To_Rocket_Mid_1_Opp().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Mid_2_Opp().get(station.onLeft));            }
+                ret.add(new Feeder_Station_To_Rocket_Mid_2_Opp().get(station.onLeft));
+            }
             return ret;
         }
 
@@ -675,7 +679,8 @@ public class AutoModeBuilder {
         };
 
         GZCommand ret = new GZCommand(
-                startPos.name + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(), () -> com);
+                startPos.toString() + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(),
+                () -> com);
         return ret;
     }
 

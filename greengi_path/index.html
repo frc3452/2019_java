@@ -240,12 +240,12 @@
 		}
 
 		.folder {
-			height: 25px;
+			height: 20px;
 			border-radius: 25%;
 			display: block;
 			margin: 0 auto;
-			margin-bottom: 10px;
-			margin-top: 10px;
+			margin-bottom: 5px;
+			margin-top: 5px;
 			/* margin-left: auto; */
 			/* margin-right: auto; */
 			text-align: center;
@@ -260,8 +260,8 @@
 	</div>
 
 	<!-- <canvas onclick="canvasClick(this, event)" id="field"></canvas> -->
-	<canvas onclick="canvasClick(this, event)" ondragstart="storeNearestCoordinate(this,event)" ondrag="canvasDrag(this,event)"
-	 ondragend="update()" draggable="true" id="field"></canvas>
+	<canvas onclick="canvasClick(this, event)" ondragstart="storeNearestCoordinate(this,event)"
+		ondrag="canvasDrag(this,event)" ondragend="update()" draggable="true" id="field"></canvas>
 	<div class="buttonContainer">
 		<div>
 			<!-- <button title="Add Point" onclick="addPoint()"><i class="fa fa-plus-circle"></i></button> -->
@@ -271,8 +271,10 @@
 			<!-- <button title="Download File" onclick="exportData()"><i class="fa fa-download"></i></button> -->
 			<button title="Import File" onclick="importData()"><i class="fa fa-arrow-circle-up"></i></button>
 			<button title="Change Start Point" onclick="changeStartPoint()"><i class="fa fa-arrows-v"></i></button>
-			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i class="fa fa-refresh fa-fw"></i></button>
-			<button title="New path from last two points" onclick="newPathTwoPoints()"><i class="fa fa-sort-alpha-desc"></i></button>
+			<button title="Evaluate Waypoints" onclick="evaluateWaypoints()"><i
+					class="fa fa-refresh fa-fw"></i></button>
+			<button title="New path from last two points" onclick="newPathTwoPoints()"><i
+					class="fa fa-sort-alpha-desc"></i></button>
 
 			<button title="Duplicate last point" onclick="copyLastPoint()"><i class="fa fa-plus-circle"></i></button>
 
@@ -300,13 +302,14 @@
 			</div>
 		</div>
 		<div class="slidecontainer">
-			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider" onmouseup="update();reDrawCanvas();">
+			<input type="range" min="75" max="125" value="100" class="slider" id="canvasSizeSlider"
+				onmouseup="update();reDrawCanvas();">
 		</div>
 		<!-- <div> -->
-			<!-- <input id="multiplePaths" type="file" multiple /> -->
+		<!-- <input id="multiplePaths" type="file" multiple /> -->
 
-			<!-- <button title="Previous File" onclick=""><i class="fa fa-arrow-left"></i></button> -->
-			<!-- <button title="Next File" onclick="nextFile()"><i class="fa fa-arrow-right"></i></button> -->
+		<!-- <button title="Previous File" onclick=""><i class="fa fa-arrow-left"></i></button> -->
+		<!-- <button title="Next File" onclick="nextFile()"><i class="fa fa-arrow-right"></i></button> -->
 		<!-- </div> -->
 		<!-- <div>
 		<select id="endAdaptionValue">
@@ -317,11 +320,15 @@
 			<option value="endswitchright">Adapt Last Point for Right Switch</option>
 		</select>
 		</div> -->
+
+		<div>
+			Should Zero Odometry: <input type="checkbox" id="zeroOdometry">
+		</div>
 		<div>
 			Reversed: <input type="checkbox" id="isReversed">
 		</div>
 		<div>
-			Allow Drag: <input type="checkbox" id="allowDrag">
+			Allow Drag: <input type="checkbox" id="allowDrag" checked>
 		</div>
 		<!-- <div>
 			Angle to set <input id="pointAngle" type="number" name="quantity">

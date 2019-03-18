@@ -14,6 +14,13 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseFromPath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
 
 public class GZCommandGroup extends CommandGroup {
+
+    private ArrayList<PathContainer> mAllPathContainers = new ArrayList<PathContainer>();
+
+    public synchronized ArrayList<PathContainer> getAllPaths() {
+        return mAllPathContainers;
+    }
+
     private static final String DEFAULT_MARKER = "PrepForAction";
 
     public synchronized static GZCommandGroup getTeleDrive() {
@@ -32,66 +39,65 @@ public class GZCommandGroup extends CommandGroup {
         }
     }
 
-    public void print(String message) {
+    public synchronized void print(String message) {
         add(new PrintCommand(message));
     }
 
-    public void waitTime(double delay) {
+    public synchronized void waitTime(double delay) {
         add(new WaitCommand(delay));
     }
 
-    public void waitForMarker(String marker) {
+    public synchronized void waitForMarker(String marker) {
         add(new WaitForMarker(marker));
     }
 
-    public void add(ArrayList<Command> commands) {
+    public synchronized void add(ArrayList<Command> commands) {
         for (Command c : commands)
             add(c);
     }
 
-    public void and(Command c) {
+    public synchronized void and(Command c) {
         addParallel(c);
     }
 
-    public void add(Command c) {
+    public synchronized void add(Command c) {
         addSequential(c);
     }
 
-    public void tele() {
+    public synchronized void tele() {
         add(new TeleDrive());
     }
 
-    public void resetDrive(PathContainer pc) {
+    public synchronized void resetDrive(PathContainer pc) {
         add(new ResetPoseDrivePath(pc));
     }
 
-    public void resetPos(PathContainer pc) {
+    public synchronized void resetPos(PathContainer pc) {
         add(new ResetPoseFromPath(pc));
     }
 
-    public void waitForMarkerThen(Command c) {
+    public synchronized void waitForMarkerThen(Command c) {
         waitForMarkerThen(DEFAULT_MARKER, c);
     }
 
-    public void waitForMarkerThen(String marker, Command c) {
+    public synchronized void waitForMarkerThen(String marker, Command c) {
         GZCommandGroup ret = new GZCommandGroup();
         ret.waitForMarker(marker);
         ret.add(c);
         add(ret);
     }
 
-    public void resetDrivePaths(ArrayList<PathContainer> paths) {
+    public synchronized void resetDrivePaths(ArrayList<PathContainer> paths) {
         resetDrivePaths(paths, false);
     }
 
-    public ArrayList<GZCommandGroup> toList()
-    {
+    public synchronized ArrayList<GZCommandGroup> toList() {
         ArrayList<GZCommandGroup> ret = new ArrayList<GZCommandGroup>();
         ret.add(this);
         return ret;
     }
 
-    public void resetDrivePaths(ArrayList<PathContainer> paths, boolean parallel) {
+    public synchronized void resetDrivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         ret.resetPos(paths.get(0));
         ret.drivePaths(paths);
@@ -101,19 +107,21 @@ public class GZCommandGroup extends CommandGroup {
             add(ret);
     }
 
-    public void drivePath(PathContainer pc) {
+    public synchronized void drivePath(PathContainer pc) {
+        mAllPathContainers.add(pc);
         add(new DrivePath(pc));
     }
 
-    public void drivePathAnd(PathContainer pc) {
+    public synchronized void drivePathAnd(PathContainer pc) {
+        mAllPathContainers.add(pc);
         and(new DrivePath(pc));
     }
 
-    public void drivePaths(ArrayList<PathContainer> paths) {
+    public synchronized void drivePaths(ArrayList<PathContainer> paths) {
         drivePaths(paths, false);
     }
 
-    public void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {
+    public synchronized void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         for (PathContainer p : paths)
             ret.drivePath(p);
