@@ -199,7 +199,9 @@ public abstract class GZSubsystem extends Subsystem {
 
 	public void superLoop() {
 		for (GZSolenoid s : mSingleSolenoids)
+		{
 			s.shouldForceOutputOff();
+		}
 
 		loop();
 	}

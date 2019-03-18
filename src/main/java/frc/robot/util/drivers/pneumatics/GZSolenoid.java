@@ -74,7 +74,10 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         mForcedOff = this.mSub.isSafetyDisabled() || GZOI.getInstance().isDisabled();
 
         if (mForcedOff)
+        {
+            mWantedChange = false;
             runSolenoid(false, true);
+        }
     }
 
     // when safteydisabled don't allow change

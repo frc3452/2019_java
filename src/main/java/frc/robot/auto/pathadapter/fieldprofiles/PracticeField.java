@@ -25,7 +25,10 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 22; //19
+            // return 19; //19 
+
+            // return 22;
+            return 22 + 2.5; //big fat teeth
         }
 
         @Override
@@ -60,7 +63,8 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp_feed_jog() {
-            return hp1() + 7;
+            // return hp1() + 7;
+            return hp1() + 5; //big fat teeth
         }
         @Override
         public double zero() {
@@ -69,7 +73,8 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double lowest_with_slides_out() {
-            return 18.5;
+            // return 18.5;
+            return 20.0; //big fat teeth
         }
 
         @Override
@@ -84,7 +89,8 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hatch_place_jog() {
-            return 4;
+            // return 4;
+            return 3; //big fat teeth
         }
     };
 

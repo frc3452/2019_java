@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import java.text.DecimalFormat;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.SolenoidBase;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
@@ -90,7 +88,7 @@ public class Pneumatics extends GZSubsystem {
         // noAir = true;
         // }
 
-        noAir = true;
+        // noAir = true;
 
         if (noAir) {
             mCompressor.stop();

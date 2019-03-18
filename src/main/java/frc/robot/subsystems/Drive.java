@@ -26,7 +26,6 @@ import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.subsystems.Lights.Colors;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
@@ -35,15 +34,14 @@ import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZPID.GZPIDPair;
-import frc.robot.util.GZQueuer.TimeValue;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
-import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
+import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
@@ -882,7 +880,8 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
-		cheesyNoState(move, rotate * .5, !usingCurvature());
+		cheesyNoState(move, rotate * .6, !usingCurvature());
+		//0.6 or 0.65
 	}
 
 	public boolean usingCurvature() {

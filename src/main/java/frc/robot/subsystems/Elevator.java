@@ -419,6 +419,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public synchronized double getSpeedLimiting() {
+        // Double pos = mDesiredHeight;
         Double pos = getHeightInches();
 
         // if not in demo and not overriding, limit
