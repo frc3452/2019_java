@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kLights;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Superstructure;
@@ -25,11 +25,13 @@ import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
+import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
-	// public static GZJoystick driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
+
+	private GZSolenoid mLeds;
 
 	private UsbCamera mCamera;
 
@@ -81,6 +83,7 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 		op.setXboxController();
+		mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
 
 	@Override
@@ -92,6 +95,8 @@ public class GZOI extends GZSubsystem {
 			mWasAuto = true;
 		else if (isTest())
 			mWasTest = true;
+
+		mLeds.set(true);
 
 		// SAFTEY DISABLED
 		if (isFMS())
@@ -113,9 +118,9 @@ public class GZOI extends GZSubsystem {
 			}
 
 		// Disabled
-		if (isDisabled())
+		if (isDisabled()) {
 			disabled();
-		else if (Auton.getInstance().isAutoControl()) { // running auto command
+		} else if (Auton.getInstance().isAutoControl()) { // running auto command
 			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele

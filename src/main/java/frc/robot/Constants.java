@@ -236,6 +236,8 @@ public class Constants {
 		public final static int PURPLE = 55;
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
+
+		public static final SolenoidConstants PCM_LED = new SolenoidConstants(1, 6, -1, -1);
 	}
 
 	public static class kIntake {

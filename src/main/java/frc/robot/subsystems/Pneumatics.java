@@ -92,10 +92,18 @@ public class Pneumatics extends GZSubsystem {
 
         if (noAir) {
             mCompressor.stop();
+            System.out.println("Air is off");
         } else {
             mCompressor.start();
+
+            if (++counter > 30) {
+                System.out.println("Air is on");
+                counter = 0;
+            }
         }
     }
+
+    int counter = 0;
 
     public int getDropClimberTotalCounts() {
         return mClimberCrawler.getChangeCounts();

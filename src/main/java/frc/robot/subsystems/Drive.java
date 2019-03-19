@@ -130,6 +130,9 @@ public class Drive extends GZSubsystem {
 		mShifterFront = new GZSolenoid(kSolenoids.SHIFTER_FRONT, this, "Shifter-Front");
 		mShifterRear = new GZSolenoid(kSolenoids.SHIFTER_REAR, this, "Shifter-Rear");
 
+		mShifterFront.off();
+		mShifterRear.off(); 
+
 		try {
 			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
 		} catch (Exception e) {
