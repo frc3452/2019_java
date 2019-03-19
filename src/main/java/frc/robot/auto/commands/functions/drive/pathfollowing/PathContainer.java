@@ -133,10 +133,6 @@ public abstract class PathContainer {
 
     public abstract boolean isReversed();
 
-    public PathContainer get() {
-        return null;
-    }
-
     public GZPIDPair getPID() {
         return kDrivetrain.PID;
     }

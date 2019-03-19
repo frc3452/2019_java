@@ -8,7 +8,7 @@ public class Left_Rocket_Far_Opp extends PathContainer {
     public Left_Rocket_Far_Opp() {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(67.5, 205, 0, 0));
-        sWaypoints.add(new Waypoint(157, 205, 15, 60));
+        sWaypoints.add(new Waypoint(157, 205, 15, 30));
         sWaypoints.add(new Waypoint(185, 103, 25, 60));
         sWaypoints.add(new Waypoint(245, 98, 15, 60));
         sWaypoints.add(new Waypoint(288, 78, 15, 60));

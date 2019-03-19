@@ -31,8 +31,9 @@ public class TeleDrive extends Command {
     }
 
     protected void execute() {
-        if (mDrive)
-            drive.handleDriving();
+        if (mDrive) {
+            GZOI.getInstance().handleControls();
+        }
     }
 
     protected boolean isFinished() {

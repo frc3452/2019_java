@@ -775,9 +775,6 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
-	public synchronized void handleDriving() {
-		handleDriving(GZOI.driverJoy);
-	}
 
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {

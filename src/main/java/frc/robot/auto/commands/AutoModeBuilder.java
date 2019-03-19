@@ -8,8 +8,6 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
-import frc.robot.auto.commands.functions.superstructure.HomeElevator;
-import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -70,7 +68,6 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 
@@ -335,26 +332,26 @@ public class AutoModeBuilder {
         GZCommandGroup ret = new GZCommandGroup();
 
         ret.tele();
-        if (location.isOnCargoShip()) {
-            switch (gamepiece) {
-            case CARGO:
-                ret.add(new GoToHeight(Heights.Cargo_1));
-                ret.add(new HomeElevator());
-                ret.add(new GoToHeight(Heights.Cargo_Ship));
-                ret.add(new RunAction(Actions.THROW_CARGO));
-                ret.tele();
-                break;
-            case HATCH_PANEL:
-                ret.add(new GoToHeight(Heights.Cargo_1));
-                ret.add(new HomeElevator());
-                ret.add(new GoToHeight(Heights.HP_1));
-                ret.add(new RunAction(Actions.SCORE_HATCH));
-                ret.tele();
-                break;
-            }
-        } else {
-            // I guess we die?
-        }
+        // if (location.isOnCargoShip()) {
+        //     switch (gamepiece) {
+        //     case CARGO:
+        //         ret.add(new GoToHeight(Heights.Cargo_1));
+        //         ret.add(new HomeElevator());
+        //         ret.add(new GoToHeight(Heights.Cargo_Ship));
+        //         ret.add(new RunAction(Actions.THROW_CARGO));
+        //         ret.tele();
+        //         break;
+        //     case HATCH_PANEL:
+        //         ret.add(new GoToHeight(Heights.Cargo_1));
+        //         ret.add(new HomeElevator());
+        //         ret.add(new GoToHeight(Heights.HP_1));
+        //         ret.add(new RunAction(Actions.SCORE_HATCH));
+        //         ret.tele();
+        //         break;
+        //     }
+        // } else {
+        //     // I guess we die?
+        // }
 
         return ret;
     }
@@ -567,7 +564,8 @@ public class AutoModeBuilder {
 
     public static Command retrieveFromFeederStation() {
         GZCommandGroup ret = new GZCommandGroup();
-        ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
+        ret.tele();
+        // ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
         return ret;
     }
 

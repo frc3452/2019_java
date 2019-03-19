@@ -124,12 +124,16 @@ public class GZOI extends GZSubsystem {
 			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
-			// handleSuperStructureControl(driverJoy);
-			handleSuperStructureControl(op);
-			handleDriverController();
-			handleRumble();
-			// handleElevatorTesting();
+			handleControls();
 		}
+	}
+
+	public void handleControls() {
+		// handleSuperStructureControl(driverJoy);
+		handleSuperStructureControl(op);
+		handleDriverController();
+		handleRumble();
+		// handleElevatorTesting();
 	}
 
 	public void addRumble(double onTime, double offTime, int times) {
