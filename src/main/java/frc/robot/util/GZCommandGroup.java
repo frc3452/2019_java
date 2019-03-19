@@ -29,14 +29,16 @@ public class GZCommandGroup extends CommandGroup {
         return ret;
     }
 
-    public static class InstantCompletion extends Command {
-        public InstantCompletion() {
-        }
+    public static synchronized Command getInstantComplete() {
+        Command ret = new Command() {
 
-        @Override
-        protected boolean isFinished() {
-            return true;
-        }
+            @Override
+            protected boolean isFinished() {
+                return true;
+            }
+        };
+
+        return ret;
     }
 
     public synchronized void print(String message) {

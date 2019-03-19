@@ -14,6 +14,7 @@ import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.MarkerCommandGroup;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.util.GZCommand;
+import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
@@ -69,6 +70,8 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
+		commandArray.add(new GZCommand("Do nothing", () -> GZCommandGroup.getInstantComplete()));
+
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {
 			commandArray.add(c);
@@ -107,7 +110,7 @@ public class Auton {
 			autonomousCommand = commandArray.get(m_controllerOverrideValue);
 		} else {
 			// Check if auton selectors are returning what they should be
-			if (m_selectorValue <= (commandArray.size()-1) && m_selectorValue >= 0) {
+			if (m_selectorValue <= (commandArray.size() - 1) && m_selectorValue >= 0) {
 				autonomousCommand = commandArray.get(m_selectorValue);
 			} else {
 				autonomousCommand = defaultCommand;
