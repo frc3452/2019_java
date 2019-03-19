@@ -582,31 +582,12 @@ public class AutoModeBuilder {
 
             for (ScoringPosition scorePosition : AllScoringPositions) {
 
-                if (scorePosition.cargoShip) {
-
-                    if (scorePosition == ScoringPosition.CARGO_SHIP_FACE) {
-
-                        for (ScoringSide scoringSide : AllScoringSides) {
-
-                            for (FeederStation feederStation : AllFeederStations) {
-                                allCommands.add(getCommand(startPosition,
-                                        new ScoringLocation(scorePosition, scoringSide), feederStation));
-                            }
-                        }
-
-                        // If scoring on cargo ship face
-                    } else {
-
-                        for (ScoringSide scoringSide : AllScoringSides) {
-                            allCommands.add(getCommand(startPosition, new ScoringLocation(scorePosition, scoringSide),
-                                    getFeederStationFromScoringSide(scoringSide)));
-                        }
-
+                for (ScoringSide scoringSide : AllScoringSides) {
+                    for (FeederStation feederStation : AllFeederStations) {
+                        allCommands.add(getCommand(startPosition, new ScoringLocation(scorePosition, scoringSide),
+                                feederStation));
                     }
-
-                    // If we are scoring on cargo ship
                 }
-
                 // For every scoring position
             }
 
