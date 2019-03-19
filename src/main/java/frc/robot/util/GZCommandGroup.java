@@ -15,12 +15,6 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
 
 public class GZCommandGroup extends CommandGroup {
 
-    private ArrayList<PathContainer> mAllPathContainers = new ArrayList<PathContainer>();
-
-    public synchronized ArrayList<PathContainer> getAllPaths() {
-        return mAllPathContainers;
-    }
-
     private static final String DEFAULT_MARKER = "PrepForAction";
 
     public synchronized static GZCommandGroup getTeleDrive() {
@@ -108,12 +102,10 @@ public class GZCommandGroup extends CommandGroup {
     }
 
     public synchronized void drivePath(PathContainer pc) {
-        mAllPathContainers.add(pc);
         add(new DrivePath(pc));
     }
 
     public synchronized void drivePathAnd(PathContainer pc) {
-        mAllPathContainers.add(pc);
         and(new DrivePath(pc));
     }
 
