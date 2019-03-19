@@ -23,18 +23,6 @@ public class GZCommandGroup extends CommandGroup {
         return ret;
     }
 
-    public static synchronized Command getInstantComplete() {
-        Command ret = new Command() {
-
-            @Override
-            protected boolean isFinished() {
-                return true;
-            }
-        };
-
-        return ret;
-    }
-
     public synchronized void print(String message) {
         add(new PrintCommand(message));
     }

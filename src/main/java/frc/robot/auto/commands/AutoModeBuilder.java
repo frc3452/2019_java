@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -608,7 +606,7 @@ public class AutoModeBuilder {
 
         GZCommandGroup com = new GZCommandGroup() {
             {
-                this.add(new GoToHeight(Heights.Home));
+                // this.add(new GoToHeight(Heights.Home));
 
                 {
                     Command prepForScore = prepForScoring(scoringLocation, gamePiece.get());
@@ -662,5 +660,7 @@ public class AutoModeBuilder {
                 () -> com);
         return ret;
     }
+
+    
 
 }
