@@ -78,6 +78,7 @@ public void robotPeriodic() {
 	@Override
 	public void disabledPeriodic() {
 		auton.autonChooser();
+		// auton.print();
 	}
 
 	private void enabledInits() {

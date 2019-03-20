@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
+import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
@@ -79,6 +80,16 @@ public class AutoModeBuilder {
     public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
     public static final ArrayList<FeederStation> AllFeederStations = new ArrayList<FeederStation>();
     public static final ArrayList<ScoringSide> AllScoringSides = new ArrayList<ScoringSide>();
+
+    private static FeederStation mFeederStation = null;
+
+    public static void setFeederStation(FeederStation station) {
+        mFeederStation = station;
+    }
+
+    public static boolean hasSelectedFeederStation() {
+        return mFeederStation != null;
+    }
 
     static {
         if (StartingPosition.LEFT == null) {
@@ -331,24 +342,24 @@ public class AutoModeBuilder {
 
         ret.tele();
         // if (location.isOnCargoShip()) {
-        //     switch (gamepiece) {
-        //     case CARGO:
-        //         ret.add(new GoToHeight(Heights.Cargo_1));
-        //         ret.add(new HomeElevator());
-        //         ret.add(new GoToHeight(Heights.Cargo_Ship));
-        //         ret.add(new RunAction(Actions.THROW_CARGO));
-        //         ret.tele();
-        //         break;
-        //     case HATCH_PANEL:
-        //         ret.add(new GoToHeight(Heights.Cargo_1));
-        //         ret.add(new HomeElevator());
-        //         ret.add(new GoToHeight(Heights.HP_1));
-        //         ret.add(new RunAction(Actions.SCORE_HATCH));
-        //         ret.tele();
-        //         break;
-        //     }
+        // switch (gamepiece) {
+        // case CARGO:
+        // ret.add(new GoToHeight(Heights.Cargo_1));
+        // ret.add(new HomeElevator());
+        // ret.add(new GoToHeight(Heights.Cargo_Ship));
+        // ret.add(new RunAction(Actions.THROW_CARGO));
+        // ret.tele();
+        // break;
+        // case HATCH_PANEL:
+        // ret.add(new GoToHeight(Heights.Cargo_1));
+        // ret.add(new HomeElevator());
+        // ret.add(new GoToHeight(Heights.HP_1));
+        // ret.add(new RunAction(Actions.SCORE_HATCH));
+        // ret.tele();
+        // break;
+        // }
         // } else {
-        //     // I guess we die?
+        // // I guess we die?
         // }
 
         return ret;
@@ -647,20 +658,33 @@ public class AutoModeBuilder {
                         add(retrieve);
                 }
 
-                // {
-                // GZCommandGroup driveThree = new GZCommandGroup();
-                // driveThree.drivePaths(getFeederStationToSecondPlacement(nextStation,
-                // scoringLocation));
-                // }
+                add(new WaitForButtonBoardInput());
             }
         };
 
         GZCommand ret = new GZCommand(
                 startPos.toString() + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(),
                 () -> com);
+        ret.setFeederStation(nextStation);
+
         return ret;
     }
 
-    
+    public static synchronized GZCommand getCommandFromFeederStation(ScoringLocation location) {
+        GZCommandGroup ret = new GZCommandGroup();
+
+        {
+            GZCommandGroup driveThree = new GZCommandGroup();
+            driveThree.drivePaths(getFeederStationToSecondPlacement(mFeederStation, location));
+            ret.add(driveThree);
+        }
+
+        ret.add(getScoringCommand(location, mGamePieceSupplier.get()));
+
+        String name = mFeederStation.toString() + " --> " + location.toString();
+
+        GZCommand out = new GZCommand(name, () -> ret);
+        return out;
+    }
 
 }

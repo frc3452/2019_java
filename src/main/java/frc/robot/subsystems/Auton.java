@@ -62,7 +62,6 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-
 		commandArray.add(new GZCommand("Do nothing", () -> new NoCommand()));
 
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
@@ -145,6 +144,7 @@ public class Auton {
 
 	private void startAutoCommand() {
 		autonomousCommand.setCommand();
+		AutoModeBuilder.setFeederStation(autonomousCommand.getFeederStation());
 		autonomousCommand.start();
 	}
 
