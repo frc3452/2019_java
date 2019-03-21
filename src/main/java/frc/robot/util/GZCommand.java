@@ -31,6 +31,16 @@ public class GZCommand {
 		setCommand();
 	}
 
+	public void addTeleBefore() {
+		setCommand();
+		Command oldCommand = mCommand;
+		GZCommandGroup newCommand = new GZCommandGroup();
+		newCommand.tele();
+		newCommand.add(oldCommand);
+		this.mCommandSupplier = () -> newCommand;
+		setCommand();
+	}
+
 	public void setCommand() {
 		this.mCommand = this.mCommandSupplier.get();
 	}

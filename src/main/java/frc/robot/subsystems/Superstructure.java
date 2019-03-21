@@ -18,6 +18,9 @@ public class Superstructure extends GZSubsystem {
     private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
+
+    private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(0);
+
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
     private GZFlagMultiple ThrowCargo = new GZFlagMultiple(4);
 
@@ -38,7 +41,8 @@ public class Superstructure extends GZSubsystem {
     private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, GRAB_HP_FROM_FEED, GO_TO_QUEUED_HEIGHT, THROW_CARGO, SCORE_HATCH;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, GRAB_HP_FROM_FEED, GRAB_CARGO_FROM_FEED, GO_TO_QUEUED_HEIGHT,
+        THROW_CARGO, SCORE_HATCH;
     }
 
     public Actions getCurrentAction() {
@@ -142,6 +146,20 @@ public class Superstructure extends GZSubsystem {
                     elev.setHeight(Heights.HP_1);
                     if (elev.nearTarget())
                         done();
+                }
+
+                break;
+            case GRAB_CARGO_FROM_FEED:
+
+                if (CargoFromFeed.not(1)) {
+                    closeClaw();
+                    if (elev.isClawClosed()) {
+                        CargoFromFeed.tripNext();
+                    }
+                } else if (CargoFromFeed.getNext()) {
+                    
+
+
                 }
 
                 break;

@@ -69,6 +69,12 @@ public class Auton {
 			}
 		}));
 
+		commandArray.add(new GZCommand("test command", () -> new GZCommandGroup() {
+			{
+				print("OK command starting!!!!!");
+			}
+		}));
+
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {
 			commandArray.add(c);
@@ -148,12 +154,7 @@ public class Auton {
 	}
 
 	private void addWaitAndStart() {
-		GZCommandGroup c = new GZCommandGroup();
-		c.tele();
-		autonomousCommand.setCommand();
-		AutoModeBuilder.setFeederStation(autonomousCommand.getFeederStation());
-		c.add(autonomousCommand.getCommand());
-		autonomousCommand = new GZCommand("(Wait) " + autonomousCommand.getName(), () -> c);
+		autonomousCommand.addTeleBefore();
 		startAutoCommand();
 	}
 
@@ -180,18 +181,23 @@ public class Auton {
 		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
 			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
 				m_controllerOverrideValue++;
+				sanityCheckControllerValue();
 			} else if (GZOI.driverJoy.getButtonLatched(Buttons.B)) {
 				m_controllerOverrideValue--;
-			} else if (GZOI.driverJoy.getButton(Buttons.RIGHT_CLICK)) {
+				sanityCheckControllerValue();
+			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
 				m_controllerOverrideValue = -1;
 				printSelectors();
+				return;
 			}
-
-			if (m_controllerOverrideValue < 0)
-				m_controllerOverrideValue = commandArray.size() - 1;
-			if (m_controllerOverrideValue > commandArray.size() - 1)
-				m_controllerOverrideValue = 0;
 		}
+	}
+
+	private void sanityCheckControllerValue() {
+		if (m_controllerOverrideValue < 0)
+			m_controllerOverrideValue = commandArray.size() - 1;
+		if (m_controllerOverrideValue > commandArray.size() - 1)
+			m_controllerOverrideValue = 0;
 	}
 
 	/**

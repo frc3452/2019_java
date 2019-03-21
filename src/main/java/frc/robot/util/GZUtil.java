@@ -81,11 +81,13 @@ public class GZUtil {
 		return x;
 	}
 
-	public static double autoScale(double inputVal, double outputRange1, double outputRange2, double inputRange1,
-			double inputRange2) {
-		return scaleBetween(inputVal, Math.min(outputRange1, outputRange2), Math.max(outputRange1, outputRange2),
-				Math.min(inputRange1, inputRange2), Math.max(inputRange1, inputRange2));
-	}
+	// public static double autoScale(double inputVal, double outputRange1, double
+	// outputRange2, double inputRange1,
+	// double inputRange2) {
+	// return scaleBetween(inputVal, Math.min(outputRange1, outputRange2),
+	// Math.max(outputRange1, outputRange2),
+	// Math.min(inputRange1, inputRange2), Math.max(inputRange1, inputRange2));
+	// }
 
 	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
 			double max) {
@@ -298,12 +300,12 @@ public class GZUtil {
 	}
 
 	public static double celsiusToFahrenheit(double celsius) {
-		double fahrenheit = (5.0 / 9) * celsius + 32;
+		double fahrenheit = (5.0 / 9.0) * celsius + 32;
 		return fahrenheit;
 	}
 
 	public static double fahrenheitToCelsius(double fahrenheit) {
-		double celsius = (9.0 / 5) * fahrenheit - 32;
+		double celsius = (9.0 / 5.0) * fahrenheit - 32;
 		return celsius;
 	}
 }

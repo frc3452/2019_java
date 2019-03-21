@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.text.DecimalFormat;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -566,7 +568,17 @@ public class Drive extends GZSubsystem {
 			break;
 		case NEUTRAL:
 			// brake(false);
-			brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
+			if (mIO.encodersValid) {
+				if (speedLessThan(3.0) && (GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()))
+					brake(true);
+				else
+					brake(false);
+			} else {
+				brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
+			}
+
+			// brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
+
 			break;
 		case OPEN_LOOP:
 			brake(true);
@@ -611,10 +623,11 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	DecimalFormat df = new DecimalFormat("#0.00");
 	@Override
 	public synchronized void loop() {
-		// SmartDashboard.putNumber("Left Velocity", L1.getSelectedSensorVelocity());
-		// SmartDashboard.putNumber("Left Target Velocity", L1.getClosedLoopTarget());
+		System.out.println(df.format(getLeftVelocityInchesPerSec()) + "\t" + df.format(getRightVelocityInchesPerSec()));
+
 		handleLimitSwitches();
 		handleStates();
 		in();
@@ -774,6 +787,10 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
+	public synchronized boolean speedLessThan(double inches_per_second) {
+		return getLeftVelocityInchesPerSec() < inches_per_second && getRightVelocityInchesPerSec() < inches_per_second;
+	}
+
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
 			// if (usingOpenLoop() || !mIO.encodersValid)
@@ -794,10 +811,6 @@ public class Drive extends GZSubsystem {
 		final double pitch = mNavX.getRoll();
 
 		// tons of weird inversions but we're gonna leave it cause it works
-
-		// if (Math.abs(pitch) > kDrivetrain.CLIMB_PITCH_TOLERANCE) {
-		// return false;
-		// }
 
 		desired_speed *= -1;
 
