@@ -33,7 +33,6 @@ public class DriverController extends DeepSpaceController {
                 () -> getButtons(Buttons.X) && !getButton(Buttons.LB) && !getButton(Buttons.RB));
         this.stow = new GZButton(this, () -> false);
         this.intakeCargo = new GZButton(this, () -> getDRight() && getButtons(Buttons.RB));
-        this.floorHatchToManip = new GZButton(this, () -> false);
         this.hatchFromFeed = new GZButton(this, () -> false);
         this.dropCrawler = new GZButton(this, () -> false);
     }

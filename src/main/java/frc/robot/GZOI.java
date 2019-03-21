@@ -233,12 +233,12 @@ public class GZOI extends GZSubsystem {
 			supe.runHeight(Heights.Cargo_2, queue);
 		else if (controller.cargo3.get())
 			supe.runHeight(Heights.Cargo_3, queue);
+		else if (controller.cargoShip.updated())
+			supe.runHeight(Heights.Cargo_Ship, queue);
 		else if (controller.elevatorJogDown.updated())
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
-		else if (controller.cargoShip.updated())
-			supe.runHeight(Heights.Cargo_Ship, queue);
 		// else if (controller.elevatorManual.get())
 		// supe.elevManual(controller.getRightAnalogY() * 0.25);
 
@@ -247,6 +247,12 @@ public class GZOI extends GZSubsystem {
 		else if (controller.clawToggle.updated())
 			supe.toggleClaw();
 
+		if (controller.hatchFromFeed.updated())
+			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
+		else if (controller.shootCargo.updated())
+			supe.runAction(Actions.THROW_CARGO);
+		else if (controller.scoreHatch.updated())
+			supe.runAction(Actions.SCORE_HATCH);
 		if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeDown.updated())
@@ -255,15 +261,6 @@ public class GZOI extends GZSubsystem {
 			supe.raiseIntake();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
-
-		if (controller.floorHatchToManip.updated())
-			supe.runAction(Actions.TRNSFR_HP_FROM_FLOOR, queue);
-		else if (controller.hatchFromFeed.updated())
-			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		else if (controller.shootCargo.updated())
-			supe.runAction(Actions.THROW_CARGO);
-		else if (controller.scoreHatch.updated())
-			supe.runAction(Actions.SCORE_HATCH);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();

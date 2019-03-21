@@ -32,6 +32,11 @@ public class GZFlagMultiple {
             mFlags.get(flagToTrip - 1).tripFlag();
     }
 
+    public boolean notNext()
+    {
+        return !getNext();
+    }
+
     public boolean getNext() {
         return get(lastGet + 1);
     }
@@ -55,6 +60,10 @@ public class GZFlagMultiple {
             out += i + ": " + get(i) + "\t";
 
         System.out.println(out);
+    }
+
+    public boolean not(int flag) {
+        return !get(flag);
     }
 
     public boolean get(int flag) {

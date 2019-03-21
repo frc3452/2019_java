@@ -33,7 +33,7 @@ public class Constants {
 		public static final SolenoidConstants SHIFTER_FRONT = new SolenoidConstants(1, 0, 0.3, 0.3);
 		public static final SolenoidConstants SHIFTER_REAR = new SolenoidConstants(1, 5, SHIFTER_FRONT);
 
-		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 4.0, 4.0);
+		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 2.0, 2.0);
 
 		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, COMP_BOT ? 7 : 6, 0.5, 0.5);
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
