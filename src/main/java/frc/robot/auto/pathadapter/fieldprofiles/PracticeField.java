@@ -48,7 +48,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 27.5 + 2;
+            return 27.5 + 2 + 1.5;
         }
 
         @Override
@@ -74,7 +74,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double lowest_with_slides_out() {
             // return 18.5;
-            return 20.0; //big fat teeth
+            return 22.0; //big fat teeth
         }
 
         @Override

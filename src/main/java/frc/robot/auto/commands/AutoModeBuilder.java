@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.superstructure.GoToHeight;
+import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -67,6 +70,7 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 
@@ -342,22 +346,20 @@ public class AutoModeBuilder {
 
         ret.tele();
         // if (location.isOnCargoShip()) {
-        // switch (gamepiece) {
-        // case CARGO:
-        // ret.add(new GoToHeight(Heights.Cargo_1));
-        // ret.add(new HomeElevator());
-        // ret.add(new GoToHeight(Heights.Cargo_Ship));
-        // ret.add(new RunAction(Actions.THROW_CARGO));
-        // ret.tele();
-        // break;
-        // case HATCH_PANEL:
-        // ret.add(new GoToHeight(Heights.Cargo_1));
-        // ret.add(new HomeElevator());
-        // ret.add(new GoToHeight(Heights.HP_1));
-        // ret.add(new RunAction(Actions.SCORE_HATCH));
-        // ret.tele();
-        // break;
-        // }
+        switch (gamepiece) {
+        case CARGO:
+            ret.add(new GoToHeight(Heights.Cargo_1));
+            ret.add(new GoToHeight(Heights.Cargo_Ship));
+            ret.add(new RunAction(Actions.THROW_CARGO));
+            ret.tele();
+            break;
+        case HATCH_PANEL:
+            ret.add(new GoToHeight(Heights.Cargo_1));
+            ret.add(new GoToHeight(Heights.HP_1));
+            ret.add(new RunAction(Actions.SCORE_HATCH));
+            ret.tele();
+            break;
+        }
         // } else {
         // // I guess we die?
         // }

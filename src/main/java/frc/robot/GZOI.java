@@ -237,7 +237,7 @@ public class GZOI extends GZSubsystem {
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
-		else if (controller.cargoShip.get())
+		else if (controller.cargoShip.updated())
 			supe.runHeight(Heights.Cargo_Ship, queue);
 		// else if (controller.elevatorManual.get())
 		// supe.elevManual(controller.getRightAnalogY() * 0.25);

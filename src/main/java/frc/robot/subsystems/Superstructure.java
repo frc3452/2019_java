@@ -14,16 +14,24 @@ public class Superstructure extends GZSubsystem {
     private Elevator elev = Elevator.getInstance();
     private Intake intake = Intake.getInstance();
 
+    private GZNotifier mThrowCargoRetract = new GZNotifier(() -> {
+        {
+            retractSlides();
+            elev.setHeight(Heights.HP_1);
+        }
+    });
+
     private GZNotifier mThrowCargo = new GZNotifier(() -> {
         {
             openClaw();
+            mThrowCargoRetract.startSingle(kElevator.THROW_CARGO_RETRACT_DELAY);
         }
     });
 
     private GZSubsystemManager subsystems;
 
     private GZFlag mActionDone = new GZFlag();
-    private GZFlagMultiple ScoreHP = new GZFlagMultiple(5);
+    private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFloor = new GZFlagMultiple(4);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
@@ -152,6 +160,10 @@ public class Superstructure extends GZSubsystem {
                     elev.retractSlides();
 
                     if (elev.areSlidesIn())
+                        ScoreHP.tripNext();
+                } else if (!ScoreHP.getNext()) {
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.nearTarget())
                         done();
                 }
 
@@ -189,8 +201,8 @@ public class Superstructure extends GZSubsystem {
                     }
                 } else if (!IntakeCargo.getNext()) {
                     // if (elev.isCargoSensorTripped()) {
-                    //     elev.closeClaw();
-                    //     IntakeCargo.tripNext();
+                    // elev.closeClaw();
+                    // IntakeCargo.tripNext();
                     // }
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.isClawClosed()) {
@@ -254,12 +266,13 @@ public class Superstructure extends GZSubsystem {
                     if (elev.isClawOpen())
                         HPFromFeed.tripNext();
                 } else if (!HPFromFeed.getNext()) {
-                    elev.setHeight(Heights.HP_Feeder_Jog);
-                    HPFromFeed.tripNext();
-                } else if (!HPFromFeed.getNext()) {
-                    if (elev.nearTarget())
-                        retractSlides();
+                    retractSlides();
                     if (elev.areSlidesIn())
+                        HPFromFeed.tripNext();
+                } else if (!HPFromFeed.getNext()) {
+                    elev.setHeight(Heights.HP_1);
+
+                    if (elev.nearTarget())
                         done();
                 } else {
                     done();
@@ -334,8 +347,7 @@ public class Superstructure extends GZSubsystem {
         intake.stop();
     }
 
-    public void zeroElevator()
-    {
+    public void zeroElevator() {
         elev.zero();
     }
 

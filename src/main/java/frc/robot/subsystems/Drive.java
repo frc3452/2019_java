@@ -131,7 +131,7 @@ public class Drive extends GZSubsystem {
 		mShifterRear = new GZSolenoid(kSolenoids.SHIFTER_REAR, this, "Shifter-Rear");
 
 		mShifterFront.off();
-		mShifterRear.off(); 
+		mShifterRear.off();
 
 		try {
 			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
@@ -211,11 +211,10 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public synchronized void zeroOdometry(PathContainer pathContainer)
-	{
+	public synchronized void zeroOdometry(PathContainer pathContainer) {
 		RigidTransform2d startPose = pathContainer.getStartPose();
-        RobotState.getInstance().reset(Timer.getFPGATimestamp(), startPose);
-        Drive.getInstance().setGyroAngle(startPose.getRotation());
+		RobotState.getInstance().reset(Timer.getFPGATimestamp(), startPose);
+		Drive.getInstance().setGyroAngle(startPose.getRotation());
 	}
 
 	public synchronized void setWantDrivePath(PathContainer pathContainer) {
@@ -775,7 +774,6 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
-
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
 			// if (usingOpenLoop() || !mIO.encodersValid)
@@ -887,8 +885,8 @@ public class Drive extends GZSubsystem {
 
 		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
-		cheesyNoState(move, rotate * .6, !usingCurvature());
-		//0.6 or 0.65
+		cheesyNoState(move, rotate * 0.55, !usingCurvature());
+		// 0.6 or 0.65
 	}
 
 	public boolean usingCurvature() {

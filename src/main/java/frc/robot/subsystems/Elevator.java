@@ -16,7 +16,6 @@ import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.util.GZLog.LogItem;
-import frc.robot.util.GZNotifier;
 import frc.robot.util.GZPID;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
@@ -49,9 +48,9 @@ public class Elevator extends GZSubsystem {
     private boolean mLimiting = false;
     private boolean mSpeedLimitOverride = false;
 
-    private GZNotifier printer = new GZNotifier(() -> {
-        System.out.println("INCHES: " + getHeightInches());
-    });
+    // private GZNotifier printer = new GZNotifier(() -> {
+    // System.out.println("INCHES: " + getHeightInches());
+    // });
 
     public static Elevator getInstance() {
         if (mInstance == null)
@@ -232,7 +231,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public void setHeight(double heightInInches) {
-        setHeight(heightInInches, false);
+        setHeight(heightInInches, mMovingHP);
     }
 
     protected void setHeight(double heightInInches, boolean movingHp) {
@@ -285,6 +284,10 @@ public class Elevator extends GZSubsystem {
 
     private void configCruise(int sensorUnitsPer100msPerSec) {
         mElevator1.configMotionCruiseVelocity(sensorUnitsPer100msPerSec);
+    }
+
+    public boolean isMovingHP() {
+        return mMovingHP;
     }
 
     public double getRotations() {
@@ -346,11 +349,11 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void openClaw() {
-        mClaw.set(false);
+        mClaw.wantOff();
     }
 
     protected void closeClaw() {
-        mClaw.set(true);
+        mClaw.wantOn();
     }
 
     public boolean slidesAtDesired() {
@@ -529,7 +532,7 @@ public class Elevator extends GZSubsystem {
     }
 
     public void toggleClaw() {
-        mClaw.toggle();
+        mClaw.toggleWanted();
     }
 
     public void toggleSlides() {
@@ -582,11 +585,12 @@ public class Elevator extends GZSubsystem {
     private void out() {
         if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0)
                 || !mIO.encoders_valid) {
+            mClaw.stateChange();
             mCarriageSlide.stateChange();
         }
 
         if (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT) {
-            if (mCarriageSlide.wantsStateChange()) {
+            if (mCarriageSlide.wantsStateChange() || mClaw.wantsStateChange()) {
                 mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + kElevator.SLIDES_TOLERANCE;
             } else if (!mCarriageSlide.isOff()) {
                 mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT;

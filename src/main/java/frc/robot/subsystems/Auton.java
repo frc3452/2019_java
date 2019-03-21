@@ -8,6 +8,7 @@ import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.util.GZCommand;
+import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
@@ -62,7 +63,11 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		commandArray.add(new GZCommand("Do nothing", () -> new NoCommand()));
+		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
+			{
+				waitTime(0.1);
+			}
+		}));
 
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {
@@ -142,6 +147,16 @@ public class Auton {
 		}
 	}
 
+	private void addWaitAndStart() {
+		GZCommandGroup c = new GZCommandGroup();
+		c.tele();
+		autonomousCommand.setCommand();
+		AutoModeBuilder.setFeederStation(autonomousCommand.getFeederStation());
+		c.add(autonomousCommand.getCommand());
+		autonomousCommand = new GZCommand("(Wait) " + autonomousCommand.getName(), () -> c);
+		startAutoCommand();
+	}
+
 	private void startAutoCommand() {
 		autonomousCommand.setCommand();
 		AutoModeBuilder.setFeederStation(autonomousCommand.getFeederStation());
@@ -185,7 +200,8 @@ public class Auton {
 	public void startAuton() {
 		if (autonomousCommand != null) {
 			if (mWaitOnAutoStart) {
-				System.out.println("WARNING Auto not running! Wait toggled!");
+				System.out.println("WARNING Auto run with wait!");
+				addWaitAndStart();
 			} else {
 				startAutoCommand();
 				System.out.println("Starting auto...");

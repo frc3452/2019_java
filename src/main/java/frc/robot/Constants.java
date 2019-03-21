@@ -84,12 +84,13 @@ public class Constants {
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
 		public static final double THROW_CARGO_DELAY = 0.05;
+		public static final double THROW_CARGO_RETRACT_DELAY = 0.35;
 
 		public static enum Heights {
 
 			Zero(h.zero()), Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()),
-			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), true), Cargo_1(h.cargo1(), true), Cargo_2(h.cargo2(), true),
-			Cargo_3(h.cargo3(), true), HP_Feeder_Jog(h.hp_feed_jog());
+			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false), Cargo_2(h.cargo2(), false),
+			Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;
 			public final boolean moving_hp;
