@@ -3,6 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -23,14 +25,13 @@ public class Robot extends TimedRobot {
 
 	// This order is crucial! it determines what order logging is added, what order
 	// // health is generated in, etc
-	public static final GZSubsystemManager allSubsystems = new
-	GZSubsystemManager(Drive.getInstance(),
-	RobotStateEstimator.getInstance(), Elevator.getInstance(),
-	Pneumatics.getInstance(), Intake.getInstance(),
-	GZOI.getInstance(), Superstructure.getInstance());
+	public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
+			RobotStateEstimator.getInstance(), Elevator.getInstance(), Pneumatics.getInstance(), Intake.getInstance(),
+			GZOI.getInstance(), Superstructure.getInstance());
 
-	// public static final GZSubsystemManager allSubsystems = new GZSubsystemManager(Drive.getInstance(),
-			// RobotStateEstimator.getInstance(), GZOI.getInstance());
+	// public static final GZSubsystemManager allSubsystems = new
+	// GZSubsystemManager(Drive.getInstance(),
+	// RobotStateEstimator.getInstance(), GZOI.getInstance());
 
 	private Health health = Health.getInstance();
 	private Auton auton = Auton.getInstance();
@@ -39,13 +40,12 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder(
-			"Logging/ " + kFiles.ROBOT_NAME + "/MISJO19/" + GZUtil.getDate());
+	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/MISJO19/" + GZUtil.getDate());
 
 	@Override
 	public void robotInit() {
 		health.assignSubsystems(allSubsystems.getSubsystems());
-		
+
 		infoManager.initialize();
 
 		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.25);
@@ -59,12 +59,18 @@ public class Robot extends TimedRobot {
 		allSubsystems.startLooping();
 
 		files.writeHardwareReport();
+		translation.translateBy(10, Rotation2d.fromDegrees(90 + 61.25));
 	}
 
+	Translation2d translation = Translation2d.identity();
+
 	@Override
-public void robotPeriodic() {
-		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) && drive.driveOutputLessThan(.05))
-		// 	PersistentInfoManager.getInstance().requestRestart();
+	public void robotPeriodic() {
+		System.out.println(translation);
+		
+		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) &&
+		// drive.driveOutputLessThan(.05))
+		// PersistentInfoManager.getInstance().requestRestart();
 	}
 
 	@Override
