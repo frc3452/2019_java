@@ -15,8 +15,6 @@ public class Intake extends GZSubsystem {
     private GZVictorSPX mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeExtend;
 
-    private boolean mWantsIn = true;
-
     public IO mIO = new IO();
 
     private static Intake mInstance = null;
@@ -51,16 +49,16 @@ public class Intake extends GZSubsystem {
         // }
 
         if (Elevator.getInstance().safeForIntakeMovement()) {
-
+            mIntakeExtend.stateChange();
         }
     }
 
     protected void extend() {
-        mWantsIn = true;
+        mIntakeExtend.wantOn();
     }
 
     protected void retract() {
-        mWantsIn = false;
+        mIntakeExtend.wantOff();
     }
 
     public enum IntakeState {
@@ -79,15 +77,15 @@ public class Intake extends GZSubsystem {
     }
 
     public boolean armWantsOut() {
-        return !mWantsIn;
+        return mIntakeExtend.wantsOn() && !mIntakeExtend.isOn();
     }
 
     public boolean armWantsIn() {
-        return mWantsIn;
+        return mIntakeExtend.wantsOff() && !mIntakeExtend.isOff();
     }
 
     public boolean armWantsToMove() {
-        return (mWantsIn && !isRetracted()) || (!mWantsIn && !isExtended());
+        return armWantsIn() || armWantsOut();
     }
 
     public boolean isRetracted() {

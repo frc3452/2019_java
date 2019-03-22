@@ -231,25 +231,25 @@ public class Superstructure extends GZSubsystem {
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.isClawClosed()) {
                         elev.retractSlides();
-                        intake.prepToRaise();
+                        // intake.prepToRaise();
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.areSlidesIn()) {
-                        intake.raise();
+                        // intake.raise();
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {
-                    if (intake.isRaised()) {
-                        done();
-                    }
+                    // if (intake.isRaised()) {
+                    // done();
+                    // }
                 }
 
                 break;
             case GRAB_HP_FROM_FEED:
 
                 if (!HPFromFeed.get(1)) {
-                    if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
+                    if (elev.nearTarget() && elev.isClawClosed()) {
                         HPFromFeed.trip(1);
                     }
                 } else if (!HPFromFeed.getNext()) {
@@ -282,7 +282,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     private boolean isStowed() {
-        return elev.areSlidesIn() && intake.isRaised();
+        return elev.areSlidesIn();
     }
 
     public void idle() {
@@ -341,7 +341,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void stow() {
-        intake.raise();
+        // intake.raise();
         elev.retractSlides();
         intake.stop();
     }
@@ -351,11 +351,11 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void raiseIntake() {
-        intake.raise();
+        intake.retract();
     }
 
     public void lowerIntake() {
-        intake.lower();
+        intake.extend();
     }
 
     public void dropCrawler() {
