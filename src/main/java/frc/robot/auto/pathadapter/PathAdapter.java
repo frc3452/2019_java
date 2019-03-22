@@ -21,16 +21,23 @@ public class PathAdapter {
 
     private static RobotProfile kRobotProfile = new PracticeBot();
 
+    private static final double mInchesFromRocket = 10;
+
     public static final FieldValues<Translation2d> feederStation;
     public static final FieldValues<Translation2d> cargoShipBay1;
     public static final FieldValues<Translation2d> cargoShipBay2;
     public static final FieldValues<Translation2d> cargoShipBay3;
     public static final FieldValues<Translation2d> cargoShipFace;
-    public static final FieldValues<Translation2d> rocketNear;
-    public static final FieldValues<Translation2d> rocketMid;
-    public static final FieldValues<Translation2d> rocketFar;
+    public static final FieldValues<Translation2d> rocketNear = null;
+    public static final FieldValues<Translation2d> rocketMid = null;
+    public static final FieldValues<Translation2d> rocketFar = null;
 
     static {
+
+        {
+            
+        }
+
         {
             ArrayList<Translation2d> arr = Translation2d.getArray();
 
