@@ -19,7 +19,7 @@ public class Superstructure extends GZSubsystem {
     private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
 
-    private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(0);
+    private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(3);
 
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
     private GZFlagMultiple ThrowCargo = new GZFlagMultiple(4);
@@ -91,6 +91,10 @@ public class Superstructure extends GZSubsystem {
             elev.setHeight(Heights.Home);
             break;
         case THROW_CARGO:
+            ThrowCargo.reset();
+            break;
+        case GRAB_CARGO_FROM_FEED:
+            CargoFromFeed.reset();
             break;
         case GRAB_HP_FROM_FEED:
             HPFromFeed.reset();
@@ -156,10 +160,16 @@ public class Superstructure extends GZSubsystem {
                     if (elev.isClawClosed()) {
                         CargoFromFeed.tripNext();
                     }
-                } else if (CargoFromFeed.getNext()) {
-
-
-
+                } else if (CargoFromFeed.notNext()) {
+                    retractSlides();
+                    if (elev.areSlidesIn()) {
+                        CargoFromFeed.tripNext();
+                    }
+                } else if (CargoFromFeed.notNext()) {
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.nearTarget()) {
+                        done();
+                    }
                 }
 
                 break;
@@ -221,25 +231,25 @@ public class Superstructure extends GZSubsystem {
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.isClawClosed()) {
                         elev.retractSlides();
-                        intake.prepToRaise();
+                        // intake.prepToRaise();
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.areSlidesIn()) {
-                        intake.raise();
+                        // intake.raise();
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {
-                    if (intake.isRaised()) {
-                        done();
-                    }
+                    // if (intake.isRaised()) {
+                        // done();
+                    // }
                 }
 
                 break;
             case GRAB_HP_FROM_FEED:
 
                 if (!HPFromFeed.get(1)) {
-                    if (intake.isRaised() && elev.nearTarget() && elev.isClawClosed()) {
+                    if (elev.nearTarget() && elev.isClawClosed()) {
                         HPFromFeed.trip(1);
                     }
                 } else if (!HPFromFeed.getNext()) {
@@ -272,7 +282,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     private boolean isStowed() {
-        return elev.areSlidesIn() && intake.isRaised();
+        return elev.areSlidesIn() /**&& intake.isRaised()*/;
     }
 
     public void idle() {
@@ -331,7 +341,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void stow() {
-        intake.raise();
+        // intake.raise();
         elev.retractSlides();
         intake.stop();
     }
@@ -341,11 +351,11 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void raiseIntake() {
-        intake.raise();
+        // intake.raise();
     }
 
     public void lowerIntake() {
-        intake.lower();
+        // intake.lower();
     }
 
     public void dropCrawler() {
