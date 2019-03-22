@@ -19,7 +19,7 @@ public class Superstructure extends GZSubsystem {
     private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
 
-    private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(0);
+    private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(3);
 
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
     private GZFlagMultiple ThrowCargo = new GZFlagMultiple(4);
@@ -91,6 +91,10 @@ public class Superstructure extends GZSubsystem {
             elev.setHeight(Heights.Home);
             break;
         case THROW_CARGO:
+            ThrowCargo.reset();
+            break;
+        case GRAB_CARGO_FROM_FEED:
+            CargoFromFeed.reset();
             break;
         case GRAB_HP_FROM_FEED:
             HPFromFeed.reset();
@@ -156,10 +160,16 @@ public class Superstructure extends GZSubsystem {
                     if (elev.isClawClosed()) {
                         CargoFromFeed.tripNext();
                     }
-                } else if (CargoFromFeed.getNext()) {
-                    
-
-
+                } else if (CargoFromFeed.notNext()) {
+                    retractSlides();
+                    if (elev.areSlidesIn()) {
+                        CargoFromFeed.tripNext();
+                    }
+                } else if (CargoFromFeed.notNext()) {
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.nearTarget()) {
+                        done();
+                    }
                 }
 
                 break;
