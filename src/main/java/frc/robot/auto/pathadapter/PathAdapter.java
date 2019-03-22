@@ -11,6 +11,7 @@ import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
 import frc.robot.auto.pathadapter.robotprofiles.PracticeBot;
 import frc.robot.auto.pathadapter.robotprofiles.RobotProfile;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 
 public class PathAdapter {
@@ -28,14 +29,17 @@ public class PathAdapter {
     public static final FieldValues<Translation2d> cargoShipBay2;
     public static final FieldValues<Translation2d> cargoShipBay3;
     public static final FieldValues<Translation2d> cargoShipFace;
-    public static final FieldValues<Translation2d> rocketNear = null;
+    public static final FieldValues<Translation2d> rocketNear;
     public static final FieldValues<Translation2d> rocketMid = null;
     public static final FieldValues<Translation2d> rocketFar = null;
 
     static {
 
         {
-            
+            Translation2d translation = Translation2d.identity();
+            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(270 - 61.25));
+
+            rocketNear = new FieldValues<Translation2d>(translation, translation.getFlippedY());
         }
 
         {

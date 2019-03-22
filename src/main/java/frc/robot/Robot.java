@@ -3,8 +3,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -59,15 +57,10 @@ public class Robot extends TimedRobot {
 		allSubsystems.startLooping();
 
 		files.writeHardwareReport();
-		translation.translateBy(10, Rotation2d.fromDegrees(90 + 61.25));
 	}
-
-	Translation2d translation = Translation2d.identity();
 
 	@Override
 	public void robotPeriodic() {
-		System.out.println(translation);
-		
 		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) &&
 		// drive.driveOutputLessThan(.05))
 		// PersistentInfoManager.getInstance().requestRestart();

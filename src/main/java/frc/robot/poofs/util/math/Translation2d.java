@@ -80,6 +80,12 @@ public class Translation2d implements Interpolable<Translation2d> {
         y_ = -y_;
     }
 
+    public Translation2d getFlippedY() {
+        Translation2d ret = new Translation2d(this);
+        ret.flipY();
+        return ret;
+    }
+
     public void translateBy(double distance, Rotation2d angle) {
         double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
         double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
