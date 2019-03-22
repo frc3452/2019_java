@@ -22,6 +22,9 @@ public class PathAdapter {
     private static RobotProfile kRobotProfile = new PracticeBot();
 
     private static final double mInchesFromRocket = 10;
+    private static final double mInchesFromCargoShipSide = 10;
+    private static final double mInchesFromCargoShipFace = 10;
+    private static final double mInchesFromFeederStation = 10;
 
     public static final FieldValues<Translation2d> feederStation;
     public static final FieldValues<Translation2d> cargoShipBay1;
@@ -35,66 +38,75 @@ public class PathAdapter {
     static {
 
         {
-            
+
         }
 
         {
-            ArrayList<Translation2d> arr = Translation2d.getArray();
+            // ArrayList<Translation2d> arr = Translation2d.getArray();
 
-            // RedLeft RedRight BlueLeft BlueRight
-            for (int color = 0; color < 2; color++) {
-                for (int left = 0; left < 2; left++) {
-                    arr.add(kCurrentField.getFeederStation(a(color), l(left))
-                            .translateBy(kReferenceField.getFeederStation(a(color), l(left)).inverse()));
-                }
-            }
-            feederStation = new FieldValues<>(arr);
+            // // RedLeft RedRight BlueLeft BlueRight
+            // for (int color = 0; color < 2; color++) {
+            // for (int left = 0; left < 2; left++) {
+            // arr.add(kCurrentField.getFeederStation(a(color), l(left))
+            // .translateBy(kReferenceField.getFeederStation(a(color), l(left)).inverse()));
+            // }
+            // }
+            // feederStation = new FieldValues<>(arr);
         }
 
         {
-            ArrayList<Translation2d> arr = Translation2d.getArray();
+            // ArrayList<Translation2d> arr = Translation2d.getArray();
 
-            for (int color = 0; color < 2; color++) {
-                for (int left = 0; left < 2; left++) {
-                    arr.add(kCurrentField.getBay(a(color), 1, l(left))
-                            .translateBy(kReferenceField.getBay(a(color), 1, l(left)).inverse()));
-                }
-            }
-            cargoShipBay1 = new FieldValues<>(arr);
+            // for (int color = 0; color < 2; color++) {
+            // for (int left = 0; left < 2; left++) {
+            // arr.add(kCurrentField.getBay(a(color), 1, l(left))
+            // .translateBy(kReferenceField.getBay(a(color), 1, l(left)).inverse()));
+            // }
+            // }
+
+            cargoShipBay1 = new FieldValues<>(new Translation2d(0, mInchesFromCargoShipSide),
+                    new Translation2d(0, -mInchesFromCargoShipSide));
+            cargoShipBay2 = cargoShipBay1;
+            cargoShipBay3 = cargoShipBay1;
+            cargoShipFace = new FieldValues<>(new Translation2d(-mInchesFromCargoShipFace, 0));
+            feederStation = new FieldValues<>(new Translation2d(mInchesFromFeederStation, 0));
+
+            // cargoShipBay1 = new FieldValues<>(arr);
         }
 
         {
-            ArrayList<Translation2d> arr = Translation2d.getArray();
+            // ArrayList<Translation2d> arr = Translation2d.getArray();
 
-            for (int color = 0; color < 2; color++) {
-                for (int left = 0; left < 2; left++) {
-                    arr.add(kCurrentField.getBay(a(color), 2, l(left))
-                            .translateBy(kReferenceField.getBay(a(color), 2, l(left)).inverse()));
-                }
-            }
-            cargoShipBay2 = new FieldValues<>(arr);
+            // for (int color = 0; color < 2; color++) {
+            // for (int left = 0; left < 2; left++) {
+            // arr.add(kCurrentField.getBay(a(color), 2, l(left))
+            // .translateBy(kReferenceField.getBay(a(color), 2, l(left)).inverse()));
+            // }
+            // }
+            // cargoShipBay2 = new FieldValues<>(arr);
         }
 
         {
-            ArrayList<Translation2d> arr = Translation2d.getArray();
+            // ArrayList<Translation2d> arr = Translation2d.getArray();
 
-            for (int color = 0; color < 2; color++) {
-                for (int left = 0; left < 2; left++) {
-                    arr.add(kCurrentField.getBay(a(color), 3, l(left))
-                            .translateBy(kReferenceField.getBay(a(color), 3, l(left)).inverse()));
-                }
-            }
-            cargoShipBay3 = new FieldValues<>(arr);
+            // for (int color = 0; color < 2; color++) {
+            // for (int left = 0; left < 2; left++) {
+            // arr.add(kCurrentField.getBay(a(color), 3, l(left))
+            // .translateBy(kReferenceField.getBay(a(color), 3, l(left)).inverse()));
+            // }
+            // }
+            // cargoShipBay3 = new FieldValues<>(arr);
         }
         {
-            ArrayList<Translation2d> arr = Translation2d.getArray();
-            for (int color = 0; color < 2; color++) {
-                for (int left = 0; left < 2; left++) {
-                    arr.add(kCurrentField.getCargoShipFrontFace(a(color), l(left))
-                            .translateBy(kReferenceField.getCargoShipFrontFace(a(color), l(left)).inverse()));
-                }
-            }
-            cargoShipFace = new FieldValues<>(arr);
+            // ArrayList<Translation2d> arr = Translation2d.getArray();
+            // for (int color = 0; color < 2; color++) {
+            // for (int left = 0; left < 2; left++) {
+            // arr.add(kCurrentField.getCargoShipFrontFace(a(color), l(left))
+            // .translateBy(kReferenceField.getCargoShipFrontFace(a(color),
+            // l(left)).inverse()));
+            // }
+            // }
+            // cargoShipFace = new FieldValues<>(arr);
         }
     }
 
