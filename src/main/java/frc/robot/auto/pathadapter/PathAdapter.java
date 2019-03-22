@@ -32,7 +32,7 @@ public class PathAdapter {
     public static final FieldValues<Translation2d> cargoShipFace;
     public static final FieldValues<Translation2d> rocketNear;
     public static final FieldValues<Translation2d> rocketMid = null;
-    public static final FieldValues<Translation2d> rocketFar = null;
+    public static final FieldValues<Translation2d> rocketFar;
 
     static {
 
@@ -42,6 +42,14 @@ public class PathAdapter {
 
             rocketNear = new FieldValues<Translation2d>(translation, translation.getFlippedY());
 
+        }
+
+        {
+            Translation2d translation = Translation2d.identity();
+            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(270 + 61.25));
+            
+            rocketFar= new FieldValues<Translation2d>(translation, translation.getFlippedY());
+            System.out.println("ROCKET FAR TRANSLATION" + rocketFar.toString());
         }
 
         {
