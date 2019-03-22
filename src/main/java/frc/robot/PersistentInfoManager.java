@@ -172,16 +172,6 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mIntakeFolds = new PersistentInfo(0.0) {
-        public void update() {
-            this.addDifference(Intake.getInstance().getIntakeTotalOpens());
-        }
-
-        @Override
-        public void readSetting() {
-        }
-    };
-
     private PersistentInfo mIntakeDrops = new PersistentInfo(0.0) {
         public void update() {
             this.addDifference(Intake.getInstance().getIntakeTotalFlips());
@@ -207,7 +197,6 @@ public class PersistentInfoManager {
         mSettingsMap.put("DriveShiftsBack", mDriveTotalShiftsBack);
         mSettingsMap.put("ClawChanges", mClawTotalChanges);
         mSettingsMap.put("IntakeDrops", mIntakeDrops);
-        mSettingsMap.put("IntakeFolds", mIntakeFolds);
         mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }
 

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.GZOI;
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
@@ -10,12 +9,13 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public class Intake extends GZSubsystem {
 
-    private DesiredDropState mDesiredDropState = DesiredDropState.UP;
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
     private GZVictorSPX mIntakeLeft, mIntakeRight;
-    private GZSolenoid mIntakeDrop, mIntakeFold;
+    private GZSolenoid mIntakeExtend;
+
+    private boolean mWantsIn = true;
 
     public IO mIO = new IO();
 
@@ -30,8 +30,7 @@ public class Intake extends GZSubsystem {
         mIntakeLeft.setInverted(kIntake.INTAKE_L_INVERT);
         mIntakeRight.setInverted(kIntake.INTAKE_R_INVERT);
 
-        mIntakeDrop = new GZSolenoid(kSolenoids.INTAKE_DROP, this, "Intake Drop");
-        mIntakeFold = new GZSolenoid(kSolenoids.INTAKE_FOLD, this, "Intake Fold");
+        mIntakeExtend = new GZSolenoid(kSolenoids.INTAKE_EXTEND, this, "Intake Drop");
     }
 
     public static Intake getInstance() {
@@ -42,63 +41,26 @@ public class Intake extends GZSubsystem {
     }
 
     protected void stow() {
-        raise();
+        retract();
+        stop();
     }
 
     private void handleDrop() {
-        if (mDesiredDropState == DesiredDropState.UP) {
-            stop();
+        // if (mDesiredDropState == DesiredDropState.UP) {
+        // stop();
+        // }
+
+        if (Elevator.getInstance().safeForIntakeMovement()) {
+
         }
-
-        if (Elevator.getInstance().safeForIntakeMovement())
-            switch (mDesiredDropState) {
-            case DOWN:
-                mIntakeDrop.on();
-                if (mIntakeDrop.isOn())
-                    mIntakeFold.set(true);
-                break;
-            case UP:
-                mIntakeFold.off();
-                if (mIntakeFold.isOff())
-                    mIntakeDrop.set(false);
-                break;
-            case PREP_FOR_UP:
-                mIntakeDrop.on();
-                mIntakeFold.off();
-                break;
-            default:
-                System.out.println("ERROR Unhandled Intake Drop State: " + mDesiredDropState);
-                break;
-            }
     }
 
-    protected DropState getDropState() {
-        if (mIntakeFold.isOn() && mIntakeDrop.isOn())
-            return DropState.DOWN;
-        else if (mIntakeFold.isOff() && mIntakeDrop.isOff())
-            return DropState.UP;
-
-        return DropState.IN_MOTION;
+    protected void extend() {
+        mWantsIn = true;
     }
 
-    protected void lower() {
-        mDesiredDropState = DesiredDropState.DOWN;
-    }
-
-    protected void raise() {
-        mDesiredDropState = DesiredDropState.UP;
-    }
-
-    protected void prepToRaise() {
-        mDesiredDropState = DesiredDropState.PREP_FOR_UP;
-    }
-
-    public enum DropState {
-        UP, DOWN, IN_MOTION
-    }
-
-    public enum DesiredDropState {
-        UP, DOWN, PREP_FOR_UP,
+    protected void retract() {
+        mWantsIn = false;
     }
 
     public enum IntakeState {
@@ -116,33 +78,24 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
-    public boolean armWantsDown() {
-        return mDesiredDropState == DesiredDropState.DOWN;
+    public boolean armWantsOut() {
+        return !mWantsIn;
     }
 
-    public boolean armWantsUp() {
-        return mDesiredDropState == DesiredDropState.UP;
+    public boolean armWantsIn() {
+        return mWantsIn;
     }
 
     public boolean armWantsToMove() {
-        return (mDesiredDropState == DesiredDropState.UP && !mIntakeDrop.isOff())
-                || (mDesiredDropState == DesiredDropState.DOWN && !mIntakeDrop.isOn());
+        return (mWantsIn && !isRetracted()) || (!mWantsIn && !isExtended());
     }
 
-    public boolean isRaised() {
-        return getDropState() == DropState.UP;
+    public boolean isRetracted() {
+        return mIntakeExtend.isOff();
     }
 
-    public boolean isLowered() {
-        return getDropState() == DropState.DOWN;
-    }
-
-    public boolean isUp() {
-        return mIntakeDrop.isOff();
-    }
-
-    public boolean isOff() {
-        return mIntakeDrop.isOn();
+    public boolean isExtended() {
+        return mIntakeExtend.isOn();
     }
 
     protected void runIntake(double left, double right) {
@@ -166,9 +119,6 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
-        if (GZOI.getInstance().isDisabled())
-            mDesiredDropState = DesiredDropState.UP;
-
         handleStates();
         in();
         out();
@@ -179,7 +129,7 @@ public class Intake extends GZSubsystem {
 
         if (mWantedState == IntakeState.NEUTRAL) {
             neutral = true;
-        } else if (!isLowered()) {
+        } else if (!mIntakeExtend.isOn()) {
             neutral = true;
         } else if (this.isSafetyDisabled()) {
             neutral = true;
@@ -214,6 +164,8 @@ public class Intake extends GZSubsystem {
         case MANUAL:
             break;
         case NEUTRAL:
+            mIO.left_desired_output = 0.0;
+            mIO.right_desired_output = 0.0;
             break;
         default:
             break;
@@ -264,11 +216,7 @@ public class Intake extends GZSubsystem {
     }
 
     public int getIntakeTotalFlips() {
-        return mIntakeDrop.getChangeCounts();
-    }
-
-    public int getIntakeTotalOpens() {
-        return mIntakeFold.getChangeCounts();
+        return mIntakeExtend.getChangeCounts();
     }
 
     @Override

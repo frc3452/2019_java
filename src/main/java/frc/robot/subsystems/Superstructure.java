@@ -94,7 +94,7 @@ public class Superstructure extends GZSubsystem {
             break;
         case GRAB_HP_FROM_FEED:
             HPFromFeed.reset();
-            intake.raise();
+            intake.retract();
             intake.stop();
             elev.setHeight(Heights.HP_1);
             elev.closeClaw();
@@ -157,7 +157,7 @@ public class Superstructure extends GZSubsystem {
                         CargoFromFeed.tripNext();
                     }
                 } else if (CargoFromFeed.getNext()) {
-                    
+
 
 
                 }
@@ -199,11 +199,11 @@ public class Superstructure extends GZSubsystem {
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.slidesAtDesired()) {
                         elev.setHeight(kElevator.LOWEST_WITH_SLIDES_OUT);
-                        intake.lower();
+                        intake.extend();
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {
-                    if (elev.nearTarget() && intake.isLowered()) {
+                    if (elev.nearTarget() && intake.isExtended()) {
                         extendSlides();
                         elev.goHome();
                         IntakeCargo.tripNext();

@@ -39,8 +39,7 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
 
 		// fold 3 then 4 on practice
-		public static final SolenoidConstants INTAKE_FOLD = new SolenoidConstants(1, 3, 1.0, 1.0);
-		public static final SolenoidConstants INTAKE_DROP = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 2.0, 2.0);
+		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 2.0, 2.0);
 	}
 
 	public static class kElevator {
