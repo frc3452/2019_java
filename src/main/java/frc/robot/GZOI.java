@@ -214,7 +214,8 @@ public class GZOI extends GZSubsystem {
 
 		if (controller.idle.get())
 			supe.idle();
-		else if (controller.elevatorZero.get())
+
+		if (controller.elevatorZero.get())
 			supe.zeroElevator();
 		else if (controller.hatchPanel1.pressedFor(.35))
 			supe.runHeight(Heights.Home);

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
+import frc.robot.GZOI;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
@@ -124,7 +125,9 @@ public class Superstructure extends GZSubsystem {
 
     @Override
     public void loop() {
-        // System.out.println(mIntakingCargo);
+        System.out.println(mIntakingCargo + "\t" + mAction);
+        if (GZOI.getInstance().isDisabled() && mAction != Actions.IDLE)
+            runAction(Actions.IDLE);
 
         if (mAction == Actions.OFF || this.isSafetyDisabled())
             stop();
@@ -238,8 +241,8 @@ public class Superstructure extends GZSubsystem {
                 } else if (GrabCargoDuringIntake.notNext()) {
                     retractSlides();
                     intake.retract();
-                    elev.setHeight(mDefaultHeight);
-                    if (elev.areSlidesIn() && intake.isRetracted() && elev.nearTarget())
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.areSlidesIn() && intake.isRetracted() && elev.isClawClosed())
                         done();
                 }
                 break;
