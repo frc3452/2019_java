@@ -942,7 +942,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized boolean eitherShifterTransitioning() {
-		return mShifterFront.isTransitioning() || mShifterRear.isTransitioning();
+		return mShifterFront.isMoving() || mShifterRear.isMoving();
 	}
 
 	public synchronized boolean shiftersInDrive() {

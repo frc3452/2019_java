@@ -35,7 +35,9 @@ public class OperatorController extends DeepSpaceController {
                                 () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.B));
                 this.cargo3 = new GZButton(this, () -> false,
                                 () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.Y));
-                this.cargoShip = new GZButton(this, () -> false, () -> getButton(Buttons.START));
+                // this.cargoShip = new GZButton(this, () -> false, () ->
+                // getButton(Buttons.START));
+                this.cargoShip = new GZButton(this, () -> false, () -> false);
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
@@ -46,11 +48,9 @@ public class OperatorController extends DeepSpaceController {
 
                 // this.intakeCargo = new GZButton(this, () -> false, () ->
                 // getButton(Buttons.START));
-                // this.intakeUp = new GZButton(this, () -> false, () ->
-                // getButton(Buttons.BACK));
+                this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.START));
+                this.intakeDown = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
                 this.intakeCargo = new GZButton(this, () -> false, () -> false);
-                this.intakeUp = new GZButton(this, () -> false, () -> false);
-                this.intakeDown = new GZButton(this, () -> false, () -> false);
 
                 this.stow = new GZButton(this, () -> false, () -> false);
 

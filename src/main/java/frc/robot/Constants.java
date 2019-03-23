@@ -39,7 +39,7 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
 
 		// fold 3 then 4 on practice
-		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 2.0, 2.0);
+		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 4.0, 4.0);
 	}
 
 	public static class kElevator {
@@ -62,31 +62,31 @@ public class Constants {
 		private final static HeightsContainer h = PathAdapter.getHeights();
 		public static final double TARGET_TOLERANCE = 1;
 
-		public static final double LOWEST_WITH_SLIDES_OUT = h.lowest_with_slides_out();
-		public static final double SLIDES_TOLERANCE = 1.5;
-
+		// public static final double LOWEST_WITH_SLIDES_OUT = h.lowest_with_slides_out();
+		
 		public static final int TICKS_PER_INCH = h.ticks_per_inch(); // 352.944782;
 		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
 		// (1.0/8.0);
-
-		public static final double INTAKE_LOW_HEIGHT = 20;
-		public static final double INTAKE_HIGH_HEIGHT = 45;
-		public static final double INTAKE_TOLERANCE = 2;
-
+		
 		public static final double HATCH_PLACING_JOG = h.hatch_place_jog();
-
+		
 		public static final int CARGO_SENSOR_CHANNEL = 8;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 10;
-
+		
 		public final static double ELEV_TURN_SCALAR = 1.0; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
-
+		
 		public static final double THROW_CARGO_DELAY = 0.05;
 		public static final double THROW_CARGO_RETRACT_DELAY = 0.35;
-
+		
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 18;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 28;
+		public static final double SLIDES_TOLERANCE = 3.5;
+		
 		public static enum Heights {
-
+			
 			Zero(h.zero()), Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()),
 			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false), Cargo_2(h.cargo2(), false),
 			Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());

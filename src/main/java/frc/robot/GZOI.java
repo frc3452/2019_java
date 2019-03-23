@@ -185,13 +185,13 @@ public class GZOI extends GZSubsystem {
 		if (driverJoy.getButton(Buttons.LB)) {
 
 			// if (driverJoy.getButton(Buttons.A))
-			// 	drive.wantShift(ClimbingState.NONE);
+			// drive.wantShift(ClimbingState.NONE);
 			// else if (driverJoy.getButton(Buttons.B))
-			// 	drive.wantShift(ClimbingState.FRONT);
+			// drive.wantShift(ClimbingState.FRONT);
 			// else if (driverJoy.getButton(Buttons.X))
-			// 	drive.wantShift(ClimbingState.BOTH);
+			// drive.wantShift(ClimbingState.BOTH);
 			// else if (driverJoy.getButton(Buttons.Y))
-			// 	drive.wantShift(ClimbingState.REAR);
+			// drive.wantShift(ClimbingState.REAR);
 
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
@@ -215,7 +215,7 @@ public class GZOI extends GZSubsystem {
 			supe.idle();
 		else if (controller.elevatorZero.get())
 			supe.zeroElevator();
-		else if (controller.hatchPanel1.pressedFor(.75))
+		else if (controller.hatchPanel1.pressedFor(.35))
 			supe.runHeight(Heights.Home);
 		else if (controller.hatchPanel1.get())
 			supe.runHeight(Heights.HP_1, queue);

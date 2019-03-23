@@ -121,12 +121,17 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         mWantedChange = !mWantedChange;
     }
 
-    public boolean wantsOn() {
+    public boolean getWantOn() {
         return mWantedChange;
     }
 
-    public boolean wantsOff() {
+    public boolean getWantOff() {
         return mWantedChange == false;
+    }
+
+    public boolean getWantedState()
+    {
+        return mWantedChange;
     }
 
     public void wantOn() {
@@ -156,7 +161,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         return this.getSolenoidState() == SolenoidState.OFF;
     }
 
-    public boolean isTransitioning() {
+    public boolean isMoving() {
         return this.getSolenoidState() == SolenoidState.TRANSITION;
     }
 

@@ -6,6 +6,7 @@ import frc.robot.Constants.kSolenoids;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Intake extends GZSubsystem {
 
@@ -42,13 +43,11 @@ public class Intake extends GZSubsystem {
     }
 
     private void handleDrop() {
-        // if (mDesiredDropState == DesiredDropState.UP) {
-        // stop();
-        // }
-
         if (Elevator.getInstance().safeForIntakeMovement()) {
             mIntakeExtend.stateChange();
         }
+        if (mIntakeExtend.isOn())
+            runIntake(kIntake.INTAKE_SPEED);
     }
 
     protected void extend() {
@@ -75,11 +74,16 @@ public class Intake extends GZSubsystem {
     }
 
     public boolean armWantsOut() {
-        return mIntakeExtend.wantsOn() && !mIntakeExtend.isOn();
+        return mIntakeExtend.getWantOn() && !mIntakeExtend.isOn();
+    }
+
+    public SolenoidState getSolenoidState()
+    {
+        return mIntakeExtend.getSolenoidState();
     }
 
     public boolean armWantsIn() {
-        return mIntakeExtend.wantsOff() && !mIntakeExtend.isOff();
+        return mIntakeExtend.getWantOff() && !mIntakeExtend.isOff();
     }
 
     public boolean armWantsToMove() {
@@ -115,6 +119,7 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
+        handleDrop();
         handleStates();
         in();
         out();

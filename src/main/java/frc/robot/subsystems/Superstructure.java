@@ -202,13 +202,10 @@ public class Superstructure extends GZSubsystem {
                 break;
             case INTAKE_CARGO:
                 if (!IntakeCargo.get(1)) {
-                    if (!elev.isAboveIntakeSaftey()) {
-                        elev.retractSlides();
-                    }
-                    IntakeCargo.trip(1);
+                    // IntakeCargo.trip(1);
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.slidesAtDesired()) {
-                        elev.setHeight(kElevator.LOWEST_WITH_SLIDES_OUT);
+                        // elev.setHeight(kElevator.LOWEST_WITH_SLIDES_OUT);
                         intake.extend();
                         IntakeCargo.tripNext();
                     }
@@ -352,10 +349,6 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void raiseIntake() {
-        // intake.raise();
-    }
-
-    public void lowerIntake() {
         intake.retract();
     }
 
