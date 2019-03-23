@@ -73,7 +73,7 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
-    public boolean armWantsOut() {
+    public boolean wantsOut() {
         return mIntakeExtend.getWantOn() && !mIntakeExtend.isOn();
     }
 
@@ -82,12 +82,12 @@ public class Intake extends GZSubsystem {
         return mIntakeExtend.getSolenoidState();
     }
 
-    public boolean armWantsIn() {
+    public boolean wantsIn() {
         return mIntakeExtend.getWantOff() && !mIntakeExtend.isOff();
     }
 
-    public boolean armWantsToMove() {
-        return armWantsIn() || armWantsOut();
+    public boolean wantsToMove() {
+        return wantsIn() || wantsOut();
     }
 
     public boolean isRetracted() {

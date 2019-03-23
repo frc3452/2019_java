@@ -80,6 +80,7 @@ public class Constants {
 		public static final double THROW_CARGO_DELAY = 0.05;
 		public static final double THROW_CARGO_RETRACT_DELAY = 0.35;
 		
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_WITH_SLIDES_IN = 18;
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 20;
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 18;
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 28;
