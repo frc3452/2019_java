@@ -42,12 +42,12 @@ public class Intake extends GZSubsystem {
         stop();
     }
 
-    private void handleDrop() {
+    private void handleMovement() {
         if (Elevator.getInstance().safeForIntakeMovement()) {
             mIntakeExtend.stateChange();
         }
-        if (mIntakeExtend.isOn())
-            runIntake(kIntake.INTAKE_SPEED);
+        // if (mIntakeExtend.isOn())
+        //     runIntake(kIntake.INTAKE_SPEED);
     }
 
     protected void extend() {
@@ -124,7 +124,10 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
-        handleDrop();
+        if (isRetracted())
+            stop();
+
+        handleMovement();
         handleStates();
         in();
         out();
@@ -202,7 +205,7 @@ public class Intake extends GZSubsystem {
         }
 
         if (!this.isSafetyDisabled()) {
-            handleDrop();
+            handleMovement();
         }
 
         if (mIntakeRoller != null) {

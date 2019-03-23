@@ -77,8 +77,10 @@ public class Superstructure extends GZSubsystem {
             break;
         case INTAKE_CARGO:
             IntakeCargo.reset();
-            // intake.lower();
-            // elev.setHeight(Heights.Home);
+            intake.extend();
+            elev.setHeight(Heights.Home);
+            elev.openClaw();
+            elev.extendSlides();
             break;
         case STOW:
             stow();
@@ -205,7 +207,7 @@ public class Superstructure extends GZSubsystem {
                     // IntakeCargo.trip(1);
                 } else if (!IntakeCargo.getNext()) {
                     if (elev.slidesAtDesired()) {
-                        // elev.setHeight(kElevator.LOWEST_WITH_SLIDES_OUT);
+                        elev.setHeight(kElevator.Heights.Home);
                         intake.extend();
                         IntakeCargo.tripNext();
                     }
@@ -238,7 +240,7 @@ public class Superstructure extends GZSubsystem {
                     }
                 } else if (!IntakeCargo.getNext()) {
                     // if (intake.isRaised()) {
-                       //done();
+                    // done();
                     // }
                 }
 
@@ -280,8 +282,9 @@ public class Superstructure extends GZSubsystem {
 
     private boolean isStowed() {
 
-        return elev.areSlidesIn() /**&& intake.isRaised()*/;
-}
+        return elev.areSlidesIn() /** && intake.isRaised() */
+        ;
+    }
 
     public void idle() {
         runAction(Actions.IDLE);

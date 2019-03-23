@@ -247,6 +247,8 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 		else if (controller.shootCargo.updated())
 			supe.runAction(Actions.THROW_CARGO);
+		else if (controller.cargoFromFeed.updated())
+			supe.runAction(Actions.GRAB_CARGO_FROM_FEED);
 		else if (controller.scoreHatch.updated())
 			supe.runAction(Actions.SCORE_HATCH);
 		if (controller.intakeCargo.updated())

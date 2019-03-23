@@ -558,8 +558,14 @@ public class Elevator extends GZSubsystem {
         // return true;
 
         final double height = getHeightInches();
-        return true;
-        // return height > getLowestHeight() + (kElevator.SLIDES_TOLERANCE / 2.0);
+        if (mCarriageSlide.isOff())
+            return true;
+
+        // Carriage is out
+        if (height > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0))
+            return true;
+        return false;
+
     }
 
     private boolean slidesNotIn() {
@@ -592,21 +598,33 @@ public class Elevator extends GZSubsystem {
         // ~~~~~~~~~~~~~~~~~~~~
         // slides are out (two different heights if intake in or out)
 
-        if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff()) {
-            if (intake.wantsToMove() || intake.isMoving()) {
-                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
-            } else if (intake.isExtended()) {
-                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED, low);
-            } else if (intake.isRetracted()) {
-                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED, low);
-            }
+        if (!mClaw.isOn() || mClaw.wantsStateChange() || mCarriageSlide.wantsStateChange()) {
+            if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff()) {
+                if (intake.wantsToMove() || intake.isMoving()) {
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
+                    raise = true;
+                } else if (intake.isExtended()) {
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED, low);
+                } else if (intake.isRetracted()) {
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED, low);
+                }
 
-            if (mCarriageSlide.wantsStateChange())
-                raise = true;
+                if (mCarriageSlide.wantsStateChange())
+                    raise = true;
+            }
         }
 
+        if (mClaw.wantsStateChange()) {
+            if (mCarriageSlide.isOff()) {
+                if (intake.isRetracted()) {
+                    low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+                } else {
+                    low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+                }
+                raise = true;
+            }
+        }
 
-        
         return new ElevatorMovement(low, raise);
 
         // if (!mCarriageSlide.isOff() || mCarriageSlide.getWantOn()) {
@@ -624,6 +642,22 @@ public class Elevator extends GZSubsystem {
         // }
     }
 
+    private boolean slidesSafeToMove() {
+        if (getHeightInches() > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0)) {
+            return true;
+        } else {
+            if (!intake.wantsToMove())
+                return true;
+        }
+        return false;
+    }
+
+    private boolean clawSafeToMove() {
+        return !intake.wantsToMove()
+                && getHeightInches() > (mCarriageSlide.isOff() ? kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN
+                        : kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT) + (kElevator.SLIDES_TOLERANCE / 2.0);
+    }
+
     private double getLowestHeightSetpoint() {
         final ElevatorMovement val = getLowestHeight();
 
@@ -635,13 +669,14 @@ public class Elevator extends GZSubsystem {
     }
 
     private void out() {
-        if (getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE / 2.0)) {
+        if (slidesSafeToMove()) {
             mCarriageSlide.stateChange();
         }
 
-        if (getHeightInches() > kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_WITH_SLIDES_IN + (kElevator.SLIDES_TOLERANCE / 2.0))
+        if (clawSafeToMove())
             mClaw.stateChange();
 
+        System.out.println(df.format(getHeightInches()) + "\t" + safeForIntakeMovement());
         mLowestHeight = getLowestHeightSetpoint();
         // System.out.println("Lowest height: " + mLowestHeight);
         // System.out.println(df.format(getHeightInches()) + "\t" +

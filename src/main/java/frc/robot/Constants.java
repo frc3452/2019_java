@@ -77,13 +77,11 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 		
-		public static final double THROW_CARGO_DELAY = 0.05;
-		public static final double THROW_CARGO_RETRACT_DELAY = 0.35;
-		
-		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_WITH_SLIDES_IN = 18;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 20;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 18;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 28;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 21;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 19;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 		public static final double SLIDES_TOLERANCE = 3.5;
 		
 		public static enum Heights {
