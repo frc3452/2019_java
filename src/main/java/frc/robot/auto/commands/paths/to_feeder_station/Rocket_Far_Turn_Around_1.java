@@ -10,7 +10,7 @@ public class Rocket_Far_Turn_Around_1 extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(262, 297, 0, 30).setFieldAdaption(PathAdapter.rocketFar));
         sWaypoints.add(new Waypoint(283, 285, 15, 30).setFieldAdaption(PathAdapter.rocketFar));
-        sWaypoints.add(new Waypoint(295, 234, 0, 60));
+        sWaypoints.add(new Waypoint(295, 234, 0, 60).setFieldAdaption(PathAdapter.rocketFar));
     }
 
     @Override

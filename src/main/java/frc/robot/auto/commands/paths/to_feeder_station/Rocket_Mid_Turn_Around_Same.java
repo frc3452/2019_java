@@ -10,7 +10,7 @@ public class Rocket_Mid_Turn_Around_Same extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(229.28, 277.06, 0, 30).setFieldAdaption(PathAdapter.rocketMid));
         sWaypoints.add(new Waypoint(229.28, 257, 15, 30).setFieldAdaption(PathAdapter.rocketMid));
-        sWaypoints.add(new Waypoint(264, 246, 0, 60));
+        sWaypoints.add(new Waypoint(264, 246, 0, 60).setFieldAdaption(PathAdapter.rocketMid));
     }
 
     @Override

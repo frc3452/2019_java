@@ -12,7 +12,7 @@ public class Rocket_Close_Turn_Around_Same extends PathContainer {
         sWaypoints.add(new Waypoint(192, 294, 0, 30).setFieldAdaption(PathAdapter.rocketNear));
         sWaypoints.add(new Waypoint(157, 270, 15, 30).setFieldAdaption(PathAdapter.rocketNear));
         sWaypoints.add(new Waypoint(184, 249, 15, 30).setFieldAdaption(PathAdapter.rocketNear));
-        sWaypoints.add(new Waypoint(214, 243, 0, 30));
+        sWaypoints.add(new Waypoint(214, 243, 0, 30).setFieldAdaption(PathAdapter.rocketNear));
     }
 
     @Override
