@@ -90,6 +90,11 @@ public class Intake extends GZSubsystem {
         return wantsIn() || wantsOut();
     }
 
+    public boolean isMoving()
+    {
+        return mIntakeExtend.isMoving();
+    }
+
     public boolean isRetracted() {
         return mIntakeExtend.isOff();
     }

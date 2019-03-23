@@ -578,12 +578,13 @@ public class Elevator extends GZSubsystem {
 
     private ElevatorMovement getLowestHeight() {
 
+        final double height = getHeightInches();
         double low = kElevator.Heights.Home.inches;
         boolean raise = false;
 
-        // needs to go up IF
+        // needs to go up IF ✔
         // ~~~~~~~~~~~~~~~~~~~~
-        // slides are out and intake wants to move ✔️
+        // slides are out and intake wants to move
         // too low and claw needs to move
         // too low and slides need to move
 
@@ -591,33 +592,21 @@ public class Elevator extends GZSubsystem {
         // ~~~~~~~~~~~~~~~~~~~~
         // slides are out (two different heights if intake in or out)
 
-        if (slidesNotIn()) {
-            if (intake.wantsToMove()) {
+        if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff()) {
+            if (intake.wantsToMove() || intake.isMoving()) {
                 low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
-                if (mCarriageSlide.wantsStateChange())
-                    raise = true;
-            }
-        }
-
-        if (mCarriageSlide.wantsStateChange())
-        {
-        }
-
-        if (!mCarriageSlide.isOff()) {
-                        
-            if (intake.isExtended()) {
+            } else if (intake.isExtended()) {
                 low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED, low);
-                // raise = true;
-            } else {
+            } else if (intake.isRetracted()) {
                 low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED, low);
-                // raise = true;
             }
-        }
-        if (mClaw.wantsStateChange() && !mCarriageSlide.isOn()) {
-            low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_WITH_SLIDES_IN, low);
-            raise = true;
+
+            if (mCarriageSlide.wantsStateChange())
+                raise = true;
         }
 
+
+        
         return new ElevatorMovement(low, raise);
 
         // if (!mCarriageSlide.isOff() || mCarriageSlide.getWantOn()) {
@@ -654,7 +643,7 @@ public class Elevator extends GZSubsystem {
             mClaw.stateChange();
 
         mLowestHeight = getLowestHeightSetpoint();
-        System.out.println("Lowest height: " + mLowestHeight);
+        // System.out.println("Lowest height: " + mLowestHeight);
         // System.out.println(df.format(getHeightInches()) + "\t" +
         // df.format(mLowestHeight));
         mHighestHeight = kElevator.TOP_LIMIT;
