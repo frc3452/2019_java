@@ -241,7 +241,7 @@ public class Superstructure extends GZSubsystem {
                     }
                 } else if (!IntakeCargo.getNext()) {
                     // if (intake.isRaised()) {
-                    // done();
+                       //done();
                     // }
                 }
 
@@ -282,8 +282,9 @@ public class Superstructure extends GZSubsystem {
     }
 
     private boolean isStowed() {
-        return elev.areSlidesIn();
-    }
+
+        return elev.areSlidesIn() /**&& intake.isRaised()*/;
+}
 
     public void idle() {
         runAction(Actions.IDLE);
@@ -351,6 +352,10 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void raiseIntake() {
+        // intake.raise();
+    }
+
+    public void lowerIntake() {
         intake.retract();
     }
 

@@ -221,7 +221,6 @@ public class Constants {
 		public static final int ELEVATOR_2 = 15;
 
 		public static final int INTAKE_LEFT = 6;
-		public static final int INTAKE_RIGHT = 9;
 	}
 
 	public static class kTempSensor {
@@ -242,9 +241,7 @@ public class Constants {
 
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
-		public static final int INTAKE_RIGHT = 12;
 		public static final boolean INTAKE_L_INVERT = true;
-		public static final boolean INTAKE_R_INVERT = false;
 		public static final double INTAKE_SPEED = -.6;
 	}
 
