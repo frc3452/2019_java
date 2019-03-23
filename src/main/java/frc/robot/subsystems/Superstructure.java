@@ -124,7 +124,7 @@ public class Superstructure extends GZSubsystem {
 
     @Override
     public void loop() {
-        System.out.println(mIntakingCargo);
+        // System.out.println(mIntakingCargo);
 
         if (mAction == Actions.OFF || this.isSafetyDisabled())
             stop();
