@@ -90,8 +90,8 @@ public class Translation2d implements Interpolable<Translation2d> {
         double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
         double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
 
-        double xDelta = Math.copySign(xTemp, yTemp);
-        double yDelta = Math.copySign(yTemp, xTemp);
+        double xDelta = Math.copySign(yTemp, xTemp);
+        double yDelta = Math.copySign(xTemp, yTemp);
 
         x_ += xDelta;
         y_ += yDelta;

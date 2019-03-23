@@ -626,7 +626,7 @@ public class Drive extends GZSubsystem {
 	DecimalFormat df = new DecimalFormat("#0.00");
 	@Override
 	public synchronized void loop() {
-		System.out.println(df.format(getLeftVelocityInchesPerSec()) + "\t" + df.format(getRightVelocityInchesPerSec()));
+		// System.out.println(df.format(getLeftVelocityInchesPerSec()) + "\t" + df.format(getRightVelocityInchesPerSec()));
 
 		handleLimitSwitches();
 		handleStates();
