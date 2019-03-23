@@ -38,25 +38,21 @@ public class PathAdapter {
 
         {
             Translation2d translation = Translation2d.identity();
-            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(270 - 61.25));
+            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(180 + 61.25));
 
             rocketNear = new FieldValues<Translation2d>(translation, translation.getFlippedY());
-            System.out.println("ROCKET MIDDLE TRANSLATION:" + rocketNear.toString());
         }
 
         {
             rocketMid = new FieldValues<>(new Translation2d(0, -mInchesFromRocket),
                     new Translation2d(0, mInchesFromRocket));
-
-            System.out.println("ROCKET MIDDLE TRANSLATION:" + rocketMid.toString());
         }
 
         {
-            Translation2d translation = Translation2d.identity();
-            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(270 + 61.25));
-            
-            rocketFar= new FieldValues<Translation2d>(translation, translation.getFlippedY());
-            System.out.println("ROCKET FAR TRANSLATION" + rocketFar.toString());
+            Translation2d translation = new Translation2d();
+            translation.translateBy(mInchesFromRocket, Rotation2d.fromDegrees(360 - 61.25));
+
+            rocketFar = new FieldValues<Translation2d>(translation, translation.getFlippedY());
         }
 
         {

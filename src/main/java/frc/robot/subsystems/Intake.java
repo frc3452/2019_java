@@ -12,7 +12,7 @@ public class Intake extends GZSubsystem {
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
-    private GZVictorSPX mIntakeLeft, mIntakeRight;
+    private GZVictorSPX mIntakeRoller;
     private GZSolenoid mIntakeExtend;
 
     private boolean mWantsIn = true;
@@ -24,11 +24,9 @@ public class Intake extends GZSubsystem {
     private Intake() {
         // mIntakeLeft = null;
         // mIntakeRight = null;
-        mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
-        mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
+        mIntakeRoller = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
 
-        mIntakeLeft.setInverted(kIntake.INTAKE_L_INVERT);
-        mIntakeRight.setInverted(kIntake.INTAKE_R_INVERT);
+        mIntakeRoller.setInverted(kIntake.INTAKE_L_INVERT);
 
         mIntakeExtend = new GZSolenoid(kSolenoids.INTAKE_EXTEND, this, "Intake Drop");
     }
@@ -199,9 +197,8 @@ public class Intake extends GZSubsystem {
             handleDrop();
         }
 
-        if (mIntakeLeft != null && mIntakeRight != null) {
-            mIntakeLeft.set(mIO.left_output);
-            mIntakeRight.set(mIO.right_output);
+        if (mIntakeRoller != null) {
+            mIntakeRoller.set(mIO.left_output);
         }
 
     }

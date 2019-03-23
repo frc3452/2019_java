@@ -3,6 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.Constants.kFiles;
+import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -57,6 +59,10 @@ public class Robot extends TimedRobot {
 		allSubsystems.startLooping();
 
 		files.writeHardwareReport();
+
+		PathContainer p = new Left_Rocket_Far_Same();
+		p.buildPath();
+		p.print();
 	}
 
 	@Override
