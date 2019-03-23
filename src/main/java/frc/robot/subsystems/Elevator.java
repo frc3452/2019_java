@@ -643,13 +643,18 @@ public class Elevator extends GZSubsystem {
     }
 
     private boolean slidesSafeToMove() {
+
         if (getHeightInches() > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0)) {
             return true;
         } else {
-            if (!intake.wantsToMove())
+            if (!intake.wantsToMove()
+                    && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE / 2.0))
                 return true;
         }
         return false;
+        // return !intake.wantsToMove()
+        // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
+        // / 2.0);
     }
 
     private boolean clawSafeToMove() {
@@ -676,8 +681,10 @@ public class Elevator extends GZSubsystem {
         if (clawSafeToMove())
             mClaw.stateChange();
 
-        System.out.println(df.format(getHeightInches()) + "\t" + safeForIntakeMovement());
+        
         mLowestHeight = getLowestHeightSetpoint();
+        // System.out.println(df.format(getHeightInches()) + "\t" +
+        // safeForIntakeMovement());
         // System.out.println("Lowest height: " + mLowestHeight);
         // System.out.println(df.format(getHeightInches()) + "\t" +
         // df.format(mLowestHeight));

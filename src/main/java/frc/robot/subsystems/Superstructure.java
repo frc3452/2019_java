@@ -15,14 +15,19 @@ public class Superstructure extends GZSubsystem {
 
     private GZSubsystemManager subsystems;
 
+    private boolean mIntakingCargo = false;
+
     private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
 
     private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(3);
 
-    private GZFlagMultiple IntakeCargo = new GZFlagMultiple(8);
+    private GZFlagMultiple IntakeCargo = new GZFlagMultiple(2);
+    private GZFlagMultiple GrabCargoDuringIntake = new GZFlagMultiple(2);
     private GZFlagMultiple ThrowCargo = new GZFlagMultiple(4);
+
+    private Heights mDefaultHeight = Heights.Home;
 
     private static Superstructure mInstance = null;
 
@@ -41,12 +46,16 @@ public class Superstructure extends GZSubsystem {
     private Heights mQueuedHeight = Heights.Home;
 
     public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, GRAB_HP_FROM_FEED, GRAB_CARGO_FROM_FEED, GO_TO_QUEUED_HEIGHT,
-        THROW_CARGO, SCORE_HATCH;
+        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, GRAB_CARGO_DURING_INTAKE, GRAB_HP_FROM_FEED, GRAB_CARGO_FROM_FEED,
+        GO_TO_QUEUED_HEIGHT, THROW_CARGO, SCORE_HATCH;
     }
 
     public Actions getCurrentAction() {
         return mAction;
+    }
+
+    public boolean isIntakingCargo() {
+        return mIntakingCargo;
     }
 
     // ACTIONS
@@ -59,6 +68,8 @@ public class Superstructure extends GZSubsystem {
 
         // if (mAction == action)
         // return;
+
+        mIntakingCargo = false;
 
         mAction = action;
 
@@ -78,9 +89,12 @@ public class Superstructure extends GZSubsystem {
         case INTAKE_CARGO:
             IntakeCargo.reset();
             intake.extend();
-            elev.setHeight(Heights.Home);
+            elev.setHeight(Heights.Cargo_Intake);
             elev.openClaw();
             elev.extendSlides();
+            break;
+        case GRAB_CARGO_DURING_INTAKE:
+            GrabCargoDuringIntake.reset();
             break;
         case STOW:
             stow();
@@ -110,6 +124,8 @@ public class Superstructure extends GZSubsystem {
 
     @Override
     public void loop() {
+        System.out.println(mIntakingCargo);
+
         if (mAction == Actions.OFF || this.isSafetyDisabled())
             stop();
         else {
@@ -149,7 +165,7 @@ public class Superstructure extends GZSubsystem {
                     if (elev.areSlidesIn())
                         ScoreHP.tripNext();
                 } else if (!ScoreHP.getNext()) {
-                    elev.setHeight(Heights.HP_1);
+                    elev.setHeight(mDefaultHeight);
                     if (elev.nearTarget())
                         done();
                 }
@@ -168,7 +184,7 @@ public class Superstructure extends GZSubsystem {
                         CargoFromFeed.tripNext();
                     }
                 } else if (CargoFromFeed.notNext()) {
-                    elev.setHeight(Heights.HP_1);
+                    elev.setHeight(mDefaultHeight);
                     if (elev.nearTarget()) {
                         done();
                     }
@@ -192,7 +208,7 @@ public class Superstructure extends GZSubsystem {
                         ThrowCargo.tripNext();
                     }
                 } else if (ThrowCargo.notNext()) {
-                    elev.setHeight(Heights.HP_1);
+                    elev.setHeight(mDefaultHeight);
                     if (elev.nearTarget()) {
                         done();
                     }
@@ -203,47 +219,29 @@ public class Superstructure extends GZSubsystem {
                     done();
                 break;
             case INTAKE_CARGO:
-                if (!IntakeCargo.get(1)) {
-                    // IntakeCargo.trip(1);
-                } else if (!IntakeCargo.getNext()) {
-                    if (elev.slidesAtDesired()) {
-                        elev.setHeight(kElevator.Heights.Home);
-                        intake.extend();
+                if (IntakeCargo.not(1)) {
+                    if (elev.nearTarget() && elev.isClawOpen() && elev.areSlidesOut() && intake.isExtended()) {
                         IntakeCargo.tripNext();
                     }
-                } else if (!IntakeCargo.getNext()) {
-                    if (elev.nearTarget() && intake.isExtended()) {
-                        extendSlides();
-                        elev.goHome();
-                        IntakeCargo.tripNext();
-                    }
-                } else if (!IntakeCargo.getNext()) {
-                    if (elev.areSlidesOut()) {
-                        intake.runIntake(kIntake.INTAKE_SPEED);
-                        IntakeCargo.tripNext();
-                    }
-                } else if (!IntakeCargo.getNext()) {
-                    // if (elev.isCargoSensorTripped()) {
-                    // elev.closeClaw();
-                    // IntakeCargo.tripNext();
-                    // }
-                } else if (!IntakeCargo.getNext()) {
-                    if (elev.isClawClosed()) {
-                        elev.retractSlides();
-                        // intake.prepToRaise();
-                        IntakeCargo.tripNext();
-                    }
-                } else if (!IntakeCargo.getNext()) {
-                    if (elev.areSlidesIn()) {
-                        // intake.raise();
-                        IntakeCargo.tripNext();
-                    }
-                } else if (!IntakeCargo.getNext()) {
-                    // if (intake.isRaised()) {
-                    // done();
-                    // }
-                }
 
+                } else if (!IntakeCargo.getNext()) {
+                    runIntake(kIntake.INTAKE_SPEED);
+                    mIntakingCargo = true;
+                }
+                break;
+            case GRAB_CARGO_DURING_INTAKE:
+                if (GrabCargoDuringIntake.not(1)) {
+                    closeClaw();
+                    if (elev.isClawClosed()) {
+                        GrabCargoDuringIntake.tripNext();
+                    }
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    retractSlides();
+                    intake.retract();
+                    elev.setHeight(mDefaultHeight);
+                    if (elev.areSlidesIn() && intake.isRetracted() && elev.nearTarget())
+                        done();
+                }
                 break;
             case GRAB_HP_FROM_FEED:
 

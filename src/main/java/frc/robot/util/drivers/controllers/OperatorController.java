@@ -1,6 +1,7 @@
 package frc.robot.util.drivers.controllers;
 
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Superstructure;
 
 public class OperatorController extends DeepSpaceController {
 
@@ -56,9 +57,14 @@ public class OperatorController extends DeepSpaceController {
                 this.stow = new GZButton(this, () -> false, () -> false);
 
                 this.hatchFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP());
+                                () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP()
+                                                && !Superstructure.getInstance().isIntakingCargo());
                 this.cargoFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP());
+                                () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP()
+                                                && !Superstructure.getInstance().isIntakingCargo());
+
+                this.cargoGrabWhileGroundIntaking = new GZButton(this, () -> false,
+                                () -> getLeftTriggerPressed() && Superstructure.getInstance().isIntakingCargo());
 
                 this.scoreHatch = new GZButton(this, () -> false,
                                 () -> getRightTriggerPressed() && Elevator.getInstance().isMovingHP());
