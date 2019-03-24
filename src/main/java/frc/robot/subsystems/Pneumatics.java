@@ -78,7 +78,7 @@ public class Pneumatics extends GZSubsystem {
         // mLowPressure = false;
         // }
 
-        noAir = true;
+        // noAir = true;
 
         if (mIsMotorTesting)
             noAir = true;

@@ -39,7 +39,7 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
 
 		// fold 3 then 4 on practice
-		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 4.0, 4.0);
+		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, .75, 0.5);
 	}
 
 	public static class kElevator {
@@ -54,6 +54,7 @@ public class Constants {
 
 		public static final boolean ENC_INVERT = false;
 
+		// public static GZPID PID = new GZPID(5.0, 0, 35, 0.2, 0);
 		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0);
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
@@ -62,33 +63,34 @@ public class Constants {
 		private final static HeightsContainer h = PathAdapter.getHeights();
 		public static final double TARGET_TOLERANCE = 1;
 
-		// public static final double LOWEST_WITH_SLIDES_OUT = h.lowest_with_slides_out();
-		
+		// public static final double LOWEST_WITH_SLIDES_OUT =
+		// h.lowest_with_slides_out();
+
 		public static final int TICKS_PER_INCH = h.ticks_per_inch(); // 352.944782;
-		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
-		// (1.0/8.0);
-		
+		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH * (1.0
+		// / 2.0);
+
 		public static final double HATCH_PLACING_JOG = h.hatch_place_jog();
-		
+
 		public static final int CARGO_SENSOR_CHANNEL = 8;
 		public static final int CARGO_SENSOR_LOOPS_FOR_VALID = 10;
-		
+
 		public final static double ELEV_TURN_SCALAR = 1.0; // 1.67
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
-		
+
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 21;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 24;
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 19;
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 		public static final double SLIDES_TOLERANCE = 3.5;
-		
+
 		public static enum Heights {
-			
-			Zero(h.zero()), Home(h.home()), Cargo_Intake(SLIDES_MIN_HEIGHT_INTAKE_EXTENDED), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()),
-			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false), Cargo_2(h.cargo2(), false),
-			Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
+
+			Zero(h.zero()), Home(h.home()), Cargo_Intake(Home), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()),
+			HP_2(h.hp2()), HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false),
+			Cargo_2(h.cargo2(), false), Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;
 			public final boolean moving_hp;
@@ -100,6 +102,11 @@ public class Constants {
 
 			private Heights(double inches) {
 				this(inches, true);
+			}
+
+			private Heights(Heights other) {
+				this.inches = other.inches;
+				this.moving_hp = other.moving_hp;
 			}
 
 			public String toString() {
@@ -241,7 +248,7 @@ public class Constants {
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
 		public static final boolean INTAKE_L_INVERT = true;
-		public static final double INTAKE_SPEED = -.6;
+		public static final double INTAKE_SPEED = -.4;
 	}
 
 	public static class kPneumatics {

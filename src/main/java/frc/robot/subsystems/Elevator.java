@@ -561,6 +561,9 @@ public class Elevator extends GZSubsystem {
         if (mCarriageSlide.isOff())
             return true;
 
+        if (intake.wantsIn())
+            return true;
+
         // Carriage is out
         if (height > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0))
             return true;
@@ -598,8 +601,10 @@ public class Elevator extends GZSubsystem {
         // ~~~~~~~~~~~~~~~~~~~~
         // slides are out (two different heights if intake in or out)
 
-        if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff()) {
-            if (intake.wantsToMove() || intake.isMoving()) {
+        if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff() || mClaw.getWantOn() || !mClaw.isOff()) {
+
+            // Changed to allow intake to pull in
+            if (intake.wantsOut()) {
                 low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
                 raise = true;
             } else if (intake.isExtended()) {
@@ -612,17 +617,16 @@ public class Elevator extends GZSubsystem {
                 raise = true;
         }
 
-        if (mClaw.wantsStateChange()) {
-            if (!mCarriageSlide.isOn()) {
-                if (intake.isRetracted()) {
-                    low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
-                } else {
-                    low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
-                }
-                raise = true;
-                // }
-            }
-        }
+        // if (mClaw.wantsStateChange()) {
+        // if (!mCarriageSlide.isOn()) {
+        // if (intake.isRetracted()) {
+        // low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+        // } else {
+        // low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+        // }
+        // raise = true;
+        // }
+        // }
 
         return new ElevatorMovement(low, raise);
 
@@ -657,9 +661,11 @@ public class Elevator extends GZSubsystem {
     }
 
     private boolean clawSafeToMove() {
-        return !intake.wantsToMove()
-                && getHeightInches() > (mCarriageSlide.isOff() ? kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN
-                        : kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT);
+        return true;
+        // return !intake.wantsToMove()
+        // && getHeightInches() > (mCarriageSlide.isOff() ?
+        // kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN
+        // : kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT);
     }
 
     private double getLowestHeightSetpoint() {
@@ -682,6 +688,8 @@ public class Elevator extends GZSubsystem {
 
         mLowestHeight = getLowestHeightSetpoint();
         // System.out.println(clawSafeToMove() + "\t" + df.format(getHeightInches()));
+        // System.out.println(df.format(getHeightInches()) + "\t" +
+        // df.format(mDesiredHeight));
         // System.out.println(df.format(getHeightInches()) + "\t" +
         // safeForIntakeMovement());
         // System.out.println("Lowest height: " + mLowestHeight);

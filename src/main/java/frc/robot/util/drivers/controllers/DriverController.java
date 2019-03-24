@@ -24,8 +24,8 @@ public class DriverController extends DeepSpaceController {
 
         this.cargoShip = new GZButton(this, () -> false);
 
-        this.intakeDown = new GZButton(this, () -> false);
-        this.intakeUp = new GZButton(this, () -> getButtons(Buttons.RB) && getDLeft());
+        // this.intakeDown = new GZButton(this, () -> false);
+        // this.intakeUp = new GZButton(this, () -> getButtons(Buttons.RB) && getDLeft());
 
         this.clawToggle = new GZButton(this,
                 () -> getButtons(Buttons.B) && !getButton(Buttons.LB) && !getButton(Buttons.RB));

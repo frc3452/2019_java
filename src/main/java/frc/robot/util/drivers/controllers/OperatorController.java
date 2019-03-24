@@ -2,6 +2,7 @@ package frc.robot.util.drivers.controllers;
 
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.Actions;
 
 public class OperatorController extends DeepSpaceController {
 
@@ -39,9 +40,8 @@ public class OperatorController extends DeepSpaceController {
                                 () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.B));
                 this.cargo3 = new GZButton(this, () -> false,
                                 () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.Y));
-                // this.cargoShip = new GZButton(this, () -> false, () ->
-                // getButton(Buttons.START));
-                this.cargoShip = new GZButton(this, () -> false, () -> false);
+                this.cargoShip = new GZButton(this, () -> false, () -> getButton(Buttons.START));
+                // this.cargoShip = new GZButton(this, () -> false, () -> false);
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
@@ -50,12 +50,11 @@ public class OperatorController extends DeepSpaceController {
                 this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
                 this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
 
-                // this.intakeCargo = new GZButton(this, () -> false, () -> false);
-                this.intakeUp = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
-                this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.START));
-                // this.intakeDown = new GZButton(this, () -> false, () ->
-                // getButton(Buttons.BACK));
-                this.intakeDown = new GZButton(this, () -> false, () -> false);
+                this.intakeCargo = new GZButton(this, () -> false, () -> false);
+                this.intakeToggle = new GZButton(this, () -> false, () -> getButton(Buttons.BACK)
+                                && Superstructure.getInstance().getCurrentAction() == Actions.INTAKE_CARGO
+                                && Superstructure.getInstance().isIntakingCargo());
+                this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
 
                 this.stow = new GZButton(this, () -> false, () -> false);
 

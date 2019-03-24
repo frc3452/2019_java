@@ -48,6 +48,8 @@ public class Intake extends GZSubsystem {
         }
         // if (mIntakeExtend.isOn())
         //     runIntake(kIntake.INTAKE_SPEED);
+        // else
+        //     stop();
     }
 
     protected void extend() {
@@ -77,8 +79,7 @@ public class Intake extends GZSubsystem {
         return mIntakeExtend.getWantOn() && !mIntakeExtend.isOn();
     }
 
-    public SolenoidState getSolenoidState()
-    {
+    public SolenoidState getSolenoidState() {
         return mIntakeExtend.getSolenoidState();
     }
 
@@ -90,8 +91,7 @@ public class Intake extends GZSubsystem {
         return wantsIn() || wantsOut();
     }
 
-    public boolean isMoving()
-    {
+    public boolean isMoving() {
         return mIntakeExtend.isMoving();
     }
 
@@ -229,5 +229,9 @@ public class Intake extends GZSubsystem {
 
     @Override
     protected void initDefaultCommand() {
+    }
+
+    public void toggle() {
+        mIntakeExtend.toggleWanted();
     }
 }

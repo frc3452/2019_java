@@ -257,10 +257,8 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.GRAB_CARGO_DURING_INTAKE);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
-		else if (controller.intakeDown.updated())
-			supe.lowerIntake();
-		else if (controller.intakeUp.updated())
-			supe.raiseIntake();
+		else if (controller.intakeToggle.updated())
+			supe.toggleIntake();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
 
