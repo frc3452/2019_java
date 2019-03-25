@@ -608,9 +608,15 @@ public class Elevator extends GZSubsystem {
                 low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
                 raise = true;
             } else if (intake.isExtended()) {
-                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED, low);
+                if (isClawClosed())
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED, low);
+                else
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN, low);
             } else if (intake.isRetracted()) {
-                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED, low);
+                if (isClawClosed())
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED, low);
+                else
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN, low);
             }
 
             if (mCarriageSlide.wantsStateChange())

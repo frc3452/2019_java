@@ -42,14 +42,23 @@ public class Intake extends GZSubsystem {
         stop();
     }
 
+    public void swapDirection() {
+        if (mIO.left_desired_output != 0) {
+            mIO.held_desired_output = mIO.left_desired_output;
+            mIO.left_desired_output = 0.0;
+        } else {
+            mIO.left_desired_output = mIO.held_desired_output;
+        }
+    }
+
     private void handleMovement() {
         if (Elevator.getInstance().safeForIntakeMovement()) {
             mIntakeExtend.stateChange();
         }
         // if (mIntakeExtend.isOn())
-        //     runIntake(kIntake.INTAKE_SPEED);
+        // runIntake(kIntake.INTAKE_SPEED);
         // else
-        //     stop();
+        // stop();
     }
 
     protected void extend() {
@@ -106,7 +115,6 @@ public class Intake extends GZSubsystem {
     protected void runIntake(double left, double right) {
         setWantedState(IntakeState.MANUAL);
         mIO.left_desired_output = left;
-        mIO.right_desired_output = right;
     }
 
     protected void runIntake(double speed) {
@@ -124,7 +132,7 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
-        if (isRetracted())
+        if (!isExtended())
             stop();
 
         handleMovement();
@@ -154,10 +162,8 @@ public class Intake extends GZSubsystem {
     public class IO {
         // out
         private double left_output = 0;
-        private double right_output = 0;
         public Double left_desired_output = 0.0;
-        public Double right_desired_output = 0.0;
-
+        public Double held_desired_output = 0.0;
     }
 
     private void switchToState(IntakeState s) {
@@ -174,7 +180,6 @@ public class Intake extends GZSubsystem {
             break;
         case NEUTRAL:
             mIO.left_desired_output = 0.0;
-            mIO.right_desired_output = 0.0;
             break;
         default:
             break;
@@ -198,10 +203,8 @@ public class Intake extends GZSubsystem {
     private void out() {
         if (mState != IntakeState.NEUTRAL) {
             mIO.left_output = mIO.left_desired_output;
-            mIO.right_output = mIO.right_desired_output;
         } else {
             mIO.left_output = 0;
-            mIO.right_output = 0;
         }
 
         if (!this.isSafetyDisabled()) {

@@ -1,8 +1,8 @@
 package frc.robot.util.drivers.controllers;
 
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 
 public class OperatorController extends DeepSpaceController {
 
@@ -49,12 +49,13 @@ public class OperatorController extends DeepSpaceController {
 
                 this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
                 this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
+                this.intakeReverse = new GZButton(this, () -> false, () -> getDLeft());
 
                 this.intakeCargo = new GZButton(this, () -> false, () -> false);
-                this.intakeToggle = new GZButton(this, () -> false, () -> getButton(Buttons.BACK)
-                                && Superstructure.getInstance().getCurrentAction() == Actions.INTAKE_CARGO
-                                && Superstructure.getInstance().isIntakingCargo());
-                this.intakeCargo = new GZButton(this, () -> false, () -> getButton(Buttons.BACK));
+                this.intakeToggle = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.BACK) && Intake.getInstance().isExtended());
+                this.intakeCargo = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.BACK) && Intake.getInstance().isRetracted());
 
                 this.stow = new GZButton(this, () -> false, () -> false);
 

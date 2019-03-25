@@ -50,6 +50,7 @@ public class GZOI extends GZSubsystem {
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
+
 	// private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
@@ -259,6 +260,8 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeToggle.updated())
 			supe.toggleIntake();
+		else if (controller.intakeReverse.updated())
+			supe.swapIntakeDirection();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
 

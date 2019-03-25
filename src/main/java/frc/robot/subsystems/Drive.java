@@ -553,7 +553,8 @@ public class Drive extends GZSubsystem {
 		// left = false;
 		// right = false;
 
-		// System.out.println(mIO.left_desired_output + "\t" + mIO.right_desired_output);
+		// System.out.println(mIO.left_desired_output + "\t" +
+		// mIO.right_desired_output);
 
 		if (left) {
 
@@ -630,17 +631,27 @@ public class Drive extends GZSubsystem {
 			break;
 		case NEUTRAL:
 			// brake(false);
-			if (mIO.encodersValid) {
-				if (speedLessThan(3.0) && (GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()))
-					brake(true);
-				else
-					brake(false);
-			} else {
-				brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
-			}
+			// if (mIO.encodersValid) {
+			// 	if (!(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto())) {
+			// 		System.out.println("First enable, coasting!");
+			// 		brake(false);
 
-			// brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
+			// 	} else if (noSpeedGreaterThan(10)) {
+			// 		System.out.println("Entering neutral, braking!");
+			// 		brake(true);
+			// 	} else {
+			// 		System.out.println("Entering neutral, coasting!");
+			// 		brake(false);
+			// 	}
 
+			// 	System.out.println("Speed: " + df.format(getLeftVelocityInchesPerSec()) + "\t"
+			// 			+ df.format(getRightVelocityInchesPerSec()) + "\t" + noSpeedGreaterThan(10.0));
+			// } else {
+			// 	System.out.println("Encoders not good going into neutral!!!");
+			// 	brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
+			// }
+
+			brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
 			break;
 		case OPEN_LOOP:
 			brake(true);
@@ -747,19 +758,19 @@ public class Drive extends GZSubsystem {
 	}
 
 	// TODO TUNE
-	private boolean getFrontTopLimit() {
+	public boolean getFrontTopLimit() {
 		return mIO.ls_left_rev;
 	}
 
-	private boolean getFrontBottomLimit() {
+	public boolean getFrontBottomLimit() {
 		return mIO.ls_left_fwd;
 	}
 
-	private boolean getRearTopLimit() {
+	public boolean getRearTopLimit() {
 		return mIO.ls_right_rev;
 	}
 
-	private boolean getRearBottomLimit() {
+	public boolean getRearBottomLimit() {
 		return mIO.ls_right_fwd;
 	}
 
@@ -850,8 +861,18 @@ public class Drive extends GZSubsystem {
 		return Math.abs(getLeftPercent()) < percent && Math.abs(getRightPercent()) < percent;
 	}
 
+	public synchronized boolean noSpeedGreaterThan(double inches_per_second) {
+		if (Math.abs(getLeftVelocityInchesPerSec()) > inches_per_second)
+			return false;
+		if (Math.abs(getRightVelocityInchesPerSec()) > inches_per_second)
+			return false;
+
+		return true;
+	}
+
 	public synchronized boolean speedLessThan(double inches_per_second) {
-		return getLeftVelocityInchesPerSec() < inches_per_second && getRightVelocityInchesPerSec() < inches_per_second;
+		return Math.abs(getLeftVelocityInchesPerSec()) < inches_per_second
+				&& Math.abs(getRightVelocityInchesPerSec()) < inches_per_second;
 	}
 
 	public synchronized void handleDriving(GZJoystick joy) {
@@ -907,7 +928,7 @@ public class Drive extends GZSubsystem {
 		// RIGHT IS REAR
 		if (mWantAutoClimb && !joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
 				&& mClimbState == ClimbingState.BOTH) {
-			handleAutomaticClimb(joy.getLeftAnalogY() * .25);
+			handleAutomaticClimb(joy.getLeftAnalogY() * kDrivetrain.AUTO_CLIMB_SPEED);
 			mIsAutoClimbing = true;
 		} else {
 			switch (mClimbState) {

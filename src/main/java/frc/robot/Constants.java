@@ -81,8 +81,13 @@ public class Constants {
 
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED = 24;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED = 19;
+
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 22; //25
+
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 20;
+
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 		public static final double SLIDES_TOLERANCE = 3.5;
 
@@ -194,7 +199,8 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
-		public static final double CLIMB_PITCH_TOLERANCE = 3;
+		public static final double CLIMB_PITCH_TOLERANCE = 9; //3
+		public static final double AUTO_CLIMB_SPEED = 0.75; //.25
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		// 2019 Robot

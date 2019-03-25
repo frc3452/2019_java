@@ -4,6 +4,7 @@ import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
+import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
@@ -28,7 +29,7 @@ public class Superstructure extends GZSubsystem {
     private GZFlagMultiple GrabCargoDuringIntake = new GZFlagMultiple(6);
     private GZFlagMultiple ThrowCargo = new GZFlagMultiple(4);
 
-    private Heights mDefaultHeight = Heights.Home;
+    private final Heights mDefaultHeight = Heights.HP_1;
 
     private static Superstructure mInstance = null;
 
@@ -81,8 +82,8 @@ public class Superstructure extends GZSubsystem {
         case OFF:
             break;
         case IDLE:
-            elev.stopMovement();
-            intake.stop();
+            // elev.stopMovement();
+            // intake.stop();
             break;
         case GO_TO_QUEUED_HEIGHT:
             elev.setHeight(mQueuedHeight);
@@ -126,6 +127,11 @@ public class Superstructure extends GZSubsystem {
 
     @Override
     public void loop() {
+        if (Drive.getInstance().getState() == DriveState.CLIMB && Drive.getInstance().getRearBottomLimit()) {
+            System.out.println("Auto Drop crawler!");
+            Pneumatics.getInstance().forceDropCrawler();
+        }
+
         if (GZOI.getInstance().isDisabled() && mAction != Actions.IDLE)
             runAction(Actions.IDLE);
 
@@ -229,12 +235,40 @@ public class Superstructure extends GZSubsystem {
                 } else if (!IntakeCargo.getNext()) {
                     runIntake(kIntake.INTAKE_SPEED);
                     mIntakingCargo = true;
+                    IntakeCargo.tripNext();
                 }
                 break;
             case GRAB_CARGO_DURING_INTAKE:
+                if (GrabCargoDuringIntake.not(1)) {
+                    intake.retract();
+                    if (intake.isRetracted())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    closeClaw();
+                    if (elev.isClawClosed())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    elev.setHeight(Heights.Cargo_1);
+                    if (elev.nearTarget())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.nearTarget())
+                        done();
+                }
                 // if (GrabCargoDuringIntake.not(1)) {
+                // intake.stop();
+                // intake.retract();
+                // if (intake.isRetracted())
+                // GrabCargoDuringIntake.tripNext();
+
+                // } else if (GrabCargoDuringIntake.notNext()) {
                 // closeClaw();
                 // if (elev.isClawClosed())
+                // GrabCargoDuringIntake.tripNext();
+                // } else if (GrabCargoDuringIntake.notNext()) {
+                // intake.extend();
+                // if (intake.isExtended())
                 // GrabCargoDuringIntake.tripNext();
                 // } else if (GrabCargoDuringIntake.notNext()) {
                 // elev.setHeight(Heights.Cargo_1);
@@ -249,33 +283,6 @@ public class Superstructure extends GZSubsystem {
                 // if (elev.nearTarget())
                 // done();
                 // }
-                if (GrabCargoDuringIntake.not(1)) {
-                    intake.stop();
-                    intake.retract();
-                    if (intake.isRetracted())
-                        GrabCargoDuringIntake.tripNext();
-
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    closeClaw();
-                    if (elev.isClawClosed())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    intake.extend();
-                    if (intake.isExtended())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    elev.setHeight(Heights.Cargo_1);
-                    if (elev.nearTarget())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    intake.retract();
-                    if (intake.isRetracted())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    elev.setHeight(Heights.HP_1);
-                    if (elev.nearTarget())
-                        done();
-                }
                 break;
             case GRAB_HP_FROM_FEED:
 
@@ -445,6 +452,10 @@ public class Superstructure extends GZSubsystem {
 
     public void elevManual(Double leftAnalogY) {
         elev.manual(leftAnalogY);
+    }
+
+    public void swapIntakeDirection() {
+        intake.swapDirection();
     }
 
 }
