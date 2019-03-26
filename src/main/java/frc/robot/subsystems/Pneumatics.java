@@ -58,6 +58,11 @@ public class Pneumatics extends GZSubsystem {
         return mPressureSensor.getTranslatedValue();
     }
 
+    public void forceDropCrawler()
+    {
+        mClimberCrawler.on();
+    }
+
     public void dropCrawler() {
         if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS) {
             mClimberCrawler.on();
@@ -77,6 +82,8 @@ public class Pneumatics extends GZSubsystem {
         // if (mLowPressure && pressure > kPneumatics.HIGH_PRESSURE) {
         // mLowPressure = false;
         // }
+
+        // noAir = true;
 
         if (mIsMotorTesting)
             noAir = true;

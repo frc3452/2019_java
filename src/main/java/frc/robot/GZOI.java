@@ -9,6 +9,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kLights;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Superstructure;
@@ -49,6 +50,7 @@ public class GZOI extends GZSubsystem {
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
+
 	// private Auton auton = Auton.getInstance();
 
 	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
@@ -184,14 +186,14 @@ public class GZOI extends GZSubsystem {
 	private void handleDriverController() {
 		if (driverJoy.getButton(Buttons.LB)) {
 
-			// if (driverJoy.getButton(Buttons.A))
-			// 	drive.wantShift(ClimbingState.NONE);
-			// else if (driverJoy.getButton(Buttons.B))
-			// 	drive.wantShift(ClimbingState.FRONT);
-			// else if (driverJoy.getButton(Buttons.X))
-			// 	drive.wantShift(ClimbingState.BOTH);
-			// else if (driverJoy.getButton(Buttons.Y))
-			// 	drive.wantShift(ClimbingState.REAR);
+			if (driverJoy.getButton(Buttons.A))
+				drive.wantShift(ClimbingState.NONE);
+			else if (driverJoy.getButton(Buttons.B))
+				drive.wantShift(ClimbingState.FRONT);
+			else if (driverJoy.getButton(Buttons.X))
+				drive.wantShift(ClimbingState.BOTH);
+			else if (driverJoy.getButton(Buttons.Y))
+				drive.wantShift(ClimbingState.REAR);
 
 		} else {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
@@ -213,9 +215,10 @@ public class GZOI extends GZSubsystem {
 
 		if (controller.idle.get())
 			supe.idle();
-		else if (controller.elevatorZero.get())
+
+		if (controller.elevatorZero.get())
 			supe.zeroElevator();
-		else if (controller.hatchPanel1.pressedFor(.75))
+		else if (controller.hatchPanel1.pressedFor(.35))
 			supe.runHeight(Heights.Home);
 		else if (controller.hatchPanel1.get())
 			supe.runHeight(Heights.HP_1, queue);
@@ -247,14 +250,18 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
 		else if (controller.shootCargo.updated())
 			supe.runAction(Actions.THROW_CARGO);
+		else if (controller.cargoFromFeed.updated())
+			supe.runAction(Actions.GRAB_CARGO_FROM_FEED);
 		else if (controller.scoreHatch.updated())
 			supe.runAction(Actions.SCORE_HATCH);
-		if (controller.intakeCargo.updated())
+		else if (controller.cargoGrabWhileGroundIntaking.updated())
+			supe.runAction(Actions.GRAB_CARGO_DURING_INTAKE);
+		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
-		else if (controller.intakeDown.updated())
-			supe.lowerIntake();
-		else if (controller.intakeUp.updated())
-			supe.raiseIntake();
+		else if (controller.intakeToggle.updated())
+			supe.toggleIntake();
+		else if (controller.intakeReverse.updated())
+			supe.swapIntakeDirection();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
 

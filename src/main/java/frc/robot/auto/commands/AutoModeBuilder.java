@@ -354,7 +354,7 @@ public class AutoModeBuilder {
             ret.tele();
             break;
         case HATCH_PANEL:
-            ret.add(new GoToHeight(Heights.Cargo_1));
+            // ret.add(new GoToHeight(Heights.Cargo_1));
             ret.add(new GoToHeight(Heights.HP_1));
             ret.add(new RunAction(Actions.SCORE_HATCH));
             ret.tele();

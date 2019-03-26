@@ -1,6 +1,8 @@
 package frc.robot.util.drivers.controllers;
 
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Superstructure;
 
 public class OperatorController extends DeepSpaceController {
 
@@ -15,7 +17,10 @@ public class OperatorController extends DeepSpaceController {
         public OperatorController(int port) {
                 super(port);
 
-                this.idle = new GZButton(this, () -> false, () -> false);
+                this.idle = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.A) || getButton(Buttons.B) || getButton(Buttons.Y)
+                                                || getButton(Buttons.X) || getButton(Buttons.LB)
+                                                || getButton(Buttons.RB));
                 this.cancel = new GZButton(this, () -> false, () -> false);
 
                 this.queueAction = new GZButton(this, () -> false, () -> false);
@@ -36,6 +41,7 @@ public class OperatorController extends DeepSpaceController {
                 this.cargo3 = new GZButton(this, () -> false,
                                 () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.Y));
                 this.cargoShip = new GZButton(this, () -> false, () -> getButton(Buttons.START));
+                // this.cargoShip = new GZButton(this, () -> false, () -> false);
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
@@ -43,21 +49,25 @@ public class OperatorController extends DeepSpaceController {
 
                 this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
                 this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
+                this.intakeReverse = new GZButton(this, () -> false, () -> getDLeft());
 
-                // this.intakeCargo = new GZButton(this, () -> false, () ->
-                // getButton(Buttons.START));
-                // this.intakeUp = new GZButton(this, () -> false, () ->
-                // getButton(Buttons.BACK));
                 this.intakeCargo = new GZButton(this, () -> false, () -> false);
-                this.intakeUp = new GZButton(this, () -> false, () -> false);
-                this.intakeDown = new GZButton(this, () -> false, () -> false);
+                this.intakeToggle = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.BACK) && Intake.getInstance().isExtended());
+                this.intakeCargo = new GZButton(this, () -> false,
+                                () -> getButton(Buttons.BACK) && Intake.getInstance().isRetracted());
 
                 this.stow = new GZButton(this, () -> false, () -> false);
 
                 this.hatchFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP());
+                                () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP()
+                                                && !Superstructure.getInstance().isIntakingCargo());
                 this.cargoFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP());
+                                () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP()
+                                                && !Superstructure.getInstance().isIntakingCargo());
+
+                this.cargoGrabWhileGroundIntaking = new GZButton(this, () -> false,
+                                () -> getLeftTriggerPressed() && Superstructure.getInstance().isIntakingCargo());
 
                 this.scoreHatch = new GZButton(this, () -> false,
                                 () -> getRightTriggerPressed() && Elevator.getInstance().isMovingHP());

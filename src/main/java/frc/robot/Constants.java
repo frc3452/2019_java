@@ -39,7 +39,7 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
 
 		// fold 3 then 4 on practice
-		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, 2.0, 2.0);
+		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, .75, 0.5);
 	}
 
 	public static class kElevator {
@@ -54,6 +54,7 @@ public class Constants {
 
 		public static final boolean ENC_INVERT = false;
 
+		// public static GZPID PID = new GZPID(5.0, 0, 35, 0.2, 0);
 		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0);
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
@@ -62,16 +63,12 @@ public class Constants {
 		private final static HeightsContainer h = PathAdapter.getHeights();
 		public static final double TARGET_TOLERANCE = 1;
 
-		public static final double LOWEST_WITH_SLIDES_OUT = h.lowest_with_slides_out();
-		public static final double SLIDES_TOLERANCE = 1.5;
+		// public static final double LOWEST_WITH_SLIDES_OUT =
+		// h.lowest_with_slides_out();
 
 		public static final int TICKS_PER_INCH = h.ticks_per_inch(); // 352.944782;
-		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH *
-		// (1.0/8.0);
-
-		public static final double INTAKE_LOW_HEIGHT = 20;
-		public static final double INTAKE_HIGH_HEIGHT = 45;
-		public static final double INTAKE_TOLERANCE = 2;
+		// public static final double ALLOWABLE_CLOED_LOOP_ERROR = TICKS_PER_INCH * (1.0
+		// / 2.0);
 
 		public static final double HATCH_PLACING_JOG = h.hatch_place_jog();
 
@@ -82,14 +79,26 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
-		public static final double THROW_CARGO_DELAY = 0.05;
-		public static final double THROW_CARGO_RETRACT_DELAY = 0.35;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
+
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 22; //25
+
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 20;
+
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
+
+		public static final double CARGO_TRANSFER_JOG = 5;
+
+		public static final double SLIDES_TOLERANCE = 3.5;
 
 		public static enum Heights {
 
-			Zero(h.zero()), Home(h.home()), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()), HP_2(h.hp2()),
-			HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false), Cargo_2(h.cargo2(), false),
-			Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
+			Zero(h.zero()), Home(h.home()), Cargo_Intake(Home), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()),
+			HP_2(h.hp2()), HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false),
+			Cargo_2(h.cargo2(), false), Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;
 			public final boolean moving_hp;
@@ -101,6 +110,11 @@ public class Constants {
 
 			private Heights(double inches) {
 				this(inches, true);
+			}
+
+			private Heights(Heights other) {
+				this.inches = other.inches;
+				this.moving_hp = other.moving_hp;
 			}
 
 			public String toString() {
@@ -188,7 +202,8 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
-		public static final double CLIMB_PITCH_TOLERANCE = 3;
+		public static final double CLIMB_PITCH_TOLERANCE = 9; //3
+		public static final double AUTO_CLIMB_SPEED = 0.75; //.25
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		// 2019 Robot
@@ -221,7 +236,6 @@ public class Constants {
 		public static final int ELEVATOR_2 = 15;
 
 		public static final int INTAKE_LEFT = 6;
-		public static final int INTAKE_RIGHT = 9;
 	}
 
 	public static class kTempSensor {
@@ -242,10 +256,8 @@ public class Constants {
 
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
-		public static final int INTAKE_RIGHT = 12;
 		public static final boolean INTAKE_L_INVERT = true;
-		public static final boolean INTAKE_R_INVERT = false;
-		public static final double INTAKE_SPEED = -.6;
+		public static final double INTAKE_SPEED = -.4;
 	}
 
 	public static class kPneumatics {

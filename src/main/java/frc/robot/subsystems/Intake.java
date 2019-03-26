@@ -6,16 +6,15 @@ import frc.robot.Constants.kSolenoids;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.motorcontrollers.GZVictorSPX;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Intake extends GZSubsystem {
 
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
-    private GZVictorSPX mIntakeLeft, mIntakeRight;
+    private GZVictorSPX mIntakeRoller;
     private GZSolenoid mIntakeExtend;
-
-    private boolean mWantsIn = true;
 
     public IO mIO = new IO();
 
@@ -24,11 +23,9 @@ public class Intake extends GZSubsystem {
     private Intake() {
         // mIntakeLeft = null;
         // mIntakeRight = null;
-        mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
-        mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Right", kPDP.INTAKE_RIGHT).build();
+        mIntakeRoller = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
 
-        mIntakeLeft.setInverted(kIntake.INTAKE_L_INVERT);
-        mIntakeRight.setInverted(kIntake.INTAKE_R_INVERT);
+        mIntakeRoller.setInverted(kIntake.INTAKE_L_INVERT);
 
         mIntakeExtend = new GZSolenoid(kSolenoids.INTAKE_EXTEND, this, "Intake Drop");
     }
@@ -45,22 +42,31 @@ public class Intake extends GZSubsystem {
         stop();
     }
 
-    private void handleDrop() {
-        // if (mDesiredDropState == DesiredDropState.UP) {
-        // stop();
-        // }
-
-        if (Elevator.getInstance().safeForIntakeMovement()) {
-
+    public void swapDirection() {
+        if (mIO.left_desired_output != 0) {
+            mIO.held_desired_output = mIO.left_desired_output;
+            mIO.left_desired_output = 0.0;
+        } else {
+            mIO.left_desired_output = mIO.held_desired_output;
         }
     }
 
+    private void handleMovement() {
+        if (Elevator.getInstance().safeForIntakeMovement()) {
+            mIntakeExtend.stateChange();
+        }
+        // if (mIntakeExtend.isOn())
+        // runIntake(kIntake.INTAKE_SPEED);
+        // else
+        // stop();
+    }
+
     protected void extend() {
-        mWantsIn = true;
+        mIntakeExtend.wantOn();
     }
 
     protected void retract() {
-        mWantsIn = false;
+        mIntakeExtend.wantOff();
     }
 
     public enum IntakeState {
@@ -78,16 +84,24 @@ public class Intake extends GZSubsystem {
         setWantedState(IntakeState.NEUTRAL);
     }
 
-    public boolean armWantsOut() {
-        return !mWantsIn;
+    public boolean wantsOut() {
+        return mIntakeExtend.getWantOn() && !mIntakeExtend.isOn();
     }
 
-    public boolean armWantsIn() {
-        return mWantsIn;
+    public SolenoidState getSolenoidState() {
+        return mIntakeExtend.getSolenoidState();
     }
 
-    public boolean armWantsToMove() {
-        return (mWantsIn && !isRetracted()) || (!mWantsIn && !isExtended());
+    public boolean wantsIn() {
+        return mIntakeExtend.getWantOff() && !mIntakeExtend.isOff();
+    }
+
+    public boolean wantsToMove() {
+        return wantsIn() || wantsOut();
+    }
+
+    public boolean isMoving() {
+        return mIntakeExtend.isMoving();
     }
 
     public boolean isRetracted() {
@@ -101,7 +115,6 @@ public class Intake extends GZSubsystem {
     protected void runIntake(double left, double right) {
         setWantedState(IntakeState.MANUAL);
         mIO.left_desired_output = left;
-        mIO.right_desired_output = right;
     }
 
     protected void runIntake(double speed) {
@@ -119,6 +132,10 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
+        if (!isExtended())
+            stop();
+
+        handleMovement();
         handleStates();
         in();
         out();
@@ -145,10 +162,8 @@ public class Intake extends GZSubsystem {
     public class IO {
         // out
         private double left_output = 0;
-        private double right_output = 0;
         public Double left_desired_output = 0.0;
-        public Double right_desired_output = 0.0;
-
+        public Double held_desired_output = 0.0;
     }
 
     private void switchToState(IntakeState s) {
@@ -165,7 +180,6 @@ public class Intake extends GZSubsystem {
             break;
         case NEUTRAL:
             mIO.left_desired_output = 0.0;
-            mIO.right_desired_output = 0.0;
             break;
         default:
             break;
@@ -189,19 +203,16 @@ public class Intake extends GZSubsystem {
     private void out() {
         if (mState != IntakeState.NEUTRAL) {
             mIO.left_output = mIO.left_desired_output;
-            mIO.right_output = mIO.right_desired_output;
         } else {
             mIO.left_output = 0;
-            mIO.right_output = 0;
         }
 
         if (!this.isSafetyDisabled()) {
-            handleDrop();
+            handleMovement();
         }
 
-        if (mIntakeLeft != null && mIntakeRight != null) {
-            mIntakeLeft.set(mIO.left_output);
-            mIntakeRight.set(mIO.right_output);
+        if (mIntakeRoller != null) {
+            mIntakeRoller.set(mIO.left_output);
         }
 
     }
@@ -221,5 +232,9 @@ public class Intake extends GZSubsystem {
 
     @Override
     protected void initDefaultCommand() {
+    }
+
+    public void toggle() {
+        mIntakeExtend.toggleWanted();
     }
 }

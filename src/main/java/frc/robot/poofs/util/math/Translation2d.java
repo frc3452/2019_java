@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import frc.robot.poofs.util.Interpolable;
 
 /**
- * A translation in a 2d coordinate frame. Translations are simply shifts in an (x, y) plane.
+ * A translation in a 2d coordinate frame. Translations are simply shifts in an
+ * (x, y) plane.
  */
 public class Translation2d implements Interpolable<Translation2d> {
     protected static final Translation2d kIdentity = new Translation2d();
@@ -15,8 +16,7 @@ public class Translation2d implements Interpolable<Translation2d> {
         return kIdentity;
     }
 
-    public static final ArrayList<Translation2d> getArray()
-    {
+    public static final ArrayList<Translation2d> getArray() {
         return new ArrayList<Translation2d>();
     }
 
@@ -72,11 +72,35 @@ public class Translation2d implements Interpolable<Translation2d> {
         y_ = y;
     }
 
+    public void flipX() {
+        x_ = -x_;
+    }
+
+    public void flipY() {
+        y_ = -y_;
+    }
+
+    public Translation2d getFlippedY() {
+        Translation2d ret = new Translation2d(this);
+        ret.flipY();
+        return ret;
+    }
+
+    public void translateBy(double distance, Rotation2d angle) {
+        double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
+        double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
+
+        double xDelta = Math.copySign(yTemp, xTemp);
+        double yDelta = Math.copySign(xTemp, yTemp);
+
+        x_ += xDelta;
+        y_ += yDelta;
+    }
+
     /**
      * We can compose Translation2d's by adding together the x and y shifts.
      * 
-     * @param other
-     *            The other translation to add.
+     * @param other The other translation to add.
      * @return The combined effect of translating by this object and the other.
      */
     public Translation2d translateBy(Translation2d other) {
@@ -84,10 +108,10 @@ public class Translation2d implements Interpolable<Translation2d> {
     }
 
     /**
-     * We can also rotate Translation2d's. See: https://en.wikipedia.org/wiki/Rotation_matrix
+     * We can also rotate Translation2d's. See:
+     * https://en.wikipedia.org/wiki/Rotation_matrix
      * 
-     * @param rotation
-     *            The rotation to apply.
+     * @param rotation The rotation to apply.
      * @return This translation rotated by rotation.
      */
     public Translation2d rotateBy(Rotation2d rotation) {

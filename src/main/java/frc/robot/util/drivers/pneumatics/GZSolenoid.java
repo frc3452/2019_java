@@ -73,8 +73,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
     public void shouldForceOutputOff() {
         mForcedOff = this.mSub.isSafetyDisabled() || GZOI.getInstance().isDisabled();
 
-        if (mForcedOff)
-        {
+        if (mForcedOff) {
             mWantedChange = false;
             runSolenoid(false, true);
         }
@@ -87,13 +86,11 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         runSolenoid(on, false);
     }
 
-    public void off()
-    {
+    public void off() {
         set(false);
     }
 
-    public void on()
-    {
+    public void on() {
         set(true);
     }
 
@@ -116,14 +113,25 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         return mLastSet;
     }
 
-    public void toggle()
-    {
+    public void toggle() {
         set(!mLastSet);
     }
 
-    public void toggleWanted()
-    {
+    public void toggleWanted() {
         mWantedChange = !mWantedChange;
+    }
+
+    public boolean getWantOn() {
+        return mWantedChange;
+    }
+
+    public boolean getWantOff() {
+        return mWantedChange == false;
+    }
+
+    public boolean getWantedState()
+    {
+        return mWantedChange;
     }
 
     public void wantOn() {
@@ -153,7 +161,7 @@ public class GZSolenoid extends Solenoid implements IGZHardware {
         return this.getSolenoidState() == SolenoidState.OFF;
     }
 
-    public boolean isTransitioning() {
+    public boolean isMoving() {
         return this.getSolenoidState() == SolenoidState.TRANSITION;
     }
 

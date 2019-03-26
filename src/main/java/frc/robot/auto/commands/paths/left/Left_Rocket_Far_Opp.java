@@ -3,6 +3,7 @@ package frc.robot.auto.commands.paths.left;
 import java.util.ArrayList;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
+import frc.robot.auto.pathadapter.PathAdapter;
 
 public class Left_Rocket_Far_Opp extends PathContainer {
     public Left_Rocket_Far_Opp() {
@@ -12,9 +13,9 @@ public class Left_Rocket_Far_Opp extends PathContainer {
         sWaypoints.add(new Waypoint(185, 103, 25, 60));
         sWaypoints.add(new Waypoint(245, 98, 15, 60));
         sWaypoints.add(new Waypoint(288, 78, 15, 60));
-        sWaypoints.add(new Waypoint(298, 45, 15, 60)/*.setFieldAdaption(- Rocket -)*/);
-        sWaypoints.add(new Waypoint(278, 36, 0.5, 30))/*.setFieldAdaption(- Rocket -)*/;
-        sWaypoints.add(new Waypoint(260.79, 27.04000000000002, 0, 30)/*.setFieldAdaption(- Rocket -)*/);
+        sWaypoints.add(new Waypoint(298, 45, 15, 60).setFieldAdaption(PathAdapter.rocketFar));
+        sWaypoints.add(new Waypoint(278, 36, 0.5, 30).setFieldAdaption(PathAdapter.rocketFar));
+        sWaypoints.add(new Waypoint(260.79, 27.04000000000002, 0, 30).setFieldAdaption(PathAdapter.rocketFar));
     }
 
     @Override

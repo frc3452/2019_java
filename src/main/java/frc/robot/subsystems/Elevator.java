@@ -39,10 +39,13 @@ public class Elevator extends GZSubsystem {
     private boolean mPrevMovingHP = true;
     private boolean mMovingHP = false;
 
+    private Intake intake = Intake.getInstance();
+
     private static Elevator mInstance = null;
 
     private double mDesiredHeight = Heights.Home.inches;
     private double mLowestHeight = Heights.Home.inches;
+    private double mMinSlidesHeight = Heights.Home.inches;
     private double mHighestHeight = kElevator.TOP_LIMIT;
 
     private boolean mLimiting = false;
@@ -328,18 +331,6 @@ public class Elevator extends GZSubsystem {
         return nearTarget(kElevator.TARGET_TOLERANCE);
     }
 
-    public boolean wantToMoveUp() {
-        return (mDesiredHeight > kElevator.INTAKE_HIGH_HEIGHT) && (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT);
-    }
-
-    public boolean isAboveIntakeSaftey() {
-        return getHeightInches() > kElevator.INTAKE_HIGH_HEIGHT;
-    }
-
-    public boolean isBelowIntakeSaftey() {
-        return getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT;
-    }
-
     public boolean targetAbove() {
         return mDesiredHeight > getHeightInches();
     }
@@ -562,62 +553,159 @@ public class Elevator extends GZSubsystem {
         private int mCargoSensorLoopCounter = 0;
     }
 
-    private double getSlidesAllowedHeight() {
-        if (mCarriageSlide.isOff())
-            return kElevator.Heights.Zero.inches;
-
-        return kElevator.LOWEST_WITH_SLIDES_OUT;
-    }
-
     public boolean safeForIntakeMovement() {
-        if (!mIO.encoders_valid)
-            return true;
+        // if (!mIO.encoders_valid)
+        // return true;
 
         final double height = getHeightInches();
-        if (height < kElevator.INTAKE_LOW_HEIGHT && !areSlidesIn())
-            return false;
-        if (height > kElevator.INTAKE_LOW_HEIGHT && height < kElevator.INTAKE_HIGH_HEIGHT)
-            return false;
+        if (mCarriageSlide.isOff())
+            return true;
 
+        if (intake.wantsIn())
+            return true;
+
+        // Carriage is out
+        if (height > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0))
+            return true;
+        return false;
+
+    }
+
+    private boolean slidesNotIn() {
+        return !mCarriageSlide.isOff() || mCarriageSlide.getWantOn();
+    }
+
+    private static class ElevatorMovement {
+        public final double height;
+        public final boolean shouldRaise;
+
+        public ElevatorMovement(double heightInches, boolean shouldRaise) {
+            this.height = heightInches;
+            this.shouldRaise = shouldRaise;
+        }
+    }
+
+    private ElevatorMovement getLowestHeight() {
+
+        final double height = getHeightInches();
+        double low = kElevator.Heights.Home.inches;
+        boolean raise = false;
+
+        // needs to go up IF ✔
+        // ~~~~~~~~~~~~~~~~~~~~
+        // slides are out and intake wants to move
+        // too low and claw needs to move
+        // too low and slides need to move
+
+        // can't go down if
+        // ~~~~~~~~~~~~~~~~~~~~
+        // slides are out (two different heights if intake in or out)
+
+        if (mCarriageSlide.wantsStateChange() || !mCarriageSlide.isOff() || mClaw.getWantOn() || !mClaw.isOff()) {
+
+            // Changed to allow intake to pull in
+            if (intake.wantsOut()) {
+                low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING, low);
+                raise = true;
+            } else if (intake.isExtended()) {
+                if (isClawClosed())
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED, low);
+                else
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN, low);
+            } else if (intake.isRetracted()) {
+                if (isClawClosed())
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED, low);
+                else
+                    low = Math.max(kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN, low);
+            }
+
+            if (mCarriageSlide.wantsStateChange())
+                raise = true;
+        }
+
+        // if (mClaw.wantsStateChange()) {
+        // if (!mCarriageSlide.isOn()) {
+        // if (intake.isRetracted()) {
+        // low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+        // } else {
+        // low = Math.max(kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN, low);
+        // }
+        // raise = true;
+        // }
+        // }
+
+        return new ElevatorMovement(low, raise);
+
+        // if (!mCarriageSlide.isOff() || mCarriageSlide.getWantOn()) {
+
+        // // if our carriage wants to be extended or is extended
+        // if (intake.armWantsToMove()) {
+        // return kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING;
+        // } else if (intake.isRetracted()) {
+        // return kElevator.SLIDES_MIN_HEIGHT_INTAKE_RETRACTED;
+        // } else {
+        // return kElevator.SLIDES_MIN_HEIGHT_INTAKE_EXTENDED;
+        // }
+        // } else {
+        // return kElevator.Heights.Home.inches;
+        // }
+    }
+
+    private boolean slidesSafeToMove() {
+
+        // if (getHeightInches() > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING +
+        // (kElevator.SLIDES_TOLERANCE / 2.0)) {
+        // return true;
+        // } else {
+        // if (!intake.wantsToMove()
+        // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
+        // / 2.0))
+        // return true;
+        // }
+        // return false;
+        
         return true;
+        // return !intake.wantsToMove()
+        // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
+        // / 2.0);
+    }
+
+    private boolean clawSafeToMove() {
+        return true;
+        // return !intake.wantsToMove()
+        // && getHeightInches() > (mCarriageSlide.isOff() ?
+        // kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN
+        // : kElevator.CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT);
+    }
+
+    private double getLowestHeightSetpoint() {
+        final ElevatorMovement val = getLowestHeight();
+
+        if (val.shouldRaise) {
+            return val.height + kElevator.SLIDES_TOLERANCE;
+        }
+
+        return val.height;
     }
 
     private void out() {
-        if (getHeightInches() > kElevator.LOWEST_WITH_SLIDES_OUT + (kElevator.SLIDES_TOLERANCE / 2.0)
-                || !mIO.encoders_valid) {
-            mClaw.stateChange();
+        if (slidesSafeToMove()) {
             mCarriageSlide.stateChange();
         }
 
-        if (getHeightInches() < kElevator.INTAKE_HIGH_HEIGHT) {
-            if (mCarriageSlide.wantsStateChange() || mClaw.wantsStateChange()) {
-                mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT + kElevator.SLIDES_TOLERANCE;
-            } else if (!mCarriageSlide.isOff()) {
-                mLowestHeight = kElevator.LOWEST_WITH_SLIDES_OUT;
-            } else {
-                mLowestHeight = kElevator.Heights.Zero.inches;
-            }
+        if (clawSafeToMove())
+            mClaw.stateChange();
 
-            // if (Intake.getInstance().armWantsToMove()) {
-            // mHighestHeight = kElevator.INTAKE_LOW_HEIGHT - kElevator.INTAKE_TOLERANCE;
-
-            // if (Intake.getInstance().armWantsUp()) {
-            // mCarriageSlide.wantOff();
-            // }
-
-            // } else {
-            mHighestHeight = kElevator.TOP_LIMIT;
-            // }
-
-            // Above top intake safe zone
-        } else {
-            // if (Intake.getInstance().armWantsToMove()) {
-            // mLowestHeight = kElevator.INTAKE_HIGH_HEIGHT + kElevator.INTAKE_TOLERANCE;
-            // } else {
-            mLowestHeight = kElevator.Heights.Zero.inches;
-            // }
-            mHighestHeight = kElevator.TOP_LIMIT;
-        }
+        mLowestHeight = getLowestHeightSetpoint();
+        // System.out.println(clawSafeToMove() + "\t" + df.format(getHeightInches()));
+        // System.out.println(df.format(getHeightInches()) + "\t" +
+        // df.format(mDesiredHeight));
+        // System.out.println(df.format(getHeightInches()) + "\t" +
+        // safeForIntakeMovement());
+        // System.out.println("Lowest height: " + mLowestHeight);
+        // System.out.println(df.format(getHeightInches()) + "\t" +
+        // df.format(mLowestHeight));
+        mHighestHeight = kElevator.TOP_LIMIT;
 
         if (mState == ElevatorState.MOTION_MAGIC) {
             double temp = GZUtil.limit(mDesiredHeight, mLowestHeight, mHighestHeight);
