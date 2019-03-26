@@ -20,7 +20,7 @@ public class PathAdapter {
 
     private static RobotProfile kRobotProfile = new PracticeBot();
 
-    private static final double mInchesFromRocket = 10;
+    private static final double mInchesFromRocket = 13;
     private static final double mInchesFromCargoShipSide = 10;
     private static final double mInchesFromCargoShipFace = 10;
     private static final double mInchesFromFeederStation = 10;

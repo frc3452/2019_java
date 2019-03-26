@@ -89,6 +89,9 @@ public class Constants {
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 20;
 
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
+
+		public static final double CARGO_TRANSFER_JOG = 5;
+
 		public static final double SLIDES_TOLERANCE = 3.5;
 
 		public static enum Heights {

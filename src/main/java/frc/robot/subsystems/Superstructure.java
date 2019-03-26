@@ -239,50 +239,50 @@ public class Superstructure extends GZSubsystem {
                 }
                 break;
             case GRAB_CARGO_DURING_INTAKE:
-                if (GrabCargoDuringIntake.not(1)) {
-                    intake.retract();
-                    if (intake.isRetracted())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    closeClaw();
-                    if (elev.isClawClosed())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    elev.setHeight(Heights.Cargo_1);
-                    if (elev.nearTarget())
-                        GrabCargoDuringIntake.tripNext();
-                } else if (GrabCargoDuringIntake.notNext()) {
-                    elev.setHeight(Heights.HP_1);
-                    if (elev.nearTarget())
-                        done();
-                }
                 // if (GrabCargoDuringIntake.not(1)) {
-                // intake.stop();
                 // intake.retract();
                 // if (intake.isRetracted())
                 // GrabCargoDuringIntake.tripNext();
-
                 // } else if (GrabCargoDuringIntake.notNext()) {
                 // closeClaw();
                 // if (elev.isClawClosed())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // intake.extend();
-                // if (intake.isExtended())
                 // GrabCargoDuringIntake.tripNext();
                 // } else if (GrabCargoDuringIntake.notNext()) {
                 // elev.setHeight(Heights.Cargo_1);
                 // if (elev.nearTarget())
                 // GrabCargoDuringIntake.tripNext();
                 // } else if (GrabCargoDuringIntake.notNext()) {
-                // intake.retract();
-                // if (intake.isRetracted())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
                 // elev.setHeight(Heights.HP_1);
                 // if (elev.nearTarget())
                 // done();
                 // }
+                if (GrabCargoDuringIntake.not(1)) {
+                    intake.stop();
+                    intake.retract();
+                    if (intake.isRetracted())
+                        GrabCargoDuringIntake.tripNext();
+
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    closeClaw();
+                    if (elev.isClawClosed())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    intake.extend();
+                    if (intake.isExtended())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    elev.setHeight(Heights.HP_1.inches + kElevator.CARGO_TRANSFER_JOG);
+                    if (elev.nearTarget())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    intake.retract();
+                    if (intake.isRetracted())
+                        GrabCargoDuringIntake.tripNext();
+                } else if (GrabCargoDuringIntake.notNext()) {
+                    elev.setHeight(Heights.HP_1);
+                    if (elev.nearTarget())
+                        done();
+                }
                 break;
             case GRAB_HP_FROM_FEED:
 

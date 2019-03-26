@@ -653,14 +653,18 @@ public class Elevator extends GZSubsystem {
 
     private boolean slidesSafeToMove() {
 
-        if (getHeightInches() > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0)) {
-            return true;
-        } else {
-            if (!intake.wantsToMove()
-                    && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE / 2.0))
-                return true;
-        }
-        return false;
+        // if (getHeightInches() > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING +
+        // (kElevator.SLIDES_TOLERANCE / 2.0)) {
+        // return true;
+        // } else {
+        // if (!intake.wantsToMove()
+        // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
+        // / 2.0))
+        // return true;
+        // }
+        // return false;
+        
+        return true;
         // return !intake.wantsToMove()
         // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
         // / 2.0);

@@ -7,6 +7,8 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.superstructure.RunAction;
+import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
@@ -69,9 +71,9 @@ public class Auton {
 			}
 		}));
 
-		commandArray.add(new GZCommand("test command", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Place", () -> new GZCommandGroup() {
 			{
-				print("OK command starting!!!!!");
+				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
 
