@@ -256,7 +256,7 @@ public class Constants {
 
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
-		public static final boolean INTAKE_L_INVERT = true;
+		public static final boolean INTAKE_ROLLER_INVERT = true;
 		public static final double INTAKE_SPEED = -.4;
 	}
 

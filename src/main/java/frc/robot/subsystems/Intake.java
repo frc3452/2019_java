@@ -25,7 +25,7 @@ public class Intake extends GZSubsystem {
         // mIntakeRight = null;
         mIntakeRoller = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
 
-        mIntakeRoller.setInverted(kIntake.INTAKE_L_INVERT);
+        mIntakeRoller.setInverted(kIntake.INTAKE_ROLLER_INVERT);
 
         mIntakeExtend = new GZSolenoid(kSolenoids.INTAKE_EXTEND, this, "Intake Drop");
     }
