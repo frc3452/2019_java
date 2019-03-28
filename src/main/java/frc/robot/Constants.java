@@ -24,7 +24,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
  */
 
 public class Constants {
-	public static final boolean COMP_BOT = false;
+	public static final boolean COMP_BOT = true;
 
 	public static class kLoop {
 	}
@@ -82,11 +82,11 @@ public class Constants {
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 20;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 22; //25
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 16; //20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 16; // 22
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 20;
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 20;
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 16; //20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 16; //20
 
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 
@@ -202,8 +202,8 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
-		public static final double CLIMB_PITCH_TOLERANCE = 9; //3
-		public static final double AUTO_CLIMB_SPEED = 0.75; //.25
+		public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
+		public static final double AUTO_CLIMB_SPEED = 0.75; // .25
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		// 2019 Robot
@@ -236,6 +236,7 @@ public class Constants {
 		public static final int ELEVATOR_2 = 15;
 
 		public static final int INTAKE_LEFT = 6;
+		public static final int INTAKE_RIGHT = 9;
 	}
 
 	public static class kTempSensor {
@@ -251,13 +252,19 @@ public class Constants {
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
 
-		public static final SolenoidConstants PCM_LED = new SolenoidConstants(1, 6, -1, -1);
+		// public static final SolenoidConstants PCM_LED = new SolenoidConstants(1, 6, -1, -1);
 	}
 
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
-		public static final boolean INTAKE_ROLLER_INVERT = true;
+		public static final int INTAKE_RIGHT = 12;
+		public static final boolean INTAKE_L_INVERT = false;
+		public static final boolean INTAKE_R_INVERT = false;
+
 		public static final double INTAKE_SPEED = -.4;
+		public static final double SHOOTING_SPEED = .8;
+		// public static final double INTAKE_SPEED = -.15;
+		// public static final double SHOOTING_SPEED = .15;
 	}
 
 	public static class kPneumatics {

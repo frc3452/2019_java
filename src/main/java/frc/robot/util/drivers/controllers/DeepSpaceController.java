@@ -45,6 +45,7 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton hatchFromFeed;
     public GZButton cargoFromFeed;
     public GZButton cargoGrabWhileGroundIntaking;
+    public GZButton scootCargoOnGround;
     
     public GZButton shootCargo;
     public GZButton scoreHatch;

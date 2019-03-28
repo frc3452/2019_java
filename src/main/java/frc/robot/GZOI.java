@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kElevator.Heights;
-import frc.robot.Constants.kLights;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
@@ -26,13 +25,12 @@ import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
-import frc.robot.util.drivers.pneumatics.GZSolenoid;
 
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
 	public static OperatorController op = new OperatorController();
 
-	private GZSolenoid mLeds;
+	// private GZSolenoid mLeds;
 
 	private UsbCamera mCamera;
 
@@ -85,7 +83,7 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 		op.setXboxController();
-		mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
+		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
 
 	@Override
@@ -98,7 +96,7 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
-		mLeds.set(true);
+		// mLeds.set(true);
 
 		// SAFTEY DISABLED
 		if (isFMS())
@@ -261,9 +259,11 @@ public class GZOI extends GZSubsystem {
 		else if (controller.intakeToggle.updated())
 			supe.toggleIntake();
 		else if (controller.intakeReverse.updated())
-			supe.swapIntakeDirection();
+			supe.pauseIntake();
 		else if (controller.stow.updated())
 			supe.runAction(Actions.STOW, queue);
+		else if (controller.scootCargoOnGround.updated())
+			supe.runAction(Actions.SCOOT_CARGO_ON_GROUND, queue);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();

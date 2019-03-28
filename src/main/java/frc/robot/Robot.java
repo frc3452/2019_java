@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/MISJO19/" + GZUtil.getDate());
+	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/POST-MISJOE/" + GZUtil.getDate());
 
 	@Override
 	public void robotInit() {

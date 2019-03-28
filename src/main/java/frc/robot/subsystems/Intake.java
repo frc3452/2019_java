@@ -13,7 +13,7 @@ public class Intake extends GZSubsystem {
     private IntakeState mState = IntakeState.MANUAL;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
-    private GZVictorSPX mIntakeRoller;
+    private GZVictorSPX mIntakeLeft, mIntakeRight;
     private GZSolenoid mIntakeExtend;
 
     public IO mIO = new IO();
@@ -21,11 +21,11 @@ public class Intake extends GZSubsystem {
     private static Intake mInstance = null;
 
     private Intake() {
-        // mIntakeLeft = null;
-        // mIntakeRight = null;
-        mIntakeRoller = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
+        mIntakeLeft = new GZVictorSPX.Builder(kIntake.INTAKE_LEFT, this, "Left", kPDP.INTAKE_LEFT).build();
+        mIntakeRight = new GZVictorSPX.Builder(kIntake.INTAKE_RIGHT, this, "Left", kPDP.INTAKE_RIGHT).build();
 
-        mIntakeRoller.setInverted(kIntake.INTAKE_ROLLER_INVERT);
+        mIntakeLeft.setInverted(kIntake.INTAKE_L_INVERT);
+        mIntakeRight.setInverted(kIntake.INTAKE_R_INVERT);
 
         mIntakeExtend = new GZSolenoid(kSolenoids.INTAKE_EXTEND, this, "Intake Drop");
     }
@@ -42,12 +42,11 @@ public class Intake extends GZSubsystem {
         stop();
     }
 
-    public void swapDirection() {
+    public void pauseIntake() {
         if (mIO.left_desired_output != 0) {
-            mIO.held_desired_output = mIO.left_desired_output;
             mIO.left_desired_output = 0.0;
         } else {
-            mIO.left_desired_output = mIO.held_desired_output;
+            mIO.left_desired_output = kIntake.INTAKE_SPEED;
         }
     }
 
@@ -161,9 +160,8 @@ public class Intake extends GZSubsystem {
 
     public class IO {
         // out
-        private double left_output = 0;
+        private double output = 0;
         public Double left_desired_output = 0.0;
-        public Double held_desired_output = 0.0;
     }
 
     private void switchToState(IntakeState s) {
@@ -202,17 +200,21 @@ public class Intake extends GZSubsystem {
 
     private void out() {
         if (mState != IntakeState.NEUTRAL) {
-            mIO.left_output = mIO.left_desired_output;
+            mIO.output = mIO.left_desired_output;
         } else {
-            mIO.left_output = 0;
+            mIO.output = 0;
         }
 
         if (!this.isSafetyDisabled()) {
             handleMovement();
         }
 
-        if (mIntakeRoller != null) {
-            mIntakeRoller.set(mIO.left_output);
+        if (mIntakeLeft != null && mIntakeRight != null) {
+            mIntakeLeft.set(mIO.output);
+            mIntakeRight.set(mIO.output);
+        } else {
+            System.out
+                    .println("INTAKE MOTOR NULL (L --> R) " + (mIntakeLeft == null) + " --> " + (mIntakeRight == null));
         }
 
     }

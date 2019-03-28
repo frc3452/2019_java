@@ -345,25 +345,21 @@ public class AutoModeBuilder {
         GZCommandGroup ret = new GZCommandGroup();
 
         ret.tele();
-        // if (location.isOnCargoShip()) {
         switch (gamepiece) {
         case CARGO:
-            ret.add(new GoToHeight(Heights.Cargo_1));
-            ret.add(new GoToHeight(Heights.Cargo_Ship));
+            if (location.isOnCargoShip()) {
+                ret.add(new GoToHeight(Heights.Cargo_Ship));
+            } else {
+                ret.add(new GoToHeight(Heights.Cargo_1));
+            }
             ret.add(new RunAction(Actions.THROW_CARGO));
-            ret.tele();
             break;
         case HATCH_PANEL:
             // ret.add(new GoToHeight(Heights.Cargo_1));
-            ret.add(new GoToHeight(Heights.HP_1));
             ret.add(new RunAction(Actions.SCORE_HATCH));
-            ret.tele();
             break;
         }
-        // } else {
-        // // I guess we die?
-        // }
-
+        ret.tele();
         return ret;
     }
 
@@ -576,7 +572,7 @@ public class AutoModeBuilder {
     public static Command retrieveFromFeederStation() {
         GZCommandGroup ret = new GZCommandGroup();
         ret.tele();
-        // ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
+        ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
         return ret;
     }
 
