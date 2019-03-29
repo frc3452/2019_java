@@ -11,6 +11,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.BooleanStateChange;
@@ -320,6 +321,26 @@ public class GZOI extends GZSubsystem {
 				return Drive.getInstance().getStateString();
 			}
 		};
+		new LogItem("ELEV-STATE") {
+			@Override
+			public String val() {
+				return Elevator.getInstance().getStateString();
+			}
+		};
+		new LogItem("INTK-STATE") {
+			@Override
+			public String val() {
+				return Intake.getInstance().getStateString();
+			}
+		};
+
+		new LogItem("SUPR-STATE") {
+			@Override
+			public String val() {
+				return "";
+			}
+		};
+
 	}
 
 	/**

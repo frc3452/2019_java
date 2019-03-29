@@ -110,7 +110,7 @@ public class AutoModeBuilder {
     }
 
     public static enum StartingPosition {
-        CENTER(false, false, "Center"), LEFT(true, false, "Left"), RIGHT(true, true, "Right");
+        CENTER(false, false, "Center"), LEFT(true, false, "Left"), RIGHT(false, true, "Right");
 
         private final boolean onLeft;
         private final boolean onRight;
@@ -349,13 +349,23 @@ public class AutoModeBuilder {
         case CARGO:
             if (location.isOnCargoShip()) {
                 ret.add(new GoToHeight(Heights.Cargo_Ship));
+                ret.add(new GoToHeight(Heights.Cargo_Ship));
             } else {
+                ret.add(new GoToHeight(Heights.Cargo_1));
                 ret.add(new GoToHeight(Heights.Cargo_1));
             }
             ret.add(new RunAction(Actions.THROW_CARGO));
             break;
         case HATCH_PANEL:
             // ret.add(new GoToHeight(Heights.Cargo_1));
+            if (location.isOnCargoShip()) {
+                ret.add(new GoToHeight(Heights.HP_2));
+                ret.add(new GoToHeight(Heights.HP_2));
+                ret.add(new GoToHeight(Heights.HP_1));
+            } else { //rocket
+                ret.add(new GoToHeight(Heights.HP_2));
+                ret.add(new GoToHeight(Heights.HP_2));
+            }
             ret.add(new RunAction(Actions.SCORE_HATCH));
             break;
         }
@@ -586,9 +596,7 @@ public class AutoModeBuilder {
         ArrayList<GZCommand> allCommands = new ArrayList<GZCommand>();
 
         for (StartingPosition startPosition : AllStartingPositions) {
-
             for (ScoringPosition scorePosition : AllScoringPositions) {
-
                 for (ScoringSide scoringSide : AllScoringSides) {
                     for (FeederStation feederStation : AllFeederStations) {
                         allCommands.add(getCommand(startPosition, new ScoringLocation(scorePosition, scoringSide),

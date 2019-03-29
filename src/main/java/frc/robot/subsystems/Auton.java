@@ -6,6 +6,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
+import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
+import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -76,6 +81,10 @@ public class Auton {
 				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
+
+		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.RIGHT,
+		// new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.RIGHT),
+		// FeederStation.RIGHT));
 
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {

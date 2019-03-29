@@ -15,6 +15,8 @@ public class DrivePath extends Command {
 
   protected void initialize() {
     System.out.println("Driving path " + mPathContainer.toString());
+    System.out.println("Printing path:");
+    mPathContainer.print();
     drive.setWantDrivePath(mPathContainer);
   }
 

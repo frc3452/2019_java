@@ -169,10 +169,86 @@ public class PracticeField extends FieldProfile {
             return 3; //big fat teeth
         }
     };
+    private HeightsContainer mCompHeightsAtMary = new HeightsContainer() {
+        @Override
+        public double hp_floor_Grab() {
+            return zero() + 1;
+        }
+
+        @Override
+        public double hp1() {
+            // return 19; //19 
+
+            // return 22;
+            return 24.5; //big fat teeth
+        }
+
+        @Override
+        public double hp2() {
+            return 47 + 3;
+        }
+
+        @Override
+        public double hp3() {
+            return 75 + 3;
+        }
+
+        @Override
+        public double cargo_ship() {
+            return 46;
+        }
+
+        @Override
+        public double cargo1() {
+            return 27.5 + 2;
+        }
+
+        @Override
+        public double cargo2() {
+            return 55.5 + 2;
+        }
+
+        @Override
+        public double cargo3() {
+            return 83.5 + 2;
+        }
+
+        @Override
+        public double hp_feed_jog() {
+            // return hp1() + 7;
+            return hp1() + 5; //big fat teeth
+        }
+        @Override
+        public double zero() {
+            return 16.5;
+        }
+
+        @Override
+        public double lowest_with_slides_out() {
+            // return 18.5;
+            return 22.0; //big fat teeth
+        }
+
+        @Override
+        public double home() {
+            return zero() + 0.5;
+        }
+
+        @Override
+        public int ticks_per_inch() {
+            return 350;
+        }
+
+        @Override
+        public double hatch_place_jog() {
+            // return 4;
+            return 3; //big fat teeth
+        }
+    };
 
     @Override
     public HeightsContainer getElevatorHeights() {
-        return mCompHeights;
+        return mCompHeightsAtMary;
     }
 
 }

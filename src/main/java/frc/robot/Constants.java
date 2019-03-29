@@ -82,11 +82,11 @@ public class Constants {
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
 		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 16; //20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 16; // 20
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 16; // 22
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 16; //20
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 16; //20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 16; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 16; // 20
 
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 
@@ -126,10 +126,18 @@ public class Constants {
 	public static class kAuton {
 		public final static int SAFTEY_SWITCH = 96;
 
-		public final static DigitalSelectorConstants SELECTOR_TENS = new DigitalSelectorConstants("Ones selector", true,
-				0, 1, 2, 3);
-		public final static DigitalSelectorConstants SELECTOR_ONES = new DigitalSelectorConstants("Tens selector", true,
-				4, 5, 6, 7);
+		public final static DigitalSelectorConstants SELECTOR_ONES;
+		public final static DigitalSelectorConstants SELECTOR_TENS;
+
+		static {
+			if (COMP_BOT) {
+				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 0, 1, 2, 3);
+				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 4, 5, 6, 7);
+			} else {
+				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 4, 5, 6, 7);
+				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 0, 1, 2, 3);
+			}
+		}
 	}
 
 	public static class kPathFollowing {
@@ -252,7 +260,8 @@ public class Constants {
 		public final static int GREEN = 254; // ;)
 		public final static int YELLOW = 330;
 
-		// public static final SolenoidConstants PCM_LED = new SolenoidConstants(1, 6, -1, -1);
+		// public static final SolenoidConstants PCM_LED = new SolenoidConstants(1, 6,
+		// -1, -1);
 	}
 
 	public static class kIntake {
@@ -262,7 +271,7 @@ public class Constants {
 		public static final boolean INTAKE_R_INVERT = false;
 
 		public static final double INTAKE_SPEED = -.4;
-		public static final double SHOOTING_SPEED = .8;
+		public static final double SHOOTING_SPEED = .4;
 		// public static final double INTAKE_SPEED = -.15;
 		// public static final double SHOOTING_SPEED = .15;
 	}
