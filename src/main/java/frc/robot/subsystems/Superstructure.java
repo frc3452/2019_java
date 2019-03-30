@@ -121,7 +121,7 @@ public class Superstructure extends GZSubsystem {
             HPFromFeed.reset();
             intake.retract();
             intake.stop();
-            elev.setHeight(Heights.HP_1);
+            // elev.setHeight(Heights.HP_1);
             elev.closeClaw();
             break;
         }
@@ -301,7 +301,7 @@ public class Superstructure extends GZSubsystem {
             case GRAB_HP_FROM_FEED:
 
                 if (!HPFromFeed.get(1)) {
-                    if (elev.nearTarget() && elev.isClawClosed()) {
+                    if (elev.isClawClosed()) {
                         HPFromFeed.trip(1);
                     }
                 } else if (!HPFromFeed.getNext()) {

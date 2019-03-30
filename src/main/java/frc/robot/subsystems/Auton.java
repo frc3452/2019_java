@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
@@ -12,6 +13,7 @@ import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
 import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
@@ -78,6 +80,7 @@ public class Auton {
 
 		commandArray.add(new GZCommand("Place", () -> new GZCommandGroup() {
 			{
+				add(new GoToHeight(Heights.HP_2));
 				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));

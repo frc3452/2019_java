@@ -180,7 +180,7 @@ public class PracticeField extends FieldProfile {
             // return 19; //19 
 
             // return 22;
-            return 24.5; //big fat teeth
+            return 23; //big fat teeth
         }
 
         @Override

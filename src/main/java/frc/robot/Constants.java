@@ -271,7 +271,7 @@ public class Constants {
 		public static final boolean INTAKE_R_INVERT = false;
 
 		public static final double INTAKE_SPEED = -.4;
-		public static final double SHOOTING_SPEED = .4;
+		public static final double SHOOTING_SPEED = 0.25;
 		// public static final double INTAKE_SPEED = -.15;
 		// public static final double SHOOTING_SPEED = .15;
 	}
