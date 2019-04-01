@@ -228,14 +228,16 @@ public class Superstructure extends GZSubsystem {
                 } else if (ThrowCargo.notNext()) {
                     elev.retractSlides();
                     if (elev.areSlidesOut()) {
-                        ThrowCargo.tripNext();
+                        done();
+                        // ThrowCargo.tripNext();
                     }
                 } else if (ThrowCargo.notNext()) {
-                    elev.setHeight(mDefaultHeight);
-                    if (elev.nearTarget()) {
-                        done();
-                    }
+                    // elev.setHeight(mDefaultHeight);
+                    // if (elev.nearTarget()) {
+                    //     done();
+                    // }
                 }
+                
                 break;
             case STOW_LOW:
                 if (isStowed() && elev.nearTarget())
@@ -243,7 +245,7 @@ public class Superstructure extends GZSubsystem {
                 break;
             case INTAKE_CARGO:
                 if (IntakeCargo.not(1)) {
-                    if (elev.nearTarget() && elev.isClawOpen() && elev.areSlidesIn() && intake.isExtended()) {
+                    if (elev.isClawOpen() && elev.areSlidesIn() && intake.isExtended()) {
                         IntakeCargo.tripNext();
                     }
                 } else if (!IntakeCargo.getNext()) {

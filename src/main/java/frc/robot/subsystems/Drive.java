@@ -170,6 +170,9 @@ public class Drive extends GZSubsystem {
 		L1.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
 		R1.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
 
+		L2.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
+		R2.disabledLimitSwitch(this, LimitSwitchDirections.BOTH);
+
 		setPID(L1, R1, kDrivetrain.PID);
 
 		zeroEncoders();
