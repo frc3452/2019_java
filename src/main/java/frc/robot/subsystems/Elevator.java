@@ -45,7 +45,6 @@ public class Elevator extends GZSubsystem {
 
     private double mDesiredHeight = Heights.Home.inches;
     private double mLowestHeight = Heights.Home.inches;
-    private double mMinSlidesHeight = Heights.Home.inches;
     private double mHighestHeight = kElevator.TOP_LIMIT;
 
     private boolean mLimiting = false;
@@ -215,6 +214,22 @@ public class Elevator extends GZSubsystem {
         new LogItem(getSmallString() + "-HEIGHT") {
             public String val() {
                 return "" + getHeightInches();
+            }
+        };
+
+        new LogItem(getSmallString() + "-DESIRED-HEIGHT") {
+            public String val() {
+                return "" + mDesiredHeight;
+            }
+        };
+        new LogItem(getSmallString() + "-LWST-HEIGHT") {
+            public String val() {
+                return "" + mLowestHeight;
+            }
+        };
+        new LogItem(getSmallString() + "-HIGH-HEIGHT") {
+            public String val() {
+                return "" + mHighestHeight;
             }
         };
 
@@ -663,7 +678,7 @@ public class Elevator extends GZSubsystem {
         // return true;
         // }
         // return false;
-        
+
         return true;
         // return !intake.wantsToMove()
         // && getHeightInches() > getLowestHeight().height + (kElevator.SLIDES_TOLERANCE
