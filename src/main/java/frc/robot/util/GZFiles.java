@@ -306,6 +306,7 @@ public class GZFiles {
 			}
 		} catch (Exception e) {
 			System.out.println("File closing failed!");
+			e.printStackTrace();
 		}
 	}
 
@@ -339,10 +340,15 @@ public class GZFiles {
 
 			case Log:
 
+				// [Message A!] [Message Basdfasdf]
+
+
 				if (isLogging == false) {
 					System.out.println("Opening Log: " + loggingName(true) + ".csv");
 					createCSVFile(loggingName(false), folder, fileState.WRITE, usb, true);
 					writeToLog(true);
+				} else {
+					System.out.println("Log already open!");
 				}
 
 				break;
@@ -363,6 +369,8 @@ public class GZFiles {
 					System.out.println("Closing " + task + ": " + loggingName(false) + ".csv");
 					writeToLog(false);
 					closeCSVFile(fileState.WRITE);
+				} else {
+					System.out.println("Cannot stop logging, we're already stopped!!!");
 				}
 				break;
 			}

@@ -8,6 +8,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
@@ -345,13 +346,15 @@ public class AutoModeBuilder {
         GZCommandGroup ret = new GZCommandGroup();
 
         ret.tele();
+
+        // ret.add(new ScoringCommand());
+
+        //if not scored do everything below
         switch (gamepiece) {
         case CARGO:
             if (location.isOnCargoShip()) {
                 ret.add(new GoToHeight(Heights.Cargo_Ship));
-                ret.add(new GoToHeight(Heights.Cargo_Ship));
             } else {
-                ret.add(new GoToHeight(Heights.Cargo_1));
                 ret.add(new GoToHeight(Heights.Cargo_1));
             }
             ret.add(new RunAction(Actions.THROW_CARGO));
@@ -359,17 +362,22 @@ public class AutoModeBuilder {
         case HATCH_PANEL:
             // ret.add(new GoToHeight(Heights.Cargo_1));
             if (location.isOnCargoShip()) {
-                ret.add(new GoToHeight(Heights.HP_2));
-                ret.add(new GoToHeight(Heights.HP_2));
+                ret.add(new ExtendSlides());
                 ret.add(new GoToHeight(Heights.HP_1));
-            } else { //rocket
-                ret.add(new GoToHeight(Heights.HP_2));
+            } else { // rocket
                 ret.add(new GoToHeight(Heights.HP_2));
             }
             ret.add(new RunAction(Actions.SCORE_HATCH));
             break;
         }
         ret.tele();
+
+
+
+
+
+
+
         return ret;
     }
 
