@@ -45,7 +45,6 @@ public class OperatorController extends DeepSpaceController {
 
                 this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
                 this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
-                this.elevatorManual = new GZButton(this, () -> false, () -> getDLeft());
 
                 this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
                 this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
@@ -59,23 +58,15 @@ public class OperatorController extends DeepSpaceController {
 
                 this.stow = new GZButton(this, () -> false, () -> false);
 
-                this.hatchFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP()
-                                                && !Superstructure.getInstance().isIntakingCargo());
 
-                this.cargoFromFeed = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP()
-                                                && !Superstructure.getInstance().isIntakingCargo());
-
-                this.cargoGrabWhileGroundIntaking = new GZButton(this, () -> false,
-                                () -> getLeftTriggerPressed() && Superstructure.getInstance().isIntakingCargo());
-
+                this.retrieve = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
+              
                 this.scootCargoOnGround = new GZButton(this, () -> false, () -> getDRight());
 
-                this.scoreHatch = new GZButton(this, () -> false,
-                                () -> getRightTriggerPressed() && Elevator.getInstance().isMovingHP());
-                this.shootCargo = new GZButton(this, () -> false,
-                                () -> getRightTriggerPressed() && !Elevator.getInstance().isMovingHP());
+               // // this.scoreHatch = new GZButton(this, () -> false,
+               // //                 () -> getRightTriggerPressed() && Elevator.getInstance().isMovingHP());
+               // // this.shootCargo = new GZButton(this, () -> false,
+               // //                 () -> getRightTriggerPressed() && !Elevator.getInstance().isMovingHP());
 
                 this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
 

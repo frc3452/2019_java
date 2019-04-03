@@ -245,16 +245,13 @@ public class GZOI extends GZSubsystem {
 		else if (controller.clawToggle.updated())
 			supe.toggleClaw();
 
-		if (controller.hatchFromFeed.updated())
-			supe.runAction(Actions.GRAB_HP_FROM_FEED, queue);
-		else if (controller.shootCargo.updated())
-			supe.runAction(Actions.THROW_CARGO);
-		else if (controller.cargoFromFeed.updated())
-			supe.runAction(Actions.GRAB_CARGO_FROM_FEED);
+		// if controller.grab.updated()
+		// supe.doappropriateIntake(queue);
+
+		if (controller.shootCargo.updated())
+			supe.runAction(Actions.THROW_CARGO, queue);
 		else if (controller.scoreHatch.updated())
-			supe.runAction(Actions.SCORE_HATCH);
-		else if (controller.cargoGrabWhileGroundIntaking.updated())
-			supe.runAction(Actions.GRAB_CARGO_DURING_INTAKE);
+			supe.runAction(Actions.SCORE_HATCH, queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeToggle.updated())
@@ -265,6 +262,8 @@ public class GZOI extends GZSubsystem {
 			supe.runAction(Actions.STOW, queue);
 		else if (controller.scootCargoOnGround.updated())
 			supe.runAction(Actions.SCOOT_CARGO_ON_GROUND, queue);
+		else if (controller.retrieve.updated())
+			supe.retrieveGamePiece(queue);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();

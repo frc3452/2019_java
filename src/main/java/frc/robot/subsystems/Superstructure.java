@@ -234,10 +234,10 @@ public class Superstructure extends GZSubsystem {
                 } else if (ThrowCargo.notNext()) {
                     // elev.setHeight(mDefaultHeight);
                     // if (elev.nearTarget()) {
-                    //     done();
+                    // done();
                     // }
                 }
-                
+
                 break;
             case STOW_LOW:
                 if (isStowed() && elev.nearTarget())
@@ -345,6 +345,18 @@ public class Superstructure extends GZSubsystem {
         runAction(Actions.IDLE);
     }
 
+    public void retrieveGamePiece(boolean queue) {
+
+        if (Elevator.getInstance().isMovingHP() && !Superstructure.getInstance().isIntakingCargo()) {
+            runAction(Actions.GRAB_HP_FROM_FEED, queue);
+        } else if (!Elevator.getInstance().isMovingHP() && !Superstructure.getInstance().isIntakingCargo()) {
+            runAction(Actions.GRAB_CARGO_FROM_FEED, queue);
+        } else if (Superstructure.getInstance().isIntakingCargo()) {
+            runAction(Actions.GRAB_CARGO_DURING_INTAKE, queue);
+        }
+
+    }
+
     public void done() {
         mActionDone.tripFlag();
         idle();
@@ -408,14 +420,6 @@ public class Superstructure extends GZSubsystem {
 
     public void toggleIntake() {
         intake.toggle();
-    }
-
-    public void intakeOffControl() {
-        intake.retract();
-    }
-
-    public void intakeOnControl() {
-        intake.extend();
     }
 
     public void dropCrawler() {
