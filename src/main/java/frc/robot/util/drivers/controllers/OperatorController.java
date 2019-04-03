@@ -60,13 +60,10 @@ public class OperatorController extends DeepSpaceController {
 
 
                 this.retrieve = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
+                this.score = new GZButton(this, () -> false, () -> getRightTriggerPressed());
+
               
                 this.scootCargoOnGround = new GZButton(this, () -> false, () -> getDRight());
-
-               // // this.scoreHatch = new GZButton(this, () -> false,
-               // //                 () -> getRightTriggerPressed() && Elevator.getInstance().isMovingHP());
-               // // this.shootCargo = new GZButton(this, () -> false,
-               // //                 () -> getRightTriggerPressed() && !Elevator.getInstance().isMovingHP());
 
                 this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
 

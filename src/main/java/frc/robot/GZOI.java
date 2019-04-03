@@ -248,22 +248,18 @@ public class GZOI extends GZSubsystem {
 		// if controller.grab.updated()
 		// supe.doappropriateIntake(queue);
 
-		if (controller.shootCargo.updated())
-			supe.runAction(Actions.THROW_CARGO, queue);
-		else if (controller.scoreHatch.updated())
-			supe.runAction(Actions.SCORE_HATCH, queue);
+		if (controller.retrieve.updated())
+			supe.retrieveGamePiece(queue);
+		else if (controller.score.updated())
+			supe.retrieveGamePiece(queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeToggle.updated())
 			supe.toggleIntake();
 		else if (controller.intakeReverse.updated())
 			supe.pauseIntake();
-		else if (controller.stow.updated())
-			supe.runAction(Actions.STOW, queue);
 		else if (controller.scootCargoOnGround.updated())
 			supe.runAction(Actions.SCOOT_CARGO_ON_GROUND, queue);
-		else if (controller.retrieve.updated())
-			supe.retrieveGamePiece(queue);
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();
@@ -336,7 +332,7 @@ public class GZOI extends GZSubsystem {
 		new LogItem("SUPR-STATE") {
 			@Override
 			public String val() {
-				return "";
+				return Superstructure.getInstance().getStateString();
 			}
 		};
 

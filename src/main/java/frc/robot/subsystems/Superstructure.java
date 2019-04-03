@@ -357,6 +357,15 @@ public class Superstructure extends GZSubsystem {
 
     }
 
+    public void scoreGamePiece(boolean queue) {
+
+        if (Elevator.getInstance().isMovingHP()) {
+            runAction(Actions.SCORE_HATCH, queue);
+        } else if (!Elevator.getInstance().isMovingHP()) {
+            runAction(Actions.THROW_CARGO, queue);
+        }
+    }
+
     public void done() {
         mActionDone.tripFlag();
         idle();
