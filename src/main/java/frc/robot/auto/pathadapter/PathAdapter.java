@@ -22,7 +22,7 @@ public class PathAdapter {
 
     private static final double mInchesFromRocket = 13;
     private static final double mInchesFromCargoShipSide = 10;
-    private static final double mInchesFromCargoShipFace = 10;
+    private static final double mInchesFromCargoShipFace = 5;
     private static final double mInchesFromFeederStation = 10;
 
     public static final FieldValues<Translation2d> feederStation;

@@ -62,6 +62,7 @@ public class OperatorController extends DeepSpaceController {
                 this.hatchFromFeed = new GZButton(this, () -> false,
                                 () -> getLeftTriggerPressed() && Elevator.getInstance().isMovingHP()
                                                 && !Superstructure.getInstance().isIntakingCargo());
+
                 this.cargoFromFeed = new GZButton(this, () -> false,
                                 () -> getLeftTriggerPressed() && !Elevator.getInstance().isMovingHP()
                                                 && !Superstructure.getInstance().isIntakingCargo());
