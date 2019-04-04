@@ -11,6 +11,7 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
+import frc.robot.auto.commands.functions.superstructure.ScoringCommand;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -347,36 +348,9 @@ public class AutoModeBuilder {
 
         ret.tele();
 
-        // ret.add(new ScoringCommand());
+        ret.add(new ScoringCommand(location, gamepiece));
 
         //if not scored do everything below
-        switch (gamepiece) {
-        case CARGO:
-            if (location.isOnCargoShip()) {
-                ret.add(new GoToHeight(Heights.Cargo_Ship));
-            } else {
-                ret.add(new GoToHeight(Heights.Cargo_1));
-            }
-            ret.add(new RunAction(Actions.THROW_CARGO));
-            break;
-        case HATCH_PANEL:
-            // ret.add(new GoToHeight(Heights.Cargo_1));
-            if (location.isOnCargoShip()) {
-                ret.add(new ExtendSlides());
-                ret.add(new GoToHeight(Heights.HP_1));
-            } else { // rocket
-                ret.add(new GoToHeight(Heights.HP_2));
-            }
-            ret.add(new RunAction(Actions.SCORE_HATCH));
-            break;
-        }
-        ret.tele();
-
-
-
-
-
-
 
         return ret;
     }
