@@ -342,7 +342,6 @@ public class GZFiles {
 
 				// [Message A!] [Message Basdfasdf]
 
-
 				if (isLogging == false) {
 					System.out.println("Opening Log: " + loggingName(true) + ".csv");
 					createCSVFile(loggingName(false), folder, fileState.WRITE, usb, true);

@@ -69,9 +69,6 @@ public class Superstructure extends GZSubsystem {
             return;
         }
 
-        // if (mAction == action)
-        // return;
-
         mAction = action;
 
         if (mAction != Actions.IDLE && mAction != Actions.OFF)
@@ -358,7 +355,6 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void scoreGamePiece(boolean queue) {
-
         if (Elevator.getInstance().isMovingHP()) {
             runAction(Actions.SCORE_HATCH, queue);
         } else if (!Elevator.getInstance().isMovingHP()) {

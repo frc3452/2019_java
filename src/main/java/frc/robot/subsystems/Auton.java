@@ -3,16 +3,13 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
-import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -72,6 +69,25 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
+
+		// To remove, specifically for testing conditional commands
+		commandArray.add(new GZCommand("Test command", () -> new GZCommandGroup() {
+			{
+				tele();
+				ConditionalCommand c = new ConditionalCommand(new Print("TEST PRINT! the guy true!!!"),
+						new Print("TEST PRINT! the guy false!")) {
+
+					@Override
+					protected boolean condition() {
+						return false;
+						// return Superstructure.getInstance().hasScoredInAuto();
+					}
+				};
+
+				add(c);
+			}
+		}));
+
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
 				waitTime(0.1);

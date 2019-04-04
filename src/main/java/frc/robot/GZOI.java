@@ -198,6 +198,10 @@ public class GZOI extends GZSubsystem {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
+
+			// if 
+
+
 		}
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))

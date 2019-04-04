@@ -10,11 +10,10 @@ package frc.robot.auto.commands.functions;
 
 import edu.wpi.first.wpilibj.command.InstantCommand;
 
-public class PrintCommand extends InstantCommand {
-  
+public class Print extends InstantCommand {
   
   private String mPrintMessage;
-  public PrintCommand(String message) {
+  public Print(String message) {
     super();
     this.mPrintMessage = message;
   }

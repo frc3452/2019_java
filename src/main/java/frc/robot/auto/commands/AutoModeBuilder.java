@@ -371,12 +371,6 @@ public class AutoModeBuilder {
         }
         ret.tele();
 
-
-
-
-
-
-
         return ret;
     }
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import edu.wpi.first.wpilibj.command.PrintCommand;
+import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
@@ -25,7 +25,7 @@ public class GZCommandGroup extends CommandGroup {
     }
 
     public synchronized void print(String message) {
-        add(new PrintCommand(message));
+        add(new Print(message));
     }
 
     public synchronized void waitTime(double delay) {
