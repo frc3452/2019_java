@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
-import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
@@ -672,7 +671,7 @@ public class AutoModeBuilder {
                         add(retrieve);
                 }
 
-                add(new WaitForButtonBoardInput());
+                // add(new WaitForButtonBoardInput());
             }
         };
 
