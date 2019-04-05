@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
+
+import java.util.concurrent.locks.Condition;
+
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.util.GZFlag;
@@ -60,19 +63,28 @@ public class Superstructure extends GZSubsystem {
     public boolean isIntakingCargo() {
         return mIntakingCargo;
     }
+	private boolean scoreboolean = false;
+
+    public boolean testCommand() {
+        scoreboolean = true;
+        return true;
+    }
 
     // ACTIONS
-
     public void runAction(Actions action, boolean queue) {
         if (queue) {
             queueAction(action);
             return;
         }
-
+        
         // if (mAction == action)
         // return;
-
+        
         mAction = action;
+        if (mAction == Actions.SCORE_HATCH || mAction == Actions.THROW_CARGO) {
+            
+        }
+
 
         if (mAction != Actions.IDLE && mAction != Actions.OFF)
             mActionDone.rst();

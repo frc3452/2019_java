@@ -22,6 +22,7 @@ import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.controllers.DriverController;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -75,6 +76,7 @@ public class Auton {
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
 				waitTime(0.1);
+
 			}
 		}));
 
@@ -139,11 +141,12 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		if (autonomousCommand == null)
-			return false;
+			return Superstructure.getInstance().testCommand();	
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
 	}
+
 
 	public void toggleAutoWait(boolean updateValue) {
 		if (mLBWaitOnAutoStart.update(updateValue)) {

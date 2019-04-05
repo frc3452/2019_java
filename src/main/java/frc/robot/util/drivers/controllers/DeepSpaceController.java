@@ -24,7 +24,8 @@ public class DeepSpaceController extends GZJoystick {
     public GZButton elevatorJogUp;
     public GZButton elevatorJogDown;
     
-    
+    public GZButton test;
+
     public GZButton elevatorZero;
     public GZButton hatchPanel1;
     public GZButton hatchPanel2;
