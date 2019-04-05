@@ -7,11 +7,6 @@ import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
-import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
@@ -22,7 +17,6 @@ import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
-import frc.robot.util.drivers.controllers.DriverController;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -86,10 +80,6 @@ public class Auton {
 				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
-
-		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.RIGHT,
-		// new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.RIGHT),
-		// FeederStation.RIGHT));
 
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {

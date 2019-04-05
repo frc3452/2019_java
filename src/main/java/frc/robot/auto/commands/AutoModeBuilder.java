@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
 import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
-import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.functions.superstructure.ScoringCommand;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
@@ -153,16 +151,24 @@ public class AutoModeBuilder {
     public enum ScoringPosition {
         CARGO_SHIP_FACE("Cargo Ship Face"), CARGO_SHIP_BAY_1("Cargo Ship Bay 1"), CARGO_SHIP_BAY_2("Cargo Ship Bay 2"),
         CARGO_SHIP_BAY_3("Cargo Ship Bay 3"), ROCKET_NEAR("Rocket Near Face", false),
-        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false);
+        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false),
+        ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
+                new ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide());
 
         public final String text;
         public final boolean cargoShip;
+        public final ScoringPosLimitations limitations;
 
-        private ScoringPosition(String text, boolean isCargoShip) {
+        private ScoringPosition(String text, boolean isCargoShip, ScoringPosLimitations limitations) {
             this.cargoShip = isCargoShip;
             this.text = text;
+            this.limitations = limitations;
 
             AllScoringPositions.add(this);
+        }
+
+        private ScoringPosition(String text, boolean isCargoShip) {
+            this(text, isCargoShip, new ScoringPosLimitations());
         }
 
         private ScoringPosition(String text) {
@@ -172,6 +178,60 @@ public class AutoModeBuilder {
         @Override
         public String toString() {
             return text;
+        }
+
+        // This really deserves a builder, let's get him one some day
+        // Oh my god this desperately needs a builder please help
+
+        /**
+         * By default can score everywhere from anywhere forwards
+         */
+        public static class ScoringPosLimitations {
+
+            public static enum AutoDirection {
+                FORWARDS, BACKWARDS
+            }
+
+            private boolean oppositeForwards = true;
+            private boolean oppositeBackwards = false;
+
+            private boolean sameSideForwards = true;
+            private boolean sameSideBackwards = false;
+
+            private boolean centerForwards = true;
+            private boolean centerBackwards = false;
+
+            public ScoringPosLimitations cantCenter() {
+                centerBackwards = false;
+                centerForwards = false;
+                return this;
+            }
+
+            public ScoringPosLimitations cantOpposite() {
+                oppositeBackwards = false;
+                oppositeForwards = false;
+                return this;
+            }
+
+            public ScoringPosLimitations cantBackwards() {
+                centerBackwards = false;
+                oppositeBackwards = false;
+                sameSideBackwards = false;
+                return this;
+            }
+
+            public ScoringPosLimitations canBackwards() {
+                centerBackwards = true;
+                oppositeBackwards = true;
+                sameSideBackwards = true;
+                return this;
+            }
+
+            public ScoringPosLimitations canBackwardsSameSide() {
+                sameSideBackwards = true;
+                return this;
+            }
+
         }
 
     }
@@ -350,7 +410,7 @@ public class AutoModeBuilder {
 
         ret.add(new ScoringCommand(location, gamepiece));
 
-        //if not scored do everything below
+        // if not scored do everything below
 
         return ret;
     }
@@ -571,7 +631,45 @@ public class AutoModeBuilder {
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation location,
             final FeederStation nextStation) {
 
-        return getCommand(startPos, location, nextStation, mGamePieceSupplier);
+        return getCommand(startPos, AutoDirection.FORWARDS, location, nextStation, mGamePieceSupplier);
+    }
+
+    public static ArrayList<GZCommand> getCommands(final StartingPosition startPos, final ScoringLocation location,
+            final FeederStation nextStation) {
+        ArrayList<GZCommand> commands = new ArrayList<GZCommand>();
+
+        if (startPos == StartingPosition.CENTER) {
+            if (location.pos.limitations.centerForwards) {
+                commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
+            }
+            if (location.pos.limitations.centerBackwards) {
+                commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+            }
+        } else {
+            if (scoringSameSide(startPos, location.side)) {
+                if (location.pos.limitations.sameSideForwards) {
+                    commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
+                }
+                if (location.pos.limitations.sameSideBackwards) {
+                    commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+                }
+            } else {
+                if (location.pos.limitations.oppositeForwards) {
+                    commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
+                }
+                if (location.pos.limitations.oppositeBackwards) {
+                    commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+                }
+            }
+        }
+
+        return commands;
+    }
+
+    public static GZCommand getCommand(final StartingPosition startPos, final AutoDirection autoDirection,
+            final ScoringLocation location, final FeederStation nextStation) {
+
+        return getCommand(startPos, autoDirection, location, nextStation, mGamePieceSupplier);
     }
 
     public static ArrayList<GZCommand> getAllPaths() {
@@ -581,9 +679,10 @@ public class AutoModeBuilder {
             for (ScoringPosition scorePosition : AllScoringPositions) {
                 for (ScoringSide scoringSide : AllScoringSides) {
                     for (FeederStation feederStation : AllFeederStations) {
-                        allCommands.add(getCommand(startPosition, new ScoringLocation(scorePosition, scoringSide),
+                        allCommands.addAll(getCommands(startPosition, new ScoringLocation(scorePosition, scoringSide),
                                 feederStation));
                     }
+
                 }
                 // For every scoring position
             }
@@ -600,8 +699,9 @@ public class AutoModeBuilder {
         return FeederStation.RIGHT;
     }
 
-    public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation scoringLocation,
-            final FeederStation nextStation, final Supplier<GamePiece> gamePiece) {
+    public static GZCommand getCommand(final StartingPosition startPos, final AutoDirection direction,
+            final ScoringLocation scoringLocation, final FeederStation nextStation,
+            final Supplier<GamePiece> gamePiece) {
 
         GZCommandGroup com = new GZCommandGroup() {
             {
