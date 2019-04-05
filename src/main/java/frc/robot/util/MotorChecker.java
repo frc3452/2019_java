@@ -12,7 +12,6 @@ import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kFiles;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.Robot;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
@@ -288,8 +287,6 @@ public class MotorChecker {
         }
 
         public void checkMotors() {
-            Pneumatics.getInstance().setMotorTesting(true);
-
             boolean failure = false;
 
             // Clear all fails
@@ -594,8 +591,6 @@ public class MotorChecker {
             clearValues();
 
             Robot.allSubsystems.enableFollower();
-            
-            Pneumatics.getInstance().setMotorTesting(false);
         }
 
     }

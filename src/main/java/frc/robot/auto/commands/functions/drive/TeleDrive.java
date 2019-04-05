@@ -41,7 +41,6 @@ public class TeleDrive extends Command {
     }
 
     protected void end() {
-        drive.brake(false);
         // drive.stop();
     }
 

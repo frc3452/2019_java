@@ -9,9 +9,6 @@ import java.util.Scanner;
 
 import frc.robot.Constants.kFiles;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -58,23 +55,6 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mLeftEncoderRotations = new PersistentInfo(0.0, .01) {
-        public void update() {
-            this.addDifference(drive.mIO.left_encoder_total_delta_rotations);
-        }
-
-        public void readSetting() {
-        }
-    };
-    private PersistentInfo mRightEncoderRotations = new PersistentInfo(0.0, .01) {
-        public void update() {
-            this.addDifference(drive.mIO.right_encoder_total_delta_rotations);
-        }
-
-        public void readSetting() {
-        }
-    };
-
     private PersistentInfo mDisabled = new PersistentInfo() {
         public void update() {
             this.setValue(GZOI.getInstance().isSafetyDisabled() ? 1.0 : 0.0);
@@ -85,119 +65,13 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mElevatorTotalRotations = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(Elevator.getInstance().mIO.elevator_total_rotations);
-        }
-
-        @Override
-        public void readSetting() {
-
-        }
-    };
-
-    private PersistentInfo mSlidesTotalChanges = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(Elevator.getInstance().getSlidesTotalCounts());
-        }
-
-        @Override
-        public void readSetting() {
-
-        }
-    };
-
-    private PersistentInfo mClawTotalChanges = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(Elevator.getInstance().getClawTotalCounts());
-        }
-
-        @Override
-        public void readSetting() {
-        }
-    };
-
-    private PersistentInfo mDriveTotalShiftsFront = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(drive.getTotalShiftCountsFront());
-        }
-
-        @Override
-        public void readSetting() {
-
-        }
-    };
-
-    private PersistentInfo mDriveTotalShiftsBack = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(drive.getTotalShiftCountsRear());
-        }
-
-        @Override
-        public void readSetting() {
-
-        }
-    };
-
-    private PersistentInfo mClimberDrops = new PersistentInfo() {
-
-        @Override
-        public void update() {
-            this.addDifference(Pneumatics.getInstance().getDropClimberTotalCounts());
-        }
-
-        @Override
-        public void readSetting() {
-        }
-    };
-
-    private PersistentInfo mIsButtonBoard = new PersistentInfo(0.0) {
-        public void update() {
-            this.setValue(GZOI.op.isButtonBoard() ? 0.0 : 1.0);
-        }
-
-        @Override
-        public void readSetting() {
-            // GZOI.op.setButtonBoard(this.getValue() == 0);
-        }
-    };
-
-    private PersistentInfo mIntakeDrops = new PersistentInfo(0.0) {
-        public void update() {
-            this.addDifference(Intake.getInstance().getIntakeTotalFlips());
-        }
-
-        @Override
-        public void readSetting() {
-        }
-    };
 
     private void resetMap() {
         mSettingsMap = new HashMap<String, PersistentInfo>();
 
         mSettingsMap.put("EnabledTime", mEnabledTime);
         mSettingsMap.put("OnTime", mOnTime);
-        mSettingsMap.put("LeftEncoderRot", mLeftEncoderRotations);
-        mSettingsMap.put("RightEncoderRot", mRightEncoderRotations);
-        mSettingsMap.put("ElevatorRotations", mElevatorTotalRotations);
         mSettingsMap.put("Disabled", mDisabled);
-        mSettingsMap.put("ClimberDrops", mClimberDrops);
-        mSettingsMap.put("SlideChanges", mSlidesTotalChanges);
-        mSettingsMap.put("DriveShiftsFront", mDriveTotalShiftsFront);
-        mSettingsMap.put("DriveShiftsBack", mDriveTotalShiftsBack);
-        mSettingsMap.put("ClawChanges", mClawTotalChanges);
-        mSettingsMap.put("IntakeDrops", mIntakeDrops);
-        mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }
 
     private static PersistentInfoManager mInstance = null;

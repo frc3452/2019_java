@@ -10,10 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.poofs.util.control.PathSegment;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 
@@ -139,58 +135,6 @@ public class GZUtil {
 
 		return value;
 	}
-
-	public static Rotation2d angleOfPathSegment(PathSegment segment) {
-		return angleBetweenPoints(segment.getStart(), segment.getEnd());
-	}
-
-	public static Rotation2d angleBetweenPoints(Waypoint point1, Waypoint point2) {
-		return angleBetweenPoints(point1.getPosition(), point2.getPosition());
-	}
-
-	public static Rotation2d angleBetweenPoints(Translation2d point1, Translation2d point2) {
-		Rotation2d ret = Rotation2d.identity();
-
-		double yDelta = point1.y() - point2.y();
-		double xDelta = point1.x() - point2.x();
-
-		if (xDelta == 0 && yDelta == 0) {
-			System.out.println(
-					"Translations " + point1.toString() + " and " + point2.toString() + " are in the same place!");
-			return null;
-		}
-
-		if (xDelta == 0) {
-			if (point2.y() > point1.y())
-				ret = Rotation2d.fromDegrees(270);
-			else
-				ret = Rotation2d.fromDegrees(90);
-		} else if (yDelta == 0) {
-			if (point2.x() > point1.x())
-				ret = Rotation2d.fromDegrees(0);
-			else
-				ret = Rotation2d.fromDegrees(180);
-		} else {
-			ret = Rotation2d.fromDegrees(Math.toDegrees(Math.atan(yDelta / xDelta)));
-			if (point2.y() < point1.y())
-				ret = ret.rotateBy(Rotation2d.fromDegrees(180));
-		}
-
-		// if x delta 0, if point2 above point1 angle is 270, point2 is below angle is
-		// 90
-		// if y delta 0, if point2 in front of point1 angle is 0, if point2 is behind
-		// 180
-
-		return ret;
-	}
-
-	public static double distanceBetween(Translation2d point1, Translation2d point2) {
-		double a = point1.x() - point2.x();
-		double b = point1.y() - point2.y();
-
-		return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-	}
-
 	public static Object deepClone(Object object) {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
