@@ -112,8 +112,6 @@ public class GZOI extends GZSubsystem {
 			System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" : "enabled") + "!");
 		}
 
-	
-
 		if (mSafetyDisable)
 			if (++mDisabledPrintOutLoops > 300) {
 				System.out.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
@@ -195,13 +193,16 @@ public class GZOI extends GZSubsystem {
 				drive.wantShift(ClimbingState.BOTH);
 			else if (driverJoy.getButton(Buttons.Y))
 				drive.wantShift(ClimbingState.REAR);
-			else if (driverJoy.getButton(Buttons.LEFT_CLICK)){
-				if (driverJoy.getButton(Buttons.RIGHT_CLICK))
-				supe.testCommand();
-			}
 
 
 		} else {
+			if (driverJoy.getButton(Buttons.X)) {
+					supe.fakeAutoScore();
+			}
+			if (driverJoy.getButton(Buttons.Y)) {
+				if (driverJoy.getButton(Buttons.B))
+				supe.fakeAutoFeeder();
+		}
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
@@ -244,7 +245,7 @@ public class GZOI extends GZSubsystem {
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
-		
+
 		// else if (controller.elevatorManual.get())
 		// supe.elevManual(controller.getRightAnalogY() * 0.25);
 
@@ -268,8 +269,6 @@ public class GZOI extends GZSubsystem {
 			supe.pauseIntake();
 		else if (controller.scootCargoOnGround.updated())
 			supe.runAction(Actions.SCOOT_CARGO_ON_GROUND, queue);
-
-		  
 
 		if (controller.dropCrawler.updated())
 			supe.dropCrawler();

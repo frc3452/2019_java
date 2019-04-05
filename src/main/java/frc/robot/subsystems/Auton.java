@@ -131,7 +131,7 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		if (autonomousCommand == null)
-			return Superstructure.getInstance().testCommand();	
+			return Superstructure.getInstance().fakeAutoScore();	
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
@@ -145,6 +145,7 @@ public class Auton {
 					+ " at the start of SANDSTORM");
 		}
 	}
+
 
 	/**
 	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
