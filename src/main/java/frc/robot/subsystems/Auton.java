@@ -7,11 +7,6 @@ import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
-import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
@@ -22,7 +17,6 @@ import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
 import frc.robot.util.drivers.GZJoystick.Buttons;
-import frc.robot.util.drivers.controllers.DriverController;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -141,7 +135,7 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		if (autonomousCommand == null)
-			return Superstructure.getInstance().testCommand();	
+			return Superstructure.getInstance().fakeAutoScore();	
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
@@ -155,6 +149,7 @@ public class Auton {
 					+ " at the start of SANDSTORM");
 		}
 	}
+
 
 	/**
 	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
