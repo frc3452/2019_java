@@ -1,6 +1,6 @@
 package frc.robot.auto.commands.functions.superstructure;
+
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.auto.commands.AutoModeBuilder.GamePiece;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;

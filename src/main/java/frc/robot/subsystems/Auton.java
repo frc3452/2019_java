@@ -100,10 +100,6 @@ public class Auton {
 			}
 		}));
 
-		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.RIGHT,
-		// new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.RIGHT),
-		// FeederStation.RIGHT));
-
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {
 			commandArray.add(c);
