@@ -194,7 +194,14 @@ public class GZOI extends GZSubsystem {
 			else if (driverJoy.getButton(Buttons.Y))
 				drive.wantShift(ClimbingState.REAR);
 
+
 		} else {
+			if (driverJoy.getButton(Buttons.X)) {
+					supe.fakeAutoScore();
+			}
+			else if (driverJoy.getButton(Buttons.RB)) {
+				supe.fakeAutoFeeder();
+		}
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
@@ -241,6 +248,7 @@ public class GZOI extends GZSubsystem {
 			supe.jog(-1.0);
 		else if (controller.elevatorJogUp.updated())
 			supe.jog(1.0);
+
 		// else if (controller.elevatorManual.get())
 		// supe.elevManual(controller.getRightAnalogY() * 0.25);
 
@@ -255,7 +263,7 @@ public class GZOI extends GZSubsystem {
 		if (controller.retrieve.updated())
 			supe.retrieveGamePiece(queue);
 		else if (controller.score.updated())
-			supe.retrieveGamePiece(queue);
+			supe.scoreGamePiece(queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeToggle.updated())

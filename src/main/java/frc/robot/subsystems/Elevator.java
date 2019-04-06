@@ -129,8 +129,8 @@ public class Elevator extends GZSubsystem {
         // configAccelInchesPerSec(7 * 12);
         // configCruiseInchesPerSec(11 * 12);
 
-        configAccelInchesPerSec(16 * 12);
-        configCruiseInchesPerSec(16 * 12);
+        configAccelInchesPerSec(kElevator.ACCEL_INCHES_PER_SECOND);
+        configCruiseInchesPerSec(kElevator.VEL_INCHES_PER_SECOND);
 
         brake();
 

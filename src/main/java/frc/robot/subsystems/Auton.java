@@ -9,6 +9,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.PrintCommand;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
@@ -69,6 +70,21 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
+		commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
+			{
+				waitTime(0.1);
+				tele();
+
+				ConditionalCommand conditional = new ConditionalCommand(new PrintCommand("TRUE"),
+						new PrintCommand("FALLLLSE")) {
+					@Override
+					protected boolean condition() {
+						return Superstructure.getInstance().hasAutoScored();
+					}
+				};
+
+				add(conditional);
+      }
 
 		// To remove, specifically for testing conditional commands
 		commandArray.add(new GZCommand("Test command", () -> new GZCommandGroup() {
@@ -91,6 +107,7 @@ public class Auton {
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
 				waitTime(0.1);
+
 			}
 		}));
 
@@ -100,10 +117,6 @@ public class Auton {
 				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
-
-		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.RIGHT,
-		// new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.RIGHT),
-		// FeederStation.RIGHT));
 
 		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		for (GZCommand c : commandsIn) {
@@ -155,7 +168,7 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		if (autonomousCommand == null)
-			return false;
+			return Superstructure.getInstance().fakeAutoScore();
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();

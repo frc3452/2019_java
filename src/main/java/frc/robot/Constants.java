@@ -58,6 +58,19 @@ public class Constants {
 		public static GZPID PID = new GZPID(3.5, 0, 35, 0.2, 0);
 		// public static GZPID PID2 = new GZPID(0, 0, 0, 0, 0);
 
+		public static double ACCEL_INCHES_PER_SECOND;
+		public static double VEL_INCHES_PER_SECOND;
+
+		static {
+			if (COMP_BOT) {
+				ACCEL_INCHES_PER_SECOND = 16 * 12;
+				VEL_INCHES_PER_SECOND = 16 * 12;
+			} else {
+				ACCEL_INCHES_PER_SECOND = 11 * 12;
+				VEL_INCHES_PER_SECOND = 16 * 12;
+			}
+		}
+
 		public static final double TOP_LIMIT = 85.0;
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
@@ -267,8 +280,19 @@ public class Constants {
 	public static class kIntake {
 		public static final int INTAKE_LEFT = 11;
 		public static final int INTAKE_RIGHT = 12;
-		public static final boolean INTAKE_L_INVERT = false;
-		public static final boolean INTAKE_R_INVERT = false;
+		public static final boolean INTAKE_L_INVERT;
+		public static final boolean INTAKE_R_INVERT;
+
+		static {
+			// if (COMP_BOT) {
+			INTAKE_L_INVERT = false;
+			INTAKE_R_INVERT = false;
+			// } else {
+			// INTAKE_L_INVERT = true;
+			// INTAKE_R_INVERT = false;
+			// }
+
+		}
 
 		public static final double INTAKE_SPEED = -.4;
 		public static final double SHOOTING_SPEED = 0.25;
