@@ -512,7 +512,8 @@ public class MotorChecker {
                     // Write Average to table
                     table += HTML.tableRow(HTML.tableCell("Average")
                             + HTML.tableCell(talonGroup.getAverageForwardAmperage().toString()) + HTML.tableCell("")
-                            + HTML.tableCell(talonGroup.getAverageReverseAmperage().toString()) + HTML.tableCell(""));
+                            + HTML.tableCell("") + HTML.tableCell(talonGroup.getAverageReverseAmperage().toString())
+                            + HTML.tableCell("") + HTML.tableCell(""));
 
                     // Headers
                     table += HTML.tableRow(HTML.easyHeader("Talon", "Forward Amperage", "Forward BAT V", "Forward RPM",
@@ -547,7 +548,7 @@ public class MotorChecker {
 
                         {
                             String fwdCellVolt;
-                            fwdCellVolt = HTML.tableCell("" + fwd.get(talon).getVoltage().toString());
+                            fwdCellVolt = HTML.tableCell("" + df.format(fwd.get(talon).getVoltage()).toString());
                             row += fwdCellVolt;
                         }
 
@@ -569,7 +570,7 @@ public class MotorChecker {
 
                         {
                             String revCellVolt;
-                            revCellVolt = HTML.tableCell("" + rev.get(talon).getVoltage().toString());
+                            revCellVolt = HTML.tableCell("" + df.format(rev.get(talon).getVoltage()).toString());
                             row += revCellVolt;
                         }
 
@@ -607,8 +608,8 @@ public class MotorChecker {
             GZFile file = null;
             try {
                 // write to rio
-                file = GZFileMaker.getFile(kFiles.ROBOT_NAME + "-MotorReport-" + GZUtil.dateTime(false), new Folder("MotorReports"),
-                        FileExtensions.HTML, false, true);
+                file = GZFileMaker.getFile(kFiles.ROBOT_NAME + "-MotorReport-" + GZUtil.dateTime(false),
+                        new Folder("MotorReports"), FileExtensions.HTML, false, true);
                 HTML.createHTMLFile(file, body);
 
             } catch (Exception e) {
