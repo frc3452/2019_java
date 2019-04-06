@@ -182,6 +182,15 @@ public class Auton {
 		}
 	}
 
+	public void toggleAutoGamePiece (boolean isHatch) {
+		if (isHatch) {
+			System.out.println("Starting piece: hatch.");
+		}
+		else {
+			System.out.println("Starting piece: cargo.");
+		}
+	}
+
 	/**
 	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
 	 * waiting

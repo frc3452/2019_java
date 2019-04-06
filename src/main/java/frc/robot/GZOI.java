@@ -206,6 +206,12 @@ public class GZOI extends GZSubsystem {
 				drive.toggleSlowSpeed();
 			}
 
+			if (driverJoy.getButton(Buttons.RB)) {
+				if (driverJoy.getButton(Buttons.A)) {
+					Auton.getInstance().toggleAutoGamePiece(isHatch);
+				}
+			}
+
 			// if 
 
 
