@@ -151,9 +151,10 @@ public class AutoModeBuilder {
     public enum ScoringPosition {
         CARGO_SHIP_FACE("Cargo Ship Face"), CARGO_SHIP_BAY_1("Cargo Ship Bay 1"), CARGO_SHIP_BAY_2("Cargo Ship Bay 2"),
         CARGO_SHIP_BAY_3("Cargo Ship Bay 3"), ROCKET_NEAR("Rocket Near Face", false),
-        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false),
-        ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
-                new ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide());
+        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false);
+
+        // ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
+        // new ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide())
 
         public final String text;
         public final boolean cargoShip;

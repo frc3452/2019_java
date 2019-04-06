@@ -260,7 +260,7 @@ public class GZOI extends GZSubsystem {
 		if (controller.retrieve.updated())
 			supe.retrieveGamePiece(queue);
 		else if (controller.score.updated())
-			supe.retrieveGamePiece(queue);
+			supe.scoreGamePiece(queue);
 		else if (controller.intakeCargo.updated())
 			supe.runAction(Actions.INTAKE_CARGO, queue);
 		else if (controller.intakeToggle.updated())
