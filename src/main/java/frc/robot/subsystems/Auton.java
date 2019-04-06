@@ -84,7 +84,7 @@ public class Auton {
 				};
 
 				add(conditional);
-      }
+      		}}));
 
 		// To remove, specifically for testing conditional commands
 		commandArray.add(new GZCommand("Test command", () -> new GZCommandGroup() {
