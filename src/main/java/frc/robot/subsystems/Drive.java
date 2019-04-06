@@ -108,6 +108,16 @@ public class Drive extends GZSubsystem {
 
 		mNavX = new AHRS(Port.kMXP);
 
+		L1.setInverted(kDrivetrain.L_INVERT);
+		L2.setInverted(kDrivetrain.L_INVERT);
+		L3.setInverted(kDrivetrain.L_INVERT);
+		L4.setInverted(kDrivetrain.L_INVERT);
+		
+		R1.setInverted(kDrivetrain.R_INVERT);
+		R2.setInverted(kDrivetrain.R_INVERT);
+		R3.setInverted(kDrivetrain.R_INVERT);
+		R4.setInverted(kDrivetrain.R_INVERT);
+
 		mNavX.reset();
 	}
 

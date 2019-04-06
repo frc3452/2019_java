@@ -26,8 +26,8 @@ public class Constants {
 		
 		// 2019 Robot
 		
-		public final static boolean L_INVERT = false;
-		public final static boolean R_INVERT = false;
+		public final static boolean L_INVERT = true;
+		public final static boolean R_INVERT = true;
 		
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0;
 		
