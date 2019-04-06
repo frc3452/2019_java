@@ -156,6 +156,8 @@ public class Superstructure extends GZSubsystem {
     @Override
     public void loop() {
         mIntakingCargo = Intake.getInstance().isExtended();
+        System.out.println(hasAutoScored() + "\t" + hasAutoFeeder());
+
 
         if (Drive.getInstance().getState() == DriveState.CLIMB && Drive.getInstance().getRearBottomLimit()) {
             System.out.println("Auto Drop crawler!");

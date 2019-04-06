@@ -199,8 +199,7 @@ public class GZOI extends GZSubsystem {
 			if (driverJoy.getButton(Buttons.X)) {
 					supe.fakeAutoScore();
 			}
-			if (driverJoy.getButton(Buttons.Y)) {
-				if (driverJoy.getButton(Buttons.B))
+			else if (driverJoy.getButton(Buttons.RB)) {
 				supe.fakeAutoFeeder();
 		}
 			if (driverJoy.getButtonLatched(Buttons.A)) {
