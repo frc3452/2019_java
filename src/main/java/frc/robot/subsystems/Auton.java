@@ -9,7 +9,6 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.PrintCommand;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
@@ -76,8 +75,8 @@ public class Auton {
 				waitTime(0.1);
 				tele();
 
-				ConditionalCommand conditional = new ConditionalCommand(new PrintCommand("TRUE"),
-						new PrintCommand("FALLLLSE")) {
+				ConditionalCommand conditional = new ConditionalCommand(new Print("TRUE"),
+						new Print("FALLLLSE")) {
 					@Override
 					protected boolean condition() {
 						return Superstructure.getInstance().hasAutoScored();
