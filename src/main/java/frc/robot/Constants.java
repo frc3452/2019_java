@@ -24,7 +24,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
  */
 
 public class Constants {
-	public static final boolean COMP_BOT = true;
+	public static final boolean COMP_BOT = false;
 
 	public static class kLoop {
 	}
