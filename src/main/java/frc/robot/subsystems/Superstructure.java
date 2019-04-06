@@ -87,10 +87,9 @@ public class Superstructure extends GZSubsystem {
             queueAction(action);
             return;
         }
+
         
         // if (mAction == action)
-        // return;
-        
         mAction = action;
         if (mAction == Actions.SCORE_HATCH || mAction == Actions.THROW_CARGO) {
             mHasAutoScored = true;

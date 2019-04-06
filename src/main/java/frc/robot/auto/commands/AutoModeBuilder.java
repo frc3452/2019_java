@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
+
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
 import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -409,9 +410,32 @@ public class AutoModeBuilder {
 
         ret.tele();
 
-        ret.add(new ScoringCommand(location, gamepiece));
+//        ret.add(new ScoringCommand(location, gamepiece));
 
         // if not scored do everything below
+
+        //if not scored do everything below
+        switch (gamepiece) {
+        case CARGO:
+            if (location.isOnCargoShip()) {
+                ret.add(new GoToHeight(Heights.Cargo_Ship));
+            } else {
+                ret.add(new GoToHeight(Heights.Cargo_1));
+            }
+            ret.add(new RunAction(Actions.THROW_CARGO));
+            break;
+        case HATCH_PANEL:
+            // ret.add(new GoToHeight(Heights.Cargo_1));
+            if (location.isOnCargoShip()) {
+                ret.add(new ExtendSlides());
+                ret.add(new GoToHeight(Heights.HP_1));
+            } else { // rocket
+                ret.add(new GoToHeight(Heights.HP_2));
+            }
+            ret.add(new RunAction(Actions.SCORE_HATCH));
+            break;
+        }
+        ret.tele();
 
         return ret;
     }
@@ -747,7 +771,7 @@ public class AutoModeBuilder {
                         add(retrieve);
                 }
 
-                add(new WaitForButtonBoardInput());
+                // add(new WaitForButtonBoardInput());
             }
         };
 

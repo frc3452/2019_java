@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kFiles;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.Robot;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
@@ -23,10 +24,12 @@ public class MotorChecker {
     public static class AmperageChecker {
         public static class FailingValue {
             private final double mValue;
+            private final double mValue2;
             private boolean mFail = false;
 
-            public FailingValue(double mValue) {
+            public FailingValue(double mValue, double mValue2) {
                 this.mValue = mValue;
+                this.mValue2 = mValue2;
             }
 
             public void setFail() {
@@ -39,6 +42,10 @@ public class MotorChecker {
 
             public Double getCurrent() {
                 return this.mValue;
+            }
+
+            public Double getVoltage() {
+                return this.mValue2;
             }
         }
 
@@ -255,6 +262,9 @@ public class MotorChecker {
             return mInstance;
         }
 
+        private double mInitialVoltage = -1;
+        private double mEndVoltage = -1;
+
         private AmperageChecker() {
             clearValues();
         }
@@ -291,6 +301,8 @@ public class MotorChecker {
             Pneumatics.getInstance().setMotorTesting(true);
 
             boolean failure = false;
+
+            mInitialVoltage = RobotController.getBatteryVoltage();
 
             // Clear all fails
             for (GZSubsystem s : subsystemMap.keySet())
@@ -397,6 +409,8 @@ public class MotorChecker {
 
             }
 
+            mEndVoltage = RobotController.getBatteryVoltage();
+
             System.out.println((failure ? "WARNING " : "") + "Amperage check " + (failure ? "failed!" : "passed!"));
             createHTMLFile();
         }
@@ -419,7 +433,7 @@ public class MotorChecker {
             double rpm = group.getRPM();
 
             rpms.add(rpm);
-            currents.add(new FailingValue(current));
+            currents.add(new FailingValue(current, RobotController.getBatteryVoltage()));
 
             individualControllerToCheck.set(0.0, true);
 
@@ -438,11 +452,17 @@ public class MotorChecker {
             return failure;
         }
 
+        private DecimalFormat df = new DecimalFormat("#0.000");
+
         private void createHTMLFile() {
             String body = "";
 
             // Time at top of file
             body += HTML.paragraph("Created on " + GZUtil.dateTime(false));
+
+            body += HTML.paragraph("Robot name [" + kFiles.ROBOT_NAME + "]");
+
+            body += HTML.paragraph("Initial voltage: " + df.format(mInitialVoltage));
 
             // Loop through every subsystem
             for (GZSubsystem subsystem : subsystemMap.keySet()) {
@@ -495,8 +515,8 @@ public class MotorChecker {
                             + HTML.tableCell(talonGroup.getAverageReverseAmperage().toString()) + HTML.tableCell(""));
 
                     // Headers
-                    table += HTML.tableRow(HTML.easyHeader("Talon", "Forward Amperage", "Forward RPM",
-                            "Reverse Amperage", "Reverse RPM"));
+                    table += HTML.tableRow(HTML.easyHeader("Talon", "Forward Amperage", "Forward BAT V", "Forward RPM",
+                            "Reverse Amperage", "Reverse BAT V", "Reverse RPM"));
 
                     // Loop through every talon
                     for (int talon = 0; talon < talonSize + 1; talon++) {
@@ -526,6 +546,12 @@ public class MotorChecker {
                         }
 
                         {
+                            String fwdCellVolt;
+                            fwdCellVolt = HTML.tableCell("" + fwd.get(talon).getVoltage().toString());
+                            row += fwdCellVolt;
+                        }
+
+                        {
                             String fwdCellRPM;
                             fwdCellRPM = HTML.tableCell("" + fwdRPMs.get(talon));
                             row += fwdCellRPM;
@@ -542,10 +568,17 @@ public class MotorChecker {
                         }
 
                         {
+                            String revCellVolt;
+                            revCellVolt = HTML.tableCell("" + rev.get(talon).getVoltage().toString());
+                            row += revCellVolt;
+                        }
+
+                        {
                             String revCellRPM;
                             revCellRPM = HTML.tableCell("" + revRPMs.get(talon));
                             row += revCellRPM;
                         }
+
                         // Format as row
                         row = HTML.tableRow(row);
 
@@ -568,11 +601,13 @@ public class MotorChecker {
                 body += subsystemContent;
             } // end of all subsystems
 
+            body += HTML.paragraph("Ending battery voltage: " + df.format(mEndVoltage));
+
             boolean htmlWriteFail = false;
             GZFile file = null;
             try {
                 // write to rio
-                file = GZFileMaker.getFile("MotorReport-" + GZUtil.dateTime(false), new Folder("MotorReports"),
+                file = GZFileMaker.getFile(kFiles.ROBOT_NAME + "-MotorReport-" + GZUtil.dateTime(false), new Folder("MotorReports"),
                         FileExtensions.HTML, false, true);
                 HTML.createHTMLFile(file, body);
 
@@ -594,7 +629,7 @@ public class MotorChecker {
             clearValues();
 
             Robot.allSubsystems.enableFollower();
-            
+
             Pneumatics.getInstance().setMotorTesting(false);
         }
 

@@ -10,6 +10,7 @@ import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.PrintCommand;
+import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -83,6 +84,23 @@ public class Auton {
 				};
 
 				add(conditional);
+      }
+
+		// To remove, specifically for testing conditional commands
+		commandArray.add(new GZCommand("Test command", () -> new GZCommandGroup() {
+			{
+				tele();
+				ConditionalCommand c = new ConditionalCommand(new Print("TEST PRINT! the guy true!!!"),
+						new Print("TEST PRINT! the guy false!")) {
+
+					@Override
+					protected boolean condition() {
+						return false;
+						// return Superstructure.getInstance().hasScoredInAuto();
+					}
+				};
+
+				add(c);
 			}
 		}));
 
