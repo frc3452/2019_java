@@ -3,11 +3,13 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.PrintCommand;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -67,6 +69,23 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
+		commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
+			{
+				waitTime(0.1);
+				tele();
+
+				ConditionalCommand conditional = new ConditionalCommand(new PrintCommand("TRUE"),
+						new PrintCommand("FALLLLSE")) {
+					@Override
+					protected boolean condition() {
+						return Superstructure.getInstance().hasAutoScored();
+					}
+				};
+
+				add(conditional);
+			}
+		}));
+
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
 				waitTime(0.1);
@@ -131,12 +150,11 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		if (autonomousCommand == null)
-			return Superstructure.getInstance().fakeAutoScore();	
+			return Superstructure.getInstance().fakeAutoScore();
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
 	}
-
 
 	public void toggleAutoWait(boolean updateValue) {
 		if (mLBWaitOnAutoStart.update(updateValue)) {
@@ -145,7 +163,6 @@ public class Auton {
 					+ " at the start of SANDSTORM");
 		}
 	}
-
 
 	/**
 	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
