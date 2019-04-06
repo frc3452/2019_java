@@ -77,9 +77,9 @@ import frc.robot.util.GZCommandGroup;
 
 public class AutoModeBuilder {
 
-    private static final Supplier<GamePiece> mGamePieceSupplier = () -> GZOI.getInstance().getSafteyKey()
-            ? GamePiece.CARGO
-            : GamePiece.HATCH_PANEL;
+    private static final Supplier<GamePiece> mGamePieceSupplier = () -> Auton.getInstance().isAutoPieceHatch()
+            ? GamePiece.HATCH_PANEL
+            : GamePiece.CARGO;
 
     public static final ArrayList<StartingPosition> AllStartingPositions = new ArrayList<StartingPosition>();
     public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
