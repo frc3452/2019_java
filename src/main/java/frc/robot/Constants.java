@@ -18,45 +18,49 @@ import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants;
 public class Constants {
 	public static final boolean COMP_BOT = true;
 
-
+	
 	public static class kDrivetrain {
-
-		public final static int L1 = 1, L2 = 2, L3 = 3, L4 = 4;
-		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
-
+		
+		public final static int R1 = 1, R2 = 2, R3 = 3, R4 = 4;
+		public final static int L1 = 5, L2 = 6, L3 = 7, L4 = 8;
+		
 		// 2019 Robot
-
-		public final static boolean L_INVERT = true;
-		public final static boolean R_INVERT = true;
-
+		
+		public final static boolean L_INVERT = false;
+		public final static boolean R_INVERT = false;
+		
 		public final static double DIFFERENTIAL_DRIVE_DEADBAND = 0;
-
+		
 		public final static double OPEN_LOOP_RAMP_TIME = 0.125; // .125
-
+	
 		public final static double DEMO_DRIVE_MODIFIER = 0.4;
-
+		
 		public final static double NEUTRAL_DEADBAND = 0.01;
 	}
-
+	
 	public static class kPDP {
-		public final static int DRIVE_L_1 = 1, DRIVE_L_2 = 2, DRIVE_L_3 = 3, DRIVE_L_4 = 4;
-		public final static int DRIVE_R_1 = 11, DRIVE_R_2 = 12, DRIVE_R_3 = 13, DRIVE_R_4 = 14;
+		public final static int DRIVE_L_1 = 12, DRIVE_L_2 = 13, DRIVE_L_3 = 14, DRIVE_L_4 = 15;
+		public final static int DRIVE_R_1 = 3, DRIVE_R_2 = 2, DRIVE_R_3 = 1, DRIVE_R_4 = 0;
 	}
-
+	
 	public static class kTempSensor {
 		public final static AnalogInputConstants TEMPERATURE_SENSOR = new AnalogInputConstants(0, 1.75, -50, 100);
 	}
-
+	
 	public static class kFiles {
+		public static final int LOWEST_RECORD_SLOT = 1;
+		public static final int HIGHEST_RECORD_SLOT = 10;
+
+
 		public static final boolean FAKE_PDP = false;
 		public final static GZFile MOTOR_TESTING_CONFIG = GZFileMaker.getSafeFile("MotorTestingConfig", new Folder(""),
-				FileExtensions.CSV, false, false);
-
+		FileExtensions.CSV, false, false);
+		
 		public final static Folder STATS_FILE_FOLDER = new Folder("GZStats");
 		public final static String STATS_FILE_NAME = "Stats";
 		public final static boolean STATS_FILE_ON_USB = false;
 		public final static double DEFAULT_STATS_RECORD_TIME = 1;
-
+		
 		public final static int RECORDING_MOTION_PROFILE_MS = 30; // 20
 		public final static double LOGGING_SPEED = 0.125;
 		public final static String DEFAULT_LOG_VALUE = "N/A";

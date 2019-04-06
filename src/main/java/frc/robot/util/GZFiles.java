@@ -170,10 +170,11 @@ public class GZFiles {
 		}
 	}
 
-	public void parse(String name, Folder folder, boolean usb) {
-		csvControl(name, folder, usb, TASK.Parse, true);
-		csvControl(name, folder, usb, TASK.Parse, false);
+	public void parse(GZFile file) {
+		csvControl(file.getName(), new Folder(""), false, TASK.Parse, true);
+		csvControl(file.getName(), new Folder(""), false, TASK.Parse, false);
 	}
+
 
 	/**
 	 * notifier object for running profile recorder

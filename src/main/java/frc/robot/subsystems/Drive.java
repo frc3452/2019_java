@@ -5,16 +5,19 @@ import java.text.DecimalFormat;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.I2C.Port;
 import frc.robot.Constants.kDrivetrain;
+import frc.robot.Constants.kFiles;
+import frc.robot.Constants.kPDP;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
-import frc.robot.util.GZFile;
-import frc.robot.util.GZFileMaker;
-import frc.robot.util.GZFileMaker.FileExtensions;
+import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
+import frc.robot.util.GZFiles.TASK;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.GZJoystick;
+import frc.robot.util.drivers.motorcontrollers.GZSpark;
 
 public class Drive extends GZSubsystem {
 	// Force switch state to neutral on start up
@@ -23,14 +26,12 @@ public class Drive extends GZSubsystem {
 	public IO mIO = new IO();
 
 	// DRIVETRAIN
-	// public GZSRX L1, L2, L3, L4, R1, R2, R3, R4;
+	public GZSpark L1, L2, L3, L4, R1, R2, R3, R4;
 
 	private AHRS mNavX;
 
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
-	private double mPercentageComplete = 0;
-	private double mLeft_target = 0, mRight_target = 0;
 
 	private static Drive mInstance = null;
 
@@ -38,7 +39,55 @@ public class Drive extends GZSubsystem {
 	private double curvatureDriveQuickStopAlpha = .1;
 	private double curvatureDriveQuickStopAccumulator;
 
-	private GZFile mPIDConfigFile = null;
+	private int pRecordSlot = 0;
+	private int mRecordSlot = 1;
+
+	private boolean mRecording = false;
+
+	public void record() {
+		mRecording = true;
+		System.out.println("WARNING Recording auton [Auton" + mRecordSlot + "]");
+		GZFiles.getInstance().csvControl("Auton" + mRecordSlot, new Folder(""), false, TASK.Record, true);
+	}
+
+	public void stopRecord() {
+		mRecording = false;
+		System.out.println("WARNING Stopping auton record [Auton" + mRecordSlot + "]");
+		GZFiles.getInstance().csvControl("Auton" + mRecordSlot, new Folder(""), false, TASK.Record, false);
+	}
+
+	public void toggleRecord() {
+		if (mRecording) {
+			stopRecord();
+			return;
+		}
+		if (!mRecording) {
+			record();
+			return;
+		}
+	}
+
+	public void nextRecordSlot() {
+		if (mRecording) {
+			System.out.println("WARNING Cannot change recording slot while recording!");
+			return;
+		}
+		mRecordSlot++;
+		if (mRecordSlot > kFiles.HIGHEST_RECORD_SLOT) {
+			mRecordSlot = 1;
+		}
+	}
+
+	public void prevRecordSlot() {
+		if (mRecording) {
+			System.out.println("WARNING Cannot change recording slot while recording!");
+			return;
+		}
+		mRecordSlot--;
+		if (mRecordSlot < kFiles.LOWEST_RECORD_SLOT) {
+			mRecordSlot = 1;
+		}
+	}
 
 	public synchronized static Drive getInstance() {
 		if (mInstance == null)
@@ -47,35 +96,20 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
-		// L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1",
-		// kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
-		// L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2",
-		// kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
-		// L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3",
-		// kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
-		// L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4",
-		// kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT).build();
+		L1 = new GZSpark.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).build();
+		L2 = new GZSpark.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).build();
+		L3 = new GZSpark.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).build();
+		L4 = new GZSpark.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).build();
 
-		// R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1",
-		// kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT).build();
-		// R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2",
-		// kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT).build();
-		// R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3",
-		// kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
-		// R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4",
-		// kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
+		R1 = new GZSpark.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).build();
+		R2 = new GZSpark.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).build();
+		R3 = new GZSpark.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).build();
+		R4 = new GZSpark.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).build();
 
-		// mNavX = new NavX(SPI.Port.kMXP);
-
-		try {
-			mPIDConfigFile = GZFileMaker.getFile("DrivePID", new Folder(""), FileExtensions.CSV, false, false);
-		} catch (Exception e) {
-		}
+		mNavX = new AHRS(Port.kMXP);
 
 		mNavX.reset();
 	}
-
-
 
 	public String getSmallString() {
 		return "DRV";
@@ -99,9 +133,19 @@ public class Drive extends GZSubsystem {
 			mIO.right_output = mIO.right_desired_output;
 		}
 
-		// L1.set(mIO.left_output);
-		// R1.set(mIO.right_output);
+		final double left = mIO.left_output;
+		final double right = mIO.right_output;
+		L1.set(left);
+		L2.set(left);
+		L3.set(left);
+		L4.set(left);
+		
+		R1.set(right);
+		R2.set(right);
+		R3.set(right);
+		R4.set(right);
 
+		// System.out.println(df.format(left) + "\t" + df.format(right));
 	}
 
 	@Override
@@ -182,14 +226,17 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
-		// System.out.println("right " + getRearTopLimit() + "\t" +
-		// getRearBottomLimit());
-		// System.out.println(df.format(getLeftVelocityInchesPerSec()) + "\t" +
-		// df.format(getRightVelocityInchesPerSec()));
-
+		handlePrintForRecording();
 		handleStates();
 		in();
 		out();
+	}
+
+	private void handlePrintForRecording() {
+		if (pRecordSlot != mRecordSlot) {
+			System.out.println("WARNING Auton record selected: " + mRecordSlot);
+		}
+		mRecordSlot = pRecordSlot;
 	}
 
 	public static class IO {
@@ -235,11 +282,12 @@ public class Drive extends GZSubsystem {
 		// final double rotate = elv * turnScalar * ((joy.getRightTrigger() -
 		// joy.getLeftTrigger()) * .6);
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
-		// arcadeNoState(move, rotate, false);
-
+		
 		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger());
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
+		// arcadeNoState(move, rotate, false);
 		cheesyNoState(move, rotate * 0.55, !usingCurvature());
+
 		// 0.6 or 0.65
 	}
 
@@ -408,10 +456,6 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void tank(GZJoystick joy) {
 		tank(joy.getLeftAnalogY(), joy.getRightAnalogY());
-	}
-
-	public synchronized Double getPercentageComplete() {
-		return mPercentageComplete;
 	}
 
 	public synchronized void zeroGyro() {

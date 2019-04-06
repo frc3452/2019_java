@@ -105,10 +105,21 @@ public class GZOI extends GZSubsystem {
 	}
 
 	public void handleControls() {
-		// handleSuperStructureControl(driverJoy);
 		handleDriverController();
 		handleRumble();
-		// handleElevatorTesting();
+		handleRecording();
+	}
+
+	public void handleRecording() {
+		if (driverJoy.getButton(Buttons.LB)) {
+			if (driverJoy.getButtonLatched(Buttons.A)) {
+				Drive.getInstance().nextRecordSlot();
+			} else if (driverJoy.getButtonLatched(Buttons.B)) {
+				Drive.getInstance().prevRecordSlot();
+			} else if (driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+				Drive.getInstance().toggleRecord();
+			}
+		}
 	}
 
 	public void addRumble(double onTime, double offTime, int times) {

@@ -3,10 +3,15 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.kFiles;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.drive.FollowPath;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
+import frc.robot.util.GZFile;
+import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.GZJoystick.Buttons;
@@ -58,12 +63,22 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
-			{
-				waitTime(0.1);
 
+		for (int i = 1; i < kFiles.HIGHEST_RECORD_SLOT + 1; i++) {
+			try {
+				GZFile temp = GZFileMaker.getFile("Auton" + i, new Folder(""), false, true);
+
+				GZCommandGroup c = new GZCommandGroup();
+				c.tele();
+				c.add(new FollowPath(temp));
+
+				// Command c = new FollowPath(temp);
+				GZCommand command = new GZCommand("Follow path " + i, () -> c);
+				commandArray.add(command);
+			} catch (Exception e) {
+				System.out.println("Could not make auto file " + i + "!");
 			}
-		}));
+		}
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
@@ -73,7 +88,6 @@ public class Auton {
 	private Auton() {
 		fillAutonArray();
 	}
-
 
 	public void autonChooser() {
 		controllerChooser();
@@ -99,7 +113,6 @@ public class Auton {
 				&& GZOI.getInstance().isAuto();
 	}
 
-
 	public void toggleAutoWait(boolean updateValue) {
 		if (mLBWaitOnAutoStart.update(updateValue)) {
 			mWaitOnAutoStart = !mWaitOnAutoStart;
@@ -107,7 +120,6 @@ public class Auton {
 					+ " at the start of SANDSTORM");
 		}
 	}
-
 
 	/**
 	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
