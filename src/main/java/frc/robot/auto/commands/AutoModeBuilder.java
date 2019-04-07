@@ -415,26 +415,26 @@ public class AutoModeBuilder {
         // if not scored do everything below
 
         //if not scored do everything below
-        switch (gamepiece) {
-        case CARGO:
-            if (location.isOnCargoShip()) {
-                ret.add(new GoToHeight(Heights.Cargo_Ship));
-            } else {
-                ret.add(new GoToHeight(Heights.Cargo_1));
-            }
-            ret.add(new RunAction(Actions.THROW_CARGO));
-            break;
-        case HATCH_PANEL:
-            // ret.add(new GoToHeight(Heights.Cargo_1));
-            if (location.isOnCargoShip()) {
-                ret.add(new ExtendSlides());
-                ret.add(new GoToHeight(Heights.HP_1));
-            } else { // rocket
-                ret.add(new GoToHeight(Heights.HP_2));
-            }
-            ret.add(new RunAction(Actions.SCORE_HATCH));
-            break;
-        }
+        // switch (gamepiece) {
+        // case CARGO:
+        //     if (location.isOnCargoShip()) {
+        //         ret.add(new GoToHeight(Heights.Cargo_Ship));
+        //     } else {
+        //         ret.add(new GoToHeight(Heights.Cargo_1));
+        //     }
+        //     ret.add(new RunAction(Actions.THROW_CARGO));
+        //     break;
+        // case HATCH_PANEL:
+        //     // ret.add(new GoToHeight(Heights.Cargo_1));
+        //     if (location.isOnCargoShip()) {
+        //         ret.add(new ExtendSlides());
+        //         ret.add(new GoToHeight(Heights.HP_1));
+        //     } else { // rocket
+        //         ret.add(new GoToHeight(Heights.HP_2));
+        //     }
+        //     ret.add(new RunAction(Actions.SCORE_HATCH));
+        //     break;
+        // }
         ret.tele();
 
         return ret;

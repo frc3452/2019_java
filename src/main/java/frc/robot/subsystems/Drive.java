@@ -73,7 +73,7 @@ public class Drive extends GZSubsystem {
 	private static Drive mInstance = null;
 
 	private double curvatureDriveQuickStopThreshold = .2;
-	private double curvatureDriveQuickStopAlpha = .1;
+	private double curvatureDriveQuickStopAlpha = .1; // .1
 	private double curvatureDriveQuickStopAccumulator;
 
 	private GZFile mPIDConfigFile = null;
@@ -635,23 +635,25 @@ public class Drive extends GZSubsystem {
 		case NEUTRAL:
 			// brake(false);
 			// if (mIO.encodersValid) {
-			// 	if (!(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto())) {
-			// 		System.out.println("First enable, coasting!");
-			// 		brake(false);
+			// if (!(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto())) {
+			// System.out.println("First enable, coasting!");
+			// brake(false);
 
-			// 	} else if (noSpeedGreaterThan(10)) {
-			// 		System.out.println("Entering neutral, braking!");
-			// 		brake(true);
-			// 	} else {
-			// 		System.out.println("Entering neutral, coasting!");
-			// 		brake(false);
-			// 	}
-
-			// 	System.out.println("Speed: " + df.format(getLeftVelocityInchesPerSec()) + "\t"
-			// 			+ df.format(getRightVelocityInchesPerSec()) + "\t" + noSpeedGreaterThan(10.0));
+			// } else if (noSpeedGreaterThan(10)) {
+			// System.out.println("Entering neutral, braking!");
+			// brake(true);
 			// } else {
-			// 	System.out.println("Encoders not good going into neutral!!!");
-			// 	brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
+			// System.out.println("Entering neutral, coasting!");
+			// brake(false);
+			// }
+
+			// System.out.println("Speed: " + df.format(getLeftVelocityInchesPerSec()) +
+			// "\t"
+			// + df.format(getRightVelocityInchesPerSec()) + "\t" +
+			// noSpeedGreaterThan(10.0));
+			// } else {
+			// System.out.println("Encoders not good going into neutral!!!");
+			// brake(GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto());
 			// }
 
 			brake((GZOI.getInstance().wasTele() || GZOI.getInstance().wasAuto()));
@@ -660,7 +662,7 @@ public class Drive extends GZSubsystem {
 			brake(true);
 			break;
 		case OPEN_LOOP_DRIVER:
-			brake(false);
+			brake(true);
 			break;
 		case DEMO:
 			brake(false);
@@ -702,11 +704,6 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
-		// System.out.println("right " + getRearTopLimit() + "\t" +
-		// getRearBottomLimit());
-		// System.out.println(df.format(getLeftVelocityInchesPerSec()) + "\t" +
-		// df.format(getRightVelocityInchesPerSec()));
-
 		handleStates();
 		in();
 		out();
@@ -778,7 +775,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void in() {
-		this.mModifyPercent = (mIsSlow ? .5 : 1);
+		this.mModifyPercent = (mIsSlow ? 0.4 : 1);
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();
@@ -983,9 +980,13 @@ public class Drive extends GZSubsystem {
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
+		double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
-		cheesyNoState(move, rotate * 0.55, !usingCurvature());
+
+		// rotate = Math.copySign(rotate * rotate, rotate);
+
+		rotate *= 0.45;
+		cheesyNoState(move, rotate, !usingCurvature());
 		// 0.6 or 0.65
 	}
 
@@ -994,7 +995,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private double getTurnModifier() {
-		return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier() * kElevator.ELEV_TURN_SCALAR : 1);
+		return mModifyPercent * (mIsSlow ? .75 : 1);
+		// return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier() * kElevator.ELEV_TURN_SCALAR : 1);
 	}
 
 	private double getTotalModifer() {

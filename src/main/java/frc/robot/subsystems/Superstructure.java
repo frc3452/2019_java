@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
@@ -11,22 +10,22 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 
 public class Superstructure extends GZSubsystem {
-    
+
     private Elevator elev = Elevator.getInstance();
     private Intake intake = Intake.getInstance();
-    
+
     private GZSubsystemManager subsystems;
-    
+
     private boolean mIntakingCargo = false;
     private boolean mHasAutoScored = false;
     private boolean mHasAutoFeeder = false;
-    
+
     private GZFlag mActionDone = new GZFlag();
     private GZFlagMultiple ScoreHP = new GZFlagMultiple(6);
     private GZFlagMultiple HPFromFeed = new GZFlagMultiple(7);
-    
+
     private GZFlagMultiple CargoFromFeed = new GZFlagMultiple(3);
-    
+
     private GZFlagMultiple IntakeCargo = new GZFlagMultiple(2);
     private GZFlagMultiple ScootCargoOnGround = new GZFlagMultiple(2);
     private GZFlagMultiple GrabCargoDuringIntake = new GZFlagMultiple(6);
@@ -62,14 +61,14 @@ public class Superstructure extends GZSubsystem {
     public boolean isIntakingCargo() {
         return mIntakingCargo;
     }
-    
-    public boolean hasAutoScored () {
-		return mHasAutoScored;
+
+    public boolean hasAutoScored() {
+        return mHasAutoScored;
     }
-    
-    public boolean hasAutoFeeder () {
-		return mHasAutoFeeder;
-	}
+
+    public boolean hasAutoFeeder() {
+        return mHasAutoFeeder;
+    }
 
     public boolean fakeAutoScore() {
         mHasAutoScored = true;
@@ -88,13 +87,11 @@ public class Superstructure extends GZSubsystem {
             return;
         }
 
-        
         // if (mAction == action)
         mAction = action;
         if (mAction == Actions.SCORE_HATCH || mAction == Actions.THROW_CARGO) {
             mHasAutoScored = true;
         }
-
 
         if (mAction != Actions.IDLE && mAction != Actions.OFF)
             mActionDone.rst();
@@ -151,9 +148,8 @@ public class Superstructure extends GZSubsystem {
 
     @Override
     public void loop() {
-        mIntakingCargo = Intake.getInstance().isExtended();
-        System.out.println(hasAutoScored() + "\t" + hasAutoFeeder());
-
+        mIntakingCargo = !Intake.getInstance().isRetracted();
+        // System.out.println(hasAutoScored() + "\t" + hasAutoFeeder());
 
         if (Drive.getInstance().getState() == DriveState.CLIMB && Drive.getInstance().getRearBottomLimit()) {
             System.out.println("Auto Drop crawler!");
@@ -189,12 +185,6 @@ public class Superstructure extends GZSubsystem {
                     closeClaw();
 
                     if (elev.isClawClosed())
-                        ScoreHP.tripNext();
-                } else if (!ScoreHP.getNext()) {
-                    elev.jogHeight(kElevator.HATCH_PLACING_JOG);
-                    ScoreHP.tripNext();
-                } else if (!ScoreHP.getNext()) {
-                    if (elev.nearTarget())
                         ScoreHP.tripNext();
                 } else if (!ScoreHP.getNext()) {
                     elev.retractSlides();

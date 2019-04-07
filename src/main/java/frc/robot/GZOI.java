@@ -83,6 +83,10 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
+		mCamera.setResolution(160, 120);
+		mCamera.setFPS(15);
+		mCamera.setExposureManual(50);
+		mCamera.setBrightness(65);
 		op.setXboxController();
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
@@ -194,20 +198,17 @@ public class GZOI extends GZSubsystem {
 			else if (driverJoy.getButton(Buttons.Y))
 				drive.wantShift(ClimbingState.REAR);
 
-
 		} else {
 			if (driverJoy.getButton(Buttons.X)) {
-					supe.fakeAutoScore();
-			}
-			else if (driverJoy.getButton(Buttons.RB)) {
+				supe.fakeAutoScore();
+			} else if (driverJoy.getButton(Buttons.RB)) {
 				supe.fakeAutoFeeder();
-		}
+			}
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
 
-			// if 
-
+			// if
 
 		}
 

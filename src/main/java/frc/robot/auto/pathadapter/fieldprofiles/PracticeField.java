@@ -1,5 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
+import frc.robot.Constants;
+
 public class PracticeField extends FieldProfile {
     public PracticeField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
@@ -25,10 +27,10 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            // return 19; //19 
+            // return 19; //19
 
             // return 22;
-            return 22 + 2.5; //big fat teeth
+            return 21.5; // big fat teeth
         }
 
         @Override
@@ -48,24 +50,25 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 27.5 + 2 + 1.5;
+            return 27.5 + 1.5;
         }
 
         @Override
         public double cargo2() {
-            return 55.5 + 2;
+            return 55.5 + 1;    
         }
 
         @Override
         public double cargo3() {
-            return 83.5 + 2;
+            return 83.5 + 1;
         }
 
         @Override
         public double hp_feed_jog() {
             // return hp1() + 7;
-            return hp1() + 5; //big fat teeth
+            return hp1() + 5; // big fat teeth
         }
+
         @Override
         public double zero() {
             return 16.5;
@@ -74,7 +77,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double lowest_with_slides_out() {
             // return 18.5;
-            return 22.0; //big fat teeth
+            return 22.0; // big fat teeth
         }
 
         @Override
@@ -90,7 +93,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hatch_place_jog() {
             // return 4;
-            return 3; //big fat teeth
+            return 3; // big fat teeth
         }
     };
     private HeightsContainer mCompHeights = new HeightsContainer() {
@@ -101,10 +104,10 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            // return 19; //19 
+            // return 19; //19
 
             // return 22;
-            return 23; //big fat teeth
+            return 23; // big fat teeth
         }
 
         @Override
@@ -140,8 +143,9 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hp_feed_jog() {
             // return hp1() + 7;
-            return hp1() + 5; //big fat teeth
+            return hp1() + 5; // big fat teeth
         }
+
         @Override
         public double zero() {
             return 16.5;
@@ -150,7 +154,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double lowest_with_slides_out() {
             // return 18.5;
-            return 22.0; //big fat teeth
+            return 22.0; // big fat teeth
         }
 
         @Override
@@ -166,7 +170,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hatch_place_jog() {
             // return 4;
-            return 3; //big fat teeth
+            return 3; // big fat teeth
         }
     };
     private HeightsContainer mCompHeightsAtMary = new HeightsContainer() {
@@ -177,10 +181,10 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            // return 19; //19 
+            // return 19; //19
 
             // return 22;
-            return 23; //big fat teeth
+            return 23; // big fat teeth
         }
 
         @Override
@@ -216,8 +220,9 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hp_feed_jog() {
             // return hp1() + 7;
-            return hp1() + 5; //big fat teeth
+            return hp1() + 5; // big fat teeth
         }
+
         @Override
         public double zero() {
             return 16.5;
@@ -226,7 +231,7 @@ public class PracticeField extends FieldProfile {
         @Override
         public double lowest_with_slides_out() {
             // return 18.5;
-            return 22.0; //big fat teeth
+            return 22.0; // big fat teeth
         }
 
         @Override
@@ -242,13 +247,17 @@ public class PracticeField extends FieldProfile {
         @Override
         public double hatch_place_jog() {
             // return 4;
-            return 3; //big fat teeth
+            return 3; // big fat teeth
         }
     };
 
     @Override
     public HeightsContainer getElevatorHeights() {
-        return mCompHeightsAtMary;
+        if (Constants.COMP_BOT) {
+            return mCompHeightsAtMary;
+        } else {
+            return mPracticeHeights;
+        }
     }
 
 }

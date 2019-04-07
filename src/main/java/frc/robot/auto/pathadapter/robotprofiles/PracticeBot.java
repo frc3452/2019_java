@@ -5,7 +5,8 @@ public class PracticeBot extends RobotProfile {
 
     @Override
     public double getWheelDiamaterInches() {
-        return 7.7;
+        // return 7.7;
+        return 8;
     }
 
     @Override

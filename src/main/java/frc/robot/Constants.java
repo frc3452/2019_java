@@ -35,8 +35,8 @@ public class Constants {
 
 		public static final SolenoidConstants CRAWLER = new SolenoidConstants(1, 1, 2.0, 2.0);
 
-		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, COMP_BOT ? 7 : 6, 0.5, 0.5);
-		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.35, 0.35);
+		public static final SolenoidConstants SLIDES = new SolenoidConstants(0, COMP_BOT ? 7 : 6, 0.3, 0.3);
+		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.175, 0.175);
 
 		// fold 3 then 4 on practice
 		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, .75, 0.5);
@@ -144,11 +144,11 @@ public class Constants {
 
 		static {
 			if (COMP_BOT) {
-				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 0, 1, 2, 3);
 				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 4, 5, 6, 7);
+				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 0, 1, 2, 3);
 			} else {
-				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 4, 5, 6, 7);
-				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 0, 1, 2, 3);
+				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 7, 6, 5, 4);
+				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 3, 2, 1, 0);
 			}
 		}
 	}
@@ -284,17 +284,17 @@ public class Constants {
 		public static final boolean INTAKE_R_INVERT;
 
 		static {
-			// if (COMP_BOT) {
-			INTAKE_L_INVERT = false;
-			INTAKE_R_INVERT = false;
-			// } else {
-			// INTAKE_L_INVERT = true;
-			// INTAKE_R_INVERT = false;
-			// }
+			if (COMP_BOT) {
+				INTAKE_L_INVERT = false;
+				INTAKE_R_INVERT = false;
+			} else {
+				INTAKE_L_INVERT = true;
+				INTAKE_R_INVERT = true;
+			}
 
 		}
 
-		public static final double INTAKE_SPEED = -.4;
+		public static final double INTAKE_SPEED = -.5;
 		public static final double SHOOTING_SPEED = 0.25;
 		// public static final double INTAKE_SPEED = -.15;
 		// public static final double SHOOTING_SPEED = .15;

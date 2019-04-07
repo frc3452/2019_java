@@ -9,7 +9,6 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.PrintCommand;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
@@ -70,44 +69,25 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
-			{
-				waitTime(0.1);
-				tele();
+		// commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
+		// 	{
+		// 		waitTime(0.1);
+		// 		tele();
 
-				ConditionalCommand conditional = new ConditionalCommand(new PrintCommand("TRUE"),
-						new PrintCommand("FALLLLSE")) {
-					@Override
-					protected boolean condition() {
-						return Superstructure.getInstance().hasAutoScored();
-					}
-				};
+		// 		ConditionalCommand conditional = new ConditionalCommand(new Print("TRUE"),
+		// 				new Print("FALLLLSE")) {
+		// 			@Override
+		// 			protected boolean condition() {
+		// 				return Superstructure.getInstance().hasAutoScored();
+		// 			}
+		// 		};
 
-				add(conditional);
-      		}}));
-
-		// To remove, specifically for testing conditional commands
-		commandArray.add(new GZCommand("Test command", () -> new GZCommandGroup() {
-			{
-				tele();
-				ConditionalCommand c = new ConditionalCommand(new Print("TEST PRINT! the guy true!!!"),
-						new Print("TEST PRINT! the guy false!")) {
-
-					@Override
-					protected boolean condition() {
-						return false;
-						// return Superstructure.getInstance().hasScoredInAuto();
-					}
-				};
-
-				add(c);
-			}
-		}));
+		// 		add(conditional);
+      	// 	}}));
 
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
 				waitTime(0.1);
-
 			}
 		}));
 
