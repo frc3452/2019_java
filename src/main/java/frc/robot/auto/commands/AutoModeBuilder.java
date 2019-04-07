@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.GZOI;
-
+import edu.wpi.first.wpilibj.command.ConditionalCommand;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
-import frc.robot.auto.commands.functions.WaitForButtonBoardInput;
+import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
+import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
-import frc.robot.auto.commands.functions.superstructure.ScoringCommand;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -71,15 +72,17 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
+import frc.robot.subsystems.Auton;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 
 public class AutoModeBuilder {
 
-    private static final Supplier<GamePiece> mGamePieceSupplier = () -> GZOI.getInstance().getSafteyKey()
-            ? GamePiece.CARGO
-            : GamePiece.HATCH_PANEL;
+    private static final Supplier<GamePiece> mGamePieceSupplier = () -> Auton.getInstance().isAutoPieceHatch()
+            ? GamePiece.HATCH_PANEL
+            : GamePiece.CARGO;
 
     public static final ArrayList<StartingPosition> AllStartingPositions = new ArrayList<StartingPosition>();
     public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
@@ -155,7 +158,8 @@ public class AutoModeBuilder {
         ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false);
 
         // ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
-        // new ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide())
+        // new
+        // ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide())
 
         public final String text;
         public final boolean cargoShip;
@@ -410,32 +414,39 @@ public class AutoModeBuilder {
 
         ret.tele();
 
-//        ret.add(new ScoringCommand(location, gamepiece));
-
         // if not scored do everything below
 
-        //if not scored do everything below
-        // switch (gamepiece) {
-        // case CARGO:
-        //     if (location.isOnCargoShip()) {
-        //         ret.add(new GoToHeight(Heights.Cargo_Ship));
-        //     } else {
-        //         ret.add(new GoToHeight(Heights.Cargo_1));
-        //     }
-        //     ret.add(new RunAction(Actions.THROW_CARGO));
-        //     break;
-        // case HATCH_PANEL:
-        //     // ret.add(new GoToHeight(Heights.Cargo_1));
-        //     if (location.isOnCargoShip()) {
-        //         ret.add(new ExtendSlides());
-        //         ret.add(new GoToHeight(Heights.HP_1));
-        //     } else { // rocket
-        //         ret.add(new GoToHeight(Heights.HP_2));
-        //     }
-        //     ret.add(new RunAction(Actions.SCORE_HATCH));
-        //     break;
-        // }
-        ret.tele();
+        GZCommandGroup score = new GZCommandGroup();
+        switch (gamepiece) {
+        case CARGO:
+            if (location.isOnCargoShip()) {
+                score.add(new GoToHeight(Heights.Cargo_Ship));
+            } else {
+                score.add(new GoToHeight(Heights.Cargo_1));
+            }
+            score.add(new RunAction(Actions.THROW_CARGO));
+            break;
+        case HATCH_PANEL:
+            // ret.add(new GoToHeight(Heights.Cargo_1));
+            if (location.isOnCargoShip()) {
+                score.add(new ExtendSlides());
+                score.add(new GoToHeight(Heights.HP_1));
+            } else { // rocket
+                score.add(new GoToHeight(Heights.HP_2));
+            }
+            score.add(new RunAction(Actions.SCORE_HATCH));
+            break;
+        }
+        score.tele();
+
+        ConditionalCommand scoreCommand = new ConditionalCommand(new NoCommand(), score) {
+            @Override
+            protected boolean condition() {
+                return Superstructure.getInstance().hasAutoScored();
+            }
+        };
+
+        ret.add(scoreCommand);
 
         return ret;
     }

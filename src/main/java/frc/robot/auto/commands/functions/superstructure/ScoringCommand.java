@@ -10,6 +10,7 @@ import frc.robot.util.GZCommandGroup;
 public class ScoringCommand extends Command {
   private GamePiece mGamePiece;
   private ScoringLocation mScoringLocation;
+
   public ScoringCommand(ScoringLocation scoringLocation, GamePiece gamePiece) {
     mGamePiece = gamePiece;
     mScoringLocation = scoringLocation;
@@ -21,25 +22,25 @@ public class ScoringCommand extends Command {
     GZCommandGroup ret = new GZCommandGroup();
 
     switch (mGamePiece) {
-      case CARGO:
-          if (mScoringLocation.isOnCargoShip()) {
-              ret.add(new GoToHeight(Heights.Cargo_Ship));
-          } else {
-              ret.add(new GoToHeight(Heights.Cargo_1));
-          }
-          ret.add(new RunAction(Actions.THROW_CARGO));
-          break;
-      case HATCH_PANEL:
-          // ret.add(new GoToHeight(Heights.Cargo_1));
-          if (mScoringLocation.isOnCargoShip()) {
-              ret.add(new ExtendSlides());
-              ret.add(new GoToHeight(Heights.HP_1));
-          } else { // rocket
-              ret.add(new GoToHeight(Heights.HP_2));
-          }
-          ret.add(new RunAction(Actions.SCORE_HATCH));
-          break;
-        }
+    case CARGO:
+      if (mScoringLocation.isOnCargoShip()) {
+        ret.add(new GoToHeight(Heights.Cargo_Ship));
+      } else {
+        ret.add(new GoToHeight(Heights.Cargo_1));
+      }
+      ret.add(new RunAction(Actions.THROW_CARGO));
+      break;
+    case HATCH_PANEL:
+      // ret.add(new GoToHeight(Heights.Cargo_1));
+      if (mScoringLocation.isOnCargoShip()) {
+        ret.add(new ExtendSlides());
+        ret.add(new GoToHeight(Heights.HP_1));
+      } else { // rocket
+        ret.add(new GoToHeight(Heights.HP_2));
+      }
+      ret.add(new RunAction(Actions.SCORE_HATCH));
+      break;
+    }
   }
 
   @Override
@@ -57,6 +58,6 @@ public class ScoringCommand extends Command {
 
   @Override
   protected void interrupted() {
-    //end
+    // end
   }
 }

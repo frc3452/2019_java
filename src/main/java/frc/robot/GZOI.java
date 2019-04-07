@@ -126,7 +126,6 @@ public class GZOI extends GZSubsystem {
 		if (isDisabled()) {
 			disabled();
 		} else if (Auton.getInstance().isAutoControl()) { // running auto command
-			Auton.getInstance().controllerStart(driverJoy.getButtons(Buttons.A, Buttons.B));
 			Auton.getInstance().controllerCancel(driverJoy.getButtons(Buttons.A, Buttons.X));
 		} else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
 			handleControls();
@@ -166,6 +165,7 @@ public class GZOI extends GZSubsystem {
 
 	private void disabled() {
 		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
+		Auton.getInstance().toggleAutoGamePiece(driverJoy.getButtons(Buttons.A, Buttons.RB));
 
 		rumble(0);
 		// handleRumble();
@@ -207,9 +207,6 @@ public class GZOI extends GZSubsystem {
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}
-
-			// if
-
 		}
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))

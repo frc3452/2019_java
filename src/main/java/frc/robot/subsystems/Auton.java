@@ -3,13 +3,11 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.superstructure.GoToHeight;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -48,10 +46,11 @@ public class Auton {
 
 	private static Auton mInstance = null;
 
-	private LatchedBoolean mLBAutoStart = new LatchedBoolean();
 	private LatchedBoolean mLBAutoCancel = new LatchedBoolean();
 	private LatchedBoolean mLBWaitOnAutoStart = new LatchedBoolean();
+	private LatchedBoolean mLBAutoGamePiece = new LatchedBoolean();
 	private boolean mWaitOnAutoStart = false;
+	private boolean mAutoPieceIsHatch = true;
 
 	private DigitalSelector mSelectorOnes = null, mSelectorTens = null;
 
@@ -159,21 +158,21 @@ public class Auton {
 			mWaitOnAutoStart = !mWaitOnAutoStart;
 			System.out.println("WARNING Auto start set to " + (mWaitOnAutoStart ? "WAIT" : "NOT WAIT")
 					+ " at the start of SANDSTORM");
+				}
+			}
+			
+			public void toggleAutoGamePiece(boolean updateValue) {
+				if (mLBAutoGamePiece.update(updateValue))
+				{
+					mAutoPieceIsHatch = !mAutoPieceIsHatch;
+					System.out.println("WARNING Auto game piece set to " + (mAutoPieceIsHatch ? "HATCH" : "CARGO"));
 		}
+
 	}
 
-	/**
-	 * Uses internal LatchedBoolean, starts auton with controller Ignores autonomous
-	 * waiting
-	 */
-	public void controllerStart(boolean update) {
-		if (autonomousCommand == null)
-			return;
-
-		if (mLBAutoStart.update(update)) {
-			startAutoCommand();
-			System.out.println("WARNING Controller starting auto!");
-		}
+	public boolean isAutoPieceHatch()
+	{
+		return mAutoPieceIsHatch;
 	}
 
 	private void addWaitAndStart() {
