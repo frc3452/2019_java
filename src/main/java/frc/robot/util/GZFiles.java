@@ -775,6 +775,13 @@ public class GZFiles {
 			return newLine("<tr>" + f + "</tr>");
 		}
 
+		public static String tableCell(String f, boolean fail) {
+			if (fail)
+				return HTML.tableCell(f, "red", false);
+
+			return HTML.tableCell(f);
+		}
+
 		public static String tableCell(String f, String color, boolean cell_is_color) {
 			String temp;
 			if (cell_is_color)

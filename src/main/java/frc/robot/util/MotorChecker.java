@@ -22,14 +22,108 @@ import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 
 public class MotorChecker {
     public static class AmperageChecker {
+
+        public static class FailingValueWrapper {
+
+            private ArrayList<FailingValue> array = new ArrayList<FailingValue>();
+            private double average = -1;
+
+            private final double epsilon;
+            private final double floor;
+            private final MotorTestingGroup group;
+
+            private boolean hasFails = false;
+            private boolean mFirstCheck = false;
+
+            public FailingValueWrapper(MotorTestingGroup group, double epsilon, double floor) {
+                this.epsilon = epsilon;
+                this.floor = floor;
+                this.group = group;
+            }
+
+            public FailingValueWrapper(double epsilon, double floor) {
+                this(null, epsilon, floor);
+            }
+
+            public void add(FailingValue value) {
+                this.array.add(value);
+            }
+
+            public FailingValue get(int pos) {
+                return this.array.get(pos);
+            }
+
+            public int size() {
+                return this.array.size();
+            }
+
+            private void average() {
+                double accum = 0;
+                for (FailingValue value : array) {
+                    accum += value.getVal();
+                }
+
+                accum /= array.size();
+                average = accum;
+            }
+
+            public void check() {
+                mFirstCheck = true;
+                average();
+                floor();
+                findFails();
+            }
+
+            public boolean hasFails() {
+                if (!mFirstCheck)
+                    check();
+
+                return hasFails;
+            }
+
+            private void floor() {
+                for (FailingValue c : array) {
+                    if (c.getVal() < floor) {
+                        c.setFail();
+                        fail();
+                    }
+                }
+            }
+
+            private void fail() {
+                hasFails = true;
+                if (group != null)
+                    group.getSubsystem().setMotorTestingFail();
+            }
+
+            private void findFails() {
+                for (FailingValue c : array) {
+                    if (!GZUtil.epsilonEquals(c.getVal(), average, epsilon)) {
+                        c.setFail();
+                        fail();
+                    }
+                }
+            }
+
+            public double getAverage() {
+                return average;
+            }
+
+            public static boolean hasFails(FailingValueWrapper... wrappers) {
+                boolean hasFail = false;
+                for (FailingValueWrapper value : wrappers) {
+                    hasFail |= value.hasFails();
+                }
+                return hasFail;
+            }
+        }
+
         public static class FailingValue {
             private final double mValue;
-            private final double mValue2;
             private boolean mFail = false;
 
-            public FailingValue(double mValue, double mValue2) {
+            public FailingValue(double mValue) {
                 this.mValue = mValue;
-                this.mValue2 = mValue2;
             }
 
             public void setFail() {
@@ -40,12 +134,8 @@ public class MotorChecker {
                 return this.mFail;
             }
 
-            public Double getCurrent() {
+            public Double getVal() {
                 return this.mValue;
-            }
-
-            public Double getVoltage() {
-                return this.mValue2;
             }
         }
 
@@ -55,17 +145,29 @@ public class MotorChecker {
             private GZSubsystem mSubsystem;
 
             private List<GZSpeedController> controllers = new ArrayList<GZSpeedController>();
-            private double averageForwardAmperage;
-            private ArrayList<FailingValue> forwardCurrents;
-            private ArrayList<FailingValue> reverseCurrents;
-            private double averageReverseAmperage;
+            private FailingValueWrapper forwardCurrents;
+            private FailingValueWrapper reverseCurrents;
 
-            private ArrayList<Double> forwardRPMs;
-            private ArrayList<Double> reverseRPMs;
+            private FailingValueWrapper forwardRPMs;
+            private FailingValueWrapper reverseRPMs;
+
+            private ArrayList<Double> forwardVoltages;
+            private ArrayList<Double> reverseVoltages;
 
             private CheckerConfig mCheckerConfig;
 
             private GZRPMSupplier mRPMSupplier;
+
+            public void setEpsilons(CheckerConfig config) {
+                setEpsilons(config.mCurrentEpsilon, config.mCurrentFloor, config.mRPMEpsilon, config.mRPMFloor);
+            }
+
+            public void setEpsilons(double currentEpsilon, double currentFloor, double rpmEpsilon, double rpmFloor) {
+                forwardCurrents = new FailingValueWrapper(this, currentEpsilon, currentFloor);
+                reverseCurrents = new FailingValueWrapper(this, currentEpsilon, currentFloor);
+                forwardRPMs = new FailingValueWrapper(this, rpmEpsilon, rpmFloor);
+                reverseRPMs = new FailingValueWrapper(this, rpmEpsilon, rpmFloor);
+            }
 
             public MotorTestingGroup(GZSubsystem subsystem, String name, List<GZSpeedController> controllers,
                     CheckerConfig config, GZRPMSupplier supplier) {
@@ -74,28 +176,14 @@ public class MotorChecker {
                 this.mSubsystem = subsystem;
                 this.mCheckerConfig = config;
                 this.mRPMSupplier = supplier;
+            }
 
-                clearGroup();
+            public void check() {
+                hasFail();
             }
 
             public boolean hasFail() {
-                boolean hasFail = false;
-
-                for (FailingValue c : forwardCurrents)
-                    hasFail |= c.getFail();
-
-                for (FailingValue c : reverseCurrents)
-                    hasFail |= c.getFail();
-
-                return hasFail;
-            }
-
-            public Double getAverageForwardAmperage() {
-                return averageForwardAmperage;
-            }
-
-            public void setAverageForwardAmperage(double averageForwardAmperage) {
-                this.averageForwardAmperage = averageForwardAmperage;
+                return FailingValueWrapper.hasFails(forwardCurrents, reverseCurrents, forwardRPMs, reverseRPMs);
             }
 
             public Double getRPM() {
@@ -104,12 +192,12 @@ public class MotorChecker {
                 return mRPMSupplier.getSupplier().get();
             }
 
-            public Double getAverageReverseAmperage() {
-                return averageReverseAmperage;
+            public ArrayList<Double> getForwardVoltages() {
+                return forwardVoltages;
             }
 
-            public void setAverageReverseAmperage(double averageReverseAmperage) {
-                this.averageReverseAmperage = averageReverseAmperage;
+            public ArrayList<Double> getReverseVoltages() {
+                return reverseVoltages;
             }
 
             public CheckerConfig getConfig() {
@@ -125,32 +213,24 @@ public class MotorChecker {
             }
 
             public List<GZSpeedController> getControllers() {
-                return controllers;
+                return this.controllers;
             }
 
-            public ArrayList<FailingValue> getForwardCurrents() {
-                return forwardCurrents;
+            public FailingValueWrapper getForwardCurrents() {
+                return this.forwardCurrents;
             }
 
-            public ArrayList<Double> getForwardRPMs() {
+            public FailingValueWrapper getForwardRPMs() {
                 return this.forwardRPMs;
             }
 
-            public ArrayList<Double> getReverseRPMs() {
+            public FailingValueWrapper getReverseRPMs() {
                 return this.reverseRPMs;
             }
 
-            public ArrayList<FailingValue> getReverseCurrents() {
-                return reverseCurrents;
+            public FailingValueWrapper getReverseCurrents() {
+                return this.reverseCurrents;
             }
-
-            public void clearGroup() {
-                forwardCurrents = new ArrayList<FailingValue>();
-                reverseCurrents = new ArrayList<FailingValue>();
-                forwardRPMs = new ArrayList<Double>();
-                reverseRPMs = new ArrayList<Double>();
-            }
-
         }
 
         public static class CheckerConfig {
@@ -172,16 +252,20 @@ public class MotorChecker {
                         if (split[0].equals(subsystem.toString())) {
                             List<GZSpeedController> controllers = new ArrayList<GZSpeedController>();
 
-                            double currentFloor = Double.valueOf(split[2]);
-                            double currentEpsilon = Double.valueOf(split[3]);
-                            double runTimeSec = Double.valueOf(split[4]);
-                            double waitTimeSec = Double.valueOf(split[5]);
-                            double outputPercentage = Double.valueOf(split[6]);
-                            String supplier = split[7];
-                            boolean reverseAfterGroup = Boolean.valueOf(split[8]);
+                            int c = 2;
+
+                            double currentFloor = Double.valueOf(split[c]);
+                            double currentEpsilon = Double.valueOf(split[++c]);
+                            double runTimeSec = Double.valueOf(split[++c]);
+                            double waitTimeSec = Double.valueOf(split[++c]);
+                            double outputPercentage = Double.valueOf(split[++c]);
+                            double rpmFloor = Double.valueOf(split[++c]);
+                            double rpmEpsilon = Double.valueOf(split[++c]);
+                            String supplier = split[++c];
+                            boolean reverseAfterGroup = Boolean.valueOf(split[++c]);
 
                             CheckerConfig config = new CheckerConfig(currentFloor, currentEpsilon, runTimeSec,
-                                    waitTimeSec, outputPercentage, reverseAfterGroup);
+                                    waitTimeSec, outputPercentage, rpmFloor, rpmEpsilon, reverseAfterGroup);
 
                             GZRPMSupplier supplierVar = null;
 
@@ -191,7 +275,7 @@ public class MotorChecker {
                                 }
                             }
 
-                            for (int i = 8; i < split.length; i++) {
+                            for (int i = 10; i < split.length; i++) {
                                 for (GZSpeedController controller : subsystem.mSmartControllers)
                                     if (controller.getGZName().equals(split[i]))
                                         controllers.add(controller);
@@ -217,22 +301,27 @@ public class MotorChecker {
                 }
             }
 
-            public double mCurrentFloor = 0;
-            public double mCurrentEpsilon = 0;
+            public final double mCurrentFloor;
+            public final double mCurrentEpsilon;
 
-            public double mRunTimeSec = 0;
-            public double mWaitTimeSec = 0;
-            public double mRunOutputPercentage = 0.0;
+            public final double mRunTimeSec;
+            public final double mWaitTimeSec;
+            public final double mRunOutputPercentage;
 
-            public boolean mReverseAfterGroup = true;
+            public final double mRPMFloor;
+            public final double mRPMEpsilon;
+
+            public final boolean mReverseAfterGroup;
 
             public CheckerConfig(double currentFloor, double currentEpsilon, double runTimeSec, double waitTimeSec,
-                    double outputPercentage, boolean reverseAfterGroup) {
+                    double outputPercentage, double rpmFloor, double rpmEpsilon, boolean reverseAfterGroup) {
                 this.mCurrentFloor = currentFloor;
                 this.mCurrentEpsilon = currentEpsilon;
                 this.mRunTimeSec = runTimeSec;
                 this.mWaitTimeSec = waitTimeSec;
                 this.mRunOutputPercentage = outputPercentage;
+                this.mRPMFloor = rpmFloor;
+                this.mRPMEpsilon = rpmEpsilon;
                 this.mReverseAfterGroup = reverseAfterGroup;
             }
 
@@ -245,6 +334,8 @@ public class MotorChecker {
                 retval += "Wait time (seconds): " + mWaitTimeSec + "\n";
                 retval += "Output percentage: " + mRunOutputPercentage + "\n";
                 retval += "Reverse after group: " + mReverseAfterGroup + "\n";
+                retval += "RPM Floor: " + mRPMFloor + "\n";
+                retval += "RPM Epsilon: " + mRPMEpsilon + "\n";
 
                 return retval;
             }
@@ -328,9 +419,6 @@ public class MotorChecker {
 
                 // loop through each group in this subsystem
                 for (MotorTestingGroup group : talonGroups) {
-                    // empty group on startup
-                    group.clearGroup();
-
                     // Controllers
                     List<GZSpeedController> controllersToCheck = group.getControllers();
 
@@ -370,43 +458,13 @@ public class MotorChecker {
 
                     // We've now checked every current and recorded, run average checks
 
-                    // Now run aggregate checks.
-                    for (int i = 0; i < 2; i++) {
-                        Double average = 0.0;
-                        ArrayList<FailingValue> currents;
-
-                        // First loop, test forward currents
-                        if (i == 0)
-                            currents = group.getForwardCurrents();
-                        else
-                            currents = group.getReverseCurrents();
-
-                        // Accumulate average
-                        for (FailingValue c : currents)
-                            average += c.getCurrent();
-                        average /= currents.size();
-
-                        // Set average for groups
-                        if (i == 0)
-                            group.setAverageForwardAmperage(average);
-                        else
-                            group.setAverageReverseAmperage(average);
-
-                        // Current is too far away from average
-                        for (FailingValue c : currents) {
-                            if (!GZUtil.epsilonEquals(c.getCurrent(), average, group.getConfig().mCurrentEpsilon)) {
-                                failure = true;
-                                c.setFail();
-                                group.getSubsystem().setMotorTestingFail();
-                            }
-                        }
-                    }
+                    // This will check amperage and rpm floor & epsilon delta
+                    group.hasFail();
 
                     // Unlock talons so another method can control them
                     for (GZSpeedController t : controllersToCheck)
                         t.lockOutController(false);
                 }
-
             }
 
             mEndVoltage = RobotController.getBatteryVoltage();
@@ -421,8 +479,9 @@ public class MotorChecker {
             System.out.println(
                     "Checking: " + individualControllerToCheck.getGZName() + (forward ? " forwards" : " reverse"));
 
-            ArrayList<FailingValue> currents = (forward ? group.getForwardCurrents() : group.getReverseCurrents());
-            ArrayList<Double> rpms = (forward ? group.getForwardRPMs() : group.getReverseRPMs());
+            FailingValueWrapper currents = (forward ? group.getForwardCurrents() : group.getReverseCurrents());
+            ArrayList<Double> voltages = (forward ? group.getForwardVoltages() : group.getReverseVoltages());
+            FailingValueWrapper rpms = (forward ? group.getForwardRPMs() : group.getReverseRPMs());
 
             individualControllerToCheck.set(group.getConfig().mRunOutputPercentage * (forward ? 1 : -1), true);
             Timer.delay(group.getConfig().mRunTimeSec);
@@ -432,20 +491,12 @@ public class MotorChecker {
             double current = individualControllerToCheck.getAmperage();
             double rpm = group.getRPM();
 
-            rpms.add(rpm);
-            currents.add(new FailingValue(current, RobotController.getBatteryVoltage()));
+            rpms.add(new FailingValue(rpm));
+            currents.add(new FailingValue(current));
+            voltages.add(RobotController.getBatteryVoltage());
 
             individualControllerToCheck.set(0.0, true);
 
-            // Perform individual check if current too low
-            if (current < group.getConfig().mCurrentFloor) {
-                currents.get(currents.size() - 1).setFail();
-                // System.out.println(individualTalonToCheck.getGZName() + " has failed current
-                // floor check vs "
-                // + group.getConfig().mCurrentFloor + "!!");
-                failure = true;
-                group.getSubsystem().setMotorTestingFail();
-            }
             Timer.delay(group.getConfig().mWaitTimeSec);
             mTimeNeeded -= group.getConfig().mWaitTimeSec;
 
@@ -480,16 +531,18 @@ public class MotorChecker {
                 for (MotorTestingGroup talonGroup : talonGroups) {
 
                     // values for the group we are currently creating
-                    List<GZSpeedController> mtr = talonGroup.getControllers();
-                    ArrayList<FailingValue> fwd = talonGroup.getForwardCurrents();
-                    ArrayList<FailingValue> rev = talonGroup.getReverseCurrents();
-                    ArrayList<Double> fwdRPMs = talonGroup.getForwardRPMs();
-                    ArrayList<Double> revRPMs = talonGroup.getReverseRPMs();
+                    final List<GZSpeedController> mtr = talonGroup.getControllers();
+                    final FailingValueWrapper fwdCurrent = talonGroup.getForwardCurrents();
+                    final FailingValueWrapper revCurrent = talonGroup.getReverseCurrents();
+                    final ArrayList<Double> fwdVoltages = talonGroup.getForwardVoltages();
+                    final ArrayList<Double> revVoltages = talonGroup.getReverseVoltages();
+                    final FailingValueWrapper fwdRPMs = talonGroup.getForwardRPMs();
+                    final FailingValueWrapper revRPMs = talonGroup.getReverseRPMs();
 
                     // Sizes
-                    int talonSize = mtr.size() - 1;
-                    int fwdSize = fwd.size() - 1;
-                    int revSize = rev.size() - 1;
+                    final int talonSize = mtr.size() - 1;
+                    final int fwdSize = fwdCurrent.size() - 1;
+                    final int revSize = revCurrent.size() - 1;
 
                     // check size
                     if (!((talonSize == fwdSize) && (fwdSize == revSize))) {
@@ -510,10 +563,10 @@ public class MotorChecker {
                     String table = "";
 
                     // Write Average to table
-                    table += HTML.tableRow(HTML.tableCell("Average")
-                            + HTML.tableCell(talonGroup.getAverageForwardAmperage().toString()) + HTML.tableCell("")
-                            + HTML.tableCell("") + HTML.tableCell(talonGroup.getAverageReverseAmperage().toString())
-                            + HTML.tableCell("") + HTML.tableCell(""));
+                    table += HTML.tableRow(HTML.tableCell("Average") + HTML.tableCell(fwdCurrent.getAverage() + "")
+                            + HTML.tableCell("") + HTML.tableCell(fwdRPMs.getAverage() + "")
+                            + HTML.tableCell(revCurrent.getAverage() + "") + HTML.tableCell("")
+                            + HTML.tableCell(revRPMs.getAverage() + ""));
 
                     // Headers
                     table += HTML.tableRow(HTML.easyHeader("Talon", "Forward Amperage", "Forward BAT V", "Forward RPM",
@@ -523,13 +576,17 @@ public class MotorChecker {
                     for (int talon = 0; talon < talonSize + 1; talon++) {
                         String row = "";
 
-                        boolean fwdFail = fwd.get(talon).getFail();
-                        boolean revFail = rev.get(talon).getFail();
+                        boolean fwdAmpFail = fwdCurrent.get(talon).getFail();
+                        boolean revAmpFail = revCurrent.get(talon).getFail();
+                        boolean fwdRPMFail = fwdRPMs.get(talon).getFail();
+                        boolean revRPMFail = revRPMs.get(talon).getFail();
+
+                        final boolean fail = fwdAmpFail || revAmpFail;
 
                         {
                             // Put talon cell
                             String talonCell;
-                            if (fwdFail || revFail)
+                            if (fail)
                                 talonCell = HTML.tableCell(mtr.get(talon).getGZName(), "yellow", false);
                             else
                                 talonCell = HTML.tableCell(mtr.get(talon).getGZName());
@@ -539,44 +596,38 @@ public class MotorChecker {
                         // Populate forward cell
                         {
                             String fwdCell;
-                            if (fwdFail)
-                                fwdCell = HTML.tableCell(fwd.get(talon).getCurrent().toString(), "red", false);
-                            else
-                                fwdCell = HTML.tableCell(fwd.get(talon).getCurrent().toString());
+                            fwdCell = HTML.tableCell(fwdCurrent.get(talon).getVal().toString(), fwdAmpFail);
                             row += fwdCell;
                         }
 
                         {
                             String fwdCellVolt;
-                            fwdCellVolt = HTML.tableCell("" + df.format(fwd.get(talon).getVoltage()).toString());
+                            fwdCellVolt = HTML.tableCell("" + df.format(fwdVoltages.get(talon)).toString());
                             row += fwdCellVolt;
                         }
 
                         {
                             String fwdCellRPM;
-                            fwdCellRPM = HTML.tableCell("" + df.format(fwdRPMs.get(talon).toString()));
+                            fwdCellRPM = HTML.tableCell("" + df.format(fwdRPMs.get(talon).toString()), fwdRPMFail);
                             row += fwdCellRPM;
                         }
 
                         // Populate reverse cell
                         {
-                            String revCell;
-                            if (revFail)
-                                revCell = HTML.tableCell(rev.get(talon).getCurrent().toString(), "red", false);
-                            else
-                                revCell = HTML.tableCell(rev.get(talon).getCurrent().toString());
-                            row += revCell;
+                            String revAmpCell;
+                            revAmpCell = HTML.tableCell(revCurrent.get(talon).getVal().toString(), revAmpFail);
+                            row += revAmpCell;
                         }
 
                         {
                             String revCellVolt;
-                            revCellVolt = HTML.tableCell("" + df.format(rev.get(talon).getVoltage()).toString());
+                            revCellVolt = HTML.tableCell("" + df.format(revVoltages.get(talon)).toString());
                             row += revCellVolt;
                         }
 
                         {
                             String revCellRPM;
-                            revCellRPM = HTML.tableCell("" + df.format(revRPMs.get(talon)));
+                            revCellRPM = HTML.tableCell("" + df.format(revRPMs.get(talon)), revRPMFail);
                             row += revCellRPM;
                         }
 
