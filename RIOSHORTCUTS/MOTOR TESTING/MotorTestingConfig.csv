@@ -1,6 +1,6 @@
-Subsystem, Group, Current Floor, Current Epsilon, Run Time (sec), Wait time (sec), Output percentage, Reverse after group (true or false), Controllers
-Drive,RightFastRunThrough,0,1000,.5,.125,.25,R1,true,R1,R2,R3,R4,
-Drive,Right,2,1.5,4,4,.75,R1,true,R1,R2,R3,R4,
-Drive,LeftFastRunThrough,0,1000,.5,.125,.25,L1,true,L1,L2,L3,L4,
-Drive,Left,2,1.5,4,4,.75,L1,true,L1,L2,L3,L4,
+Subsystem, Group, Current Floor, Current Epsilon, Run Time (sec), Wait time (sec), RPM Floor, RPM Epsilon, RPM Supplier (_ for nothing), Output percentage, Reverse after group (true or false), Controllers
+Drive,RightFastRunThrough,0,1000,.5,.125, .75 , 0, 1000 ,R1,true,R1,R2,R3,R4,
+Drive,Right,2,1.5,4,4,.75,315,20,R1,true,R1,R2,R3,R4,
+Drive,LeftFastRunThrough,0,1000,.5,.125, .75 , 0, 1000 ,L1,true,L1,L2,L3,L4,
+Drive,Left,2,1.5,4,4,.75,315,20,L1,true,L1,L2,L3,L4,
 

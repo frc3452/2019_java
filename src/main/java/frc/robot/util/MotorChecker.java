@@ -261,7 +261,7 @@ public class MotorChecker {
                             double outputPercentage = Double.valueOf(split[++c]);
                             double rpmFloor = Double.valueOf(split[++c]);
                             double rpmEpsilon = Double.valueOf(split[++c]);
-                            String supplier = split[++c];
+                            String rpmSupplier = split[++c];
                             boolean reverseAfterGroup = Boolean.valueOf(split[++c]);
 
                             CheckerConfig config = new CheckerConfig(currentFloor, currentEpsilon, runTimeSec,
@@ -270,7 +270,7 @@ public class MotorChecker {
                             GZRPMSupplier supplierVar = null;
 
                             for (GZRPMSupplier suppliers : subsystem.mRPMSuppliers) {
-                                if (supplier.equals(suppliers.getGZName())) {
+                                if (rpmSupplier.equals(suppliers.getGZName())) {
                                     supplierVar = suppliers;
                                 }
                             }
