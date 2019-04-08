@@ -554,7 +554,7 @@ public class MotorChecker {
 
                         {
                             String fwdCellRPM;
-                            fwdCellRPM = HTML.tableCell("" + fwdRPMs.get(talon));
+                            fwdCellRPM = HTML.tableCell("" + df.format(fwdRPMs.get(talon).toString()));
                             row += fwdCellRPM;
                         }
 
@@ -576,7 +576,7 @@ public class MotorChecker {
 
                         {
                             String revCellRPM;
-                            revCellRPM = HTML.tableCell("" + revRPMs.get(talon));
+                            revCellRPM = HTML.tableCell("" + df.format(revRPMs.get(talon)));
                             row += revCellRPM;
                         }
 

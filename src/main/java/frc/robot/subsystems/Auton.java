@@ -92,7 +92,7 @@ public class Auton {
 
 		commandArray.add(new GZCommand("Place", () -> new GZCommandGroup() {
 			{
-				add(new GoToHeight(Heights.HP_2));
+				// add(new GoToHeight(Heights.HP_2));
 				add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
@@ -113,7 +113,7 @@ public class Auton {
 	private Auton() {
 		mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
 		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
-		fillAutonArray();
+		// fillAutonArray();
 	}
 
 	public void print() {

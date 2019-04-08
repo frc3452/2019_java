@@ -42,6 +42,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		auton.fillAutonArray();
+
 		health.assignSubsystems(allSubsystems.getSubsystems());
 
 		infoManager.initialize();

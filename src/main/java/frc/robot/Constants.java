@@ -61,17 +61,19 @@ public class Constants {
 		public static double ACCEL_INCHES_PER_SECOND;
 		public static double VEL_INCHES_PER_SECOND;
 
+		public static final double TOP_LIMIT;
 		static {
 			if (COMP_BOT) {
 				ACCEL_INCHES_PER_SECOND = 16 * 12;
 				VEL_INCHES_PER_SECOND = 16 * 12;
+				TOP_LIMIT = 85;
 			} else {
+				TOP_LIMIT = 88;
 				ACCEL_INCHES_PER_SECOND = 11 * 12;
 				VEL_INCHES_PER_SECOND = 16 * 12;
 			}
 		}
 
-		public static final double TOP_LIMIT = 85.0;
 
 		private final static HeightsContainer h = PathAdapter.getHeights();
 		public static final double TARGET_TOLERANCE = 1;

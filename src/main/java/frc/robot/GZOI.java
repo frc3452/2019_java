@@ -83,12 +83,19 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
-		mCamera.setResolution(160, 120);
-		mCamera.setFPS(15);
-		mCamera.setExposureManual(50);
-		mCamera.setBrightness(65);
+		
 		op.setXboxController();
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
+	}
+
+	private void cameraSettings()
+	{
+		mCamera.setResolution(160, 120);
+		// mCamera.setExposureAuto();
+		// mCamera.setFPS(10);
+		// mCamera.setExposureManual(50);
+		mCamera.setBrightness(30);
+		// mCamera.setExposureManual(40);
 	}
 
 	@Override
@@ -102,6 +109,7 @@ public class GZOI extends GZSubsystem {
 			mWasTest = true;
 
 		// mLeds.set(true);
+		cameraSettings();
 
 		// SAFTEY DISABLED
 		if (isFMS())
@@ -160,7 +168,7 @@ public class GZOI extends GZSubsystem {
 
 	private void handleRumble() {
 		// CONTROLLER RUMBLE
-		rumble(mRumbleQueue.getDefault() != 0 ? mRumbleQueue.getDefault() : mRumbleQueue.update());
+		rumble(mRumbleQueue.update());
 	}
 
 	private void disabled() {

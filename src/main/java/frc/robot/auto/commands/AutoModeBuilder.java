@@ -80,9 +80,7 @@ import frc.robot.util.GZCommandGroup;
 
 public class AutoModeBuilder {
 
-    private static final Supplier<GamePiece> mGamePieceSupplier = () -> Auton.getInstance().isAutoPieceHatch()
-            ? GamePiece.HATCH_PANEL
-            : GamePiece.CARGO;
+    private static Supplier<GamePiece> mGamePieceSupplier;
 
     public static final ArrayList<StartingPosition> AllStartingPositions = new ArrayList<StartingPosition>();
     public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
@@ -100,6 +98,8 @@ public class AutoModeBuilder {
     }
 
     static {
+        mGamePieceSupplier = () -> Auton.getInstance().isAutoPieceHatch() ? GamePiece.HATCH_PANEL : GamePiece.CARGO;
+
         if (StartingPosition.LEFT == null) {
         }
 
@@ -667,7 +667,7 @@ public class AutoModeBuilder {
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation location,
             final FeederStation nextStation) {
 
-        return getCommand(startPos, AutoDirection.FORWARDS, location, nextStation, mGamePieceSupplier);
+        return getCommand(startPos, AutoDirection.FORWARDS, location, nextStation);
     }
 
     public static ArrayList<GZCommand> getCommands(final StartingPosition startPos, final ScoringLocation location,
@@ -702,12 +702,6 @@ public class AutoModeBuilder {
         return commands;
     }
 
-    public static GZCommand getCommand(final StartingPosition startPos, final AutoDirection autoDirection,
-            final ScoringLocation location, final FeederStation nextStation) {
-
-        return getCommand(startPos, autoDirection, location, nextStation, mGamePieceSupplier);
-    }
-
     public static ArrayList<GZCommand> getAllPaths() {
         ArrayList<GZCommand> allCommands = new ArrayList<GZCommand>();
 
@@ -736,15 +730,15 @@ public class AutoModeBuilder {
     }
 
     public static GZCommand getCommand(final StartingPosition startPos, final AutoDirection direction,
-            final ScoringLocation scoringLocation, final FeederStation nextStation,
-            final Supplier<GamePiece> gamePiece) {
+            final ScoringLocation scoringLocation, final FeederStation nextStation) {
 
+        GamePiece gamePiece = Auton.getInstance().isAutoPieceHatch() ? GamePiece.HATCH_PANEL : GamePiece.CARGO;
         GZCommandGroup com = new GZCommandGroup() {
             {
                 // this.add(new GoToHeight(Heights.Home));
 
                 {
-                    Command prepForScore = prepForScoring(scoringLocation, gamePiece.get());
+                    Command prepForScore = prepForScoring(scoringLocation, gamePiece);
 
                     // Drive first path
                     GZCommandGroup driveOne = new GZCommandGroup();
@@ -760,7 +754,7 @@ public class AutoModeBuilder {
                 }
 
                 {
-                    Command score = getScoringCommand(scoringLocation, gamePiece.get());
+                    Command score = getScoringCommand(scoringLocation, gamePiece);
                     if (score != null)
                         add(score);
                 }
