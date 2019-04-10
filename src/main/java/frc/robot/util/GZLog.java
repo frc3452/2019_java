@@ -17,6 +17,7 @@ public class GZLog {
 	}
 
 	private GZLog() {
+		
 	}
 
 	public void add(LogItem item) {
@@ -101,6 +102,29 @@ public class GZLog {
 				return LogItem.Average_Left_Formula;
 			}
 		};
+	}
+
+	public static class InstantLogItem {
+		private final GZSubsystem subsystem;
+		private final String message;
+
+		public InstantLogItem(GZSubsystem subsystem, String message) {
+			this.subsystem = subsystem;
+			this.message = message;
+		}
+
+		public String subsystem() {
+			return subsystem.toString();
+		}
+
+		public String val() {
+			return message;
+		}
+
+		public String condensedVal() {
+			return "[" + subsystem + "]" + val() + ";";
+		}
+
 	}
 
 	public static abstract class LogItem {

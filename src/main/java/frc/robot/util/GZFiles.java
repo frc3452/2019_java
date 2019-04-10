@@ -18,6 +18,7 @@ import frc.robot.GZOI;
 import frc.robot.Robot;
 import frc.robot.subsystems.Drive;
 import frc.robot.util.GZFileMaker.FileExtensions;
+import frc.robot.util.GZLog.InstantLogItem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
@@ -242,6 +243,8 @@ public class GZFiles {
 					System.out.println("Logging writing failed!");
 					hasPrintedLogFailed = true;
 				}
+
+				// e.printStackTrace();
 			}
 
 		}
@@ -715,6 +718,50 @@ public class GZFiles {
 			return retval;
 		} else {
 			return prevLog;
+		}
+	}
+
+	// public class AutoInstantLogItem {
+	// 	private Object obj = new Object();
+	// 	private Supplier<Boolean> mUpdateTerms;
+
+	// 	public AutoInstantLogItem(Supplier<Boolean> update) {
+	// 		this.mUpdateTerms = update;
+	// 	}
+
+	// 	private Object getKey()
+	// 	{
+	// 		return obj;
+	// 	}
+
+	// 	private boolean getVal()
+	// 	{
+	// 		return mUpdateTerms.get();
+	// 	}
+
+	// }
+
+	// private HashMap<Object, LatchedBoolean> mInstantLogKeys = new HashMap<Object, LatchedBoolean>();
+	private ArrayList<InstantLogItem> mInstantLogs = new ArrayList<InstantLogItem>();
+
+	public void addLog(GZSubsystem subsystem, String message) {
+		addLog(new InstantLogItem(subsystem, message));
+	}
+
+	public void addLog(InstantLogItem log) {
+		synchronized (mInstantLogs) {
+			mInstantLogs.add(log);
+		}
+	}
+
+	public String getInstantLogs() {
+		synchronized (mInstantLogs) {
+			String output = "";
+			for (InstantLogItem log : mInstantLogs) {
+				output += log.condensedVal();
+			}
+			mInstantLogs.clear();
+			return output;
 		}
 	}
 

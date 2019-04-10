@@ -263,7 +263,7 @@ public class Elevator extends GZSubsystem {
     }
 
     protected void jogHeight(double jogHeightInches) {
-        setHeight(getHeightInches() + jogHeightInches);
+        setHeight(mDesiredHeight + jogHeightInches);
     }
 
     public void manual(double speedPercent) {

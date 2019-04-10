@@ -2,6 +2,8 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import frc.robot.subsystems.Auton;
+import frc.robot.util.GZArrayList;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.MotorChecker.AmperageChecker;
 import frc.robot.util.drivers.GZJoystick.Buttons;
@@ -51,15 +53,21 @@ public class TestModeRunner {
 
         // ADD MENU FOR MOTOR TESTING TO BIG MENU
         optionsList.add(new OptionList("Motor testing", motorTestingOptions) {
-            public void run() {
-                for (Option o : this.getOptions())
-                    o.run();
-
+            @Override
+            public void after() {
                 AmperageChecker.getInstance().checkMotors();
                 AmperageChecker.getInstance().clearValues();
                 Robot.allSubsystems.enableFollower();
             }
         });
+
+        optionsList.add(new OptionList("Auton", new GZArrayList<Option>().add(new Option("Print all commands") {
+
+            @Override
+            public void run() {
+                Auton.getInstance().printAllCommands();
+            }
+        }).done()));
 
         // ArrayList<Option> pdpTestingOptions = new ArrayList<>();
         // for (GZSubsystem s : Robot.allSubsystems.getSubsystems()) {
@@ -114,6 +122,10 @@ public class TestModeRunner {
         return posInMenu;
     }
 
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
     public void update() {
         if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
             isEnabled = true;
@@ -121,8 +133,13 @@ public class TestModeRunner {
             isEnabled = false;
         }
 
+        boolean stateChange = false;
+
         if (isEnabled != wasEnabled)
+        {
+            stateChange = true;
             System.out.println("Test mode " + (isEnabled ? "enabled" : "disabled"));
+        }
 
         wasEnabled = isEnabled;
 
@@ -184,7 +201,7 @@ public class TestModeRunner {
         }
 
         // PRINT ON CHANGE
-        if (prevInMenu != inMenu || prevPosInMenu != posInMenu || selectPressed) {
+        if (prevInMenu != inMenu || prevPosInMenu != posInMenu || selectPressed || stateChange) {
             String message;
             message = "Use DPad to navigate";
             if (inMenu != -1)
@@ -221,7 +238,7 @@ public class TestModeRunner {
         System.out.println("~~~ " + message + " ~~~");
     }
 
-    public abstract static class OptionList extends Option {
+    public static class OptionList extends Option {
         private ArrayList<Option> mOptions;
 
         public OptionList(String name, ArrayList<Option> options) {
@@ -252,8 +269,18 @@ public class TestModeRunner {
                 o.selected(false);
         }
 
-        public abstract void run();
+        public void before() {
+        }
 
+        public void after() {
+        }
+
+        public void run() {
+            before();
+            for (Option o : this.getOptions())
+                o.run();
+            after();
+        }
     }
 
     public abstract static class Option {

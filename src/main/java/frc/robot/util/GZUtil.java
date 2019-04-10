@@ -81,6 +81,17 @@ public class GZUtil {
 		return x;
 	}
 
+	public static void bigPrint(String f, int num) {
+		for (int i = 0; i < num; i++) {
+			System.out.println("ERROR " + f);
+		}
+	}
+
+	public static void bigPrint(String f)
+	{
+		bigPrint(f,40);
+	}
+
 	// public static double autoScale(double inputVal, double outputRange1, double
 	// outputRange2, double inputRange1,
 	// double inputRange2) {

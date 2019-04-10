@@ -144,6 +144,12 @@ public class Constants {
 		public final static DigitalSelectorConstants SELECTOR_ONES;
 		public final static DigitalSelectorConstants SELECTOR_TENS;
 
+		
+		public static final double GYRO_PERCENT_PER_DEGREE_OF_ERROR = 0.005;
+		public static final double GYRO_CONSTANT_SPEED = 0.03;
+		public static final double GYRO_PRECISION_IN_DEGREES = 5;
+		public static final double GYRO_TIMEOUT = 30;
+
 		static {
 			if (COMP_BOT) {
 				SELECTOR_TENS = new DigitalSelectorConstants("Tens selector", true, 4, 5, 6, 7);

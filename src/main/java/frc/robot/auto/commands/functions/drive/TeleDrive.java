@@ -13,6 +13,8 @@ public class TeleDrive extends Command {
     private Supplier<Boolean> mSupplier;
     private Drive drive = Drive.getInstance();
 
+    private boolean mWasOff = false;
+
     public TeleDrive(Supplier<Boolean> supplier, boolean shouldDrive) {
         requires(drive);
         this.mSupplier = supplier;
@@ -37,7 +39,10 @@ public class TeleDrive extends Command {
     }
 
     protected boolean isFinished() {
-        return mSupplier.get();
+        if (!mSupplier.get())
+            mWasOff = true;
+
+        return mSupplier.get() && mWasOff;
     }
 
     protected void end() {

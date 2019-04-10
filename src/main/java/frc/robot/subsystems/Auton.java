@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
+import frc.robot.auto.commands.functions.drive.GyroTurn;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -34,7 +34,7 @@ public class Auton {
 	public ArrayList<GZCommand> commandArray = null;
 
 	private GZCommand defaultCommand = null;
-	public GZCommand autonomousCommand = null;
+	private GZCommand autonomousCommand = null;
 
 	private int m_controllerOverrideValue = -1;
 	private int p_controllerOverrideValue = m_controllerOverrideValue;
@@ -68,21 +68,20 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		// commandArray.add(new GZCommand("Test", () -> new GZCommandGroup() {
-		// 	{
-		// 		waitTime(0.1);
-		// 		tele();
-
-		// 		ConditionalCommand conditional = new ConditionalCommand(new Print("TRUE"),
-		// 				new Print("FALLLLSE")) {
-		// 			@Override
-		// 			protected boolean condition() {
-		// 				return Superstructure.getInstance().hasAutoScored();
-		// 			}
-		// 		};
-
-		// 		add(conditional);
-      	// 	}}));
+		commandArray.add(new GZCommand("TURN!!!", () -> new GZCommandGroup() {
+			{
+				tele();
+				add(new GyroTurn(Rotation2d.fromDegrees(0)));
+				tele();
+				add(new GyroTurn(Rotation2d.fromDegrees(90)));
+				tele();
+				add(new GyroTurn(Rotation2d.fromDegrees(180)));
+				tele();
+				add(new GyroTurn(Rotation2d.fromDegrees(270)));
+				tele();
+				add(new GyroTurn(Rotation2d.fromDegrees(360)));
+			}
+		}));
 
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
@@ -102,9 +101,6 @@ public class Auton {
 			commandArray.add(c);
 		}
 
-		// commandArray.add(new GZCommand("Marker command group", () -> new
-		// MarkerCommandGroup()));
-
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
 		autonChooser();
@@ -114,6 +110,11 @@ public class Auton {
 		mSelectorOnes = new DigitalSelector(kAuton.SELECTOR_ONES);
 		mSelectorTens = new DigitalSelector(kAuton.SELECTOR_TENS);
 		// fillAutonArray();
+	}
+
+	public void printAllCommands() {
+		for (GZCommand c : commandArray)
+			System.out.println(c.getName());
 	}
 
 	public void print() {
@@ -158,20 +159,18 @@ public class Auton {
 			mWaitOnAutoStart = !mWaitOnAutoStart;
 			System.out.println("WARNING Auto start set to " + (mWaitOnAutoStart ? "WAIT" : "NOT WAIT")
 					+ " at the start of SANDSTORM");
-				}
-			}
-			
-			public void toggleAutoGamePiece(boolean updateValue) {
-				if (mLBAutoGamePiece.update(updateValue))
-				{
-					mAutoPieceIsHatch = !mAutoPieceIsHatch;
-					System.out.println("WARNING Auto game piece set to " + (mAutoPieceIsHatch ? "HATCH" : "CARGO"));
+		}
+	}
+
+	public void toggleAutoGamePiece(boolean updateValue) {
+		if (mLBAutoGamePiece.update(updateValue)) {
+			mAutoPieceIsHatch = !mAutoPieceIsHatch;
+			System.out.println("WARNING Auto game piece set to " + (mAutoPieceIsHatch ? "HATCH" : "CARGO"));
 		}
 
 	}
 
-	public boolean isAutoPieceHatch()
-	{
+	public boolean isAutoPieceHatch() {
 		return mAutoPieceIsHatch;
 	}
 

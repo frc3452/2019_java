@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.auto.commands.functions.Print;
-
 import frc.robot.auto.commands.functions.WaitCommand;
+import frc.robot.auto.commands.functions.drive.GyroTurn;
 import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -16,7 +16,6 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
 
 public class GZCommandGroup extends CommandGroup {
 
-   
     private static final String DEFAULT_MARKER = "PrepForAction";
 
     public synchronized static GZCommandGroup getTeleDrive() {
@@ -94,7 +93,14 @@ public class GZCommandGroup extends CommandGroup {
     }
 
     public synchronized void drivePath(PathContainer pc) {
+        if (pc.getStartGyroMovement() != null) {
+            add(new GyroTurn(pc.getStartGyroMovement()));
+        }
+
         add(new DrivePath(pc));
+
+        if (pc.getEndGyroMovement() != null)
+            add(new GyroTurn(pc.getEndGyroMovement()));
     }
 
     public synchronized void drivePathAnd(PathContainer pc) {

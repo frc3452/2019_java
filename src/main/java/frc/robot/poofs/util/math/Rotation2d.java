@@ -2,12 +2,13 @@ package frc.robot.poofs.util.math;
 
 import static frc.robot.poofs.util.Util.epsilonEquals;
 
-import frc.robot.poofs.util.Interpolable;
-
 import java.text.DecimalFormat;
 
+import frc.robot.poofs.util.Interpolable;
+
 /**
- * A rotation in a 2d coordinate frame represented a point on the unit circle (cosine and sine).
+ * A rotation in a 2d coordinate frame represented a point on the unit circle
+ * (cosine and sine).
  * 
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
@@ -53,8 +54,9 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     }
 
     /**
-     * From trig, we know that sin^2 + cos^2 == 1, but as we do math on this object we might accumulate rounding errors.
-     * Normalizing forces us to re-scale the sin and cos to reset rounding errors.
+     * From trig, we know that sin^2 + cos^2 == 1, but as we do math on this object
+     * we might accumulate rounding errors. Normalizing forces us to re-scale the
+     * sin and cos to reset rounding errors.
      */
     public void normalize() {
         double magnitude = Math.hypot(cos_angle_, sin_angle_);
@@ -95,10 +97,11 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     }
 
     /**
-     * We can rotate this Rotation2d by adding together the effects of it and another rotation.
+     * We can rotate this Rotation2d by adding together the effects of it and
+     * another rotation.
      * 
-     * @param other
-     *            The other rotation. See: https://en.wikipedia.org/wiki/Rotation_matrix
+     * @param other The other rotation. See:
+     *              https://en.wikipedia.org/wiki/Rotation_matrix
      * @return This rotation rotated by other.
      */
     public Rotation2d rotateBy(Rotation2d other) {
@@ -117,6 +120,14 @@ public class Rotation2d implements Interpolable<Rotation2d> {
      */
     public Rotation2d inverse() {
         return new Rotation2d(cos_angle_, -sin_angle_, false);
+    }
+
+
+    /**
+     * Takes an angle CCW -> CW or CW -> CCW
+     */
+    public Rotation2d flipDirection() {
+        return new Rotation2d(-cos_angle_, -sin_angle_, false);
     }
 
     public boolean isParallel(Rotation2d other) {

@@ -83,13 +83,12 @@ public class GZOI extends GZSubsystem {
 
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
-		
+
 		op.setXboxController();
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
 
-	private void cameraSettings()
-	{
+	private void cameraSettings() {
 		mCamera.setResolution(160, 120);
 		// mCamera.setExposureAuto();
 		// mCamera.setFPS(10);
@@ -173,7 +172,7 @@ public class GZOI extends GZSubsystem {
 
 	private void disabled() {
 		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
-		Auton.getInstance().toggleAutoGamePiece(driverJoy.getButtons(Buttons.A, Buttons.RB));
+		Auton.getInstance().toggleAutoGamePiece(driverJoy.getButtons(Buttons.A, Buttons.X));
 
 		rumble(0);
 		// handleRumble();

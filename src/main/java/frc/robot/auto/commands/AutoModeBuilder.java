@@ -1,11 +1,11 @@
 package frc.robot.auto.commands;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -51,6 +51,7 @@ import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Opp;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Opp;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Opp;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Opp;
@@ -65,6 +66,7 @@ import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around
 import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around_2_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_2_If_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_Same;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Backwards_Turn_Around_1;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_1;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_2_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_2_Same;
@@ -77,10 +79,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
+import frc.robot.util.GZUtil;
 
 public class AutoModeBuilder {
-
-    private static Supplier<GamePiece> mGamePieceSupplier;
 
     public static final ArrayList<StartingPosition> AllStartingPositions = new ArrayList<StartingPosition>();
     public static final ArrayList<ScoringPosition> AllScoringPositions = new ArrayList<ScoringPosition>();
@@ -98,8 +99,6 @@ public class AutoModeBuilder {
     }
 
     static {
-        mGamePieceSupplier = () -> Auton.getInstance().isAutoPieceHatch() ? GamePiece.HATCH_PANEL : GamePiece.CARGO;
-
         if (StartingPosition.LEFT == null) {
         }
 
@@ -155,11 +154,9 @@ public class AutoModeBuilder {
     public enum ScoringPosition {
         CARGO_SHIP_FACE("Cargo Ship Face"), CARGO_SHIP_BAY_1("Cargo Ship Bay 1"), CARGO_SHIP_BAY_2("Cargo Ship Bay 2"),
         CARGO_SHIP_BAY_3("Cargo Ship Bay 3"), ROCKET_NEAR("Rocket Near Face", false),
-        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false);
-
-        // ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
-        // new
-        // ScoringPosLimitations().cantCenter().cantOpposite().canBackwardsSameSide())
+        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false),
+        ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
+                new ScoringPosLimitations().canDoNothing().canBackwardsSameSide().canSameSideFeeder());
 
         public final String text;
         public final boolean cargoShip;
@@ -207,6 +204,31 @@ public class AutoModeBuilder {
             private boolean centerForwards = true;
             private boolean centerBackwards = false;
 
+            private boolean sameSideFeederStation = true;
+            private boolean oppositeSideFeederStation = true;
+
+            public ScoringPosLimitations cantOppositeFeeder() {
+                oppositeSideFeederStation = false;
+                return this;
+            }
+
+            public ScoringPosLimitations canDoNothing()
+            {
+                 oppositeForwards = false;
+                 oppositeBackwards = false;
+    
+                 sameSideForwards = false;
+                 sameSideBackwards = false;
+    
+                 centerForwards = false;
+                 centerBackwards = false;
+    
+                 sameSideFeederStation = false;
+                 oppositeSideFeederStation = false;
+
+                return this;
+            }
+
             public ScoringPosLimitations cantCenter() {
                 centerBackwards = false;
                 centerForwards = false;
@@ -230,6 +252,11 @@ public class AutoModeBuilder {
                 centerBackwards = true;
                 oppositeBackwards = true;
                 sameSideBackwards = true;
+                return this;
+            }
+
+            public ScoringPosLimitations canSameSideFeeder() {
+                sameSideFeederStation = true;
                 return this;
             }
 
@@ -403,7 +430,21 @@ public class AutoModeBuilder {
                 return new Left_Rocket_Far_Opp().get(startPos.onLeft).toList();
             }
 
+        case ROCKET_FAR_REVERSE:
+            if (startPos == StartingPosition.CENTER) {
+                // This shouldn't happen, limitations should handle this
+                GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT START FROM CENTER");
+                return null;
+            }
+
+            if (scoringSameSide(startPos, score)) {
+                return new Left_Rocket_Far_Same_Backwards().get(startPos.onLeft).toList();
+            } else {
+                GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT GO OPPOSITE SIDE OF FIELD");
+                return null;
+            }
         default:
+            System.out.println("[AUTOMODEBUILDER] GET FIRST PATH CASE [" + score.pos + "] null");
             return null;
         }
 
@@ -550,9 +591,21 @@ public class AutoModeBuilder {
             }
             return ret;
         }
+        case ROCKET_FAR_REVERSE: {
+            ArrayList<PathContainer> ret = new ArrayList<>();
+            if (feederSameSide(location, station)) {
+                ret.add(new Rocket_Far_Backwards_Turn_Around_1().get(location.side.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(location.side.onLeft));
+            } else {
+                GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT SCORE TO FAR FEEDER STATION");
+                return null;
+            }
+            return ret;
         }
-
-        return null;
+        default:
+            System.out.println("[AUTOMODEBUILDER] Get scored position to feeder station null! [" + location.pos + "]");
+            return null;
+        }
     }
 
     private static ArrayList<PathContainer> getFeederStationToSecondPlacement(FeederStation station,
@@ -666,7 +719,6 @@ public class AutoModeBuilder {
 
     public static GZCommand getCommand(final StartingPosition startPos, final ScoringLocation location,
             final FeederStation nextStation) {
-
         return getCommand(startPos, AutoDirection.FORWARDS, location, nextStation);
     }
 
@@ -674,32 +726,38 @@ public class AutoModeBuilder {
             final FeederStation nextStation) {
         ArrayList<GZCommand> commands = new ArrayList<GZCommand>();
 
-        if (startPos == StartingPosition.CENTER) {
-            if (location.pos.limitations.centerForwards) {
-                commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
-            }
-            if (location.pos.limitations.centerBackwards) {
-                commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
-            }
-        } else {
-            if (scoringSameSide(startPos, location.side)) {
-                if (location.pos.limitations.sameSideForwards) {
+        final ScoringPosLimitations lim = location.pos.limitations;
+
+        final boolean sameSideFeeder = feederSameSide(location, nextStation);
+
+        if ((sameSideFeeder && lim.sameSideFeederStation) || (!sameSideFeeder && lim.oppositeSideFeederStation)) {
+            if (startPos == StartingPosition.CENTER) {
+                if (lim.centerForwards) {
                     commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
                 }
-                if (location.pos.limitations.sameSideBackwards) {
+                if (lim.centerBackwards) {
                     commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
                 }
             } else {
-                if (location.pos.limitations.oppositeForwards) {
-                    commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
-                }
-                if (location.pos.limitations.oppositeBackwards) {
-                    commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+                if (scoringSameSide(startPos, location)) {
+                    if (lim.sameSideForwards) {
+                        commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
+                    }
+                    if (lim.sameSideBackwards) {
+                        commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+                    }
+                } else {
+                    if (lim.oppositeForwards) {
+                        commands.add(getCommand(startPos, AutoDirection.FORWARDS, location, nextStation));
+                    }
+                    if (lim.oppositeBackwards) {
+                        commands.add(getCommand(startPos, AutoDirection.BACKWARDS, location, nextStation));
+                    }
                 }
             }
         }
-
         return commands;
+
     }
 
     public static ArrayList<GZCommand> getAllPaths() {
@@ -709,6 +767,9 @@ public class AutoModeBuilder {
             for (ScoringPosition scorePosition : AllScoringPositions) {
                 for (ScoringSide scoringSide : AllScoringSides) {
                     for (FeederStation feederStation : AllFeederStations) {
+                        // System.out.println(
+                        // startPosition + "\t" + scorePosition + "\t" + scoringSide + "\t" +
+                        // feederStation);
                         allCommands.addAll(getCommands(startPosition, new ScoringLocation(scorePosition, scoringSide),
                                 feederStation));
                     }
@@ -731,12 +792,10 @@ public class AutoModeBuilder {
 
     public static GZCommand getCommand(final StartingPosition startPos, final AutoDirection direction,
             final ScoringLocation scoringLocation, final FeederStation nextStation) {
-
         GamePiece gamePiece = Auton.getInstance().isAutoPieceHatch() ? GamePiece.HATCH_PANEL : GamePiece.CARGO;
         GZCommandGroup com = new GZCommandGroup() {
             {
                 // this.add(new GoToHeight(Heights.Home));
-
                 {
                     Command prepForScore = prepForScoring(scoringLocation, gamePiece);
 
@@ -781,7 +840,8 @@ public class AutoModeBuilder {
         };
 
         GZCommand ret = new GZCommand(
-                startPos.toString() + " --> " + scoringLocation.toString() + " --> " + nextStation.toString(),
+                startPos.toString() + (direction == AutoDirection.BACKWARDS ? " (Backwards) " : "") + " --> "
+                        + scoringLocation.toString() + " --> " + nextStation.toString(),
                 () -> com);
         ret.setFeederStation(nextStation);
 
@@ -797,7 +857,7 @@ public class AutoModeBuilder {
             ret.add(driveThree);
         }
 
-        ret.add(getScoringCommand(location, mGamePieceSupplier.get()));
+        ret.add(getScoringCommand(location, GamePiece.HATCH_PANEL));
 
         String name = mFeederStation.toString() + " --> " + location.toString();
 

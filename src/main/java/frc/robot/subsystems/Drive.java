@@ -11,8 +11,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
@@ -31,6 +31,7 @@ import frc.robot.subsystems.Health.AlertLevel;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
+import frc.robot.util.GZFiles;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
@@ -77,6 +78,8 @@ public class Drive extends GZSubsystem {
 	private double curvatureDriveQuickStopAccumulator;
 
 	private GZFile mPIDConfigFile = null;
+
+	private Rotation2d mTurnToHeadingGoal = null;
 
 	private PathFollower mPathFollower;
 	private Path mCurrentPath = null;
@@ -232,6 +235,10 @@ public class Drive extends GZSubsystem {
 		Drive.getInstance().setGyroAngle(startPose.getRotation());
 	}
 
+	public synchronized void zeroGyro() {
+		setGyroAngle(Rotation2d.fromDegrees(0));
+	}
+
 	public synchronized void setWantDrivePath(PathContainer pathContainer) {
 		Path mPath = pathContainer.buildPath();
 		final boolean reversed = pathContainer.isReversed();
@@ -331,6 +338,20 @@ public class Drive extends GZSubsystem {
 		return "DRV";
 	}
 
+	private void handleTurnToHeading() {
+		if (mTurnToHeadingGoal == null) {
+			System.out.println("WARNING Turn to heading goal null, cannot turn!!!");
+			return;
+		}
+
+		Rotation2d current = getGyroAngle();
+
+		if (current.getDegrees() < 180) {
+
+		}
+
+	}
+
 	private synchronized void out() {
 		switch (mState) {
 		case PATH_FOLLOWING:
@@ -349,6 +370,9 @@ public class Drive extends GZSubsystem {
 			break;
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
+			break;
+		case TURN_TO_HEADING:
+			handleTurnToHeading();
 			break;
 		}
 
@@ -416,10 +440,11 @@ public class Drive extends GZSubsystem {
 
 	public enum DriveState {
 		OPEN_LOOP(false, ControlMode.PercentOutput), OPEN_LOOP_DRIVER(false, ControlMode.PercentOutput),
-		CLOSED_LOOP_DRIVER(true, ControlMode.Velocity), DEMO(false, ControlMode.PercentOutput),
-		NEUTRAL(false, ControlMode.Disabled), MOTION_MAGIC(true, ControlMode.MotionMagic),
-		MOTION_PROFILE(true, ControlMode.MotionProfile), PATH_FOLLOWING(true, ControlMode.Velocity),
-		VELOCITY(true, ControlMode.Velocity), CLIMB(false, ControlMode.PercentOutput);
+		TURN_TO_HEADING(true, ControlMode.Velocity), CLOSED_LOOP_DRIVER(true, ControlMode.Velocity),
+		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
+		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
+		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
+		CLIMB(false, ControlMode.PercentOutput);
 
 		private final boolean usesClosedLoop;
 		private final ControlMode controlMode;
@@ -612,6 +637,9 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
+		case TURN_TO_HEADING:
+			brake(true);
+			break;
 		case CLIMB:
 			brake(true);
 			mNavX.zeroRoll();
@@ -759,19 +787,28 @@ public class Drive extends GZSubsystem {
 
 	// TODO TUNE
 	public boolean getFrontTopLimit() {
-		return mIO.ls_left_rev;
+		// if (Constants.COMP_BOT)
+			return mIO.ls_left_rev;
+		// return mIO.ls_left_fwd;
 	}
 
 	public boolean getFrontBottomLimit() {
-		return mIO.ls_left_fwd;
+		// if (Constants.COMP_BOT)
+			return mIO.ls_left_fwd;
+		// return mIO.ls_left_rev;
 	}
 
 	public boolean getRearTopLimit() {
-		return mIO.ls_right_rev;
+		// if (Constants.COMP_BOT)
+			return mIO.ls_right_rev;
+
+		// return mIO.ls_right_fwd;
 	}
 
 	public boolean getRearBottomLimit() {
-		return mIO.ls_right_fwd;
+		// if (Constants.COMP_BOT)
+			return mIO.ls_right_fwd;
+		// return mIO.ls_right_rev;
 	}
 
 	private synchronized void in() {
@@ -996,7 +1033,8 @@ public class Drive extends GZSubsystem {
 
 	private double getTurnModifier() {
 		return mModifyPercent * (mIsSlow ? .75 : 1);
-		// return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier() * kElevator.ELEV_TURN_SCALAR : 1);
+		// return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier()
+		// * kElevator.ELEV_TURN_SCALAR : 1);
 	}
 
 	private double getTotalModifer() {
@@ -1272,15 +1310,10 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void zeroSensors() {
 		zeroEncoders();
-		zeroGyro();
 	}
 
 	public synchronized Double getPercentageComplete() {
 		return mPercentageComplete;
-	}
-
-	public synchronized void zeroGyro() {
-		mNavX.reset();
 	}
 
 	public int getTotalShiftCountsFront() {
@@ -1298,8 +1331,10 @@ public class Drive extends GZSubsystem {
 	public synchronized void slowSpeed(boolean isSlow) {
 		if (mIsSlow != isSlow) {
 			mIsSlow = isSlow;
-			System.out.println("Drivetrain speed: " + (isSlow() ? "slow" : "faster"));
+			String speed = isSlow() ? "slow" : "full";
+			System.out.println("Drivetrain speed: " + speed);
 			GZOI.getInstance().addRumble(isSlow() ? Level.LOW : Level.MEDIUM);
+			GZFiles.getInstance().addLog(this, "Slow speed toggled to " + speed);
 		}
 
 	}

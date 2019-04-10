@@ -32,8 +32,7 @@ public class GZFlagMultiple {
             mFlags.get(flagToTrip - 1).tripFlag();
     }
 
-    public boolean notNext()
-    {
+    public boolean notNext() {
         return !getNext();
     }
 
@@ -88,6 +87,19 @@ public class GZFlagMultiple {
         mFlags.clear();
         for (int i = 0; i < numOfFlags; i++)
             mFlags.add(new GZFlag());
+    }
+
+    public int numOfFlagsTripped() {
+        int num = 0;
+        for (int i = 1; i < mFlags.size() + 1; i++) {
+            if (get(i)) {
+                num++;
+            } else {
+                return num;
+            }
+        }
+
+        return num;
     }
 
     public boolean allFlagsTripped() {

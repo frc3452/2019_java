@@ -14,6 +14,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.TASK;
+import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
 
@@ -38,34 +39,49 @@ public class Robot extends TimedRobot {
 
 	// LOGGING CONTROL
 	private final boolean logging = true, logToUsb = true;
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/MARYSVILLE/" + GZUtil.getDate());
+
+	private final String date = GZUtil.getDate();
+
+	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/STATE/" + date);
 
 	@Override
 	public void robotInit() {
+		
 		auton.fillAutonArray();
-
+		
 		health.assignSubsystems(allSubsystems.getSubsystems());
-
+		
 		infoManager.initialize();
-
+		
 		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.25);
-
+		
 		// Gen health file
 		health.generateHealth();
 		health.printForSubsystemErrors();
-
-		allSubsystems.addLoggingValues();
-
+		
+		addLogValues();
+		
 		allSubsystems.startLooping();
-
+		
 		files.writeHardwareReport();
+		System.out.println("Date reported: " + date);
+	}
+	
+	private void addLogValues()
+	{
+		new LogItem("MSGs") {
+			@Override
+			public String val() {
+				return GZFiles.getInstance().getInstantLogs();
+			}
+		};
+		allSubsystems.addLoggingValues();
 	}
 
 	@Override
 	public void robotPeriodic() {
-		// if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START) &&
-		// drive.driveOutputLessThan(.05))
-		// PersistentInfoManager.getInstance().requestRestart();
+		// System.out.println("90" + "\t" + Rotation2d.fromDegrees(0).inverse().rotateBy(Rotation2d.fromDegrees(70)));
+		// System.out.println("45" + "\t" + Rotation2d.fromDegrees(45).inverse().rotateBy(Rotation2d.fromDegrees(70)));
 	}
 
 	@Override

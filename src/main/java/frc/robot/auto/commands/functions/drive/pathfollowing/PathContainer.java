@@ -15,6 +15,8 @@ import frc.robot.util.GZUtil;
 
 public abstract class PathContainer {
 
+    public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
+
     public static PathContainer getReversed(PathContainer other) {
         PathContainer ret = new PathContainer() {
             @Override
@@ -31,6 +33,16 @@ public abstract class PathContainer {
             public String toString() {
                 return other.toString() + " REVERSED";
             }
+
+            // @Override
+            // public Rotation2d getStartGyroMovement() {
+            // return other.getStartGyroMovement();
+            // }
+
+            // @Override
+            // public Rotation2d getEndGyroMovement() {
+            // return other.getEndGyroMovement();
+            // }
         };
 
         ArrayList<Waypoint> flippedPoints = new ArrayList<Waypoint>();
@@ -61,6 +73,14 @@ public abstract class PathContainer {
         return ret;
     }
 
+    public Rotation2d getStartGyroMovement() {
+        return null;
+    }
+
+    public Rotation2d getEndGyroMovement() {
+        return null;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName();
@@ -70,24 +90,46 @@ public abstract class PathContainer {
         return getReversed(this);
     }
 
-    public static PathContainer getFlipped(PathContainer pc) {
+    public static PathContainer getFlipped(PathContainer other) {
         PathContainer ret = new PathContainer() {
             @Override
             public boolean isReversed() {
-                return pc.isReversed();
+                return other.isReversed();
             }
 
             public boolean isLeftPath() {
-                return !pc.isLeftPath();
+                return !other.isLeftPath();
             }
 
             @Override
             public String toString() {
-                return pc.toString() + " FLIPPED";
+                return other.toString() + " FLIPPED";
+            }
+
+            @Override
+            public Rotation2d getStartGyroMovement() {
+                Rotation2d rot = other.getStartGyroMovement();
+                Rotation2d ret = null;
+
+                if (rot != null)
+                    ret = rot.inverse();
+
+                return rot;
+            }
+
+            @Override
+            public Rotation2d getEndGyroMovement() {
+                Rotation2d rot = other.getEndGyroMovement();
+                Rotation2d ret = null;
+
+                if (rot != null)
+                    ret = rot.inverse();
+
+                return rot;
             }
         };
 
-        for (Waypoint p : pc.sWaypoints) {
+        for (Waypoint p : other.sWaypoints) {
             Waypoint newPoint = new Waypoint(p);
             newPoint.position.setY(FieldProfile.centerLineY + (FieldProfile.centerLineY - p.position.y()));
             ret.sWaypoints.add(newPoint);
@@ -129,8 +171,6 @@ public abstract class PathContainer {
         return true;
     }
 
-    public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
-
     public abstract boolean isReversed();
 
     public GZPIDPair getPID() {
@@ -144,17 +184,12 @@ public abstract class PathContainer {
     public Rotation2d getStartRotation() {
         return GZUtil.angleBetweenPoints(sWaypoints.get(0), sWaypoints.get(1))
                 .rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
-        // return
-        // buildPath().getStartAngle().rotateBy(Rotation2d.fromDegrees(isReversed() ?
-        // 180 : 0));
     }
 
     public Rotation2d getEndRotation() {
         final int last = sWaypoints.size() - 1;
         return GZUtil.angleBetweenPoints(sWaypoints.get(last), sWaypoints.get(last - 1))
                 .rotateBy(Rotation2d.fromDegrees(isReversed() ? 180 : 0));
-        // return buildPath().getEndAngle().rotateBy(Rotation2d.fromDegrees(isReversed()
-        // ? 180 : 0));
     }
 
     public RigidTransform2d getStartPose() {

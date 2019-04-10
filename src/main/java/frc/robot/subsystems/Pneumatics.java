@@ -3,10 +3,12 @@ package frc.robot.subsystems;
 import java.text.DecimalFormat;
 
 import edu.wpi.first.wpilibj.Compressor;
+import frc.robot.Constants;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
+import frc.robot.TestModeRunner;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZNotifier;
 import frc.robot.util.GZSubsystem;
@@ -58,8 +60,7 @@ public class Pneumatics extends GZSubsystem {
         return mPressureSensor.getTranslatedValue();
     }
 
-    public void forceDropCrawler()
-    {
+    public void forceDropCrawler() {
         mClimberCrawler.on();
     }
 
@@ -84,16 +85,14 @@ public class Pneumatics extends GZSubsystem {
         // }
 
         // noAir = true;
-
-        if (mIsMotorTesting)
-            noAir = true;
-
-        if (GZOI.getInstance().isAuto())
-            noAir = true;
-
         // if (GZOI.getInstance().isAuto() || !mLowPressure) {
         // noAir = true;
         // }
+
+        noAir |= mIsMotorTesting;
+        noAir |= GZOI.getInstance().isAuto();
+        noAir |= !Constants.COMP_BOT;
+        noAir |= GZOI.getInstance().isTest() && TestModeRunner.getInstance().isEnabled();
 
         // noAir = true;
 
@@ -104,8 +103,8 @@ public class Pneumatics extends GZSubsystem {
             mCompressor.start();
 
             // if (++counter > 30) {
-            //     System.out.println("Air is on");
-            //     counter = 0;
+            // System.out.println("Air is on");
+            // counter = 0;
             // }
         }
     }

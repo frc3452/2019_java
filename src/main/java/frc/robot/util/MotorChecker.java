@@ -65,6 +65,14 @@ public class MotorChecker {
 
                 accum /= array.size();
                 average = accum;
+
+                for (FailingValue value : array) {
+                    if ((value.getVal() < average - epsilon) || (value.getVal() > average + epsilon)) {
+                        value.setFail();
+                        fail();
+                    }
+                }
+
             }
 
             public void check() {
@@ -83,7 +91,7 @@ public class MotorChecker {
 
             private void floor() {
                 for (FailingValue c : array) {
-                    if (c.getVal() < floor) {
+                    if (Math.abs(c.getVal()) < floor) {
                         c.setFail();
                         fail();
                     }
@@ -137,6 +145,11 @@ public class MotorChecker {
             public Double getVal() {
                 return this.mValue;
             }
+
+            @Override
+            public String toString() {
+                return "" + getVal();
+            }
         }
 
         public static class MotorTestingGroup {
@@ -151,8 +164,8 @@ public class MotorChecker {
             private FailingValueWrapper forwardRPMs;
             private FailingValueWrapper reverseRPMs;
 
-            private ArrayList<Double> forwardVoltages;
-            private ArrayList<Double> reverseVoltages;
+            private ArrayList<Double> forwardVoltages = new ArrayList<Double>();
+            private ArrayList<Double> reverseVoltages = new ArrayList<Double>();
 
             private CheckerConfig mCheckerConfig;
 
@@ -176,6 +189,7 @@ public class MotorChecker {
                 this.mSubsystem = subsystem;
                 this.mCheckerConfig = config;
                 this.mRPMSupplier = supplier;
+                setEpsilons(this.mCheckerConfig);
             }
 
             public void check() {
@@ -419,6 +433,8 @@ public class MotorChecker {
 
                 // loop through each group in this subsystem
                 for (MotorTestingGroup group : talonGroups) {
+                    // group.setEpsilons(group.getConfig());
+
                     // Controllers
                     List<GZSpeedController> controllersToCheck = group.getControllers();
 
@@ -441,7 +457,7 @@ public class MotorChecker {
 
                             // Check each talon
                             for (GZSpeedController individualTalonToCheck : controllersToCheck) {
-                                failure |= checkController(individualTalonToCheck, group, forward);
+                                checkController(individualTalonToCheck, group, forward);
                             }
                             // once we've checked them all, do it again but the other way
                             forward = !forward;
@@ -451,7 +467,7 @@ public class MotorChecker {
                         for (GZSpeedController individualControllerToCheck : controllersToCheck) {
                             // Test twice
                             for (int i = 0; i < 2; i++)
-                                failure |= checkController(individualControllerToCheck, group, (i == 0));
+                                checkController(individualControllerToCheck, group, (i == 0));
                             // on the first loop when i == 0, go forwards, then go backwards
                         }
                     }
@@ -459,7 +475,7 @@ public class MotorChecker {
                     // We've now checked every current and recorded, run average checks
 
                     // This will check amperage and rpm floor & epsilon delta
-                    group.hasFail();
+                    failure |= group.hasFail();
 
                     // Unlock talons so another method can control them
                     for (GZSpeedController t : controllersToCheck)
@@ -563,10 +579,11 @@ public class MotorChecker {
                     String table = "";
 
                     // Write Average to table
-                    table += HTML.tableRow(HTML.tableCell("Average") + HTML.tableCell(fwdCurrent.getAverage() + "")
-                            + HTML.tableCell("") + HTML.tableCell(fwdRPMs.getAverage() + "")
-                            + HTML.tableCell(revCurrent.getAverage() + "") + HTML.tableCell("")
-                            + HTML.tableCell(revRPMs.getAverage() + ""));
+                    table += HTML.tableRow(
+                            HTML.tableCell("Average") + HTML.tableCell(df.format(fwdCurrent.getAverage()) + "")
+                                    + HTML.tableCell("") + HTML.tableCell(df.format(fwdRPMs.getAverage()) + "")
+                                    + HTML.tableCell(revCurrent.getAverage() + "") + HTML.tableCell("")
+                                    + HTML.tableCell(df.format(revRPMs.getAverage()) + ""));
 
                     // Headers
                     table += HTML.tableRow(HTML.easyHeader("Talon", "Forward Amperage", "Forward BAT V", "Forward RPM",
@@ -581,7 +598,7 @@ public class MotorChecker {
                         boolean fwdRPMFail = fwdRPMs.get(talon).getFail();
                         boolean revRPMFail = revRPMs.get(talon).getFail();
 
-                        final boolean fail = fwdAmpFail || revAmpFail;
+                        final boolean fail = fwdAmpFail || revAmpFail || fwdRPMFail || revRPMFail;
 
                         {
                             // Put talon cell
@@ -602,32 +619,32 @@ public class MotorChecker {
 
                         {
                             String fwdCellVolt;
-                            fwdCellVolt = HTML.tableCell("" + df.format(fwdVoltages.get(talon)).toString());
+                            fwdCellVolt = HTML.tableCell(df.format(fwdVoltages.get(talon)).toString());
                             row += fwdCellVolt;
                         }
 
                         {
                             String fwdCellRPM;
-                            fwdCellRPM = HTML.tableCell("" + df.format(fwdRPMs.get(talon).toString()), fwdRPMFail);
+                            fwdCellRPM = HTML.tableCell(df.format(fwdRPMs.get(talon).getVal()), fwdRPMFail);
                             row += fwdCellRPM;
                         }
 
                         // Populate reverse cell
                         {
                             String revAmpCell;
-                            revAmpCell = HTML.tableCell(revCurrent.get(talon).getVal().toString(), revAmpFail);
+                            revAmpCell = HTML.tableCell(df.format(revCurrent.get(talon).getVal()), revAmpFail);
                             row += revAmpCell;
                         }
 
                         {
                             String revCellVolt;
-                            revCellVolt = HTML.tableCell("" + df.format(revVoltages.get(talon)).toString());
+                            revCellVolt = HTML.tableCell(df.format(revVoltages.get(talon)).toString());
                             row += revCellVolt;
                         }
 
                         {
                             String revCellRPM;
-                            revCellRPM = HTML.tableCell("" + df.format(revRPMs.get(talon)), revRPMFail);
+                            revCellRPM = HTML.tableCell(df.format(revRPMs.get(talon).getVal()), revRPMFail);
                             row += revCellRPM;
                         }
 
