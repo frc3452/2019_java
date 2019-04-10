@@ -760,6 +760,7 @@ public class GZFiles {
 			for (InstantLogItem log : mInstantLogs) {
 				output += log.condensedVal();
 			}
+
 			mInstantLogs.clear();
 			return output;
 		}

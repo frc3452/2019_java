@@ -212,19 +212,18 @@ public class AutoModeBuilder {
                 return this;
             }
 
-            public ScoringPosLimitations canDoNothing()
-            {
-                 oppositeForwards = false;
-                 oppositeBackwards = false;
-    
-                 sameSideForwards = false;
-                 sameSideBackwards = false;
-    
-                 centerForwards = false;
-                 centerBackwards = false;
-    
-                 sameSideFeederStation = false;
-                 oppositeSideFeederStation = false;
+            public ScoringPosLimitations canDoNothing() {
+                oppositeForwards = false;
+                oppositeBackwards = false;
+
+                sameSideForwards = false;
+                sameSideBackwards = false;
+
+                centerForwards = false;
+                centerBackwards = false;
+
+                sameSideFeederStation = false;
+                oppositeSideFeederStation = false;
 
                 return this;
             }

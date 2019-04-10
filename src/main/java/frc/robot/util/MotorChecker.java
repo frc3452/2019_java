@@ -266,9 +266,9 @@ public class MotorChecker {
                         if (split[0].equals(subsystem.toString())) {
                             List<GZSpeedController> controllers = new ArrayList<GZSpeedController>();
 
-                            int c = 2;
+                            int c = 1;
 
-                            double currentFloor = Double.valueOf(split[c]);
+                            double currentFloor = Double.valueOf(split[++c]);
                             double currentEpsilon = Double.valueOf(split[++c]);
                             double runTimeSec = Double.valueOf(split[++c]);
                             double waitTimeSec = Double.valueOf(split[++c]);
@@ -474,7 +474,7 @@ public class MotorChecker {
 
                     // We've now checked every current and recorded, run average checks
 
-                    // This will check amperage and rpm floor & epsilon delta
+                    // This will check amperage and rpm, floor & epsilon delta
                     failure |= group.hasFail();
 
                     // Unlock talons so another method can control them
@@ -546,6 +546,8 @@ public class MotorChecker {
 
                 for (MotorTestingGroup talonGroup : talonGroups) {
 
+                    String groupContent = "";
+
                     // values for the group we are currently creating
                     final List<GZSpeedController> mtr = talonGroup.getControllers();
                     final FailingValueWrapper fwdCurrent = talonGroup.getForwardCurrents();
@@ -569,12 +571,12 @@ public class MotorChecker {
 
                     // Write each group in red or black if it has a fail
                     String color = (talonGroup.hasFail() ? "red" : "black");
-                    subsystemContent += HTML.header(talonGroup.getName(), 2, color);
+                    groupContent += HTML.header(talonGroup.getName(), 2, color);
 
                     // Write config as individual lines
                     String[] config = talonGroup.getConfig().configAsString().split("\n");
                     for (String configLine : config)
-                        subsystemContent += HTML.paragraph(configLine);
+                        groupContent += HTML.paragraph(configLine);
 
                     String table = "";
 
@@ -658,8 +660,11 @@ public class MotorChecker {
                     // group has all talons written to table
                     // format as table and add to subsystem
                     table = HTML.table(table);
-                    subsystemContent += table;
+                    groupContent += table;
+                    if (!talonGroup.hasFail())
+                        groupContent = HTML.button("Open " + talonGroup.getName(), groupContent);
 
+                    subsystemContent += groupContent;
                 } // end of all groups in subsystem loop
 
                 // if the subsystem doesn't have any fails, wrap in a button so we can hide it

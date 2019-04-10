@@ -24,7 +24,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
  */
 
 public class Constants {
-	public static final boolean COMP_BOT = false;
+	public static final boolean COMP_BOT = true;
 
 	public static class kLoop {
 	}
@@ -144,7 +144,6 @@ public class Constants {
 		public final static DigitalSelectorConstants SELECTOR_ONES;
 		public final static DigitalSelectorConstants SELECTOR_TENS;
 
-		
 		public static final double GYRO_PERCENT_PER_DEGREE_OF_ERROR = 0.005;
 		public static final double GYRO_CONSTANT_SPEED = 0.03;
 		public static final double GYRO_PRECISION_IN_DEGREES = 5;
