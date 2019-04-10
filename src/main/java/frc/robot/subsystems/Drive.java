@@ -11,6 +11,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
@@ -731,6 +734,8 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public synchronized void loop() {
+		SmartDashboard.putNumber("NAVX", getGyroAngle().getDegrees());
+
 		handleStates();
 		in();
 		out();
