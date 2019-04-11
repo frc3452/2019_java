@@ -28,9 +28,9 @@ public class MotorChecker {
             private ArrayList<FailingValue> array = new ArrayList<FailingValue>();
             private double average = -1;
 
-            private final double epsilon;
-            private final double floor;
-            private final MotorTestingGroup group;
+            public final double epsilon;
+            public final double floor;
+            public final MotorTestingGroup group;
 
             private boolean hasFails = false;
             private boolean mFirstCheck = false;
@@ -72,14 +72,13 @@ public class MotorChecker {
                         fail();
                     }
                 }
-
             }
 
             public void check() {
                 mFirstCheck = true;
                 average();
                 floor();
-                findFails();
+                // findFails();
             }
 
             public boolean hasFails() {
@@ -104,14 +103,14 @@ public class MotorChecker {
                     group.getSubsystem().setMotorTestingFail();
             }
 
-            private void findFails() {
-                for (FailingValue c : array) {
-                    if (!GZUtil.epsilonEquals(c.getVal(), average, epsilon)) {
-                        c.setFail();
-                        fail();
-                    }
-                }
-            }
+            // private void findFails() {
+            // for (FailingValue c : array) {
+            // if (!GZUtil.epsilonEquals(c.getVal(), average, epsilon)) {
+            // c.setFail();
+            // fail();
+            // }
+            // }
+            // }
 
             public double getAverage() {
                 return average;
@@ -190,6 +189,9 @@ public class MotorChecker {
                 this.mCheckerConfig = config;
                 this.mRPMSupplier = supplier;
                 setEpsilons(this.mCheckerConfig);
+
+                System.out.println("GROUP " + name + "\tFWD RPM [AVG,FLOOR]" + forwardRPMs.average + "\t"
+                        + forwardRPMs.floor + "\tREV RPM[AVG,FLOOR]" + reverseRPMs.average + "\t" + reverseRPMs.floor);
             }
 
             public void check() {
@@ -507,8 +509,8 @@ public class MotorChecker {
             double current = individualControllerToCheck.getAmperage();
             double rpm = group.getRPM();
 
-            rpms.add(new FailingValue(rpm));
             currents.add(new FailingValue(current));
+            rpms.add(new FailingValue(rpm));
             voltages.add(RobotController.getBatteryVoltage());
 
             individualControllerToCheck.set(0.0, true);
@@ -601,7 +603,6 @@ public class MotorChecker {
                         boolean revRPMFail = revRPMs.get(talon).getFail();
 
                         final boolean fail = fwdAmpFail || revAmpFail || fwdRPMFail || revRPMFail;
-
                         {
                             // Put talon cell
                             String talonCell;
@@ -614,9 +615,9 @@ public class MotorChecker {
 
                         // Populate forward cell
                         {
-                            String fwdCell;
-                            fwdCell = HTML.tableCell(fwdCurrent.get(talon).getVal().toString(), fwdAmpFail);
-                            row += fwdCell;
+                            String fwdCellAmp;
+                            fwdCellAmp = HTML.tableCell(fwdCurrent.get(talon).getVal().toString(), fwdAmpFail);
+                            row += fwdCellAmp;
                         }
 
                         {
@@ -661,8 +662,8 @@ public class MotorChecker {
                     // format as table and add to subsystem
                     table = HTML.table(table);
                     groupContent += table;
-                    if (!talonGroup.hasFail())
-                        groupContent = HTML.button("Open " + talonGroup.getName(), groupContent);
+                    // if (!talonGroup.hasFail())
+                    // groupContent = HTML.button("Open " + talonGroup.getName(), groupContent);
 
                     subsystemContent += groupContent;
                 } // end of all groups in subsystem loop
