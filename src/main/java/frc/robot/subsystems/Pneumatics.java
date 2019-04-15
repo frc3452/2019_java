@@ -30,6 +30,11 @@ public class Pneumatics extends GZSubsystem {
         this.mIsMotorTesting = testing;
     }
 
+    public boolean isMotorTesting()
+    {
+        return this.mIsMotorTesting;
+    }
+
     private int mCrawlerPresses = 0;
 
     private DecimalFormat df = new DecimalFormat("#0.00");

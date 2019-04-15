@@ -37,9 +37,9 @@ public class EncoderDrive extends Command {
 	}
 
 	protected boolean isFinished() {
-		return false;
+		// return false;
 //		return isTimedOut();
-		// return drive.encoderIsDone(2) || isTimedOut();
+		return drive.encoderIsDone() || isTimedOut();
 	}
 
 	protected void end() {

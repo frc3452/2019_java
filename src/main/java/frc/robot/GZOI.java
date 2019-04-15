@@ -84,6 +84,8 @@ public class GZOI extends GZSubsystem {
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 
+		cameraSettings();
+
 		op.setXboxController();
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
@@ -108,7 +110,7 @@ public class GZOI extends GZSubsystem {
 			mWasTest = true;
 
 		// mLeds.set(true);
-		cameraSettings();
+		// cameraSettings();
 
 		// SAFTEY DISABLED
 		if (isFMS())

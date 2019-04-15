@@ -144,9 +144,9 @@ public class Constants {
 		public final static DigitalSelectorConstants SELECTOR_ONES;
 		public final static DigitalSelectorConstants SELECTOR_TENS;
 
-		public static final double GYRO_PERCENT_PER_DEGREE_OF_ERROR = 0.005;
-		public static final double GYRO_CONSTANT_SPEED = 0.03;
-		public static final double GYRO_PRECISION_IN_DEGREES = 5;
+		public static final double GYRO_PERCENT_PER_DEGREE_OF_ERROR = 0.004;
+		public static final double GYRO_CONSTANT_SPEED = 0.00;
+		public static final double GYRO_PRECISION_IN_DEGREES = 1.5;
 		public static final double GYRO_TIMEOUT = 30;
 
 		static {
@@ -234,6 +234,8 @@ public class Constants {
 		public static final double AUTO_CLIMB_SPEED = 0.75; // .25
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
+		public static final double ROTATIONS_PER_DEGREE = 0.00865;
+
 		// 2019 Robot
 
 		public final static boolean L_INVERT = true;
@@ -292,11 +294,11 @@ public class Constants {
 
 		static {
 			if (COMP_BOT) {
-				INTAKE_L_INVERT = false;
-				INTAKE_R_INVERT = false;
-			} else {
 				INTAKE_L_INVERT = true;
 				INTAKE_R_INVERT = true;
+			} else {
+				INTAKE_L_INVERT = false;
+				INTAKE_R_INVERT = false;
 			}
 
 		}

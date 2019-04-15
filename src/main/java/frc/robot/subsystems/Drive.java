@@ -41,6 +41,7 @@ import frc.robot.util.GZPID;
 import frc.robot.util.GZPID.GZPIDPair;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
+import frc.robot.util.RobotPose;
 import frc.robot.util.Units;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
@@ -93,6 +94,9 @@ public class Drive extends GZSubsystem {
 	private boolean mIsAutoClimbing = false;
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
+
+	DecimalFormat df = new DecimalFormat("#0.00");
+	private RobotPose mShuffleboardPose = new RobotPose();
 
 	Notifier mShiftNotifier = new Notifier(new Runnable() {
 		public void run() {
@@ -193,6 +197,8 @@ public class Drive extends GZSubsystem {
 		mNavX.reset();
 
 		checkFirmware();
+
+		SmartDashboard.putData(mShuffleboardPose);
 	}
 
 	public synchronized void setGyroAngle(Rotation2d angle) {
@@ -411,6 +417,26 @@ public class Drive extends GZSubsystem {
 
 	@Override
 	public void addLoggingValues() {
+		new LogItem("X-ODO") {
+			@Override
+			public String val() {
+				return getOdometry().getTranslation().x() + "";
+			}
+		};
+		new LogItem("Y-ODO") {
+			@Override
+			public String val() {
+				return getOdometry().getTranslation().y() + "";
+			}
+		};
+
+		new LogItem("R-ODO") {
+			@Override
+			public String val() {
+				return getOdometry().getRotation().getDegrees() + "";
+			}
+		};
+
 		new LogItem("L-RPM") {
 			@Override
 			public String val() {
@@ -730,12 +756,27 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	DecimalFormat df = new DecimalFormat("#0.00");
+	private synchronized void updateShuffleboard() {
+		RigidTransform2d odo = getOdometry();
+		double setY = (12 * 27) - odo.getTranslation().y();
+		Rotation2d flipped = odo.getRotation().inverse();
 
-	@Override
+		mShuffleboardPose.SetX(odo.getTranslation().x());
+		mShuffleboardPose.SetY(setY);
+		mShuffleboardPose.SetHeading(flipped.getDegrees());
+	}
+
+	private synchronized void handleCoastOnTesting() {
+		if (Pneumatics.getInstance().isMotorTesting()) {
+			brake(false);
+		}
+	}
+
 	public synchronized void loop() {
-		SmartDashboard.putNumber("NAVX", getGyroAngle().getDegrees());
+		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
 
+		handleCoastOnTesting();
+		updateShuffleboard();
 		handleStates();
 		in();
 		out();
@@ -792,26 +833,26 @@ public class Drive extends GZSubsystem {
 	// TODO TUNE
 	public boolean getFrontTopLimit() {
 		// if (Constants.COMP_BOT)
-			return mIO.ls_left_rev;
+		return mIO.ls_left_rev;
 		// return mIO.ls_left_fwd;
 	}
 
 	public boolean getFrontBottomLimit() {
 		// if (Constants.COMP_BOT)
-			return mIO.ls_left_fwd;
+		return mIO.ls_left_fwd;
 		// return mIO.ls_left_rev;
 	}
 
 	public boolean getRearTopLimit() {
 		// if (Constants.COMP_BOT)
-			return mIO.ls_right_rev;
+		return mIO.ls_right_rev;
 
 		// return mIO.ls_right_fwd;
 	}
 
 	public boolean getRearBottomLimit() {
 		// if (Constants.COMP_BOT)
-			return mIO.ls_right_fwd;
+		return mIO.ls_right_fwd;
 		// return mIO.ls_right_rev;
 	}
 
@@ -1021,12 +1062,11 @@ public class Drive extends GZSubsystem {
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
+		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
 
-		// rotate = Math.copySign(rotate * rotate, rotate);
+		// rotate *= .45;
 
-		rotate *= 0.45;
 		cheesyNoState(move, rotate, !usingCurvature());
 		// 0.6 or 0.65
 	}
@@ -1036,7 +1076,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private double getTurnModifier() {
-		return mModifyPercent * (mIsSlow ? .75 : 1);
+		return mModifyPercent * (mIsSlow ? 0.75 : 0.9) * 0.45;
 		// return mModifyPercent * (Elevator.getInstance().isLimiting() ? getModifier()
 		// * kElevator.ELEV_TURN_SCALAR : 1);
 	}
@@ -1271,6 +1311,19 @@ public class Drive extends GZSubsystem {
 		mRight_target = 0;
 
 		mPercentageComplete = -3452;
+	}
+
+	public synchronized boolean encoderIsDone() {
+		if (mState != DriveState.MOTION_MAGIC)
+			return false;
+
+		if (GZUtil.epsilonEquals(getLeftRotations(), mIO.left_desired_output / 4096,
+				kDrivetrain.ROTATIONS_PER_DEGREE * 2)
+				&& GZUtil.epsilonEquals(getRightRotations(), mIO.right_desired_output / 4096,
+						kDrivetrain.ROTATIONS_PER_DEGREE * 2))
+			return true;
+
+		return false;
 	}
 
 	@Deprecated

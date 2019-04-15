@@ -12,6 +12,9 @@ import java.util.Scanner;
 
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.kFiles;
 import frc.robot.Robot;
 import frc.robot.subsystems.Pneumatics;
@@ -189,6 +192,8 @@ public class MotorChecker {
                 this.mCheckerConfig = config;
                 this.mRPMSupplier = supplier;
                 setEpsilons(this.mCheckerConfig);
+                double[] arr = { 1, 2 };
+                SmartDashboard.putNumberArray("F", arr);
 
                 System.out.println("GROUP " + name + "\tFWD RPM [AVG,FLOOR]" + forwardRPMs.average + "\t"
                         + forwardRPMs.floor + "\tREV RPM[AVG,FLOOR]" + reverseRPMs.average + "\t" + reverseRPMs.floor);

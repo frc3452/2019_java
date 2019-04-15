@@ -261,17 +261,17 @@ public class PracticeField extends FieldProfile {
             // return 19; //19
 
             // return 22;
-            return 23; // big fat teeth
+            return 20; // big fat teeth
         }
 
         @Override
         public double hp2() {
-            return 47 + 3;
+            return 47;
         }
 
         @Override
         public double hp3() {
-            return 75 + 3;
+            return 75;
         }
 
         @Override
@@ -281,17 +281,20 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 27.5 + 2;
+            // was 2 too high
+            return 28.5;
         }
 
         @Override
         public double cargo2() {
-            return 55.5 + 2;
+            // was 2 too high
+            return 56.5;
         }
 
         @Override
         public double cargo3() {
-            return 83.5 + 2;
+            // was 2 too high
+            return 84.5;
         }
 
         @Override

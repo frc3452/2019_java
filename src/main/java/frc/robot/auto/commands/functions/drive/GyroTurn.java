@@ -7,6 +7,7 @@ import frc.robot.subsystems.Drive;
 
 public class GyroTurn extends Command {
   private double m_gyro, m_real_target, m_target, m_speed, m_precise, m_constantspeed;
+  private int m_target_good = 0;
 
   private Drive drive = Drive.getInstance();
 
@@ -54,13 +55,6 @@ public class GyroTurn extends Command {
     double error = Math.abs(m_gyro - m_target);
 
     // a curr, b target
-    // If 𝑎<𝑏, and 𝑏−𝑎≤180, turn counterclockwise.
-
-    // If 𝑎<𝑏, and 𝑏−𝑎>180, turn clockwise.
-
-    // If 𝑎>𝑏, and 𝑎−𝑏≤180, turn clockwise.
-
-    // If 𝑎>𝑏, and 𝑎−𝑏>180, turn counterclockwise.
 
     double flip = 1;
     if (m_gyro < m_target) {
@@ -81,7 +75,10 @@ public class GyroTurn extends Command {
   protected boolean isFinished() {
     double off = Math
         .abs(Rotation2d.fromDegrees(m_gyro).inverse().rotateBy(Rotation2d.fromDegrees(m_target)).getDegrees());
-    return off < m_precise;
+    if (off < m_precise)
+      m_target_good++;
+
+    return (m_target_good > 30);
     // return GZUtil.epsilonEquals(m_gyro, m_target, m_precise) || isTimedOut();
     // return ((m_gyro < (m_target + m_precise)) && (m_gyro > (m_target -
     // m_precise))) || isTimedOut();
