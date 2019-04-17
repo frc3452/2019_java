@@ -4,14 +4,10 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kDrivetrain;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.drive.EncoderDrive;
-import frc.robot.auto.commands.functions.drive.GyroTurn;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -104,12 +100,12 @@ public class Auton {
 		// 	}
 		// }));
 
-		// commandArray.add(new GZCommand("MOVEMOVMOVOMEV", () -> new GZCommandGroup() {
-		// 	{
-		// 		tele();
-		// 		add(new EncoderDrive(kDrivetrain.ROTATIONS_PER_DEGREE * 90, kDrivetrain.ROTATIONS_PER_DEGREE * -90, .5, .5, .6));
-		// 	}
-		// }));
+		commandArray.add(new GZCommand("MOVEMOVMOVOMEV", () -> new GZCommandGroup() {
+			{
+				tele();
+				// add(new EncoderDrive(kDrivetrain.ROTATIONS_PER_DEGREE * 90, kDrivetrain.ROTATIONS_PER_DEGREE * -90, .5, .5, .6));
+			}
+		}));
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 

@@ -96,7 +96,7 @@ public class Pneumatics extends GZSubsystem {
 
         noAir |= mIsMotorTesting;
         noAir |= GZOI.getInstance().isAuto();
-        noAir |= !Constants.COMP_BOT;
+        // noAir |= !Constants.COMP_BOT;
         noAir |= GZOI.getInstance().isTest() && TestModeRunner.getInstance().isEnabled();
 
         // noAir = true;

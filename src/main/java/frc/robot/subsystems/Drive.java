@@ -71,8 +71,6 @@ public class Drive extends GZSubsystem {
 
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
-	private double mPercentageComplete = 0;
-	private double mLeft_target = 0, mRight_target = 0;
 
 	private static Drive mInstance = null;
 
@@ -211,8 +209,12 @@ public class Drive extends GZSubsystem {
 		final double scale = max_desired > getParameters().high_gear_setpoint
 				? getParameters().high_gear_setpoint / max_desired
 				: 1.0;
-		mIO.left_desired_output = rpmToTicksPer100ms((inchesPerSecondToRpm(left_inches_per_sec * scale)));
-		mIO.right_desired_output = -rpmToTicksPer100ms(inchesPerSecondToRpm(right_inches_per_sec * scale));
+		mIO.left_desired_output = inchesPerSecondToTicksPer100ms(left_inches_per_sec * scale);
+		mIO.right_desired_output = -inchesPerSecondToTicksPer100ms(right_inches_per_sec * scale);
+	}
+
+	private static double inchesPerSecondToTicksPer100ms(double inches_per_second) {
+		return rpmToTicksPer100ms(inchesPerSecondToRpm(inches_per_second));
 	}
 
 	public synchronized boolean hasPassedMarker(String marker) {
@@ -233,8 +235,12 @@ public class Drive extends GZSubsystem {
 			Kinematics.DriveVelocity setpoint = Kinematics.inverseKinematics(command);
 			updateVelocitySetpoint(setpoint.left, setpoint.right);
 		} else {
-			updateVelocitySetpoint(0, 0);
+			// updateVelocitySetpoint(0, 0);
 		}
+	}
+
+	public void velocityStop() {
+		updateVelocitySetpoint(0, 0);
 	}
 
 	public synchronized void zeroOdometry(PathContainer pathContainer) {
@@ -738,10 +744,8 @@ public class Drive extends GZSubsystem {
 			slowSpeed(true);
 			break;
 		case MOTION_MAGIC:
-			encoderDone();
 			break;
 		case MOTION_PROFILE:
-			encoderDone();
 			break;
 		case NEUTRAL:
 			break;
@@ -773,7 +777,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
-		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
+		// System.out.println(df.format(getLeftRotations()) + "\t" +
+		// df.format(getRightRotations()));
 
 		handleCoastOnTesting();
 		updateShuffleboard();
@@ -1265,55 +1270,27 @@ public class Drive extends GZSubsystem {
 			c.setNeutralMode(mode);
 	}
 
-	@Deprecated
-	public synchronized void motionMagic(double leftRotations, double rightRotations, double leftAccel,
-			double rightAccel, double leftSpeed, double rightSpeed) {
+	public synchronized void motionMagic(double leftRotations, double rightRotations, double accel, double vel) {
+		motionMagic(leftRotations, rightRotations, accel, accel, vel, vel);
+	}
+
+	public synchronized void motionMagic(double leftRotations, double rightRotations, double leftAccelInPerSec,
+			double rightAccelInPerSec, double leftVelInPerSec, double rightVelInPerSec) {
 
 		if (setWantedState(DriveState.MOTION_MAGIC)) {
 
-			double topspeed = 4350;
+			L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
+			R1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(rightAccelInPerSec), 10);
 
-			mLeft_target = Units.rotations_to_ticks(leftRotations);
-			mRight_target = -Units.rotations_to_ticks(rightRotations);
+			L1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(leftVelInPerSec), 10);
+			R1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(rightVelInPerSec), 10);
 
-			mPercentageComplete = Math
-					.abs(((mIO.left_encoder_ticks / mLeft_target) + (mIO.right_encoder_ticks / mRight_target)) / 2);
-
-			L1.configMotionAcceleration((int) (topspeed * leftAccel), 10);
-			R1.configMotionAcceleration((int) (topspeed * rightAccel), 10);
-
-			L1.configMotionCruiseVelocity((int) (topspeed * leftSpeed), 10);
-			R1.configMotionCruiseVelocity((int) (topspeed * rightSpeed), 10);
-
-			mIO.left_desired_output = mLeft_target;
-			mIO.right_desired_output = mRight_target;
+			// mIO.left_desired_output = mLeft_target;
+			// mIO.right_desired_output = mRight_target;
 		}
 	}
 
-	@Deprecated
-	public synchronized boolean encoderSpeedIsUnder(double ticksPer100Ms) {
-		double l = Math.abs(mIO.left_encoder_vel);
-		double r = Math.abs(mIO.right_encoder_vel);
-
-		return l < ticksPer100Ms || r < ticksPer100Ms;
-	}
-
-	@Deprecated
-	public synchronized void encoderDone() {
-		stop();
-
-		R1.configPeakOutputForward(1, 0);
-		R1.configPeakOutputReverse(-1, 0);
-		L1.configPeakOutputForward(1, 0);
-		L1.configPeakOutputReverse(-1, 0);
-
-		mLeft_target = 0;
-		mRight_target = 0;
-
-		mPercentageComplete = -3452;
-	}
-
-	public synchronized boolean encoderIsDone() {
+	public synchronized boolean encoderAngleIsDone() {
 		if (mState != DriveState.MOTION_MAGIC)
 			return false;
 
@@ -1324,22 +1301,6 @@ public class Drive extends GZSubsystem {
 			return true;
 
 		return false;
-	}
-
-	@Deprecated
-	public synchronized boolean encoderIsDone(double multiplier) {
-		return (mIO.left_encoder_ticks < mLeft_target + 102 * multiplier)
-				&& (mIO.left_encoder_ticks > mLeft_target - 102 * multiplier)
-				&& (mIO.right_encoder_ticks < mRight_target + 102 * multiplier)
-				&& (mIO.right_encoder_ticks > mRight_target - 102 * multiplier);
-	}
-
-	@Deprecated
-	public synchronized boolean encoderIsDoneEither(double multiplier) {
-		return (mIO.left_encoder_ticks < mLeft_target + 102 * multiplier
-				&& mIO.left_encoder_ticks > mLeft_target - 102 * multiplier)
-				|| (mIO.right_encoder_ticks < mRight_target + 102 * multiplier
-						&& mIO.right_encoder_ticks > mRight_target - 102 * multiplier);
 	}
 
 	public synchronized void enableFollower() {
@@ -1367,10 +1328,6 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void zeroSensors() {
 		zeroEncoders();
-	}
-
-	public synchronized Double getPercentageComplete() {
-		return mPercentageComplete;
 	}
 
 	public int getTotalShiftCountsFront() {

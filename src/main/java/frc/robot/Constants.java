@@ -24,7 +24,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
  */
 
 public class Constants {
-	public static final boolean COMP_BOT = true;
+	public static final boolean COMP_BOT = false;
 
 	public static class kLoop {
 	}
@@ -68,9 +68,9 @@ public class Constants {
 				VEL_INCHES_PER_SECOND = 16 * 12;
 				TOP_LIMIT = 85;
 			} else {
-				TOP_LIMIT = 88;
 				ACCEL_INCHES_PER_SECOND = 11 * 12;
 				VEL_INCHES_PER_SECOND = 16 * 12;
+				TOP_LIMIT = 88;
 			}
 		}
 
@@ -235,6 +235,8 @@ public class Constants {
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		public static final double ROTATIONS_PER_DEGREE = 0.00865;
+		public static final double MOTION_MAGIC_ACCEL = 0;
+		public static final double MOTION_MAGIC_VEL = 0;
 
 		// 2019 Robot
 

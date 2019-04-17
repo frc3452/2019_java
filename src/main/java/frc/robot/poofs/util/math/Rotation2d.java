@@ -53,6 +53,19 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         return fromRadians(Math.toRadians(angle_degrees));
     }
 
+    public double difference(Rotation2d other) {
+        return difference(this.getDegrees(), other.getDegrees());
+    }
+
+    public static double difference(Rotation2d a1, Rotation2d a2) {
+        return difference(a1.getDegrees(), a2.getDegrees());
+    }
+
+    public static double difference(double a1, double a2) {
+        double angle = 180 - Math.abs(Math.abs(a1 - a2) - 180);
+        return angle;
+    }
+
     /**
      * From trig, we know that sin^2 + cos^2 == 1, but as we do math on this object
      * we might accumulate rounding errors. Normalizing forces us to re-scale the
@@ -96,6 +109,17 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         return Math.toDegrees(getRadians());
     }
 
+    public double getNormalDegrees() {
+        double ang = getDegrees();
+        while (ang < 0)
+            ang += 180;
+
+        if (ang > 360)
+            ang = ang % 360;
+
+        return ang;
+    }
+
     /**
      * We can rotate this Rotation2d by adding together the effects of it and
      * another rotation.
@@ -121,7 +145,6 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     public Rotation2d inverse() {
         return new Rotation2d(cos_angle_, -sin_angle_, false);
     }
-
 
     /**
      * Takes an angle CCW -> CW or CW -> CCW
