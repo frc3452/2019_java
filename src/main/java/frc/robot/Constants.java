@@ -74,7 +74,6 @@ public class Constants {
 			}
 		}
 
-
 		private final static HeightsContainer h = PathAdapter.getHeights();
 		public static final double TARGET_TOLERANCE = 1;
 
@@ -217,6 +216,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
+		public static final boolean NO_SHIFTER = false;
 		public static final boolean TUNING = false;
 
 		static final double p = 0.9;
@@ -299,8 +299,8 @@ public class Constants {
 				INTAKE_L_INVERT = true;
 				INTAKE_R_INVERT = true;
 			} else {
-				INTAKE_L_INVERT = false;
-				INTAKE_R_INVERT = false;
+				INTAKE_L_INVERT = true;
+				INTAKE_R_INVERT = true;
 			}
 
 		}

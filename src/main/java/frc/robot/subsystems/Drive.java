@@ -11,8 +11,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
@@ -72,6 +70,11 @@ public class Drive extends GZSubsystem {
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
 
+	private Rotation2d mTurnToHeadingGoal = null;
+	private boolean mTurnToHeadingComplete = false;
+	private Double mTurnToHeadingLeftT = null;
+	private Double mTurnToHeadingRightT = null;
+
 	private static Drive mInstance = null;
 
 	private double curvatureDriveQuickStopThreshold = .2;
@@ -79,8 +82,6 @@ public class Drive extends GZSubsystem {
 	private double curvatureDriveQuickStopAccumulator;
 
 	private GZFile mPIDConfigFile = null;
-
-	private Rotation2d mTurnToHeadingGoal = null;
 
 	private PathFollower mPathFollower;
 	private Path mCurrentPath = null;
@@ -240,7 +241,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public void velocityStop() {
-		updateVelocitySetpoint(0, 0);
+		setVelocity(0, 0);
 	}
 
 	public synchronized void zeroOdometry(PathContainer pathContainer) {
@@ -353,17 +354,12 @@ public class Drive extends GZSubsystem {
 	}
 
 	private void handleTurnToHeading() {
-		if (mTurnToHeadingGoal == null) {
-			System.out.println("WARNING Turn to heading goal null, cannot turn!!!");
-			return;
+		if (mState == DriveState.TURN_TO_HEADING) {
+			if (encoderAngleIsDone()) {
+				mTurnToHeadingComplete = true;
+				velocityStop();
+			}
 		}
-
-		Rotation2d current = getGyroAngle();
-
-		if (current.getDegrees() < 180) {
-
-		}
-
 	}
 
 	private synchronized void out() {
@@ -474,7 +470,7 @@ public class Drive extends GZSubsystem {
 
 	public enum DriveState {
 		OPEN_LOOP(false, ControlMode.PercentOutput), OPEN_LOOP_DRIVER(false, ControlMode.PercentOutput),
-		TURN_TO_HEADING(true, ControlMode.Velocity), CLOSED_LOOP_DRIVER(true, ControlMode.Velocity),
+		TURN_TO_HEADING(true, ControlMode.MotionMagic), CLOSED_LOOP_DRIVER(true, ControlMode.Velocity),
 		DEMO(false, ControlMode.PercentOutput), NEUTRAL(false, ControlMode.Disabled),
 		MOTION_MAGIC(true, ControlMode.MotionMagic), MOTION_PROFILE(true, ControlMode.MotionProfile),
 		PATH_FOLLOWING(true, ControlMode.Velocity), VELOCITY(true, ControlMode.Velocity),
@@ -669,10 +665,56 @@ public class Drive extends GZSubsystem {
 		// neg up
 	}
 
+	public synchronized void turnToHeading(Rotation2d angle) {
+		mTurnToHeadingComplete = false;
+		mTurnToHeadingGoal = angle;
+		setWantedState(DriveState.TURN_TO_HEADING);
+	}
+
+	public synchronized void turnRelative(Rotation2d angle) {
+		Rotation2d current = new Rotation2d(getGyroAngle());
+		Rotation2d target = current.rotateBy(angle);
+		turnToHeading(target);
+	}
+
 	private synchronized void onStateStart(DriveState newState) {
 		switch (newState) {
 		case TURN_TO_HEADING:
 			brake(true);
+
+			if (mTurnToHeadingGoal == null) {
+				System.out.println("ERROR Turn to heading goal null!");
+				stop();
+				return;
+			}
+
+			final double initLeft = getLeftRotations();
+			final double initRight = getRightRotations();
+
+			double tar = mTurnToHeadingGoal.getNormalDegrees();
+			Rotation2d mCur = getGyroAngle();
+			double cur = mCur.getNormalDegrees();
+
+			boolean shouldTurnLeft;
+			if (tar > 180) {
+				if (cur > tar - 180 && cur < tar) {
+					shouldTurnLeft = false;
+				} else {
+					shouldTurnLeft = true;
+				}
+			} else {
+				if (cur > tar && cur < tar + 180) {
+					shouldTurnLeft = true;
+				} else {
+					shouldTurnLeft = false;
+				}
+			}
+
+			double toTurn = mCur.difference(mTurnToHeadingGoal);
+			double leftTar = initLeft + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
+			double rightTar = initRight + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
+
+			motionMagic(false, leftTar, rightTar, kDrivetrain.MOTION_MAGIC_ACCEL, kDrivetrain.MOTION_MAGIC_VEL);
 			break;
 		case CLIMB:
 			brake(true);
@@ -777,8 +819,10 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
-		// System.out.println(df.format(getLeftRotations()) + "\t" +
-		// df.format(getRightRotations()));
+		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
+
+		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" + getFrontBottomLimit());
+		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" + getRearBottomLimit());
 
 		handleCoastOnTesting();
 		updateShuffleboard();
@@ -820,6 +864,10 @@ public class Drive extends GZSubsystem {
 
 	public Double getLeftRotations() {
 		return Units.ticks_to_rotations(mIO.left_encoder_ticks);
+	}
+
+	public boolean getTurnToHeadingComplete() {
+		return mTurnToHeadingComplete;
 	}
 
 	public Double getLeftVelNonNativeUnis() {
@@ -877,7 +925,6 @@ public class Drive extends GZSubsystem {
 			mIO.encoder_invalid_loops = 0;
 		}
 
-		// TODO TUNE ME
 		mIO.ls_left_fwd = L1.getFWDLimit();
 		mIO.ls_left_rev = L1.getREVLimit();
 
@@ -1270,29 +1317,33 @@ public class Drive extends GZSubsystem {
 			c.setNeutralMode(mode);
 	}
 
-	public synchronized void motionMagic(double leftRotations, double rightRotations, double accel, double vel) {
-		motionMagic(leftRotations, rightRotations, accel, accel, vel, vel);
+	public synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations, double accel,
+			double vel) {
+		motionMagic(motionMagic, leftRotations, rightRotations, accel, accel, vel, vel);
 	}
 
-	public synchronized void motionMagic(double leftRotations, double rightRotations, double leftAccelInPerSec,
-			double rightAccelInPerSec, double leftVelInPerSec, double rightVelInPerSec) {
+	public synchronized void motionMagic(double leftRotations, double rightRotations, double accel, double vel) {
+		motionMagic(true, leftRotations, rightRotations, accel, vel);
+	}
 
-		if (setWantedState(DriveState.MOTION_MAGIC)) {
-
-			L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
-			R1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(rightAccelInPerSec), 10);
-
-			L1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(leftVelInPerSec), 10);
-			R1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(rightVelInPerSec), 10);
-
-			// mIO.left_desired_output = mLeft_target;
-			// mIO.right_desired_output = mRight_target;
+	public synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations,
+			double leftAccelInPerSec, double rightAccelInPerSec, double leftVelInPerSec, double rightVelInPerSec) {
+		if (motionMagic) {
+			setWantedState(DriveState.MOTION_MAGIC);
 		}
+		L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
+		R1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(rightAccelInPerSec), 10);
+
+		L1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(leftVelInPerSec), 10);
+		R1.configMotionCruiseVelocity((int) inchesPerSecondToTicksPer100ms(rightVelInPerSec), 10);
+
+		mIO.left_desired_output = Units.rotations_to_ticks(leftRotations);
+		mIO.right_desired_output = Units.rotations_to_ticks(rightRotations);
 	}
 
 	public synchronized boolean encoderAngleIsDone() {
-		if (mState != DriveState.MOTION_MAGIC)
-			return false;
+		// if (mState != DriveState.MOTION_MAGIC)
+		// return false;
 
 		if (GZUtil.epsilonEquals(getLeftRotations(), mIO.left_desired_output / 4096,
 				kDrivetrain.ROTATIONS_PER_DEGREE * 2)

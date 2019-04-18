@@ -5,6 +5,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
@@ -198,14 +199,16 @@ public class GZOI extends GZSubsystem {
 	private void handleDriverController() {
 		if (driverJoy.getButton(Buttons.LB)) {
 
-			if (driverJoy.getButton(Buttons.A))
-				drive.wantShift(ClimbingState.NONE);
-			else if (driverJoy.getButton(Buttons.B))
-				drive.wantShift(ClimbingState.FRONT);
-			else if (driverJoy.getButton(Buttons.X))
-				drive.wantShift(ClimbingState.BOTH);
-			else if (driverJoy.getButton(Buttons.Y))
-				drive.wantShift(ClimbingState.REAR);
+			if (!kDrivetrain.NO_SHIFTER) {
+				if (driverJoy.getButton(Buttons.A))
+					drive.wantShift(ClimbingState.NONE);
+				else if (driverJoy.getButton(Buttons.B))
+					drive.wantShift(ClimbingState.FRONT);
+				else if (driverJoy.getButton(Buttons.X))
+					drive.wantShift(ClimbingState.BOTH);
+				else if (driverJoy.getButton(Buttons.Y))
+					drive.wantShift(ClimbingState.REAR);
+			}
 
 		} else {
 			if (driverJoy.getButton(Buttons.X)) {

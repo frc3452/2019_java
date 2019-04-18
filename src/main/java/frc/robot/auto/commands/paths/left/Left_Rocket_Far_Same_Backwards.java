@@ -23,6 +23,6 @@ public class Left_Rocket_Far_Same_Backwards extends PathContainer {
 
     @Override
     public Rotation2d getEndGyroMovement() {
-        return Rotation2d.fromDegrees(90 + 61.25);
+        return Rotation2d.fromDegrees(270 - 61.25);
     }
 }
