@@ -74,6 +74,7 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
