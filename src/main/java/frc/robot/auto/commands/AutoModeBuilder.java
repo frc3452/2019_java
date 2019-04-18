@@ -267,6 +267,54 @@ public class AutoModeBuilder {
         }
 
     }
+    
+    public static class EncoderMovement {
+        public final double left, right;
+        
+        public EncoderMovement(double distance)
+        {
+            this(distance,distance);
+        }
+        
+        public EncoderMovement(double left, double right) {
+            this.left = left;
+            this.right = right;
+        }
+    }
+    
+    public static class AutoMovement {
+        public enum TypeOfMovement {
+            Path,Distance_Jog,Gyro_Turn
+        }
+        
+        public PathContainer path = null;
+        public EncoderMovement jog = null;
+        public Rotation2d rotate = null;
+        
+        public final TypeOfMovement type; 
+        
+        public AutoMovement(PathContainer path)
+        {
+            this.path = path;
+            this.type = TypeOfMovement.Path;
+        }
+        
+        public AutoMovement(EncoderMovement jog)
+        {
+            this.jog = jog;   
+            this.type = TypeOfMovement.Distance_Jog;
+        }
+        
+        public AutoMovement(Rotation2d rotate)
+        {
+            this.rotate = rotate;
+            this.type = TypeOfMovement.Gyro_Turn;
+        }
+        
+        public TypeOfMovement getType() {
+            return type;
+        }
+    }
 
     public enum GamePiece {
         CARGO, HATCH_PANEL
