@@ -666,6 +666,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void turnToHeading(Rotation2d angle) {
+		System.out.println("Turning to heading " + angle.toString());
 		mTurnToHeadingComplete = false;
 		mTurnToHeadingGoal = angle;
 		setWantedState(DriveState.TURN_TO_HEADING);
@@ -713,6 +714,8 @@ public class Drive extends GZSubsystem {
 			double toTurn = mCur.difference(mTurnToHeadingGoal);
 			double leftTar = initLeft + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
 			double rightTar = initRight + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
+
+			System.out.println("SHOULD BE TURNING " + (shouldTurnLeft ? " LEFT" : "RIGHT"));
 
 			motionMagic(false, leftTar, rightTar, kDrivetrain.MOTION_MAGIC_ACCEL, kDrivetrain.MOTION_MAGIC_VEL);
 			break;
@@ -819,6 +822,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
+		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output + "\t" + mState.controlMode);
+
 		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
 
 		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" + getFrontBottomLimit());
@@ -1331,6 +1336,10 @@ public class Drive extends GZSubsystem {
 		if (motionMagic) {
 			setWantedState(DriveState.MOTION_MAGIC);
 		}
+
+		//FIX THIS YUCK
+		rightRotations *= -1;
+
 		L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
 		R1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(rightAccelInPerSec), 10);
 

@@ -649,7 +649,8 @@ public class Elevator extends GZSubsystem {
         // }
         // }
 
-        return new ElevatorMovement(low, raise);
+        return new ElevatorMovement(low, false);
+        // return new ElevatorMovement(low, raise);
 
         // if (!mCarriageSlide.isOff() || mCarriageSlide.getWantOn()) {
 

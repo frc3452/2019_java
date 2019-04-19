@@ -7,7 +7,9 @@ import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.drive.EncoderToAngle;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -66,6 +68,20 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
+
+		// commandArray.add(new GZCommand("Big fat turn", () -> new GZCommandGroup() {
+		// 	{
+		// 		tele();
+		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(0)));
+		// 		tele();
+		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(90)));
+		// 		tele();
+		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(180)));
+		// 		tele();
+		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(270)));
+		// 		tele();
+		// 	}
+		// }));
 
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{

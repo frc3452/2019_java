@@ -93,14 +93,14 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
-		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
-		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 0;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 0;
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 16; // 20
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 16; // 22
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 0; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 0; // 22
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 16; // 20
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 16; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 0; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 0; // 20
 
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 
@@ -235,8 +235,8 @@ public class Constants {
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		public static final double ROTATIONS_PER_DEGREE = 0.00865;
-		public static final double MOTION_MAGIC_ACCEL = 0;
-		public static final double MOTION_MAGIC_VEL = 0;
+		public static final double MOTION_MAGIC_ACCEL = 5 * 6;
+		public static final double MOTION_MAGIC_VEL = 5 * 6;
 
 		// 2019 Robot
 
