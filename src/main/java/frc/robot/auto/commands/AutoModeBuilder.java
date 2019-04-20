@@ -67,9 +67,8 @@ import frc.robot.auto.commands.paths.to_feeder_station.Left_CS_Bay_3_Turn_Around
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_2_If_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Backwards_Turn_Around_1;
-import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_1;
+import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_2_Opp;
-import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_2_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_If_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
@@ -580,13 +579,9 @@ public class AutoModeBuilder {
         case ROCKET_FAR: {
             ArrayList<PathContainer> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Far_Turn_Around_1().get(location.side.onLeft));
-                ret.add(new Rocket_Far_Turn_Around_2_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new Rocket_Far_Turn_Around().get(location.side.onLeft));
             } else {
-                ret.add(new Rocket_Far_Turn_Around_1().get(location.side.onLeft));
                 ret.add(new Rocket_Far_Turn_Around_2_Opp().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
             }
             return ret;
         }
