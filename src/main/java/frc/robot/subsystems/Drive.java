@@ -401,17 +401,19 @@ public class Drive extends GZSubsystem {
 			R1.set(mState.controlMode, mIO.right_output);
 		}
 
-		// if (kDrivetrain.TUNING) {
-		// GZPID temp = getGainsFromFile(0);
-		// if (!oldPID.equals(temp)) {
-		// oldPID = temp;
-		// setPID(L1, oldPID);
-		// setPID(R1, oldPID); // both top line
-		// System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
-		// // GZOI.getInstance().addRumble(Rumble.HIGH);
-		// }
-		// }
+		if (kDrivetrain.TUNING) {
+			GZPID temp = getGainsFromFile(0);
+			if (!oldPID.equals(temp)) {
+				oldPID = temp;
+				setPID(L1, oldPID);
+				setPID(R1, oldPID); // both top line
+				System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
+				// GZOI.getInstance().addRumble(Rumble.HIGH);
+			}
+		}
 	}
+
+	GZPID oldPID = new GZPID();
 
 	private GZPID getGainsFromFile(int line) {
 		return GZUtil.getGainsFromFile(mPIDConfigFile, line);
@@ -599,6 +601,10 @@ public class Drive extends GZSubsystem {
 		right.setPID(pid.pair2, this);
 	}
 
+	public void setPID(GZSRX talon, GZPID pid) {
+		talon.setPID(pid, this);
+	}
+
 	private synchronized void checkFirmware() {
 		for (GZSRX s : mTalons)
 			s.checkFirmware();
@@ -693,10 +699,11 @@ public class Drive extends GZSubsystem {
 			final double initRight = getRightRotations();
 
 			double tar = mTurnToHeadingGoal.getNormalDegrees();
-			Rotation2d mCur = getGyroAngle();
+			Rotation2d mCur = getGyroAngle().inverse();
 			double cur = mCur.getNormalDegrees();
 
 			boolean shouldTurnLeft;
+
 			if (tar > 180) {
 				if (cur > tar - 180 && cur < tar) {
 					shouldTurnLeft = false;
@@ -712,8 +719,8 @@ public class Drive extends GZSubsystem {
 			}
 
 			double toTurn = mCur.difference(mTurnToHeadingGoal);
-			double leftTar = initLeft + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
-			double rightTar = initRight + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
+			double leftTar = initLeft + (toTurn * kDrivetrain.L_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
+			double rightTar = initRight + (toTurn * kDrivetrain.R_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
 
 			System.out.println("SHOULD BE TURNING " + (shouldTurnLeft ? " LEFT" : "RIGHT"));
 
@@ -822,12 +829,25 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
-		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output + "\t" + mState.controlMode);
 
-		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
+		if (kDrivetrain.TUNING)
+		{
+			SmartDashboard.putNumber("Target", mIO.left_output);
+			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
+		}
 
-		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" + getFrontBottomLimit());
-		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" + getRearBottomLimit());
+		// System.out.println(mTurnToHeadingComplete + "\t" + );
+		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output
+		// + "\t" + mState.controlMode);
+
+		// System.out.println(df.format(getLeftRotations()) + "\t" +
+		// df.format(getRightRotations()) + "\t" +
+		// df.format(getGyroAngle().getDegrees()));
+
+		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" +
+		// getFrontBottomLimit());
+		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" +
+		// getRearBottomLimit());
 
 		handleCoastOnTesting();
 		updateShuffleboard();
@@ -1337,7 +1357,7 @@ public class Drive extends GZSubsystem {
 			setWantedState(DriveState.MOTION_MAGIC);
 		}
 
-		//FIX THIS YUCK
+		// FIX THIS YUCK
 		rightRotations *= -1;
 
 		L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
@@ -1355,9 +1375,9 @@ public class Drive extends GZSubsystem {
 		// return false;
 
 		if (GZUtil.epsilonEquals(getLeftRotations(), mIO.left_desired_output / 4096,
-				kDrivetrain.ROTATIONS_PER_DEGREE * 2)
-				&& GZUtil.epsilonEquals(getRightRotations(), mIO.right_desired_output / 4096,
-						kDrivetrain.ROTATIONS_PER_DEGREE * 2))
+				kDrivetrain.L_ROTATIONS_PER_DEGREE * kDrivetrain.TURN_TO_HEADING_ACCURACY_DEG)
+				&& GZUtil.epsilonEquals(-getRightRotations(), mIO.right_desired_output / 4096,
+						kDrivetrain.R_ROTATIONS_PER_DEGREE * kDrivetrain.TURN_TO_HEADING_ACCURACY_DEG))
 			return true;
 
 		return false;
