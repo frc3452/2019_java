@@ -18,6 +18,7 @@ import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
+import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
@@ -401,17 +402,19 @@ public class Drive extends GZSubsystem {
 			R1.set(mState.controlMode, mIO.right_output);
 		}
 
-		// if (kDrivetrain.TUNING) {
-		// GZPID temp = getGainsFromFile(0);
-		// if (!oldPID.equals(temp)) {
-		// oldPID = temp;
-		// setPID(L1, oldPID);
-		// setPID(R1, oldPID); // both top line
-		// System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
-		// // GZOI.getInstance().addRumble(Rumble.HIGH);
-		// }
-		// }
+		if (kDrivetrain.TUNING) {
+			GZPID temp = getGainsFromFile(0);
+			if (!oldPID.equals(temp)) {
+				oldPID = temp;
+				setPID(L1, oldPID);
+				setPID(R1, oldPID); // both top line
+				System.out.println("PID Updated!" + "\t" + Timer.getFPGATimestamp());
+				// GZOI.getInstance().addRumble(Rumble.HIGH);
+			}
+		}
 	}
+
+	GZPID oldPID = new GZPID();
 
 	private GZPID getGainsFromFile(int line) {
 		return GZUtil.getGainsFromFile(mPIDConfigFile, line);
@@ -599,6 +602,10 @@ public class Drive extends GZSubsystem {
 		right.setPID(pid.pair2, this);
 	}
 
+	public void setPID(GZSRX talon, GZPID pid) {
+		talon.setPID(pid, this);
+	}
+
 	private synchronized void checkFirmware() {
 		for (GZSRX s : mTalons)
 			s.checkFirmware();
@@ -666,6 +673,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void turnToHeading(Rotation2d angle) {
+		System.out.println("Turning to heading " + angle.toString());
 		mTurnToHeadingComplete = false;
 		mTurnToHeadingGoal = angle;
 		setWantedState(DriveState.TURN_TO_HEADING);
@@ -692,10 +700,11 @@ public class Drive extends GZSubsystem {
 			final double initRight = getRightRotations();
 
 			double tar = mTurnToHeadingGoal.getNormalDegrees();
-			Rotation2d mCur = getGyroAngle();
+			Rotation2d mCur = getGyroAngle().inverse();
 			double cur = mCur.getNormalDegrees();
 
 			boolean shouldTurnLeft;
+
 			if (tar > 180) {
 				if (cur > tar - 180 && cur < tar) {
 					shouldTurnLeft = false;
@@ -711,10 +720,13 @@ public class Drive extends GZSubsystem {
 			}
 
 			double toTurn = mCur.difference(mTurnToHeadingGoal);
-			double leftTar = initLeft + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
-			double rightTar = initRight + (toTurn * kDrivetrain.ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
+			double leftTar = initLeft + (toTurn * kDrivetrain.L_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
+			double rightTar = initRight + (toTurn * kDrivetrain.R_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
 
-			motionMagic(false, leftTar, rightTar, kDrivetrain.MOTION_MAGIC_ACCEL, kDrivetrain.MOTION_MAGIC_VEL);
+			System.out.println("SHOULD BE TURNING " + (shouldTurnLeft ? " LEFT" : "RIGHT"));
+
+			motionMagic(false, leftTar, rightTar, kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_ACCEL,
+					kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_VEL);
 			break;
 		case CLIMB:
 			brake(true);
@@ -819,10 +831,24 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
-		// System.out.println(df.format(getLeftRotations()) + "\t" + df.format(getRightRotations()));
 
-		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" + getFrontBottomLimit());
-		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" + getRearBottomLimit());
+		if (kDrivetrain.TUNING) {
+			SmartDashboard.putNumber("Target", mIO.left_output);
+			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
+		}
+
+		// System.out.println(mTurnToHeadingComplete + "\t" + );
+		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output
+		// + "\t" + mState.controlMode);
+
+		// System.out.println(df.format(getLeftRotations()) + "\t" +
+		// df.format(getRightRotations()) + "\t" +
+		// df.format(getGyroAngle().getDegrees()));
+
+		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" +
+		// getFrontBottomLimit());
+		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" +
+		// getRearBottomLimit());
 
 		handleCoastOnTesting();
 		updateShuffleboard();
@@ -1317,6 +1343,17 @@ public class Drive extends GZSubsystem {
 			c.setNeutralMode(mode);
 	}
 
+	public synchronized void driveJog(EncoderMovement movement) {
+		driveJog(movement.left, movement.right);
+	}
+
+	public synchronized void driveJog(double leftInches, double rightInches) {
+		double left = getLeftRotations() + inchesToRotations(leftInches);
+		double right = getRightRotations() + inchesToRotations(rightInches);
+
+		motionMagic(left, right, kDrivetrain.JOG_MOTION_MAGIC_ACCEL, kDrivetrain.JOG_MOTION_MAGIC_VEL);
+	}
+
 	public synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations, double accel,
 			double vel) {
 		motionMagic(motionMagic, leftRotations, rightRotations, accel, accel, vel, vel);
@@ -1331,6 +1368,10 @@ public class Drive extends GZSubsystem {
 		if (motionMagic) {
 			setWantedState(DriveState.MOTION_MAGIC);
 		}
+
+		// FIX THIS YUCK
+		rightRotations *= -1;
+
 		L1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(leftAccelInPerSec), 10);
 		R1.configMotionAcceleration((int) inchesPerSecondToTicksPer100ms(rightAccelInPerSec), 10);
 
@@ -1342,13 +1383,16 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized boolean encoderAngleIsDone() {
-		// if (mState != DriveState.MOTION_MAGIC)
-		// return false;
+		return encoderIsDone(kDrivetrain.L_ROTATIONS_PER_DEGREE * kDrivetrain.TURN_TO_HEADING_ACCURACY_DEG);
+	}
 
-		if (GZUtil.epsilonEquals(getLeftRotations(), mIO.left_desired_output / 4096,
-				kDrivetrain.ROTATIONS_PER_DEGREE * 2)
-				&& GZUtil.epsilonEquals(getRightRotations(), mIO.right_desired_output / 4096,
-						kDrivetrain.ROTATIONS_PER_DEGREE * 2))
+	public synchronized boolean encoderJogIsDone() {
+		return encoderIsDone(inchesToRotations(kDrivetrain.JOG_ACCURACY_INCHES));
+	}
+
+	public synchronized boolean encoderIsDone(double rotationAccuracy) {
+		if (GZUtil.epsilonEquals(getLeftRotations(), mIO.left_desired_output / 4096, rotationAccuracy)
+				&& GZUtil.epsilonEquals(-getRightRotations(), mIO.right_desired_output / 4096, rotationAccuracy))
 			return true;
 
 		return false;

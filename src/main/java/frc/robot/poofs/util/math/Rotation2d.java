@@ -112,7 +112,7 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     public double getNormalDegrees() {
         double ang = getDegrees();
         while (ang < 0)
-            ang += 180;
+            ang += 360;
 
         if (ang > 360)
             ang = ang % 360;

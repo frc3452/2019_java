@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPathFollowing;
+import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
@@ -16,6 +17,19 @@ import frc.robot.util.GZUtil;
 public abstract class PathContainer {
 
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
+
+    private boolean mOdometryNeedsZeroed = false;
+
+    public PathContainer needsZeroed()
+    {
+        mOdometryNeedsZeroed = true;
+        return this;
+    }
+
+    public boolean doesNeedZero()
+    {
+        return mOdometryNeedsZeroed;
+    }
 
     public static PathContainer getReversed(PathContainer other) {
         PathContainer ret = new PathContainer() {
@@ -146,6 +160,8 @@ public abstract class PathContainer {
         return getFlipped(this);
     }
 
+
+
     public PathContainer getLeft() {
         if (this.isLeftPath())
             return this;
@@ -165,6 +181,11 @@ public abstract class PathContainer {
             return getLeft();
 
         return getRight();
+    }
+
+    public AutoMovement m()
+    {
+        return new AutoMovement(this);
     }
 
     public boolean isLeftPath() {

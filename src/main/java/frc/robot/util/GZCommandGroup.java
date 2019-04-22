@@ -2,10 +2,13 @@ package frc.robot.util;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
+import frc.robot.auto.commands.functions.drive.EncoderMovementCommand;
 import frc.robot.auto.commands.functions.drive.EncoderToAngle;
 import frc.robot.auto.commands.functions.drive.GyroTurn;
 import frc.robot.auto.commands.functions.drive.TeleDrive;
@@ -73,27 +76,34 @@ public class GZCommandGroup extends CommandGroup {
         add(ret);
     }
 
-    public synchronized void resetDrivePaths(ArrayList<PathContainer> paths) {
-        resetDrivePaths(paths, false);
-    }
-
     public synchronized ArrayList<GZCommandGroup> toList() {
         ArrayList<GZCommandGroup> ret = new ArrayList<GZCommandGroup>();
         ret.add(this);
         return ret;
     }
 
-    public synchronized void resetDrivePaths(ArrayList<PathContainer> paths, boolean parallel) {
-        GZCommandGroup ret = new GZCommandGroup();
-        ret.resetPos(paths.get(0));
-        ret.drivePaths(paths);
-        if (parallel)
-            and(ret);
-        else
-            add(ret);
+    public synchronized void handleMovement(AutoMovement movement) {
+        switch (movement.type) {
+        case Distance_Jog:
+            add(new EncoderMovementCommand(movement.jog));
+            break;
+        case Gyro_Turn:
+            add(new GyroTurn(movement.rotate));
+            break;
+        case Path:
+            drivePath(movement.path);
+            break;
+        default:
+            System.out.println("COULD NOT HANDLE AUTO MOVEMENT [" + movement.type + "]");
+            Timer t = null;
+            t.start();
+        }
     }
 
     public synchronized void drivePath(PathContainer pc) {
+        if (pc.doesNeedZero())
+            resetPos(pc);
+
         if (pc.getStartGyroMovement() != null) {
             add(new EncoderToAngle(pc.getStartGyroMovement()));
         }
@@ -110,6 +120,24 @@ public class GZCommandGroup extends CommandGroup {
 
     public synchronized void drivePaths(ArrayList<PathContainer> paths) {
         drivePaths(paths, false);
+    }
+
+    public synchronized void handleMovements(ArrayList<AutoMovement> movements)
+    {
+        handleMovements(movements, false);
+    }
+
+    public synchronized void handleMovements(ArrayList<AutoMovement> movements, boolean parallel) {
+        GZCommandGroup ret = new GZCommandGroup();
+        
+        for (AutoMovement m : movements) {
+            ret.handleMovement(m);
+        }
+
+        if (parallel)
+            and(ret);
+        else
+            add(ret);
     }
 
     public synchronized void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {

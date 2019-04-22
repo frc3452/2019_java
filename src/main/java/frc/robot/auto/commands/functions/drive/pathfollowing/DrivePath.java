@@ -29,6 +29,7 @@ public class DrivePath extends Command {
 
   protected void end() {
     System.out.println("Path completed.");
+    drive.stop();
   }
 
   protected void interrupted() {

@@ -39,7 +39,8 @@ public class Constants {
 		public static final SolenoidConstants CLAW = new SolenoidConstants(0, COMP_BOT ? 6 : 7, 0.175, 0.175);
 
 		// fold 3 then 4 on practice
-		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, .75, 0.5);
+		public static final SolenoidConstants INTAKE_EXTEND = new SolenoidConstants(1, COMP_BOT ? 6 : 4, .75,
+				COMP_BOT ? 0.5 : .8);
 	}
 
 	public static class kElevator {
@@ -93,14 +94,14 @@ public class Constants {
 		public static final double SPEED_LIMIT_SLOWEST_SPEED = 0.20;
 		public static final double SPEED_LIMIT_STARTING_INCHES = 16.0;
 
-		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 18;
-		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 18;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_IN = 0;
+		public static final double CLAW_MIN_HEIGHT_FOR_MOVE_INTAKE_OUT = 0;
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 16; // 20
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 16; // 22
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_CLOSED = 0; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_RETRACTED_CLAW_OPEN = 0; // 22
 
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 16; // 20
-		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 16; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_OPEN = 0; // 20
+		public static final double SLIDES_MIN_HEIGHT_INTAKE_EXTENDED_CLAW_CLOSED = 0; // 20
 
 		public static final double SLIDES_MIN_HEIGHT_INTAKE_MOVING = 33;
 
@@ -185,6 +186,12 @@ public class Constants {
 		// public static double kPathFollowingProfileKffv = 1.0;
 		// public static double kPathFollowingProfileKffa = 0.05;
 
+		// static double kPathFollowingProfileKp = 3.50;
+		// static double kPathFollowingProfileKi = 0.06;
+		// static double kPathFollowingProfileKv = 0.02;
+		// static double kPathFollowingProfileKffv = 1.0 * 0.5;
+		// static double kPathFollowingProfileKffa = 0.05 * 1.0;
+
 		static double kPathFollowingProfileKp = 3.50;
 		static double kPathFollowingProfileKi = 0.06;
 		static double kPathFollowingProfileKv = 0.02;
@@ -230,13 +237,24 @@ public class Constants {
 		public final static int R1 = 5, R2 = 6, R3 = 7, R4 = 8;
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
-		public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
-		public static final double AUTO_CLIMB_SPEED = 0.75; // .25
-		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
-		public static final double ROTATIONS_PER_DEGREE = 0.00865;
-		public static final double MOTION_MAGIC_ACCEL = 0;
-		public static final double MOTION_MAGIC_VEL = 0;
+		public static final double CLIMB_PITCH_TOLERANCE = 15; // 3
+		public static final double AUTO_CLIMB_SPEED = 1.0; // .25
+		// public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
+		// public static final double AUTO_CLIMB_SPEED = 0.75; // .25
+		
+		public static final int CRAWLER_DROP_NECCESARY_TICKS = 25;
+
+		public static final double L_ROTATIONS_PER_DEGREE = 0.0088055555555556;
+		public static final double R_ROTATIONS_PER_DEGREE = 0.0077527777777778;
+		
+		public static final double TURN_TO_HEADING_ACCURACY_DEG = 5;
+		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6;
+		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6;
+		
+		public static final double JOG_MOTION_MAGIC_ACCEL = 5 * 6;
+		public static final double JOG_MOTION_MAGIC_VEL = 5 * 6;
+		public static final double JOG_ACCURACY_INCHES = 3;
 
 		// 2019 Robot
 
@@ -257,7 +275,7 @@ public class Constants {
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
 		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
-
+		
 	}
 
 	public static class kPDP {

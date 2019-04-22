@@ -1,5 +1,6 @@
 package frc.robot.auto.commands;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -73,9 +74,11 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_2_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Mid_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Opp;
 import frc.robot.auto.commands.paths.to_feeder_station.To_Feeder_Station_Same_Shallow;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
+import frc.robot.util.GZArrayList;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZUtil;
@@ -267,6 +270,70 @@ public class AutoModeBuilder {
 
     }
 
+    public static class EncoderMovement {
+        public final double left, right;
+
+        public EncoderMovement(double distance) {
+            this(distance, distance);
+        }
+
+        public EncoderMovement(double left, double right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        @Override
+        public String toString() {
+            DecimalFormat df = new DecimalFormat("#0.000");
+            return "L [" + df.format(left) + "] R [" + df.format(right) + "]";
+        }
+    }
+
+    public static class AutoMovement {
+        public enum TypeOfMovement {
+            Path, Distance_Jog, Gyro_Turn
+        }
+
+        public PathContainer path = null;
+        public EncoderMovement jog = null;
+        public Rotation2d rotate = null;
+
+        public final TypeOfMovement type;
+
+        public AutoMovement(PathContainer path) {
+            this.path = path;
+            this.type = TypeOfMovement.Path;
+        }
+
+        public AutoMovement(EncoderMovement jog) {
+            this.jog = jog;
+            this.type = TypeOfMovement.Distance_Jog;
+        }
+
+        public AutoMovement(Rotation2d rotate) {
+            this.rotate = rotate;
+            this.type = TypeOfMovement.Gyro_Turn;
+        }
+
+        public TypeOfMovement getType() {
+            return type;
+        }
+
+        public ArrayList<AutoMovement> toList() {
+            ArrayList<AutoMovement> ret = new ArrayList<AutoMovement>();
+            ret.add(this);
+            return ret;
+        }
+
+        public boolean setPathNeedsZeroed() {
+            if (getType() != TypeOfMovement.Path) {
+                return false;
+            }
+            path.needsZeroed();
+            return true;
+        }
+    }
+
     public enum GamePiece {
         CARGO, HATCH_PANEL
     }
@@ -335,99 +402,108 @@ public class AutoModeBuilder {
         return false;
     }
 
-    public static ArrayList<PathContainer> getFirstPath(StartingPosition startPos, ScoringLocation score) {
+    public static ArrayList<AutoMovement> getFirstPath(StartingPosition startPos, ScoringLocation score) {
+        ArrayList<AutoMovement> movements = new ArrayList<AutoMovement>();
+
         switch (score.pos) {
         case CARGO_SHIP_FACE:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Face_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_CS_Face_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Face_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Face_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Face_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Face_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_1:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_1_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_CS_Bay_1_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_1_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_1_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_1_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_1_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_2:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_2_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_CS_Bay_2_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_2_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_2_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_2_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_2_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_3:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_3_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_CS_Bay_3_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_3_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_3_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_3_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_CS_Bay_3_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_NEAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Close_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_Rocket_Close_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Close_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Close_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Close_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Close_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_MID:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Mid_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_Rocket_Mid_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Mid_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Mid_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Mid_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Mid_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_FAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Far_Left().get(score.side.onLeft).toList();
+                movements.add(new Center_Rocket_Far_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Far_Same().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Far_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Far_Opp().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Far_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_FAR_REVERSE:
             if (startPos == StartingPosition.CENTER) {
                 // This shouldn't happen, limitations should handle this
@@ -436,16 +512,30 @@ public class AutoModeBuilder {
             }
 
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Far_Same_Backwards().get(startPos.onLeft).toList();
+                movements.add(new Left_Rocket_Far_Same_Backwards().get(startPos.onLeft).m());
             } else {
                 GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT GO OPPOSITE SIDE OF FIELD");
                 return null;
             }
+            break;
         default:
-            System.out.println("[AUTOMODEBUILDER] GET FIRST PATH CASE [" + score.pos + "] null");
+            System.out.println("[AUTOMODEBUILDER] GET FIRST PATH break; case [" + score.pos + "] null");
             return null;
         }
 
+        {
+            boolean pathsZeroed = false;
+
+            for (AutoMovement m : movements) {
+                if (!pathsZeroed) {
+                    if (m.setPathNeedsZeroed()) {
+                        pathsZeroed = true;
+                    }
+                }
+            }
+        }
+
+        return movements;
     }
 
     public static Command getScoringCommand(ScoringLocation location, GamePiece gamepiece) {
@@ -498,86 +588,86 @@ public class AutoModeBuilder {
         return null;
     }
 
-    public static ArrayList<PathContainer> getScoredPosToFeederStation(final ScoringLocation location,
+    public static ArrayList<AutoMovement> getScoredPosToFeederStation(final ScoringLocation location,
             final FeederStation station) {
         switch (location.pos) {
         case CARGO_SHIP_FACE: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new CS_Face_Turn_Around_Opp().get(location.side.onLeft));
+                ret.add(new CS_Face_Turn_Around_Opp().get(location.side.onLeft).m());
             }
             return ret;
         }
 
         case CARGO_SHIP_BAY_1: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_1_Turn_Around().get(location.side.onLeft));
+            ArrayList<AutoMovement> ret = new ArrayList<>();
+            ret.add(new Left_CS_Bay_1_Turn_Around().get(location.side.onLeft).m());
             if (feederSameSide(location, station)) {
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new Left_CS_Bay_1_Turn_Around_2_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
+                ret.add(new Left_CS_Bay_1_Turn_Around_2_Opp().get(station.onLeft).m());
+                ret.add(new To_Feeder_Station_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case CARGO_SHIP_BAY_2: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_2_Turn_Around_1().get(location.side.onLeft));
+            ArrayList<AutoMovement> ret = new ArrayList<>();
+            ret.add(new Left_CS_Bay_2_Turn_Around_1().get(location.side.onLeft).m());
             if (feederSameSide(location, station)) {
-                ret.add(new Left_CS_Bay_2_Turn_Around_2().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new Left_CS_Bay_2_Turn_Around_2().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new Left_CS_Bay_2_Turn_Around_2_Opp().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
+                ret.add(new Left_CS_Bay_2_Turn_Around_2_Opp().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case CARGO_SHIP_BAY_3: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
+            ArrayList<AutoMovement> ret = new ArrayList<>();
+            ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft).m());
             if (feederSameSide(location, station)) {
-                ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new Left_CS_Bay_3_Turn_Around_2_Opp().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
+                ret.add(new Left_CS_Bay_3_Turn_Around_2_Opp().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case ROCKET_NEAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new Rocket_Close_Turn_Around_2_If_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
+                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft).m());
+                ret.add(new Rocket_Close_Turn_Around_2_If_Opp().get(station.onLeft).m());
+                ret.add(new To_Feeder_Station_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case ROCKET_MID: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
+                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft).m());
             } else {
-                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new Rocket_Mid_Turn_Around_2_If_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
+                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft).m());
+                ret.add(new Rocket_Mid_Turn_Around_2_If_Opp().get(station.onLeft).m());
+                ret.add(new To_Feeder_Station_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case ROCKET_FAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
                 ret.add(new Rocket_Far_Turn_Around().get(location.side.onLeft));
             } else {
@@ -586,14 +676,15 @@ public class AutoModeBuilder {
             return ret;
         }
         case ROCKET_FAR_REVERSE: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Far_Backwards_Turn_Around_1().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(location.side.onLeft));
+                ret.add(new Rocket_Far_Backwards_Turn_Around_1().get(location.side.onLeft).m());
+                ret.add(new To_Feeder_Station_Same_Shallow().get(location.side.onLeft).m());
             } else {
                 GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT SCORE TO FAR FEEDER STATION");
                 return null;
             }
+
             return ret;
         }
         default:
@@ -602,92 +693,92 @@ public class AutoModeBuilder {
         }
     }
 
-    private static ArrayList<PathContainer> getFeederStationToSecondPlacement(FeederStation station,
+    private static ArrayList<AutoMovement> getFeederStationToSecondPlacement(FeederStation station,
             ScoringLocation location) {
         switch (location.pos) {
         case CARGO_SHIP_FACE: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Feeder_Station_To_CS_Face_1().get(station.onLeft));
+            ArrayList<AutoMovement> ret = new ArrayList<>();
+            ret.add(new Feeder_Station_To_CS_Face_1().get(station.onLeft).m());
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_CS_Face_Same_2().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Face_Same_2().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_CS_Face_Opp_2().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Face_Opp_2().get(station.onLeft).m());
             }
             return ret;
         }
 
         case CARGO_SHIP_BAY_1: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft).m());
             }
-            ret.add(new Feeder_Station_To_CS_Side_Bay_1().get(station.onLeft));
+            ret.add(new Feeder_Station_To_CS_Side_Bay_1().get(station.onLeft).m());
             return ret;
         }
 
         case CARGO_SHIP_BAY_2: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft).m());
             }
-            ret.add(new Feeder_Station_To_CS_Side_Bay_2().get(station.onLeft));
+            ret.add(new Feeder_Station_To_CS_Side_Bay_2().get(station.onLeft).m());
             return ret;
         }
 
         case CARGO_SHIP_BAY_3: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Same_1().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft));
+                ret.add(new Feeder_Station_To_CS_Side_Opp_1().get(station.onLeft).m());
             }
-            ret.add(new Feeder_Station_To_CS_Side_Bay_3().get(station.onLeft));
+            ret.add(new Feeder_Station_To_CS_Side_Bay_3().get(station.onLeft).m());
             return ret;
         }
 
         case ROCKET_NEAR: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_Rocket_Close_1_Same().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Close_2_Same().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Close_1_Same().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Close_2_Same().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_Rocket_Close_1_Opp().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Close_2_Opp().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Close_1_Opp().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Close_2_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case ROCKET_MID: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_Rocket_Mid_1_Same().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Mid_2_Same().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Mid_1_Same().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Mid_2_Same().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_Rocket_Mid_1_Opp().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Mid_2_Opp().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Mid_1_Opp().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Mid_2_Opp().get(station.onLeft).m());
             }
             return ret;
         }
 
         case ROCKET_FAR: {
 
-            ArrayList<PathContainer> ret = new ArrayList<>();
+            ArrayList<AutoMovement> ret = new ArrayList<>();
             if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_Rocket_Far_1_Same().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Far_2_Same().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Far_1_Same().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Far_2_Same().get(station.onLeft).m());
             } else {
-                ret.add(new Feeder_Station_To_Rocket_Far_1_Opp().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Far_2_Opp().get(station.onLeft));
+                ret.add(new Feeder_Station_To_Rocket_Far_1_Opp().get(station.onLeft).m());
+                ret.add(new Feeder_Station_To_Rocket_Far_2_Opp().get(station.onLeft).m());
             }
             return ret;
         }
@@ -797,7 +888,7 @@ public class AutoModeBuilder {
                     GZCommandGroup driveOne = new GZCommandGroup();
 
                     // Parallel if we have a score command
-                    driveOne.resetDrivePaths(getFirstPath(startPos, scoringLocation), prepForScore != null);
+                    driveOne.handleMovements(getFirstPath(startPos, scoringLocation), prepForScore != null);
 
                     // While waiting to prep superstructure
                     if (prepForScore != null)
@@ -815,7 +906,7 @@ public class AutoModeBuilder {
                     GZCommandGroup driveTwo = new GZCommandGroup();
                     Command prepForFeeder = prepForFeederStation();
 
-                    driveTwo.drivePaths(getScoredPosToFeederStation(scoringLocation, nextStation),
+                    driveTwo.handleMovements(getScoredPosToFeederStation(scoringLocation, nextStation),
                             prepForFeeder != null);
 
                     if (prepForFeeder != null)
@@ -847,7 +938,7 @@ public class AutoModeBuilder {
 
         {
             GZCommandGroup driveThree = new GZCommandGroup();
-            driveThree.drivePaths(getFeederStationToSecondPlacement(mFeederStation, location));
+            driveThree.handleMovements(getFeederStationToSecondPlacement(mFeederStation, location));
             ret.add(driveThree);
         }
 

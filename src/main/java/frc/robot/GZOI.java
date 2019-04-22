@@ -445,10 +445,10 @@ public class GZOI extends GZSubsystem {
 	public void addRumble(Level r) {
 		switch (r) {
 		case LOW:
-			addRumble(.125, .06, 1, false);
+			addRumble(.125, .06, 1, true);
 			break;
 		case MEDIUM:
-			addRumble(.125 / 3.0, .02, 2, false);
+			addRumble(.125 / 3.0, .02, 2, true);
 			break;
 		case HIGH:
 			addRumble(.24, .07, 3, true);
