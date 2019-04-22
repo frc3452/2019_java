@@ -18,6 +18,7 @@ public class EncoderToAngle extends Command {
 
   @Override
   protected void initialize() {
+    System.out.println("Serving to angle " + mTar);
     drive.turnToHeading(mTar);
   }
 

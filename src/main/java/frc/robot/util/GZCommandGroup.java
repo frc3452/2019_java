@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.EncoderToAngle;
@@ -122,4 +123,13 @@ public class GZCommandGroup extends CommandGroup {
         else
             add(ret);
     }
+
+    public synchronized void addAutoMovement(AutoMovement movement)
+    {
+        // switch (movement)
+        // {
+
+        // }
+    }
+
 }
