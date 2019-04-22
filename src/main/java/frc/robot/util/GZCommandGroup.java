@@ -91,6 +91,7 @@ public class GZCommandGroup extends CommandGroup {
             add(new GyroTurn(movement.rotate));
             break;
         case Path:
+            drivePath(movement.path);
             break;
         default:
             System.out.println("COULD NOT HANDLE AUTO MOVEMENT [" + movement.type + "]");
@@ -121,6 +122,24 @@ public class GZCommandGroup extends CommandGroup {
         drivePaths(paths, false);
     }
 
+    public synchronized void handleMovements(ArrayList<AutoMovement> movements)
+    {
+        handleMovements(movements, false);
+    }
+
+    public synchronized void handleMovements(ArrayList<AutoMovement> movements, boolean parallel) {
+        GZCommandGroup ret = new GZCommandGroup();
+        
+        for (AutoMovement m : movements) {
+            ret.handleMovement(m);
+        }
+
+        if (parallel)
+            and(ret);
+        else
+            add(ret);
+    }
+
     public synchronized void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {
         GZCommandGroup ret = new GZCommandGroup();
         for (PathContainer p : paths)
@@ -131,12 +150,4 @@ public class GZCommandGroup extends CommandGroup {
         else
             add(ret);
     }
-
-    public synchronized void addAutoMovement(AutoMovement movement) {
-        // switch (movement)
-        // {
-
-        // }
-    }
-
 }

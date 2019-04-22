@@ -325,6 +325,14 @@ public class AutoModeBuilder {
             ret.add(this);
             return ret;
         }
+
+        public boolean setPathNeedsZeroed() {
+            if (getType() != TypeOfMovement.Path) {
+                return false;
+            }
+            path.needsZeroed();
+            return true;
+        }
     }
 
     public enum GamePiece {
@@ -396,98 +404,107 @@ public class AutoModeBuilder {
     }
 
     public static ArrayList<AutoMovement> getFirstPath(StartingPosition startPos, ScoringLocation score) {
+        ArrayList<AutoMovement> movements = new ArrayList<AutoMovement>();
+
         switch (score.pos) {
         case CARGO_SHIP_FACE:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Face_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_CS_Face_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Face_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Face_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Face_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Face_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_1:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_1_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_CS_Bay_1_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_1_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_1_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_1_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_1_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_2:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_2_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_CS_Bay_2_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_2_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_2_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_2_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_2_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case CARGO_SHIP_BAY_3:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_CS_Bay_3_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_CS_Bay_3_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_CS_Bay_3_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_3_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_CS_Bay_3_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_CS_Bay_3_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_NEAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Close_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_Rocket_Close_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Close_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Close_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Close_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Close_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_MID:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Mid_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_Rocket_Mid_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Mid_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Mid_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Mid_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Mid_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_FAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
-                return new Center_Rocket_Far_Left().get(score.side.onLeft).m().toList();
+                movements.add(new Center_Rocket_Far_Left().get(score.side.onLeft).m());
             }
 
             // On left or right
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Far_Same().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Far_Same().get(startPos.onLeft).m());
             } else {
-                return new Left_Rocket_Far_Opp().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Far_Opp().get(startPos.onLeft).m());
             }
 
+            break;
         case ROCKET_FAR_REVERSE:
             if (startPos == StartingPosition.CENTER) {
                 // This shouldn't happen, limitations should handle this
@@ -496,16 +513,30 @@ public class AutoModeBuilder {
             }
 
             if (scoringSameSide(startPos, score)) {
-                return new Left_Rocket_Far_Same_Backwards().get(startPos.onLeft).m().toList();
+                movements.add(new Left_Rocket_Far_Same_Backwards().get(startPos.onLeft).m());
             } else {
                 GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT GO OPPOSITE SIDE OF FIELD");
                 return null;
             }
+            break;
         default:
-            System.out.println("[AUTOMODEBUILDER] GET FIRST PATH CASE [" + score.pos + "] null");
+            System.out.println("[AUTOMODEBUILDER] GET FIRST PATH break; case [" + score.pos + "] null");
             return null;
         }
 
+        {
+            boolean pathsZeroed = false;
+
+            for (AutoMovement m : movements) {
+                if (!pathsZeroed) {
+                    if (m.setPathNeedsZeroed()) {
+                        pathsZeroed = true;
+                    }
+                }
+            }
+        }
+
+        return movements;
     }
 
     public static Command getScoringCommand(ScoringLocation location, GamePiece gamepiece) {
@@ -862,7 +893,7 @@ public class AutoModeBuilder {
                     GZCommandGroup driveOne = new GZCommandGroup();
 
                     // Parallel if we have a score command
-                    driveOne.resetDrivePaths(getFirstPath(startPos, scoringLocation), prepForScore != null);
+                    driveOne.handleMovements(getFirstPath(startPos, scoringLocation), prepForScore != null);
 
                     // While waiting to prep superstructure
                     if (prepForScore != null)
@@ -880,7 +911,7 @@ public class AutoModeBuilder {
                     GZCommandGroup driveTwo = new GZCommandGroup();
                     Command prepForFeeder = prepForFeederStation();
 
-                    driveTwo.drivePaths(getScoredPosToFeederStation(scoringLocation, nextStation),
+                    driveTwo.handleMovements(getScoredPosToFeederStation(scoringLocation, nextStation),
                             prepForFeeder != null);
 
                     if (prepForFeeder != null)
@@ -912,7 +943,7 @@ public class AutoModeBuilder {
 
         {
             GZCommandGroup driveThree = new GZCommandGroup();
-            driveThree.drivePaths(getFeederStationToSecondPlacement(mFeederStation, location));
+            driveThree.handleMovements(getFeederStationToSecondPlacement(mFeederStation, location));
             ret.add(driveThree);
         }
 

@@ -1386,8 +1386,7 @@ public class Drive extends GZSubsystem {
 		return encoderIsDone(kDrivetrain.L_ROTATIONS_PER_DEGREE * kDrivetrain.TURN_TO_HEADING_ACCURACY_DEG);
 	}
 
-	public synchronized boolean encoderJogIsDone()
-	{
+	public synchronized boolean encoderJogIsDone() {
 		return encoderIsDone(inchesToRotations(kDrivetrain.JOG_ACCURACY_INCHES));
 	}
 
