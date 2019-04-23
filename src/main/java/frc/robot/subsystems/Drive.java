@@ -1343,11 +1343,11 @@ public class Drive extends GZSubsystem {
 			c.setNeutralMode(mode);
 	}
 
-	public synchronized void driveJog(EncoderMovement movement) {
-		driveJog(movement.left, movement.right);
+	public synchronized void jog(EncoderMovement movement) {
+		jog(movement.left, movement.right);
 	}
 
-	public synchronized void driveJog(double leftInches, double rightInches) {
+	public synchronized void jog(double leftInches, double rightInches) {
 		double left = getLeftRotations() + inchesToRotations(leftInches);
 		double right = getRightRotations() + inchesToRotations(rightInches);
 

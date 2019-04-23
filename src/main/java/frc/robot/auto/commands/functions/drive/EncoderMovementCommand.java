@@ -18,7 +18,7 @@ public class EncoderMovementCommand extends Command {
   protected void initialize() {
     System.out.println("Jogging " + movement);
 
-    drive.driveJog(movement);
+    drive.jog(movement);
 
     setTimeout(5);
   }

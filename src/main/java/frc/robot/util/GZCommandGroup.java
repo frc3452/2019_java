@@ -82,27 +82,12 @@ public class GZCommandGroup extends CommandGroup {
         return ret;
     }
 
-    public synchronized void handleMovement(AutoMovement movement) {
-        switch (movement.type) {
-        case Distance_Jog:
-            add(new EncoderMovementCommand(movement.jog));
-            break;
-        case Gyro_Turn:
-            add(new GyroTurn(movement.rotate));
-            break;
-        case Path:
-            drivePath(movement.path);
-            break;
-        default:
-            System.out.println("COULD NOT HANDLE AUTO MOVEMENT [" + movement.type + "]");
-            Timer t = null;
-            t.start();
-        }
-    }
-
     public synchronized void drivePath(PathContainer pc) {
         if (pc.doesNeedZero())
             resetPos(pc);
+
+        if (pc.getStartEncoderMovement() != null)
+            add(new EncoderMovementCommand(pc.getStartEncoderMovement()));
 
         if (pc.getStartGyroMovement() != null) {
             add(new EncoderToAngle(pc.getStartGyroMovement()));
@@ -112,6 +97,9 @@ public class GZCommandGroup extends CommandGroup {
 
         if (pc.getEndGyroMovement() != null)
             add(new EncoderToAngle(pc.getEndGyroMovement()));
+
+        if (pc.getEndEncoderMovement() != null)
+            add(new EncoderMovementCommand(pc.getEndEncoderMovement()));
     }
 
     public synchronized void drivePathAnd(PathContainer pc) {
@@ -120,24 +108,6 @@ public class GZCommandGroup extends CommandGroup {
 
     public synchronized void drivePaths(ArrayList<PathContainer> paths) {
         drivePaths(paths, false);
-    }
-
-    public synchronized void handleMovements(ArrayList<AutoMovement> movements)
-    {
-        handleMovements(movements, false);
-    }
-
-    public synchronized void handleMovements(ArrayList<AutoMovement> movements, boolean parallel) {
-        GZCommandGroup ret = new GZCommandGroup();
-        
-        for (AutoMovement m : movements) {
-            ret.handleMovement(m);
-        }
-
-        if (parallel)
-            and(ret);
-        else
-            add(ret);
     }
 
     public synchronized void drivePaths(ArrayList<PathContainer> paths, boolean parallel) {
