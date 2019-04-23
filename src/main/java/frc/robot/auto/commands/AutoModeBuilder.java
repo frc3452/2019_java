@@ -518,106 +518,67 @@ public class AutoModeBuilder {
 
     public static ArrayList<PathContainer> getScoredPosToFeederStation(final ScoringLocation location,
             final FeederStation station) {
-        switch (location.pos) {
-        case CARGO_SHIP_FACE: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft));
-            } else {
-                ret.add(new CS_Face_Turn_Around_Opp().get(location.side.onLeft));
-            }
-            return ret;
-        }
-
-        case CARGO_SHIP_BAY_1: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_1_Turn_Around().get(location.side.onLeft));
-            if (feederSameSide(location, station)) {
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-            } else {
-                ret.add(new Left_CS_Bay_1_Turn_Around_2_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case CARGO_SHIP_BAY_2: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_2_Turn_Around_1().get(location.side.onLeft));
-            if (feederSameSide(location, station)) {
-                ret.add(new Left_CS_Bay_2_Turn_Around_2().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-            } else {
-                ret.add(new Left_CS_Bay_2_Turn_Around_2_Opp().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case CARGO_SHIP_BAY_3: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft));
-            if (feederSameSide(location, station)) {
-                ret.add(new Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-            } else {
-                ret.add(new Left_CS_Bay_3_Turn_Around_2_Opp().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case ROCKET_NEAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-            } else {
-                ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new Rocket_Close_Turn_Around_2_If_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case ROCKET_MID: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(station.onLeft));
-            } else {
-                ret.add(new Rocket_Mid_Turn_Around_Same().get(location.side.onLeft));
-                ret.add(new Rocket_Mid_Turn_Around_2_If_Opp().get(station.onLeft));
-                ret.add(new To_Feeder_Station_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case ROCKET_FAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Far_Turn_Around().get(location.side.onLeft));
-            } else {
-                ret.add(new Rocket_Far_Turn_Around_2_Opp().get(location.side.onLeft));
-            }
-            return ret;
-        }
-        case ROCKET_FAR_REVERSE: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new Rocket_Far_Backwards_Turn_Around_1().get(location.side.onLeft));
-                ret.add(new To_Feeder_Station_Same_Shallow().get(location.side.onLeft));
-            } else {
-                GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT SCORE TO FAR FEEDER STATION");
-                return null;
-            }
-
-            return ret;
-        }
-        default:
-            System.out.println("[AUTOMODEBUILDER] Get scored position to feeder station null! [" + location.pos + "]");
-            return null;
-        }
+        return null;
+        /**
+         * switch (location.pos) { case CARGO_SHIP_FACE: { ArrayList<PathContainer> ret
+         * = new ArrayList<>(); if (feederSameSide(location, station)) { ret.add(new
+         * CS_Face_Turn_Around_Same().get(location.side.onLeft)); } else { ret.add(new
+         * CS_Face_Turn_Around_Opp().get(location.side.onLeft)); } return ret; }
+         * 
+         * case CARGO_SHIP_BAY_1: { ArrayList<PathContainer> ret = new ArrayList<>();
+         * ret.add(new Left_CS_Bay_1_Turn_Around().get(location.side.onLeft)); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(station.onLeft)); } else { ret.add(new
+         * Left_CS_Bay_1_Turn_Around_2_Opp().get(station.onLeft)); ret.add(new
+         * To_Feeder_Station_Opp().get(station.onLeft)); } return ret; }
+         * 
+         * case CARGO_SHIP_BAY_2: { ArrayList<PathContainer> ret = new ArrayList<>();
+         * ret.add(new Left_CS_Bay_2_Turn_Around_1().get(location.side.onLeft)); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * Left_CS_Bay_2_Turn_Around_2().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(station.onLeft)); } else { ret.add(new
+         * Left_CS_Bay_2_Turn_Around_2_Opp().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Opp().get(station.onLeft)); } return ret; }
+         * 
+         * case CARGO_SHIP_BAY_3: { ArrayList<PathContainer> ret = new ArrayList<>();
+         * ret.add(new Left_CS_Bay_3_Turn_Around_1().get(location.side.onLeft)); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * Left_CS_Bay_3_Turn_Around_2().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(station.onLeft)); } else { ret.add(new
+         * Left_CS_Bay_3_Turn_Around_2_Opp().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Opp().get(station.onLeft)); } return ret; }
+         * 
+         * case ROCKET_NEAR: { ArrayList<PathContainer> ret = new ArrayList<>(); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * Rocket_Close_Turn_Around_Same().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(station.onLeft)); } else { ret.add(new
+         * Rocket_Close_Turn_Around_Same().get(location.side.onLeft)); ret.add(new
+         * Rocket_Close_Turn_Around_2_If_Opp().get(station.onLeft)); ret.add(new
+         * To_Feeder_Station_Opp().get(station.onLeft)); } return ret; }
+         * 
+         * case ROCKET_MID: { ArrayList<PathContainer> ret = new ArrayList<>(); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * Rocket_Mid_Turn_Around_Same().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(station.onLeft)); } else { ret.add(new
+         * Rocket_Mid_Turn_Around_Same().get(location.side.onLeft)); ret.add(new
+         * Rocket_Mid_Turn_Around_2_If_Opp().get(station.onLeft)); ret.add(new
+         * To_Feeder_Station_Opp().get(station.onLeft)); } return ret; }
+         * 
+         * case ROCKET_FAR: { ArrayList<PathContainer> ret = new ArrayList<>(); if
+         * (feederSameSide(location, station)) { ret.add(new
+         * Rocket_Far_Turn_Around().get(location.side.onLeft)); } else { ret.add(new
+         * Rocket_Far_Turn_Around_2_Opp().get(location.side.onLeft)); } return ret; }
+         * case ROCKET_FAR_REVERSE: { ArrayList<PathContainer> ret = new ArrayList<>();
+         * if (feederSameSide(location, station)) { ret.add(new
+         * Rocket_Far_Backwards_Turn_Around_1().get(location.side.onLeft)); ret.add(new
+         * To_Feeder_Station_Same_Shallow().get(location.side.onLeft)); } else {
+         * GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT SCORE TO FAR FEEDER STATION");
+         * return null; }
+         * 
+         * return ret; } default: System.out.println("[AUTOMODEBUILDER] Get scored
+         * position to feeder station null! [" + location.pos + "]"); return null; }
+         * 
+         */
     }
 
     private static ArrayList<PathContainer> getFeederStationToSecondPlacement(FeederStation station,
