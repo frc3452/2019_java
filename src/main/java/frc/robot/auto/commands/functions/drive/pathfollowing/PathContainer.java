@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPathFollowing;
-import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
-import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
@@ -19,8 +17,6 @@ public abstract class PathContainer {
 
     public ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
 
-    private EncoderMovement mStartEncoderMovement = null;
-    private EncoderMovement mEndEncoderMovement = null;
     private boolean mOdometryNeedsZeroed = false;
 
     public PathContainer needsZeroed() {
@@ -30,24 +26,6 @@ public abstract class PathContainer {
 
     public boolean doesNeedZero() {
         return mOdometryNeedsZeroed;
-    }
-
-    public PathContainer setStartEncoderMovement(EncoderMovement movement) {
-        this.mStartEncoderMovement = movement;
-        return this;
-    }
-
-    public PathContainer setEndEncoderMovement(EncoderMovement movement) {
-        this.mEndEncoderMovement = movement;
-        return this;
-    }
-
-    public EncoderMovement getStartEncoderMovement() {
-        return this.mStartEncoderMovement;
-    }
-
-    public EncoderMovement getEndEncoderMovement() {
-        return this.mEndEncoderMovement;
     }
 
     public static PathContainer getReversed(PathContainer other) {

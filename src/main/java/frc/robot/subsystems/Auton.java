@@ -5,17 +5,13 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
-import frc.robot.auto.commands.AutoModeBuilder;
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.superstructure.RunAction;
-import frc.robot.auto.commands.paths.Curve_test_path;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
-import frc.robot.util.LatchedBoolean;
+import frc.robot.ConfigurableDrive.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -47,7 +43,6 @@ public class Auton {
 
 	private LatchedBoolean mLBAutoCancel = new LatchedBoolean();
 	private LatchedBoolean mLBWaitOnAutoStart = new LatchedBoolean();
-	private LatchedBoolean mLBAutoGamePiece = new LatchedBoolean();
 	private boolean mWaitOnAutoStart = false;
 	private boolean mAutoPieceIsHatch = true;
 
@@ -67,64 +62,10 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		
-		commandArray.add(new GZCommand("test path", () -> new GZCommandGroup(){
-			{
-				resetDrive(new Curve_test_path());
-			}
-		}));
 
-		// commandArray.add(new GZCommand("Big fat turn", () -> new GZCommandGroup() {
-		// 	{
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(0)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(90)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(180)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(270)));
-		// 		tele();
-		// 	}
-		// }));
-
-		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
-			{
-				waitTime(0.1);
-			}
-		}));
-
-		commandArray.add(new GZCommand("Place", () -> new GZCommandGroup() {
-			{
-				// add(new GoToHeight(Heights.HP_2));
-				add(new RunAction(Actions.SCORE_HATCH));
-			}
-		}));
-
-		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
-		for (GZCommand c : commandsIn) {
-			commandArray.add(c);
-		}
-
-		// commandArray.add(new GZCommand("TURN!!!", () -> new GZCommandGroup() {
-		// 	{
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(0)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(90)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(180)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(270)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(360)));
-		// 	}
-		// }));
-
-		commandArray.add(new GZCommand("MOVEMOVMOVOMEV", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Autonomous command", () -> new GZCommandGroup() {
 			{
 				tele();
-				// add(new EncoderDrive(kDrivetrain.ROTATIONS_PER_DEGREE * 90, kDrivetrain.ROTATIONS_PER_DEGREE * -90, .5, .5, .6));
 			}
 		}));
 
@@ -189,18 +130,6 @@ public class Auton {
 		}
 	}
 
-	public void toggleAutoGamePiece(boolean updateValue) {
-		if (mLBAutoGamePiece.update(updateValue)) {
-			mAutoPieceIsHatch = !mAutoPieceIsHatch;
-			System.out.println("WARNING Auto game piece set to " + (mAutoPieceIsHatch ? "HATCH" : "CARGO"));
-		}
-
-	}
-
-	public boolean isAutoPieceHatch() {
-		return mAutoPieceIsHatch;
-	}
-
 	private void addWaitAndStart() {
 		autonomousCommand.addTeleBefore();
 		startAutoCommand();
@@ -208,7 +137,6 @@ public class Auton {
 
 	private void startAutoCommand() {
 		autonomousCommand.setCommand();
-		AutoModeBuilder.setFeederStation(autonomousCommand.getFeederStation());
 		autonomousCommand.start();
 	}
 

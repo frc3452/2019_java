@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.subsystems.Drive;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class TeleDrive extends Command {
 

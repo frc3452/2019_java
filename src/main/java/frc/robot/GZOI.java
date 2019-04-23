@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
@@ -22,8 +23,7 @@ import frc.robot.util.GZPDP;
 import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
-import frc.robot.util.LatchedBoolean;
-import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.ConfigurableDrive.LatchedBoolean;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
@@ -175,7 +175,6 @@ public class GZOI extends GZSubsystem {
 
 	private void disabled() {
 		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
-		Auton.getInstance().toggleAutoGamePiece(driverJoy.getButtons(Buttons.A, Buttons.X));
 
 		rumble(0);
 		// handleRumble();

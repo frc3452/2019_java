@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.ConfigurableDrive;
 
 //thx 254
 public class LatchedBoolean {

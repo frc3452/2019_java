@@ -3,7 +3,6 @@ package frc.robot.util;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
 
 public class GZCommand {
 
@@ -14,16 +13,6 @@ public class GZCommand {
 	private boolean mRunning = false;
 
 	private GZFlag mHasRun = new GZFlag(), mHasBeenCancelled = new GZFlag();
-
-	private FeederStation mFeederStation = null;
-
-	public void setFeederStation(FeederStation station) {
-		mFeederStation = station;
-	}
-
-	public FeederStation getFeederStation() {
-		return mFeederStation;
-	}
 
 	public GZCommand(String name, Supplier<Command> commandSupplier) {
 		this.mName = name;

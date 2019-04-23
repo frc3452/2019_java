@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
-import frc.robot.auto.commands.functions.drive.EncoderMovementCommand;
 import frc.robot.auto.commands.functions.drive.EncoderToAngle;
 import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
@@ -82,10 +81,6 @@ public class GZCommandGroup extends CommandGroup {
     public synchronized void drivePath(PathContainer pc) {
         if (pc.doesNeedZero())
             resetPos(pc);
-
-        if (pc.getStartEncoderMovement() != null)
-            add(new EncoderMovementCommand(pc.getStartEncoderMovement()));
-
         if (pc.getStartGyroMovement() != null) {
             add(new EncoderToAngle(pc.getStartGyroMovement()));
         }
@@ -94,9 +89,6 @@ public class GZCommandGroup extends CommandGroup {
 
         if (pc.getEndGyroMovement() != null)
             add(new EncoderToAngle(pc.getEndGyroMovement()));
-
-        if (pc.getEndEncoderMovement() != null)
-            add(new EncoderMovementCommand(pc.getEndEncoderMovement()));
     }
 
     public synchronized void drivePathAnd(PathContainer pc) {

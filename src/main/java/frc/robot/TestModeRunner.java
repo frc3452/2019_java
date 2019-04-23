@@ -2,11 +2,11 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.subsystems.Auton;
 import frc.robot.util.GZArrayList;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.MotorChecker.AmperageChecker;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class TestModeRunner {
     private static TestModeRunner mInstance = null;

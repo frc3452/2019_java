@@ -2,7 +2,7 @@ package frc.robot.util.drivers.controllers;
 
 import java.util.ArrayList;
 
-import frc.robot.util.drivers.GZJoystick;
+import frc.robot.ConfigurableDrive.GZJoystick;
 
 public class DeepSpaceController extends GZJoystick {
     public DeepSpaceController(int port) {

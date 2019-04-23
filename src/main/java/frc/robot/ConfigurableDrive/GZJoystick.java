@@ -1,4 +1,4 @@
-package frc.robot.util.drivers;
+package frc.robot.ConfigurableDrive;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.util.DPad;
 import frc.robot.util.GZUtil;
-import frc.robot.util.LatchedBoolean;
+import frc.robot.ConfigurableDrive.LatchedBoolean;
 
 public class GZJoystick extends Joystick {
 

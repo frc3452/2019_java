@@ -3,7 +3,7 @@ package frc.robot.util.drivers.controllers;
 import java.util.function.Supplier;
 
 import frc.robot.util.GZTimer;
-import frc.robot.util.LatchedBoolean;
+import frc.robot.ConfigurableDrive.LatchedBoolean;
 
 public class GZButton {
     private LatchedBoolean lb = new LatchedBoolean();

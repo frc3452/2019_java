@@ -18,7 +18,8 @@ import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
-import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
+import frc.robot.ConfigurableDrive.GZJoystick;
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
@@ -42,8 +43,6 @@ import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.RobotPose;
 import frc.robot.util.Units;
-import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController;
@@ -1341,10 +1340,6 @@ public class Drive extends GZSubsystem {
 	private synchronized void brake(NeutralMode mode) {
 		for (GZSRX c : mTalons)
 			c.setNeutralMode(mode);
-	}
-
-	public synchronized void jog(EncoderMovement movement) {
-		jog(movement.left, movement.right);
 	}
 
 	public synchronized void jog(double leftInches, double rightInches) {
