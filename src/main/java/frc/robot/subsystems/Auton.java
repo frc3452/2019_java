@@ -13,7 +13,9 @@ import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
+import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
+import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -99,10 +101,10 @@ public class Auton {
 			}
 		}));
 
-		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
-		for (GZCommand c : commandsIn) {
-			commandArray.add(c);
-		}
+		// ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
+		// for (GZCommand c : commandsIn) {
+		// 	commandArray.add(c);
+		// }
 
 		// commandArray.add(new GZCommand("TURN!!!", () -> new GZCommandGroup() {
 		// 	{

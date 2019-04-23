@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPathFollowing;
-import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
