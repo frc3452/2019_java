@@ -315,16 +315,16 @@ public class Constants {
 		static {
 			if (COMP_BOT) {
 				INTAKE_L_INVERT = true;
-				INTAKE_R_INVERT = true;
+				INTAKE_R_INVERT = false;
 			} else {
 				INTAKE_L_INVERT = true;
-				INTAKE_R_INVERT = true;
+				INTAKE_R_INVERT = false;
 			}
 
 		}
 
-		public static final double INTAKE_SPEED = -.5;
-		public static final double SHOOTING_SPEED = 0.25;
+		public static final double INTAKE_SPEED = -.625;
+		public static final double SHOOTING_SPEED = 0.3125;
 		// public static final double INTAKE_SPEED = -.15;
 		// public static final double SHOOTING_SPEED = .15;
 	}

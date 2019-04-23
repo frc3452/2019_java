@@ -2,15 +2,12 @@ package frc.robot.util;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import frc.robot.auto.commands.AutoModeBuilder.AutoMovement;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.EncoderMovementCommand;
 import frc.robot.auto.commands.functions.drive.EncoderToAngle;
-import frc.robot.auto.commands.functions.drive.GyroTurn;
 import frc.robot.auto.commands.functions.drive.TeleDrive;
 import frc.robot.auto.commands.functions.drive.pathfollowing.DrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
