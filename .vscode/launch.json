@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "CodeLens (Launch) - GZOI",
+      "request": "launch",
+      "mainClass": "frc.robot.GZOI",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
       "name": "CodeLens (Launch) - Main",
       "request": "launch",
       "mainClass": "frc.robot.Main",
