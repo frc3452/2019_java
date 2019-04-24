@@ -1,6 +1,8 @@
 package frc.robot.auto.commands.paths.left;
 
 import java.util.ArrayList;
+
+import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.PathAdapter;
@@ -22,5 +24,10 @@ public class Left_CS_Bay_2_Same extends PathContainer {
     @Override
     public Rotation2d getEndGyroMovement() {
         return Rotation2d.fromDegrees(90);
+    }
+
+    @Override
+    public EncoderMovement getStartEncoderMovement() {
+        return new EncoderMovement(-10);
     }
 }

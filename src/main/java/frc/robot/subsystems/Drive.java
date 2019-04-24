@@ -672,6 +672,14 @@ public class Drive extends GZSubsystem {
 		// neg up
 	}
 
+
+	public synchronized void turnFarRocketLeft() {
+			turnToHeading(Rotation2d.fromDegrees(180 + 61.25));
+	}
+	public synchronized void turnFarRocketRight() {
+			turnToHeading(Rotation2d.fromDegrees(90 + 61.25));
+	}
+
 	public synchronized void turnToHeading(Rotation2d angle) {
 		System.out.println("Turning to heading " + angle.toString());
 		mTurnToHeadingComplete = false;
@@ -680,8 +688,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void turnRelative(Rotation2d angle) {
-		Rotation2d current = new Rotation2d(getGyroAngle());
-		Rotation2d target = current.rotateBy(angle);
+		Rotation2d target = getGyroAngle().rotateBy(angle);
 		turnToHeading(target);
 	}
 
@@ -1035,6 +1042,15 @@ public class Drive extends GZSubsystem {
 				&& Math.abs(getRightVelocityInchesPerSec()) < inches_per_second;
 	}
 
+	private synchronized boolean stateIsnt(DriveState state) {
+		if (mState == state)
+			return false;
+		if (mWantedState == state)
+			return false;
+
+		return true;
+	}
+
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
 			// if (usingOpenLoop() || !mIO.encodersValid)
@@ -1047,7 +1063,10 @@ public class Drive extends GZSubsystem {
 			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
 
 			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
-			setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			if (stateIsnt(DriveState.TURN_TO_HEADING)
+					|| (mState == DriveState.TURN_TO_HEADING && (Math.abs(joy.getLeftAnalogY()) > .135))) {
+				setWantedState(DriveState.OPEN_LOOP_DRIVER);
+			}
 		}
 	}
 

@@ -31,17 +31,17 @@ public class PracticeField extends FieldProfile {
 
             // return 22;
             // return 21.5;
-            return 19.5;
+            return 19.5 + 1;
         }
 
         @Override
         public double hp2() {
-            return 47 + 3;
+            return 47 + 3 + 1;
         }
 
         @Override
         public double hp3() {
-            return 75 + 3;
+            return 75 + 3 + 1;
         }
 
         @Override

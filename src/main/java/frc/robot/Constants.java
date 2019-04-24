@@ -243,14 +243,14 @@ public class Constants {
 		// public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
 		// public static final double AUTO_CLIMB_SPEED = 0.75; // .25
 		
-		public static final int CRAWLER_DROP_NECCESARY_TICKS = 25;
+		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		public static final double L_ROTATIONS_PER_DEGREE = 0.0088055555555556;
 		public static final double R_ROTATIONS_PER_DEGREE = 0.0077527777777778;
 		
 		public static final double TURN_TO_HEADING_ACCURACY_DEG = 5;
-		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6;
-		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6;
+		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6 * 3;
+		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6 * 5;
 		
 		public static final double JOG_MOTION_MAGIC_ACCEL = 5 * 6;
 		public static final double JOG_MOTION_MAGIC_VEL = 5 * 6;

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
@@ -211,11 +212,19 @@ public class GZOI extends GZSubsystem {
 			}
 
 		} else {
-			if (driverJoy.getButton(Buttons.X)) {
-				supe.fakeAutoScore();
-			} else if (driverJoy.getButton(Buttons.RB)) {
-				supe.fakeAutoFeeder();
+			if (driverJoy.isDUpPressed()) {
+				drive.turnToHeading(Rotation2d.fromDegrees(180));
+			} else if (driverJoy.isDLeftPressed()) {
+				drive.turnFarRocketLeft();
+			} else if (driverJoy.isDRightPressed()) {
+				drive.turnFarRocketRight();
 			}
+
+			// if (driverJoy.getButton(Buttons.X)) {
+			// supe.fakeAutoScore();
+			// } else if (driverJoy.getButton(Buttons.RB)) {
+			// supe.fakeAutoFeeder();
+			// }
 			if (driverJoy.getButtonLatched(Buttons.A)) {
 				drive.toggleSlowSpeed();
 			}

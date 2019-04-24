@@ -14,6 +14,7 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseFromPath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
+import frc.robot.poofs.util.math.Rotation2d;
 
 public class GZCommandGroup extends CommandGroup {
 
@@ -77,6 +78,11 @@ public class GZCommandGroup extends CommandGroup {
         ArrayList<GZCommandGroup> ret = new ArrayList<GZCommandGroup>();
         ret.add(this);
         return ret;
+    }
+
+    public synchronized void angle(Rotation2d angle)
+    {
+        add(new EncoderToAngle(angle));
     }
 
     public synchronized void drivePath(PathContainer pc) {

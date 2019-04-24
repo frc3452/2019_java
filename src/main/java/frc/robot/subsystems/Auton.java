@@ -6,9 +6,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
+import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
+import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
+import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.Curve_test_path;
+import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -67,26 +75,34 @@ public class Auton {
 		// m_controllerOverrideValue = 0;
 
 		commandArray = new ArrayList<GZCommand>();
-		
-		commandArray.add(new GZCommand("test path", () -> new GZCommandGroup(){
-			{
-				resetDrive(new Curve_test_path());
-			}
-		}));
 
-		// commandArray.add(new GZCommand("Big fat turn", () -> new GZCommandGroup() {
+		// commandArray.add(new GZCommand("test path", () -> new GZCommandGroup() {
 		// 	{
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(0)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(90)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(180)));
-		// 		tele();
-		// 		add(new EncoderToAngle(Rotation2d.fromDegrees(270)));
-		// 		tele();
+		// 		drivePath(new Curve_test_path());
 		// 	}
 		// }));
+
+		commandArray.add(new GZCommand("Zero odometry (LEFT)", () -> new GZCommandGroup() {
+			{
+				resetPos(new Left_Rocket_Close_Same().getLeft());
+				tele();
+				angle(Rotation2d.fromDegrees(180));
+				tele();
+			}
+		}));
+		commandArray.add(new GZCommand("Zero odometry (CENTER)", () -> new GZCommandGroup() {
+			{
+				resetPos(new Center_CS_Face_Left().getLeft());
+				tele();
+			}
+		}));
+		commandArray.add(new GZCommand("Zero odometry (RIGHT)", () -> new GZCommandGroup() {
+			{
+				resetPos(new Left_Rocket_Close_Same().getRight());
+				tele();
+
+			}
+		}));
 
 		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
 			{
@@ -103,30 +119,11 @@ public class Auton {
 
 		// ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
 		// for (GZCommand c : commandsIn) {
-		// 	commandArray.add(c);
-		// }
+		// commandArray.add(c);
+		// }	
 
-		// commandArray.add(new GZCommand("TURN!!!", () -> new GZCommandGroup() {
-		// 	{
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(0)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(90)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(180)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(270)));
-		// 		tele();
-		// 		add(new GyroTurn(Rotation2d.fromDegrees(360)));
-		// 	}
-		// }));
-
-		commandArray.add(new GZCommand("MOVEMOVMOVOMEV", () -> new GZCommandGroup() {
-			{
-				tele();
-				// add(new EncoderDrive(kDrivetrain.ROTATIONS_PER_DEGREE * 90, kDrivetrain.ROTATIONS_PER_DEGREE * -90, .5, .5, .6));
-			}
-		}));
+		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.LEFT,
+		// 		new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.LEFT), FeederStation.LEFT));
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
