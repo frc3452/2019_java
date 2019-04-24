@@ -219,13 +219,20 @@ public class GZOI extends GZSubsystem {
 			} else if (driverJoy.isDRightPressed()) {
 				drive.turnFarRocketRight();
 			}
+			// if (driverJoy.isDUpPressed()) {
+			// drive.turnToHeading(Rotation2d.fromDegrees(180));
+			// } else if (driverJoy.isDLeftPressed()) {
+			// drive.pathFarRocketLeft();
+			// } else if (driverJoy.isDRightPressed()) {
+			// drive.pathFarRocketRight();
+			// }
 
 			// if (driverJoy.getButton(Buttons.X)) {
 			// supe.fakeAutoScore();
 			// } else if (driverJoy.getButton(Buttons.RB)) {
 			// supe.fakeAutoFeeder();
 			// }
-			if (driverJoy.getButtonLatched(Buttons.A)) {
+			if (driverJoy.getButtonLatched(Buttons.A) && !driverJoy.getButton(Buttons.X)) {
 				drive.toggleSlowSpeed();
 			}
 		}

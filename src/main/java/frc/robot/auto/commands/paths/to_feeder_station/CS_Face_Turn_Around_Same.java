@@ -19,11 +19,11 @@ public class CS_Face_Turn_Around_Same extends PathContainer {
 
     @Override
     public boolean isReversed() {
-        return true;
+        return false;
     }
 
     @Override
-    public Rotation2d getEndGyroMovement() {
-        return Rotation2d.fromDegrees(180);
+    public Rotation2d getStartGyroMovement() {
+        return getStartRotation();
     }
 }

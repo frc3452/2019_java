@@ -12,8 +12,8 @@ public class Bay_3_Turn_Around_Same extends PathContainer {
         this.sWaypoints = new ArrayList<Waypoint>();
         sWaypoints.add(new Waypoint(304.25, 225.37, 0, 0));
         sWaypoints.add(new Waypoint(304.25, 249, 15, 60));
-        sWaypoints.add(new Waypoint(95.001, 298.28, 15, 60));
-        sWaypoints.add(new Waypoint(34, 298.28, 0, 30).setFieldAdaption(PathAdapter.feederStation));
+        sWaypoints.add(new Waypoint(95.001, 298.28, 15, 70));
+        sWaypoints.add(new Waypoint(19.5, 298.28, 0, 90).setFieldAdaption(PathAdapter.feederStation));
     }
 
     @Override

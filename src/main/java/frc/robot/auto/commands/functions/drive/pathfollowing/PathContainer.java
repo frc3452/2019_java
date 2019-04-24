@@ -146,7 +146,7 @@ public abstract class PathContainer {
                 if (rot != null)
                     ret = rot.inverse();
 
-                return rot;
+                return ret;
             }
 
             @Override
@@ -157,7 +157,7 @@ public abstract class PathContainer {
                 if (rot != null)
                     ret = rot.inverse();
 
-                return rot;
+                return ret;
             }
         };
 

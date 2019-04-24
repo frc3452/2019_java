@@ -14,7 +14,6 @@ public class Left_Rocket_Far_Same_Backwards extends PathContainer {
         sWaypoints.add(new Waypoint(171, 211, 30, 30));
         sWaypoints.add(new Waypoint(234, 253, 15, 90));
         sWaypoints.add(new Waypoint(280, 288, 0, 90));
-        // System.out.println("LEFT ROCKET FAR SAME BACKWARDS\t" + getStartPose());
     }
 
     @Override

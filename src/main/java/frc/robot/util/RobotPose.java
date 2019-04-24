@@ -1,7 +1,5 @@
 package frc.robot.util;
 
-import java.util.function.DoubleConsumer;
-
 import edu.wpi.first.wpilibj.SendableBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 

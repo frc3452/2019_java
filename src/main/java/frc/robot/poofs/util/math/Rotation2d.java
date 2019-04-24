@@ -5,6 +5,7 @@ import static frc.robot.poofs.util.Util.epsilonEquals;
 import java.text.DecimalFormat;
 
 import frc.robot.poofs.util.Interpolable;
+import frc.robot.util.GZUtil;
 
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle
@@ -109,13 +110,55 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         return Math.toDegrees(getRadians());
     }
 
+    public static boolean between(Rotation2d value, Rotation2d lowBound, Rotation2d highBound) {
+        double n = value.getNormalDegrees();
+
+        double l = lowBound.getNormalDegrees();
+
+        double h = highBound.getNormalDegrees();
+
+        if (n >= l && n <= h)
+            return true;
+        return false;
+    }
+
+    public static boolean shouldTurnClockwise(Rotation2d current, Rotation2d target) {
+        double tar = target.getNormalDegrees();
+
+        boolean cw;
+
+        if (tar > 180) {
+            if (between(current, Rotation2d.fromDegrees(tar - 180), target)) {
+                cw = true;
+            } else {
+                cw = false;
+            }
+        } else {
+            if (between(current, target, Rotation2d.fromDegrees(tar + 180))) {
+                cw = false;
+            } else {
+                cw = true;
+            }
+        }
+
+        return cw;
+    }
+
+    public boolean shouldTurnClockWiseToGetTo(Rotation2d target) {
+        return shouldTurnClockwise(this, target);
+    }
+
     public double getNormalDegrees() {
         double ang = getDegrees();
-        while (ang < 0)
+        while (ang < 0) {
             ang += 360;
+        }
 
-        if (ang > 360)
+        if (ang > 360) {
             ang = ang % 360;
+        }
+
+        // ang = GZUtil.roundTo(ang, 3);
 
         return ang;
     }

@@ -64,10 +64,10 @@ public class GZUtil {
 	}
 
 	public static Double round(double value) {
-		return roundTo(value, 2);
+		return round(value, 2);
 	}
 
-	public static Double roundTo(double value, int place) {
+	public static Double round(double value, int place) {
 		try {
 			double ret = (double) Math.round(value * Math.pow(10, place)) / Math.pow(10, place);
 			return ret;
@@ -80,6 +80,12 @@ public class GZUtil {
 		int x = min + (int) (Math.random() * ((max - min + 1)));
 		return x;
 	}
+
+	public static boolean getRandBoolean()
+	{
+		return getRandInt(0, 1) == 0;
+	}
+
 
 	public static void bigPrint(String f, int num) {
 		for (int i = 0; i < num; i++) {

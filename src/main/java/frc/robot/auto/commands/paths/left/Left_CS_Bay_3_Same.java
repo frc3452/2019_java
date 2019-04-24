@@ -26,8 +26,4 @@ public class Left_CS_Bay_3_Same extends PathContainer {
         return Rotation2d.fromDegrees(90);
     }
 
-    @Override
-    public EncoderMovement getStartEncoderMovement() {
-        return new EncoderMovement(-10);
-    }
 }

@@ -27,11 +27,6 @@ public class Rocket_Close_Turn_Around_Same extends PathContainer {
 
     @Override
     public Rotation2d getStartGyroMovement() {
-        return Rotation2d.fromDegrees(90 + 61.0);
-    }
-
-    @Override
-    public EncoderMovement getStartEncoderMovement() {
-        return new EncoderMovement(-10);
+        return getStartRotation();
     }
 }

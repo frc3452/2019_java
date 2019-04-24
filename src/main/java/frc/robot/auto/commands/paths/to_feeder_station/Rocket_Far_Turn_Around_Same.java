@@ -9,11 +9,10 @@ import frc.robot.poofs.util.math.Rotation2d;
 public class Rocket_Far_Turn_Around_Same extends PathContainer {
     public Rocket_Far_Turn_Around_Same() {
         this.sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(235, 267, 0, 30));
-        sWaypoints.add(new Waypoint(178, 257, 15, 60));
-        sWaypoints.add(new Waypoint(120, 298.28, 15, 60));
-        sWaypoints.add(new Waypoint(69.75, 298.28, 1, 30));
-        sWaypoints.add(new Waypoint(19.5, 298.28, 0, 30).setFieldAdaption(PathAdapter.feederStation));
+        sWaypoints.add(new Waypoint(248, 258, 0, 30));
+        sWaypoints.add(new Waypoint(170, 283, 15, 70));
+        sWaypoints.add(new Waypoint(120, 298.28, 15, 90));
+        sWaypoints.add(new Waypoint(19.5, 298.28, 0, 90).setFieldAdaption(PathAdapter.feederStation));
     }
 
     @Override
@@ -22,8 +21,8 @@ public class Rocket_Far_Turn_Around_Same extends PathContainer {
     }
 
     @Override
-    public Rotation2d getStartGyroMovement()
-    {
-        return Rotation2d.fromDegrees(160);
+    public Rotation2d getStartGyroMovement() {
+        // Perpendicular to placing on rocket
+        return Rotation2d.fromDegrees(118.75);
     }
 }

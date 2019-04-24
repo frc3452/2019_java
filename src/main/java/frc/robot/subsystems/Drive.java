@@ -20,6 +20,7 @@ import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
+import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Path;
@@ -256,6 +257,12 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void setWantDrivePath(PathContainer pathContainer) {
+		setWantDrivePath(pathContainer, ShouldTurnAfterPath.NONE);
+	}
+
+	public synchronized void setWantDrivePath(PathContainer pathContainer, ShouldTurnAfterPath turnAfterPath) {
+		mTurnAfterPath = turnAfterPath;
+
 		Path mPath = pathContainer.buildPath();
 		final boolean reversed = pathContainer.isReversed();
 		GZPIDPair newPID = pathContainer.getPID();
@@ -367,7 +374,15 @@ public class Drive extends GZSubsystem {
 		switch (mState) {
 		case PATH_FOLLOWING:
 			if (mPathFollower != null) {
+
 				updatePathFollower();
+				if (isDoneWithPath()) {
+					if (mTurnAfterPath == ShouldTurnAfterPath.LEFT)
+						turnFarRocketLeft();
+					else if (mTurnAfterPath == ShouldTurnAfterPath.RIGHT)
+						turnFarRocketRight();
+				}
+
 			}
 			break;
 		case CLIMB:
@@ -672,12 +687,26 @@ public class Drive extends GZSubsystem {
 		// neg up
 	}
 
+	enum ShouldTurnAfterPath {
+		NONE, LEFT, RIGHT
+	}
+
+	ShouldTurnAfterPath mTurnAfterPath = ShouldTurnAfterPath.NONE;
+
+	public synchronized void pathFarRocketLeft() {
+		setWantDrivePath(new Left_Rocket_Far_Same_Backwards(), ShouldTurnAfterPath.LEFT);
+	}
+
+	public synchronized void pathFarRocketRight() {
+		setWantDrivePath(new Left_Rocket_Far_Same_Backwards().getRight(), ShouldTurnAfterPath.RIGHT);
+	}
 
 	public synchronized void turnFarRocketLeft() {
-			turnToHeading(Rotation2d.fromDegrees(180 + 61.25));
+		turnToHeading(Rotation2d.fromDegrees(180 + 61.25));
 	}
+
 	public synchronized void turnFarRocketRight() {
-			turnToHeading(Rotation2d.fromDegrees(90 + 61.25));
+		turnToHeading(Rotation2d.fromDegrees(90 + 61.25));
 	}
 
 	public synchronized void turnToHeading(Rotation2d angle) {
@@ -706,31 +735,13 @@ public class Drive extends GZSubsystem {
 			final double initLeft = getLeftRotations();
 			final double initRight = getRightRotations();
 
-			double tar = mTurnToHeadingGoal.getNormalDegrees();
-			Rotation2d mCur = getGyroAngle().inverse();
-			double cur = mCur.getNormalDegrees();
+			Rotation2d current = getGyroAngle().inverse();
 
-			boolean shouldTurnLeft;
+			boolean shouldTurnLeft = Rotation2d.shouldTurnClockwise(current, mTurnToHeadingGoal);
 
-			if (tar > 180) {
-				if (cur > tar - 180 && cur < tar) {
-					shouldTurnLeft = false;
-				} else {
-					shouldTurnLeft = true;
-				}
-			} else {
-				if (cur > tar && cur < tar + 180) {
-					shouldTurnLeft = true;
-				} else {
-					shouldTurnLeft = false;
-				}
-			}
-
-			double toTurn = mCur.difference(mTurnToHeadingGoal);
+			double toTurn = current.difference(mTurnToHeadingGoal);
 			double leftTar = initLeft + (toTurn * kDrivetrain.L_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
 			double rightTar = initRight + (toTurn * kDrivetrain.R_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
-
-			System.out.println("SHOULD BE TURNING " + (shouldTurnLeft ? " LEFT" : "RIGHT"));
 
 			motionMagic(false, leftTar, rightTar, kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_ACCEL,
 					kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_VEL);

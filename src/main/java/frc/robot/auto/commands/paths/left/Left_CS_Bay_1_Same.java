@@ -27,8 +27,4 @@ public class Left_CS_Bay_1_Same extends PathContainer {
     }
 
     
-    @Override
-    public EncoderMovement getStartEncoderMovement() {
-        return new EncoderMovement(-10);
-    }
 }

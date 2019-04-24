@@ -3,6 +3,7 @@ package frc.robot.auto.commands;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import frc.robot.Constants.kElevator.Heights;
@@ -19,7 +20,6 @@ import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.center.Center_Rocket_Close_Left;
 import frc.robot.auto.commands.paths.center.Center_Rocket_Far_Left;
-import frc.robot.auto.commands.paths.center.Center_Rocket_Mid_Left;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_1;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Opp_2;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_CS_Face_Same_2;
@@ -36,10 +36,6 @@ import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Far_1_Same;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Far_2_Opp;
 import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Far_2_Same;
-import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Mid_1_Opp;
-import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Mid_1_Same;
-import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Mid_2_Opp;
-import frc.robot.auto.commands.paths.feeder_station_to.Feeder_Station_To_Rocket_Mid_2_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Opp;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_1_Same;
 import frc.robot.auto.commands.paths.left.Left_CS_Bay_2_Opp;
@@ -53,14 +49,13 @@ import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Opp;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
-import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Opp;
-import frc.robot.auto.commands.paths.left.Left_Rocket_Mid_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Bay_1_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Bay_2_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Bay_3_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_Same;
+import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.Actions;
@@ -141,8 +136,7 @@ public class AutoModeBuilder {
     public enum ScoringPosition {
         CARGO_SHIP_FACE("Cargo Ship Face"), CARGO_SHIP_BAY_1("Cargo Ship Bay 1"), CARGO_SHIP_BAY_2("Cargo Ship Bay 2"),
         CARGO_SHIP_BAY_3("Cargo Ship Bay 3"), ROCKET_NEAR("Rocket Near Face", false),
-        ROCKET_MID("Rocket Middle Face", false), ROCKET_FAR("Rocket Far Face", false),
-        ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
+        ROCKET_FAR("Rocket Far Face", false), ROCKET_FAR_REVERSE("Rocket Far Face (Reverse)", false,
                 new ScoringPosLimitations().canDoNothing().canBackwardsSameSide().canSameSideFeeder());
 
         public final String text;
@@ -416,20 +410,6 @@ public class AutoModeBuilder {
             }
 
             break;
-        case ROCKET_MID:
-            // Center
-            if (startPos == StartingPosition.CENTER) {
-                movements.add(new Center_Rocket_Mid_Left().get(score.side.onLeft));
-            }
-
-            // On left or right
-            if (scoringSameSide(startPos, score)) {
-                movements.add(new Left_Rocket_Mid_Same().get(startPos.onLeft));
-            } else {
-                movements.add(new Left_Rocket_Mid_Opp().get(startPos.onLeft));
-            }
-
-            break;
         case ROCKET_FAR:
             // Center
             if (startPos == StartingPosition.CENTER) {
@@ -520,57 +500,64 @@ public class AutoModeBuilder {
 
     public static ArrayList<PathContainer> getScoredPosToFeederStation(final ScoringLocation location,
             final FeederStation station) {
+        ArrayList<PathContainer> ret = new ArrayList<>();
         switch (location.pos) {
         case CARGO_SHIP_FACE: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
             ret.add(new CS_Face_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
+            break;
         }
 
         case CARGO_SHIP_BAY_1: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
             ret.add(new Bay_1_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
+            break;
         }
 
         case CARGO_SHIP_BAY_2: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
             ret.add(new Bay_2_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
+            break;
         }
 
         case CARGO_SHIP_BAY_3: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
             ret.add(new Bay_3_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
+            break;
         }
 
         case ROCKET_NEAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
             ret.add(new Rocket_Close_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
+            break;
         }
 
-        case ROCKET_MID: {
-            return null;
-        }
-
+        // FALL THROUGH
         case ROCKET_FAR: {
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            ret.add(new Rocket_Far_Turn_Around_Same().get(location.side.onLeft));
-            return ret;
         }
         case ROCKET_FAR_REVERSE: {
-            GZUtil.bigPrint("ROCKET FAR REVERSE CANNOT SCORE TO FAR FEEDER STATION");
-            return null;
+            ret.add(new Rocket_Far_Turn_Around_Same().get(location.side.onLeft));
+            break;
         }
 
-        // return ret;
         default: {
             System.out.println("[AUTOMODEBUILDER] Get scored position to feeder station null! [" + location.pos + "]");
             return null;
         }
         }
+
+        {
+            double back;
+            if (location.pos == ScoringPosition.CARGO_SHIP_FACE) {
+                back = PathAdapter.inchesFromCargoShipFace;
+
+            } else if (location.isOnCargoShip()) {
+                back = PathAdapter.inchesFromCargoShipSide;
+
+            } else {
+                back = PathAdapter.inchesFromRocket;
+            }
+
+            EncoderMovement movement = new EncoderMovement(-back);
+            ret.get(0).setStartEncoderMovement(movement);
+        }
+
+        return ret;
     }
 
     private static ArrayList<PathContainer> getFeederStationToSecondPlacement(FeederStation station,
@@ -633,19 +620,6 @@ public class AutoModeBuilder {
             } else {
                 ret.add(new Feeder_Station_To_Rocket_Close_1_Opp().get(station.onLeft));
                 ret.add(new Feeder_Station_To_Rocket_Close_2_Opp().get(station.onLeft));
-            }
-            return ret;
-        }
-
-        case ROCKET_MID: {
-
-            ArrayList<PathContainer> ret = new ArrayList<>();
-            if (feederSameSide(location, station)) {
-                ret.add(new Feeder_Station_To_Rocket_Mid_1_Same().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Mid_2_Same().get(station.onLeft));
-            } else {
-                ret.add(new Feeder_Station_To_Rocket_Mid_1_Opp().get(station.onLeft));
-                ret.add(new Feeder_Station_To_Rocket_Mid_2_Opp().get(station.onLeft));
             }
             return ret;
         }
