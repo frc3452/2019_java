@@ -5,13 +5,17 @@ import static frc.robot.poofs.util.Util.epsilonEquals;
 import java.text.DecimalFormat;
 
 import frc.robot.poofs.util.Interpolable;
-import frc.robot.util.GZUtil;
 
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle
  * (cosine and sine).
  * 
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
+ * 
+ * 
+ * 
+ * 
+ * https://www.desmos.com/calculator/vekweuq0gj
  */
 public class Rotation2d implements Interpolable<Rotation2d> {
     protected static final Rotation2d kIdentity = new Rotation2d();
