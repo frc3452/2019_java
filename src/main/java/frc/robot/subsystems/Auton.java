@@ -16,13 +16,16 @@ import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.Curve_test_path;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
+import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
+import frc.robot.util.drivers.GZJoystick.AnalogAngle;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
@@ -61,6 +64,11 @@ public class Auton {
 
 	private DigitalSelector mSelectorOnes = null, mSelectorTens = null;
 
+	private LatchedBoolean mCustomAutoMoveStartPosLeft = new LatchedBoolean();
+	private LatchedBoolean mCustomAutoMoveStartPosRight = new LatchedBoolean();
+	private StartingPosition mCustomAutoStartPos = null;
+	private Rotation2d mCustomAutoStartingAngle = null;
+
 	public synchronized static Auton getInstance() {
 		if (mInstance == null)
 			mInstance = new Auton();
@@ -76,11 +84,11 @@ public class Auton {
 
 		commandArray = new ArrayList<GZCommand>();
 
-		// commandArray.add(new GZCommand("test path", () -> new GZCommandGroup() {
-		// 	{
-		// 		drivePath(new Curve_test_path());
-		// 	}
-		// }));
+		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
+			{
+				tele();
+			}
+		}));
 
 		commandArray.add(new GZCommand("Zero odometry (LEFT)", () -> new GZCommandGroup() {
 			{
@@ -90,23 +98,20 @@ public class Auton {
 				tele();
 			}
 		}));
+
 		commandArray.add(new GZCommand("Zero odometry (CENTER)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Center_CS_Face_Left().getLeft());
 				tele();
 			}
 		}));
+
 		commandArray.add(new GZCommand("Zero odometry (RIGHT)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Left_Rocket_Close_Same().getRight());
 				tele();
-
-			}
-		}));
-
-		commandArray.add(new GZCommand("Do nothing", () -> new GZCommandGroup() {
-			{
-				waitTime(0.1);
+				angle(Rotation2d.fromDegrees(180));
+				tele();
 			}
 		}));
 
@@ -117,13 +122,14 @@ public class Auton {
 			}
 		}));
 
-		// ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
-		// for (GZCommand c : commandsIn) {
-		// commandArray.add(c);
-		// }	
+		ArrayList<GZCommand> commandsIn = AutoModeBuilder.getAllPaths();
+		for (GZCommand c : commandsIn) {
+			commandArray.add(c);
+		}
 
 		// commandArray.add(AutoModeBuilder.getCommand(StartingPosition.LEFT,
-		// 		new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.LEFT), FeederStation.LEFT));
+		// new ScoringLocation(ScoringPosition.ROCKET_NEAR, ScoringSide.LEFT),
+		// FeederStation.LEFT));
 
 		defaultCommand = new GZCommand("DEFAULT", () -> new NoCommand());
 
@@ -223,6 +229,8 @@ public class Auton {
 	 * override
 	 */
 	private void controllerChooser() {
+		customAuto();
+
 		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
 			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
 				m_controllerOverrideValue++;
@@ -236,6 +244,90 @@ public class Auton {
 				return;
 			}
 		}
+	}
+
+	private void updateCustomAuto() {
+		if (mCustomAutoStartPos == null) {
+			updateCustomAutoError("No Position");
+			return;
+		}
+
+		if (mCustomAutoStartingAngle == null) {
+			updateCustomAutoError("No Angle");
+			return;
+		}
+
+		Translation2d position;
+
+		switch (mCustomAutoStartPos) {
+		case CENTER:
+			position = new Center_CS_Face_Left().getStartPose().getTranslation();
+			break;
+		case LEFT:
+			position = new Left_Rocket_Close_Same().getStartPose().getTranslation();
+			break;
+		case RIGHT:
+			position = new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation();
+			break;
+		default:
+			System.out.println("UNHANDLED STARTING POSITION " + mCustomAutoStartPos + " IN updateCustomAuto()");
+			return;
+		}
+
+		Drive.getInstance().zeroOdometry(new RigidTransform2d(position, mCustomAutoStartingAngle.inverse()));
+	}
+
+	private void updateCustomAutoError(String msg) {
+		System.out.println("WARNING Cannot update odometry [" + msg + "]");
+	}
+
+	private void customAuto() {
+		if (GZOI.driverJoy.getButton(Buttons.BACK)) {
+			if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+				updateCustomAuto();
+			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
+				System.out.println("WARNING Custom auto deselected!");
+				mCustomAutoStartPos = null;
+				mCustomAutoStartingAngle = null;
+			} else {
+				AnalogAngle newAngle = GZOI.driverJoy.getRightAnalogAngle();
+				Rotation2d mappedAngle = Rotation2d.closestCoordinatePlus(newAngle.angle);
+
+				if (Math.abs(newAngle.magnitude) > .2) {
+					if (mCustomAutoStartingAngle == null || !mCustomAutoStartingAngle.equals(mappedAngle)) {
+						System.out.println("WARNING Custom auto angle set to " + mappedAngle.getNormalDegrees());
+						mCustomAutoStartingAngle = mappedAngle;
+					}
+				}
+
+				if (mCustomAutoMoveStartPosLeft.update(GZOI.driverJoy.getLeftAnalogX() < -.5)) {
+					if (mCustomAutoStartPos == null)
+						mCustomAutoStartPos = StartingPosition.CENTER;
+					else if (mCustomAutoStartPos == StartingPosition.CENTER)
+						mCustomAutoStartPos = StartingPosition.LEFT;
+					else if (mCustomAutoStartPos == StartingPosition.RIGHT)
+						mCustomAutoStartPos = StartingPosition.CENTER;
+
+					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosRight.update(GZOI.driverJoy.getLeftAnalogX() > .5)) {
+					if (mCustomAutoStartPos == null)
+						mCustomAutoStartPos = StartingPosition.CENTER;
+					else if (mCustomAutoStartPos == StartingPosition.CENTER)
+						mCustomAutoStartPos = StartingPosition.RIGHT;
+					else if (mCustomAutoStartPos == StartingPosition.LEFT)
+						mCustomAutoStartPos = StartingPosition.CENTER;
+					customAutoStartPosUpdate();
+				}
+			}
+		}
+	}
+
+	private void customAutoStartPosUpdate() {
+		final boolean disabled = (mCustomAutoStartPos == null);
+		if (disabled)
+			System.out.println("WARNING Custom auto disabled");
+		else
+			System.out.println("WARNING Custom auto position set to " + mCustomAutoStartPos);
 	}
 
 	private void sanityCheckControllerValue() {

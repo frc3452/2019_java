@@ -42,33 +42,31 @@ public class Robot extends TimedRobot {
 
 	private final String date = GZUtil.getDate();
 
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/STATE/" + date);
+	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/WORLDS/" + date);
 
 	@Override
 	public void robotInit() {
-		
 		auton.fillAutonArray();
-		
+
 		health.assignSubsystems(allSubsystems.getSubsystems());
-		
+
 		infoManager.initialize();
-		
+
 		// new GZNotifier(() -> drive.printOdometry()).startPeriodic(.25);
-		
+
 		// Gen health file
 		health.generateHealth();
 		health.printForSubsystemErrors();
-		
+
 		addLogValues();
-		
+
 		allSubsystems.startLooping();
-		
+
 		files.writeHardwareReport();
 		System.out.println("Date reported: " + date);
 	}
-	
-	private void addLogValues()
-	{
+
+	private void addLogValues() {
 		new LogItem("MSGs") {
 			@Override
 			public String val() {
@@ -80,8 +78,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		// System.out.println("90" + "\t" + Rotation2d.fromDegrees(0).inverse().rotateBy(Rotation2d.fromDegrees(70)));
-		// System.out.println("45" + "\t" + Rotation2d.fromDegrees(45).inverse().rotateBy(Rotation2d.fromDegrees(70)));
 	}
 
 	@Override

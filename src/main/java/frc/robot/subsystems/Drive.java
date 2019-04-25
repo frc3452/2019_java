@@ -247,9 +247,12 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void zeroOdometry(PathContainer pathContainer) {
-		RigidTransform2d startPose = pathContainer.getStartPose();
-		RobotState.getInstance().reset(Timer.getFPGATimestamp(), startPose);
-		Drive.getInstance().setGyroAngle(startPose.getRotation());
+		zeroOdometry(pathContainer.getStartPose());	
+	}
+
+	public synchronized void zeroOdometry(final RigidTransform2d pose) {
+		RobotState.getInstance().reset(Timer.getFPGATimestamp(), pose);
+		Drive.getInstance().setGyroAngle(pose.getRotation());
 	}
 
 	public synchronized void zeroGyro() {

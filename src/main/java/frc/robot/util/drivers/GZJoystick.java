@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.DPad;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
@@ -76,6 +77,33 @@ public class GZJoystick extends Joystick {
 		return GZUtil.applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y.val), mDeadband);
 	}
 
+	public static class AnalogAngle {
+		public final double magnitude;
+		public final Rotation2d angle;
+		public final double x, y;
+
+		public AnalogAngle(double x, double y) {
+			this.x = x;
+			this.y = y;
+			magnitude = Math.hypot(x, y);
+			angle = new Rotation2d(x, y, true).inverse();
+		}
+
+		@Override
+		public String toString() {
+			String out = "X:" + x + "\tY: " + y + "\t" + angle.toString() + "\tMagnitude [" + magnitude + "]";
+			return out;
+		}
+	}
+
+	public AnalogAngle getLeftAnalogAngle() {
+		return new AnalogAngle(getLeftAnalogX(), getLeftAnalogY());
+	}
+
+	public AnalogAngle getRightAnalogAngle() {
+		return new AnalogAngle(getRightAnalogX(), getRightAnalogY());
+	}
+
 	public Double getRightAnalogX() {
 		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X.val), mDeadband);
 	}
@@ -88,13 +116,11 @@ public class GZJoystick extends Joystick {
 		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
 	}
 
-	public Boolean getLeftTriggerPressed()
-	{
+	public Boolean getLeftTriggerPressed() {
 		return Math.abs(getLeftTrigger()) > mTriggerPress;
 	}
 
-	public Boolean getRightTriggerPressed()
-	{
+	public Boolean getRightTriggerPressed() {
 		return Math.abs(getRightTrigger()) > mTriggerPress;
 	}
 
@@ -102,8 +128,7 @@ public class GZJoystick extends Joystick {
 		return this.getRawButton(b.val);
 	}
 
-	public Boolean getButtonLatched(Buttons b)
-	{
+	public Boolean getButtonLatched(Buttons b) {
 		return this.getRawButtonPressed(b.val);
 	}
 

@@ -19,6 +19,87 @@ public class PracticeField extends FieldProfile {
         this.mHABRamp = new FieldValues<Double>(10.9632);
     }
 
+    private HeightsContainer mCompHeightsAtWorlds = new HeightsContainer() {
+        @Override
+        public double hp_floor_Grab() {
+            return zero() + 1;
+        }
+
+        @Override
+        public double hp1() {
+            return 20;        }
+
+        @Override
+        public double hp2() {
+            return 47;
+        }
+
+        @Override
+        public double hp3() {
+            return 75;
+        }
+
+        @Override
+        public double cargo_ship() {
+            return 46;
+        }
+
+        @Override
+        public double cargo1() {
+            return 28.5;
+        }
+
+        @Override
+        public double cargo2() {
+            return 56.5;
+        }
+
+        @Override
+        public double cargo3() {
+            return 83.5;
+        }
+
+        @Override
+        public double hp_feed_jog() {
+            return hp1() + 5;
+        }
+
+        @Override
+        public double zero() {
+            return 16.5;
+        }
+
+        @Override
+        public double lowest_with_slides_out() {
+            return 22.0;
+        }
+
+        @Override
+        public double home() {
+            return zero() + 0.5;
+        }
+
+        @Override
+        public int ticks_per_inch() {
+            return 350;
+        }
+
+        @Override
+        public double hatch_place_jog() {
+            return 3;
+        }
+    };
+
+    @Override
+    public HeightsContainer getElevatorHeights() {
+        if (Constants.COMP_BOT) {
+            return mCompHeightsAtWorlds;
+        } else {
+            return mPracticeHeights;
+        }
+    }
+
+    
     private HeightsContainer mPracticeHeights = new HeightsContainer() {
         @Override
         public double hp_floor_Grab() {
@@ -56,7 +137,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo2() {
-            return 55.5 + 1 + 2;    
+            return 55.5 + 1 + 2;
         }
 
         @Override
@@ -251,6 +332,7 @@ public class PracticeField extends FieldProfile {
             return 3; // big fat teeth
         }
     };
+
     private HeightsContainer mCompHeightsAtState = new HeightsContainer() {
         @Override
         public double hp_floor_Grab() {
@@ -331,14 +413,5 @@ public class PracticeField extends FieldProfile {
             return 3; // big fat teeth
         }
     };
-
-    @Override
-    public HeightsContainer getElevatorHeights() {
-        if (Constants.COMP_BOT) {
-            return mCompHeightsAtState;
-        } else {
-            return mPracticeHeights;
-        }
-    }
 
 }

@@ -3,6 +3,8 @@ package frc.robot.poofs.util.math;
 import static frc.robot.poofs.util.Util.epsilonEquals;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import frc.robot.poofs.util.Interpolable;
 
@@ -41,6 +43,23 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         }
     }
 
+    public static ArrayList<Rotation2d> getList(double... angles) {
+        ArrayList<Rotation2d> ret = new ArrayList<Rotation2d>();
+
+        for (double d : angles)
+            ret.add(Rotation2d.fromDegrees(d));
+
+        return ret;
+    }
+
+    public static ArrayList<Rotation2d> getCardinals() {
+        return getList(0, 90, 180, 270);
+    }
+
+    public static ArrayList<Rotation2d> getCardinalsPlus() {
+        return getList(0, 45, 90, 135, 180, 225, 270, 315);
+    }
+
     public Rotation2d(Rotation2d other) {
         cos_angle_ = other.cos_angle_;
         sin_angle_ = other.sin_angle_;
@@ -69,6 +88,40 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     public static double difference(double a1, double a2) {
         double angle = 180 - Math.abs(Math.abs(a1 - a2) - 180);
         return angle;
+    }
+
+    public static Rotation2d closestCoordinatePlus(Rotation2d value) {
+        return closest(value, getCardinalsPlus());
+    }
+
+    public static Rotation2d closest(Rotation2d value, ArrayList<Rotation2d> rotations) {
+        double min = Double.MAX_VALUE;
+        int pos = -1;
+        List<Double> distances = new ArrayList<Double>();
+
+        for (Rotation2d r : rotations) {
+            double distanceTemp = Rotation2d.difference(value, r);
+            distances.add(distanceTemp);
+        }
+
+        {
+            int counter = 0;
+            for (Double d : distances) {
+                if (d < min) {
+                    min = d;
+                    pos = counter;
+                }
+                counter++;
+            }
+        }
+
+        return rotations.get(pos);
+    }
+
+    public boolean equals(Rotation2d other) {
+        if (this.cos_angle_ == other.cos_angle_ && this.sin_angle_ == other.sin_angle_)
+            return true;
+        return false;
     }
 
     /**
@@ -222,6 +275,6 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     @Override
     public String toString() {
         final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "(" + fmt.format(getDegrees()) + " deg)";
+        return "(" + fmt.format(getDegrees()) + " deg)" + "\tNormalized (" + fmt.format(getNormalDegrees()) + ")";
     }
 }
