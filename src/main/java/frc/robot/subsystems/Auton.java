@@ -90,6 +90,15 @@ public class Auton {
 			}
 		}));
 
+		commandArray.add(new GZCommand("Custom auto", () -> new GZCommandGroup() {
+			{
+				tele();
+				angle(Rotation2d.fromDegrees(180));
+				tele();
+				angle(Rotation2d.fromDegrees(0));
+			}
+		}));
+
 		commandArray.add(new GZCommand("Zero odometry (LEFT)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Left_Rocket_Close_Same().getLeft());
