@@ -94,6 +94,10 @@ public class AutoModeBuilder {
         }
     }
 
+    public static enum ZeroPositions {
+        CENTER, LEFT, RIGHT, LEFT_2, RIGHT_2
+    }
+
     public static enum StartingPosition {
         CENTER(false, false, "Center"), LEFT(true, false, "Left"), RIGHT(false, true, "Right");
 

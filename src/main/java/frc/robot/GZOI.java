@@ -24,6 +24,7 @@ import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
+import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
@@ -58,11 +59,11 @@ public class GZOI extends GZSubsystem {
 		@Override
 		public Double getDefault() {
 			if (elev.isSpeedOverriden())
-				return .45;
-			else if (drive.isAutoClimbing())
-				return .15;
+				return 0.45;
+			else if (!drive.isSlow())
+				return 0.10;
 			else if (GZUtil.between(getMatchTime(), 29.1, 30))
-				return .6;
+				return 0.6;
 			// else if (drive.usingCurvature())
 			// return .4;
 
@@ -103,6 +104,9 @@ public class GZOI extends GZSubsystem {
 
 	@Override
 	public void loop() {
+
+		// driverJoy.check();
+
 		// FLAGS
 		if (isTele())
 			mWasTele = true;
@@ -127,11 +131,12 @@ public class GZOI extends GZSubsystem {
 			System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" : "enabled") + "!");
 		}
 
-		if (mSafetyDisable)
+		if (mSafetyDisable) {
 			if (++mDisabledPrintOutLoops > 300) {
 				System.out.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
 				mDisabledPrintOutLoops = 0;
 			}
+		}
 
 		// Disabled
 		if (isDisabled()) {
@@ -175,6 +180,9 @@ public class GZOI extends GZSubsystem {
 	}
 
 	private void disabled() {
+		Auton.getInstance().autonChooser();
+		// auton.print();
+
 		Auton.getInstance().toggleAutoWait(driverJoy.getButtons(Buttons.A, Buttons.Y));
 		Auton.getInstance().toggleAutoGamePiece(driverJoy.getButtons(Buttons.A, Buttons.X));
 
@@ -239,9 +247,6 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
-
-		if (drive.getState() == DriveState.CLIMB && driverJoy.getButtonLatched(Buttons.RB))
-			drive.toggleStraightClimb();
 
 		drive.handleDriving(driverJoy);
 	}

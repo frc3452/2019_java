@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
@@ -11,7 +12,11 @@ import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
 import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
+import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.NoCommand;
+import frc.robot.auto.commands.functions.superstructure.GoToHeight;
+import frc.robot.auto.commands.functions.superstructure.OpenClaw;
+import frc.robot.auto.commands.functions.superstructure.RetractSlides;
 import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.Curve_test_path;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
@@ -66,7 +71,9 @@ public class Auton {
 
 	private LatchedBoolean mCustomAutoMoveStartPosLeft = new LatchedBoolean();
 	private LatchedBoolean mCustomAutoMoveStartPosRight = new LatchedBoolean();
-	private StartingPosition mCustomAutoStartPos = null;
+	private LatchedBoolean mCustomAutoMoveStartPosUp = new LatchedBoolean();
+	private LatchedBoolean mCustomAutoMoveStartPosDown = new LatchedBoolean();
+	private ZeroPositions mCustomAutoStartPos = null;
 	private Rotation2d mCustomAutoStartingAngle = null;
 
 	public synchronized static Auton getInstance() {
@@ -90,7 +97,7 @@ public class Auton {
 			}
 		}));
 
-		commandArray.add(new GZCommand("Custom auto", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Custom auto (Drive --> 180 --> 0", () -> new GZCommandGroup() {
 			{
 				tele();
 				angle(Rotation2d.fromDegrees(180));
@@ -99,7 +106,7 @@ public class Auton {
 			}
 		}));
 
-		commandArray.add(new GZCommand("Zero odometry (LEFT)", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Zero odometry (Left Drive --> 180)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Left_Rocket_Close_Same().getLeft());
 				tele();
@@ -108,14 +115,14 @@ public class Auton {
 			}
 		}));
 
-		commandArray.add(new GZCommand("Zero odometry (CENTER)", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Zero odometry (Center)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Center_CS_Face_Left().getLeft());
 				tele();
 			}
 		}));
 
-		commandArray.add(new GZCommand("Zero odometry (RIGHT)", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Zero odometry (Right Drive--> 180)", () -> new GZCommandGroup() {
 			{
 				resetPos(new Left_Rocket_Close_Same().getRight());
 				tele();
@@ -124,10 +131,23 @@ public class Auton {
 			}
 		}));
 
-		commandArray.add(new GZCommand("Place", () -> new GZCommandGroup() {
+		commandArray.add(new GZCommand("Place (ScoreHatch)", () -> new GZCommandGroup() {
 			{
 				// add(new GoToHeight(Heights.HP_2));
+				tele();
 				add(new RunAction(Actions.SCORE_HATCH));
+			}
+		}));
+
+		commandArray.add(new GZCommand("Place High (Level 2)", () -> new GZCommandGroup() {
+			{
+				tele();
+				add(new GoToHeight(Heights.HP_2));
+				tele();
+				add(new RunAction(Actions.SCORE_HATCH));
+				tele();
+				// angleR(Rotation2d.fromDegrees(180));
+				tele();
 			}
 		}));
 
@@ -278,6 +298,12 @@ public class Auton {
 		case RIGHT:
 			position = new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation();
 			break;
+		case LEFT_2:
+			position = new Translation2d(27, 117);
+			break;
+		case RIGHT_2:
+			position = new Translation2d(27, 205);
+			break;
 		default:
 			System.out.println("UNHANDLED STARTING POSITION " + mCustomAutoStartPos + " IN updateCustomAuto()");
 			return;
@@ -311,20 +337,36 @@ public class Auton {
 
 				if (mCustomAutoMoveStartPosLeft.update(GZOI.driverJoy.getLeftAnalogX() < -.5)) {
 					if (mCustomAutoStartPos == null)
-						mCustomAutoStartPos = StartingPosition.CENTER;
-					else if (mCustomAutoStartPos == StartingPosition.CENTER)
-						mCustomAutoStartPos = StartingPosition.LEFT;
-					else if (mCustomAutoStartPos == StartingPosition.RIGHT)
-						mCustomAutoStartPos = StartingPosition.CENTER;
+						mCustomAutoStartPos = ZeroPositions.CENTER;
+					else if (mCustomAutoStartPos == ZeroPositions.CENTER)
+						mCustomAutoStartPos = ZeroPositions.LEFT;
+					else if (mCustomAutoStartPos == ZeroPositions.RIGHT)
+						mCustomAutoStartPos = ZeroPositions.CENTER;
 
 					customAutoStartPosUpdate();
 				} else if (mCustomAutoMoveStartPosRight.update(GZOI.driverJoy.getLeftAnalogX() > .5)) {
 					if (mCustomAutoStartPos == null)
-						mCustomAutoStartPos = StartingPosition.CENTER;
-					else if (mCustomAutoStartPos == StartingPosition.CENTER)
-						mCustomAutoStartPos = StartingPosition.RIGHT;
-					else if (mCustomAutoStartPos == StartingPosition.LEFT)
-						mCustomAutoStartPos = StartingPosition.CENTER;
+						mCustomAutoStartPos = ZeroPositions.CENTER;
+					else if (mCustomAutoStartPos == ZeroPositions.CENTER)
+						mCustomAutoStartPos = ZeroPositions.RIGHT;
+					else if (mCustomAutoStartPos == ZeroPositions.LEFT)
+						mCustomAutoStartPos = ZeroPositions.CENTER;
+					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
+						mCustomAutoStartPos = ZeroPositions.LEFT;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT;
+					}
+					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
+						mCustomAutoStartPos = ZeroPositions.LEFT_2;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT_2;
+					}
 					customAutoStartPosUpdate();
 				}
 			}

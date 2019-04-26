@@ -11,15 +11,23 @@ public class EncoderToAngle extends Command {
   // private
   private Rotation2d mTar;
   private Drive drive = Drive.getInstance();
+  private boolean relative = false;
+
+  public EncoderToAngle(Rotation2d angle, boolean rel) {
+    mTar = angle;
+    relative = rel;
+  }
 
   public EncoderToAngle(Rotation2d angle) {
-    mTar = angle;
+    this(angle, false);
   }
 
   @Override
   protected void initialize() {
-    System.out.println("Serving to angle " + mTar);
-    drive.turnToHeading(mTar);
+    if (relative)
+      drive.turnRelative(mTar);
+    else
+      drive.turnToHeading(mTar);
   }
 
   @Override

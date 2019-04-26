@@ -13,6 +13,11 @@ public class GZJoystick extends Joystick {
 
 	private double mTriggerPress = 0.3;
 
+	private LatchedBoolean lbA = new LatchedBoolean(), lbB = new LatchedBoolean(), lbX = new LatchedBoolean(),
+			lbY = new LatchedBoolean(), lbLB = new LatchedBoolean(), lbRB = new LatchedBoolean(),
+			lbBack = new LatchedBoolean(), lbStart = new LatchedBoolean(), lbLClick = new LatchedBoolean(),
+			lbRClick = new LatchedBoolean();
+
 	private DPad mUp, mDown, mRight, mLeft;
 	private LatchedBoolean dUp = new LatchedBoolean(), dDown = new LatchedBoolean(), dLeft = new LatchedBoolean(),
 			dRight = new LatchedBoolean();
@@ -129,7 +134,42 @@ public class GZJoystick extends Joystick {
 	}
 
 	public Boolean getButtonLatched(Buttons b) {
-		return this.getRawButtonPressed(b.val);
+		final boolean v = getButton(b);
+
+		switch (b) {
+		case A:
+			return lbA.update(v);
+		case B:
+			return lbB.update(v);
+		case X:
+			return lbX.update(v);
+		case Y:
+			return lbY.update(v);
+		case LB:
+			return lbLB.update(v);
+		case RB:
+			return lbRB.update(v);
+		case BACK:
+			return lbBack.update(v);
+		case START:
+			return lbStart.update(v);
+		case LEFT_CLICK:
+			return lbLClick.update(v);
+		case RIGHT_CLICK:
+			return lbRClick.update(v);
+		default: {
+			System.out.println("GZJOYSTICK LATCHED BOOLEAN FALLTHROUGH " + b);
+			return false;
+		}
+		}
+	}
+
+	public void check() {
+		String out = "";
+		for (Buttons b : allButtons) {
+			out += getButtonLatched(b) + "\t";
+		}
+		System.out.println(out);
 	}
 
 	public Boolean isDUpPressed() {

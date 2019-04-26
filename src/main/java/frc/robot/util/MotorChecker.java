@@ -317,7 +317,7 @@ public class MotorChecker {
                     // on error
                     System.out.println("ERROR Could not load MotorTestingConfig for " + subsystem.toString() + " at "
                             + file.toPath());
-                    // e.printStackTrace();
+                    e.printStackTrace();
                     return null;
                 }
             }

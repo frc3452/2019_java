@@ -711,8 +711,16 @@ public class GZFiles {
 
 	public String loggingName(boolean returnCurrent) {
 		if (returnCurrent) {
-			String retval = (GZOI.getInstance().isFMS() ? "FIELD_" + (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_")
-					: "") + GZUtil.dateTime(true);
+			String retval = "";
+
+			if (GZOI.getInstance().isFMS()) {
+				retval += "FIELD_";
+				retval += (GZOI.getInstance().isAuto() ? "AUTO_" : "TELE_");
+			} else if (GZOI.getInstance().isTest()) {
+				retval += "TEST_";
+			}
+
+			retval += GZUtil.dateTime(true);
 
 			prevLog = retval;
 			return retval;
@@ -722,26 +730,27 @@ public class GZFiles {
 	}
 
 	// public class AutoInstantLogItem {
-	// 	private Object obj = new Object();
-	// 	private Supplier<Boolean> mUpdateTerms;
+	// private Object obj = new Object();
+	// private Supplier<Boolean> mUpdateTerms;
 
-	// 	public AutoInstantLogItem(Supplier<Boolean> update) {
-	// 		this.mUpdateTerms = update;
-	// 	}
+	// public AutoInstantLogItem(Supplier<Boolean> update) {
+	// this.mUpdateTerms = update;
+	// }
 
-	// 	private Object getKey()
-	// 	{
-	// 		return obj;
-	// 	}
+	// private Object getKey()
+	// {
+	// return obj;
+	// }
 
-	// 	private boolean getVal()
-	// 	{
-	// 		return mUpdateTerms.get();
-	// 	}
+	// private boolean getVal()
+	// {
+	// return mUpdateTerms.get();
+	// }
 
 	// }
 
-	// private HashMap<Object, LatchedBoolean> mInstantLogKeys = new HashMap<Object, LatchedBoolean>();
+	// private HashMap<Object, LatchedBoolean> mInstantLogKeys = new HashMap<Object,
+	// LatchedBoolean>();
 	private ArrayList<InstantLogItem> mInstantLogs = new ArrayList<InstantLogItem>();
 
 	public void addLog(GZSubsystem subsystem, String message) {

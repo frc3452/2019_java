@@ -80,6 +80,11 @@ public class Pneumatics extends GZSubsystem {
     public void loop() {
         boolean noAir = false;
 
+        // if (GZOI.getInstance().isTest())
+        // {
+
+        // }
+
         // final double pressure = getPressure();
 
         // if (pressure < kPneumatics.LOW_PRESSURE)

@@ -233,7 +233,7 @@ public class Constants {
 
 		public static final double NEUTRAL_TIME_BETWEEN_SHIFTS = 0.3;
 
-		public static final double CLIMB_PITCH_TOLERANCE = 15; // 3
+		public static final double CLIMB_PITCH_TOLERANCE = 15; // 15
 		public static final double AUTO_CLIMB_SPEED = 1.0; // .25
 		// public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
 		// public static final double AUTO_CLIMB_SPEED = 0.75; // .25

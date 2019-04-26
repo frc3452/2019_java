@@ -80,6 +80,11 @@ public class GZCommandGroup extends CommandGroup {
         return ret;
     }
 
+    public synchronized void angleR(Rotation2d angle)
+    {
+        add(new EncoderToAngle(angle, true));
+    }
+
     public synchronized void angle(Rotation2d angle)
     {
         add(new EncoderToAngle(angle));

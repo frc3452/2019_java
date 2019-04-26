@@ -91,9 +91,6 @@ public class Drive extends GZSubsystem {
 
 	private ClimbingState mClimbState = null;
 
-	private boolean mWantAutoClimb = true;
-	private boolean mIsAutoClimbing = false;
-
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
 	DecimalFormat df = new DecimalFormat("#0.00");
@@ -721,6 +718,9 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void turnRelative(Rotation2d angle) {
 		Rotation2d target = getGyroAngle().rotateBy(angle);
+
+		System.out.println("Turning relatively " + angle.getNormalDegrees());
+
 		turnToHeading(target);
 	}
 
@@ -809,10 +809,6 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	public boolean isAutoClimbing() {
-		return (mState == DriveState.CLIMB) ? mIsAutoClimbing : false;
-	}
-
 	public synchronized void onStateExit(DriveState prevState) {
 		switch (prevState) {
 		case CLIMB:
@@ -857,6 +853,8 @@ public class Drive extends GZSubsystem {
 			SmartDashboard.putNumber("Target", mIO.left_output);
 			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
 		}
+
+		SmartDashboard.putBoolean("Slow", !mIsSlow);
 
 		// System.out.println(mTurnToHeadingComplete + "\t" + );
 		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output
@@ -1112,17 +1110,11 @@ public class Drive extends GZSubsystem {
 		runClimber(-front, -rear);
 	}
 
-	public synchronized void toggleStraightClimb() {
-		mWantAutoClimb = !mWantAutoClimb;
-		GZOI.getInstance().addRumble(Level.MEDIUM);
-	}
-
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
-		if (mWantAutoClimb && !joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
+		if (!joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
 				&& mClimbState == ClimbingState.BOTH) {
 			handleAutomaticClimb(joy.getLeftAnalogY() * kDrivetrain.AUTO_CLIMB_SPEED);
-			mIsAutoClimbing = true;
 		} else {
 			switch (mClimbState) {
 			case BOTH:
@@ -1142,8 +1134,6 @@ public class Drive extends GZSubsystem {
 				runClimber(joy.getLeftAnalogY() * .75, joy.getRightAnalogY() * .25);
 				break;
 			}
-			mIsAutoClimbing = false;
-
 		}
 	}
 
