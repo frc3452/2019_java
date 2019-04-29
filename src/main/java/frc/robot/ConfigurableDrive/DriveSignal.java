@@ -4,6 +4,7 @@ package frc.robot.ConfigurableDrive;
  * A drivetrain command consisting of the left, right motor values
  */
 public class DriveSignal {
+
     protected double mLeftMotor;
     protected double mRightMotor;
 

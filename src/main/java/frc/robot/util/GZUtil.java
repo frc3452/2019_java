@@ -87,9 +87,8 @@ public class GZUtil {
 		}
 	}
 
-	public static void bigPrint(String f)
-	{
-		bigPrint(f,40);
+	public static void bigPrint(String f) {
+		bigPrint(f, 40);
 	}
 
 	// public static double autoScale(double inputVal, double outputRange1, double
@@ -237,6 +236,37 @@ public class GZUtil {
 			result &= epsilonEquals(value_in, point, areaAroundPoint);
 		}
 		return result;
+	}
+
+	public static <T> boolean goodRange(int value, ArrayList<T> list) {
+		if (value < 0)
+			return false;
+
+		if (value > list.size() - 1)
+			return false;
+
+		return true;
+	}
+
+	public static <T> int limitArrayLoopAround(int value, ArrayList<T> list) {
+		if (value < 0)
+			return list.size() - 1;
+
+		if (value > list.size() - 1) {
+			return 0;
+		}
+
+		return value;
+	}
+
+	public static <T> int limitArray(int value, ArrayList<T> list) {
+		if (value < 0)
+			return 0;
+
+		if (value > list.size() - 1) {
+			return list.size() - 1;
+		}
+		return value;
 	}
 
 	public static double applyDeadband(double value, double deadband) {

@@ -15,17 +15,82 @@ public class ConfigurableDrive {
 
     private Button s_upTick;
     private Button s_downTick;
-
-    // private
+    private Supplier<Boolean> requiredToChange;
 
     private ArrayList<DriveStyle> mStyles = new ArrayList<DriveStyle>();
+    private int mCurrentStyle = 0;
+
+    private final boolean shouldLoopAroundList;
+
     private final double kARCADE_DEADBAND = 0.05;
 
-    public ConfigurableDrive() {
+    public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
+            Supplier<Boolean> moveDownList, boolean shouldLoopAroundList) {
+        requiredToChange = conditionsToChange;
+
+        s_upTick = new Button(moveUpList);
+        s_downTick = new Button(moveDownList);
+        this.shouldLoopAroundList = shouldLoopAroundList;
+    }
+
+    public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList,
+            boolean shouldLoopAroundList) {
+        this(() -> false, moveUpList, moveDownList, shouldLoopAroundList);
+    }
+
+    public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList) {
+        this(moveUpList, moveDownList, false);
+    }
+
+    public DriveSignal update() {
+
+        if (mStyles == null) {
+            configDriveThrowError("Array of drive styles null");
+            return DriveSignal.NEUTRAL;
+        }
+
+        if (s_upTick.updated()) {
+            mCurrentStyle++;
+        } else if (s_downTick.updated()) {
+            mCurrentStyle--;
+        }
+
+        if (shouldLoopAroundList) {
+            mCurrentStyle = limitArrayLoopAround(mCurrentStyle, mStyles);
+        } else {
+            mCurrentStyle = limitArray(mCurrentStyle, mStyles);
+        }
+
+        if (goodRange(mCurrentStyle, mStyles)) {
+            DriveStyle style = mStyles.get(mCurrentStyle);
+
+            DriveSignal output = style.produceDriveSignal();
+
+            if (output == null) {
+                configDriveThrowError(
+                        "Could not produce drive signal, output from " + style.toString() + " returned null");
+                return DriveSignal.NEUTRAL;
+            } else {
+                return output;
+            }
+        } else {
+            configDriveThrowError("Tried to get style " + mCurrentStyle + " in array of size " + mStyles.size());
+            return DriveSignal.NEUTRAL;
+        }
+
     }
 
     public void addDriveStyle(DriveStyle style) {
         this.mStyles.add(style);
+    }
+
+    public void addStandardDriveStyles(GZJoystick joy) {
+        addTankDrive(joy);
+        addTankDriveWithModifiers(joy);
+        addSingleAxisArcade(joy);
+        addDualAxisArcade(joy);
+        addRacingArcade(joy);
+        addRacingArcadeWithModifier(joy);
     }
 
     public void addTankDrive(Supplier<Double> left, Supplier<Double> right) {
@@ -41,13 +106,13 @@ public class ConfigurableDrive {
         });
     }
 
-    public void addTankDriveSlow(GZJoystick joy) {
-        addTankDriveSlow(() -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY(),
+    public void addTankDriveWithModifiers(GZJoystick joy) {
+        addTankDriveWithModifier(() -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY(),
                 () -> (joy.getButtonLatched(Buttons.RB) ? 1.0 : 0.0));
     }
 
-    public void addTankDriveSlow(Supplier<Double> left, Supplier<Double> right, Supplier<Double> slowSpeed) {
-        this.addDriveStyle(new DriveStyle("Tank with slow speed", left, right, slowSpeed) {
+    public void addTankDriveWithModifier(Supplier<Double> left, Supplier<Double> right, Supplier<Double> slowSpeed) {
+        this.addDriveStyle(new DriveStyle("Tank with modifier", left, right, slowSpeed) {
             final double MODIFIER = 0.5;
             boolean shouldSlowSpeed = false;
 
@@ -79,6 +144,31 @@ public class ConfigurableDrive {
 
     public void addDualAxisArcade(GZJoystick joy) {
         addArcadeDrive("Dual axis arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY());
+    }
+
+    public void addRacingArcade(GZJoystick joy) {
+        addArcadeDrive("Racing arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightTrigger() - joy.getLeftTrigger());
+    }
+
+    public void addRacingArcadeWithModifier(GZJoystick joy) {
+
+        addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getLeftAnalogY(),
+                () -> joy.getRightTrigger() - joy.getLeftTrigger(), () -> (joy.getButton(Buttons.RB) ? 1.0 : 0.0)) {
+
+            boolean shouldSlowSpeed = false;
+            LatchedBoolean lb = new LatchedBoolean();
+
+            @Override
+            public DriveSignal produceDriveSignal() {
+                if (lb.update(getAxis(3) == 1)) {
+                    shouldSlowSpeed = !shouldSlowSpeed;
+                }
+
+                DriveSignal output = arcade(getAxis(1), getAxis(2), false);
+
+                return output;
+            }
+        });
     }
 
     public void addArcadeDrive(String name, Supplier<Double> xMovement, Supplier<Double> zRotation) {
@@ -130,7 +220,7 @@ public class ConfigurableDrive {
         }
 
         private void throwError(String message) {
-            System.out.println("ERROR ConfigurableDrive option [" + toString() + "]" + message);
+            configDriveThrowError("option [" + toString() + "]" + message);
         }
 
         @Override
@@ -138,6 +228,41 @@ public class ConfigurableDrive {
             return name;
         }
 
+    }
+
+    private static void configDriveThrowError(String message) {
+        System.out.println("ERROR [ConfigurableDrive] " + message);
+    }
+
+    private static <T> boolean goodRange(int value, ArrayList<T> list) {
+        if (value < 0)
+            return false;
+
+        if (value > list.size() - 1)
+            return false;
+
+        return true;
+    }
+
+    public static <T> int limitArrayLoopAround(int value, ArrayList<T> list) {
+        if (value < 0)
+            return list.size() - 1;
+
+        if (value > list.size() - 1) {
+            return 0;
+        }
+
+        return value;
+    }
+
+    public static <T> int limitArray(int value, ArrayList<T> list) {
+        if (value < 0)
+            return 0;
+
+        if (value > list.size() - 1) {
+            return list.size() - 1;
+        }
+        return value;
     }
 
     public static class Button {
