@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
+import frc.robot.ConfigurableDrive.LatchedBoolean;
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
@@ -28,10 +30,8 @@ import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
-import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
-import frc.robot.util.drivers.GZJoystick.AnalogAngle;
-import frc.robot.util.drivers.GZJoystick.Buttons;
+import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants.AnalogMode;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -326,7 +326,7 @@ public class Auton {
 				mCustomAutoStartPos = null;
 				mCustomAutoStartingAngle = null;
 			} else {
-				AnalogAngle newAngle = GZOI.driverJoy.getRightAnalogAngle();
+				AnalogMode newAngle = GZOI.driverJoy.getRightAnalogAngle();
 				Rotation2d mappedAngle = Rotation2d.closestCoordinatePlus(newAngle.angle);
 
 				if (Math.abs(newAngle.magnitude) > .2) {
