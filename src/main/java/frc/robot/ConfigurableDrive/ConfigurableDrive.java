@@ -3,6 +3,8 @@ package frc.robot.ConfigurableDrive;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
+
 /**
  * This configurable drive controller was written as a senior project by Max
  * Dreher from FRC Team GreengineerZ (#3452)
@@ -26,9 +28,8 @@ public class ConfigurableDrive {
         this.mStyles.add(style);
     }
 
-    public void addTankDrive() {
-        GZJoystick j = new GZJoystick(0);
-        this.addDriveStyle(new DriveStyle("Tank", () -> j.getLeftAnalogY(), () -> j.getRightAnalogY()) {
+    public void addTankDrive(Supplier<Double> left, Supplier<Double> right) {
+        this.addDriveStyle(new DriveStyle("Tank", left, right) {
 
             @Override
             public DriveSignal produceDriveSignal() {
@@ -40,9 +41,48 @@ public class ConfigurableDrive {
         });
     }
 
-    public void addOneStickArcade() {
-        GZJoystick j = new GZJoystick(0);
-        this.addDriveStyle(new DriveStyle("One stick arcade", () -> j.getLeftAnalogY(), () -> j.getLeftAnalogX()) {
+    public void addTankDriveSlow(GZJoystick joy) {
+        addTankDriveSlow(() -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY(),
+                () -> (joy.getButtonLatched(Buttons.RB) ? 1.0 : 0.0));
+    }
+
+    public void addTankDriveSlow(Supplier<Double> left, Supplier<Double> right, Supplier<Double> slowSpeed) {
+        this.addDriveStyle(new DriveStyle("Tank with slow speed", left, right, slowSpeed) {
+            final double MODIFIER = 0.5;
+            boolean shouldSlowSpeed = false;
+
+            @Override
+            public DriveSignal produceDriveSignal() {
+                double left = getAxis(1);
+                double right = getAxis(2);
+
+                if (getAxis(3))
+                    shouldSlowSpeed = !shouldSlowSpeed;
+
+                if (shouldSlowSpeed) {
+                    left *= MODIFIER;
+                    right *= MODIFIER;
+                }
+
+                return new DriveSignal(left, right);
+            }
+        });
+    }
+
+    public void addTankDrive(GZJoystick joy) {
+        addTankDrive(() -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY());
+    }
+
+    public void addSingleAxisArcade(GZJoystick joy) {
+        addArcadeDrive("Single axis arcade", () -> joy.getLeftAnalogY(), () -> joy.getLeftAnalogX());
+    }
+
+    public void addDualAxisArcade(GZJoystick joy) {
+        addArcadeDrive("Dual axis arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY());
+    }
+
+    public void addArcadeDrive(String name, Supplier<Double> xMovement, Supplier<Double> zRotation) {
+        this.addDriveStyle(new DriveStyle(name, xMovement, zRotation) {
 
             @Override
             public DriveSignal produceDriveSignal() {
