@@ -56,7 +56,7 @@ public class ConfigurableDrive {
                 double left = getAxis(1);
                 double right = getAxis(2);
 
-                if (getAxis(3))
+                if (getAxis(3) == 1)
                     shouldSlowSpeed = !shouldSlowSpeed;
 
                 if (shouldSlowSpeed) {
