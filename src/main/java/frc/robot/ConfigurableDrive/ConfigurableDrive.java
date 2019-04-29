@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import frc.robot.ConfigurableDrive.ConfigurableDrive.ArrayLoopAround.ArrayResult;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZPrevious;
 
 /**
@@ -177,6 +178,30 @@ public class ConfigurableDrive {
 
     public void addRacingArcade(GZJoystick joy) {
         addArcadeDrive("Racing arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightTrigger() - joy.getLeftTrigger());
+    }
+
+    /**
+     * Gyro needs to be mapped with 0 degrees forward, then growing to 360 Clockwise
+     * Use the GyroMapper function of this class to aid with conversions
+     * 
+     * @param joy
+     * @param gyro
+     */
+    public void addFieldCentric(GZJoystick joy, Supplier<Double> gyro, double turnToleranceDeg) {
+        DriveStyle fieldCentric = new DriveStyle("Field centric", () -> joy.getLeftAnalogY(),
+                () -> joy.getLeftAnalogX(), gyro) {
+            final double tolDeg = turnToleranceDeg;
+
+            @Override
+            public DriveSignal produceDriveSignal() {
+                Rotation2d currentAngle = Rotation2d.fromDegrees(getAxis(3));
+                AnalogAngle targetAngle = new AnalogAngle(getAxis(1), getAxis(2));
+
+                // boolean turnLeft = 
+
+                return null;
+            }
+        };
     }
 
     public void addRacingArcadeWithModifier(GZJoystick joy) {
