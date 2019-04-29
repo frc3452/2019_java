@@ -9,6 +9,7 @@ package frc.robot;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.ConfigurableDrive.ConfigurableDrive.Previous;
 import frc.robot.util.GZUtil;
@@ -69,8 +70,8 @@ public final class Main {
         // testGZPrev();
         // print();
         // testRange();
-        configDrive();
-        // RobotBase.startRobot(Robot::new);
+        // configDrive();
+        RobotBase.startRobot(Robot::new);
     }
 
     private static void print() {

@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
 
 	private final String date = GZUtil.getDate();
 
-	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/STATE/" + date);
+	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/POST_WORLDS/" + date);
 
 	@Override
 	public void robotInit() {

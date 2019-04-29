@@ -129,7 +129,8 @@ public class ConfigurableDrive {
                 double left = getAxis(1);
                 double right = getAxis(2);
 
-                return new DriveSignal(left, right);
+                DriveSignal output = new DriveSignal(left, right);
+                return output;
             }
         });
     }
@@ -171,7 +172,7 @@ public class ConfigurableDrive {
     }
 
     public void addDualAxisArcade(GZJoystick joy) {
-        addArcadeDrive("Dual axis arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightAnalogY());
+        addArcadeDrive("Dual axis arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightAnalogX());
     }
 
     public void addRacingArcade(GZJoystick joy) {
@@ -183,6 +184,7 @@ public class ConfigurableDrive {
         addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getLeftAnalogY(),
                 () -> joy.getRightTrigger() - joy.getLeftTrigger(), () -> (joy.getButton(Buttons.RB) ? 1.0 : 0.0)) {
 
+            final double MODIFIER = 0.45;
             boolean shouldSlowSpeed = false;
             LatchedBoolean lb = new LatchedBoolean();
 
@@ -192,7 +194,15 @@ public class ConfigurableDrive {
                     shouldSlowSpeed = !shouldSlowSpeed;
                 }
 
-                DriveSignal output = arcade(getAxis(1), getAxis(2), false);
+                double x = getAxis(1);
+                double z = getAxis(2);
+
+                if (shouldSlowSpeed) {
+                    x *= MODIFIER;
+                    z *= MODIFIER;
+                }
+
+                DriveSignal output = arcade(x, z, false);
 
                 return output;
             }
@@ -204,8 +214,10 @@ public class ConfigurableDrive {
 
             @Override
             public DriveSignal produceDriveSignal() {
-                DriveSignal output = arcade(getAxis(1), getAxis(2), false);
+                double axis1 = getAxis(1);
+                double axis2 = getAxis(2);
 
+                DriveSignal output = arcade(axis1, axis2, false);
                 return output;
             }
         });
@@ -228,7 +240,7 @@ public class ConfigurableDrive {
         public abstract DriveSignal produceDriveSignal();
 
         /**
-         * First axis passed will be axis 1, not 0
+         * <b> First axis passed will be axis 1, not 0 </b>
          * 
          * @param axis
          * @return
@@ -376,8 +388,7 @@ public class ConfigurableDrive {
             }
         }
 
-        DriveSignal retval = new DriveSignal(limit1to1(leftMotorOutput), -limit1to1(rightMotorOutput));
-
+        DriveSignal retval = new DriveSignal(limit1to1(leftMotorOutput), limit1to1(rightMotorOutput));
         return retval;
     }
 

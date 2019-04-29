@@ -1,5 +1,7 @@
 package frc.robot.ConfigurableDrive;
 
+import java.text.DecimalFormat;
+
 /**
  * A drivetrain command consisting of the left, right motor values
  */
@@ -25,6 +27,8 @@ public class DriveSignal {
 
     @Override
     public String toString() {
-        return "L: " + mLeftMotor + ", R: " + mRightMotor;
+        return "L: " + df.format(mLeftMotor) + ", R: " + df.format(mRightMotor);
     }
+
+    private DecimalFormat df = new DecimalFormat("#0.00");
 }

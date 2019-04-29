@@ -18,6 +18,8 @@ import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
+import frc.robot.ConfigurableDrive.ConfigurableDrive;
+import frc.robot.ConfigurableDrive.DriveSignal;
 import frc.robot.ConfigurableDrive.GZJoystick;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -94,6 +96,9 @@ public class Drive extends GZSubsystem {
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
+	private ConfigurableDrive mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(.1),
+			() -> GZOI.driverJoy.getDDown(), () -> GZOI.driverJoy.getDUp(), false);
+
 	DecimalFormat df = new DecimalFormat("#0.00");
 	private RobotPose mShuffleboardPose = new RobotPose();
 
@@ -125,6 +130,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
+		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
+
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
 		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
@@ -363,6 +370,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void out() {
+		DriveSignal mConfigDriveOutput = mConfigurableDrive.update();
+
 		switch (mState) {
 		case PATH_FOLLOWING:
 			if (mPathFollower != null) {
@@ -373,7 +382,9 @@ public class Drive extends GZSubsystem {
 			handleClimbing(GZOI.driverJoy);
 			break;
 		case OPEN_LOOP_DRIVER:
-			arcade(GZOI.driverJoy);
+			mIO.left_desired_output = mConfigDriveOutput.getLeft();
+			mIO.right_desired_output = -mConfigDriveOutput.getRight();
+			// arcade(GZOI.driverJoy);
 			break;
 		case CLOSED_LOOP_DRIVER:
 			arcadeClosedLoop(GZOI.driverJoy);
