@@ -17,6 +17,8 @@ import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
+import frc.robot.ConfigurableDrive.ConfigurableDrive;
+import frc.robot.ConfigurableDrive.DriveSignal;
 import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -93,6 +95,9 @@ public class Drive extends GZSubsystem {
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
+	private ConfigurableDrive mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(0.1),
+			() -> GZOI.driverJoy.getDUp(), () -> GZOI.driverJoy.getDDown(), false);
+
 	DecimalFormat df = new DecimalFormat("#0.00");
 	private RobotPose mShuffleboardPose = new RobotPose();
 
@@ -124,6 +129,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
+		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
+
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
 		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
@@ -244,7 +251,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void zeroOdometry(PathContainer pathContainer) {
-		zeroOdometry(pathContainer.getStartPose());	
+		zeroOdometry(pathContainer.getStartPose());
 	}
 
 	public synchronized void zeroOdometry(final RigidTransform2d pose) {
@@ -371,6 +378,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void out() {
+		DriveSignal mConfigOutput;
+
 		switch (mState) {
 		case PATH_FOLLOWING:
 			if (mPathFollower != null) {
@@ -1112,8 +1121,7 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
-		if (!joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
-				&& mClimbState == ClimbingState.BOTH) {
+		if (!joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed() && mClimbState == ClimbingState.BOTH) {
 			handleAutomaticClimb(joy.getLeftAnalogY() * kDrivetrain.AUTO_CLIMB_SPEED);
 		} else {
 			switch (mClimbState) {

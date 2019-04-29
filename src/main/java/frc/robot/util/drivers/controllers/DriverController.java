@@ -6,9 +6,7 @@ public class DriverController extends DeepSpaceController {
 
     public DriverController(double deadband) {
         super(0, deadband);
-
     }
-
 
     private void initButtons() {
     }
