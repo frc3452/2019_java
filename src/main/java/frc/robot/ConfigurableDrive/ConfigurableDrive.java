@@ -3,7 +3,9 @@ package frc.robot.ConfigurableDrive;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import frc.robot.ConfigurableDrive.ConfigurableDrive.ArrayLoopAround.ArrayResult;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
+import frc.robot.util.GZPrevious;
 
 /**
  * This configurable drive controller was written as a senior project by Max
@@ -13,16 +15,18 @@ import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
  */
 public class ConfigurableDrive {
 
-    private Button s_upTick;
-    private Button s_downTick;
-    private Supplier<Boolean> requiredToChange;
+    private final Button s_upTick;
+    private final Button s_downTick;
+    private final Supplier<Boolean> requiredToChange;
 
-    private ArrayList<DriveStyle> mStyles = new ArrayList<DriveStyle>();
+    private final ArrayList<DriveStyle> mStyles = new ArrayList<DriveStyle>();
     private int mCurrentStyle = 0;
+    private int mPrevStyle = -1;
 
     private final boolean shouldLoopAroundList;
 
-    private final double kARCADE_DEADBAND = 0.05;
+    private static final double kARCADE_DEADBAND = 0.05;
+    private static final boolean kSHOULD_LOOP_LIST = false;
 
     public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
             Supplier<Boolean> moveDownList, boolean shouldLoopAroundList) {
@@ -30,39 +34,63 @@ public class ConfigurableDrive {
 
         s_upTick = new Button(moveUpList);
         s_downTick = new Button(moveDownList);
+
         this.shouldLoopAroundList = shouldLoopAroundList;
+
+        configDriveMessage("Constructed!");
+        // update();
     }
 
     public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList,
             boolean shouldLoopAroundList) {
-        this(() -> false, moveUpList, moveDownList, shouldLoopAroundList);
+        this(() -> true, moveUpList, moveDownList, shouldLoopAroundList);
     }
 
     public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList) {
-        this(moveUpList, moveDownList, false);
+        this(moveUpList, moveDownList, kSHOULD_LOOP_LIST);
+    }
+
+    public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
+            Supplier<Boolean> moveDownList) {
+        this(conditionsToChange, moveUpList, moveDownList, kSHOULD_LOOP_LIST);
     }
 
     public DriveSignal update() {
-
         if (mStyles == null) {
             configDriveThrowError("Array of drive styles null");
             return DriveSignal.NEUTRAL;
         }
 
         if (s_upTick.updated()) {
-            mCurrentStyle++;
+            if (requiredToChange.get())
+                mCurrentStyle++;
+            else
+                cannotChangeDriveMode();
         } else if (s_downTick.updated()) {
-            mCurrentStyle--;
+            if (requiredToChange.get())
+                mCurrentStyle--;
+            else
+                cannotChangeDriveMode();
         }
 
         if (shouldLoopAroundList) {
-            mCurrentStyle = limitArrayLoopAround(mCurrentStyle, mStyles);
+            ArrayLoopAround limit = limitArrayLoopAround(mCurrentStyle, mStyles);
+            mCurrentStyle = limit.value;
         } else {
-            mCurrentStyle = limitArray(mCurrentStyle, mStyles);
+            ArrayLoopAround limit = limitArray(mCurrentStyle, mStyles);
+            mCurrentStyle = limit.value;
+            if (!limit.result.equals(ArrayResult.NONE)) {
+                configDriveThrowError("No more drive styles, go back the other way!");
+            }
         }
 
         if (goodRange(mCurrentStyle, mStyles)) {
             DriveStyle style = mStyles.get(mCurrentStyle);
+
+            if (mCurrentStyle != mPrevStyle) {
+                configDriveMessage("Updated drive style: " + style.toString());
+                mPrevStyle = mCurrentStyle;
+            }
 
             DriveSignal output = style.produceDriveSignal();
 
@@ -211,7 +239,7 @@ public class ConfigurableDrive {
                 return 0;
             }
 
-            if (axis >= axises.length) {
+            if (axis >= axises.length + 2) {
                 throwError("Axis " + axis + " too high, this mode was only supplied " + axises.length + " axises!");
                 return 0;
             }
@@ -220,7 +248,7 @@ public class ConfigurableDrive {
         }
 
         private void throwError(String message) {
-            configDriveThrowError("option [" + toString() + "]" + message);
+            configDriveThrowError("option [" + toString() + "] " + message);
         }
 
         @Override
@@ -228,6 +256,14 @@ public class ConfigurableDrive {
             return name;
         }
 
+    }
+
+    private static void configDriveMessage(String message) {
+        System.out.println("[ConfigurableDrive] " + message);
+    }
+
+    private static void cannotChangeDriveMode() {
+        configDriveThrowError("Cannot change drive mode, conditions not met!");
     }
 
     private static void configDriveThrowError(String message) {
@@ -244,25 +280,40 @@ public class ConfigurableDrive {
         return true;
     }
 
-    public static <T> int limitArrayLoopAround(int value, ArrayList<T> list) {
-        if (value < 0)
-            return list.size() - 1;
-
-        if (value > list.size() - 1) {
-            return 0;
+    public static class ArrayLoopAround {
+        public enum ArrayResult {
+            NONE, TOO_HIGH, TOO_LOW
         }
 
-        return value;
+        public final ArrayResult result;
+        public final int value;
+
+        public ArrayLoopAround(int val, ArrayResult result) {
+
+            this.value = val;
+            this.result = result;
+        }
     }
 
-    public static <T> int limitArray(int value, ArrayList<T> list) {
+    public static <T> ArrayLoopAround limitArrayLoopAround(int value, ArrayList<T> list) {
         if (value < 0)
-            return 0;
+            return new ArrayLoopAround(list.size() - 1, ArrayResult.TOO_LOW);
 
         if (value > list.size() - 1) {
-            return list.size() - 1;
+            return new ArrayLoopAround(0, ArrayResult.TOO_HIGH);
         }
-        return value;
+
+        return new ArrayLoopAround(value, ArrayResult.NONE);
+    }
+
+    public static <T> ArrayLoopAround limitArray(int value, ArrayList<T> list) {
+        if (value < 0)
+            return new ArrayLoopAround(0, ArrayResult.TOO_LOW);
+
+        if (value > list.size() - 1) {
+            return new ArrayLoopAround(list.size() - 1, ArrayResult.TOO_HIGH);
+        }
+        return new ArrayLoopAround(value, ArrayResult.NONE);
     }
 
     public static class Button {
@@ -349,6 +400,24 @@ public class ConfigurableDrive {
             }
         } else {
             return 0.0;
+        }
+    }
+
+    public static class Previous<T> {
+        private T prev;
+
+        public Previous(T start) {
+            prev = start;
+        }
+
+        public boolean update(T newValue) {
+            T temp = prev;
+            prev = newValue;
+            return !temp.equals(newValue);
+        }
+
+        public T getPrev() {
+            return prev;
         }
     }
 

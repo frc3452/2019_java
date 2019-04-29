@@ -9,8 +9,8 @@ package frc.robot;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.util.GZPrevious;
+import frc.robot.ConfigurableDrive.ConfigurableDrive;
+import frc.robot.ConfigurableDrive.ConfigurableDrive.Previous;
 import frc.robot.util.GZUtil;
 
 /**
@@ -22,33 +22,66 @@ public final class Main {
     private Main() {
     }
 
-    /**
-     * Main initialization function. Do not perform any initialization here.
-     *
-     * <p>
-     * If you change your main robot class, change the parameter type.
-     */
+    
+    static double left = .3;
+    static double right = .3;
+
+    static boolean moveUpList = false;
+    static boolean moveDownList = false;
+    static boolean condition = true;
+    private static void configDrive() {
+        // GZJoystick joy = new GZJoystick(0);
+        ConfigurableDrive drive = new ConfigurableDrive(() -> condition, () -> moveUpList, () -> moveDownList);
+
+        drive.addTankDrive(() -> left, () -> right);
+        drive.addArcadeDrive("Arcade", ()->left, ()->right);
+
+        System.out.println(drive.update());
+        
+        left = .25;
+        
+        System.out.println(drive.update());
+        
+        moveUpList = true;
+        System.out.println(drive.update());
+        moveUpList = false;
+        System.out.println(drive.update());
+        moveUpList = true;
+        System.out.println(drive.update());
+
+        condition = false;
+
+        moveDownList = true;
+        System.out.println(drive.update());
+
+        condition = true;
+
+        moveDownList = false;
+        System.out.println(drive.update());
+        moveDownList = true;
+        System.out.println(drive.update());
+
+    }
+
+
+
     public static void main(String... aArgs) {
         // testGZPrev();
-        print();
+        // print();
         // testRange();
+        configDrive();
         // RobotBase.startRobot(Robot::new);
     }
 
-    private static void print()
-    {
+    private static void print() {
         System.out.println(GZUtil.getRandDouble(3, 4));
     }
 
     private static void testGZPrev() {
-        GZPrevious<Double> prev = new GZPrevious<Double>(1.0);
+        Previous<Double> prev = new Previous<Double>(1.0);
 
         System.out.println(prev.update(1.0));
-        System.out.println(prev.update(3.0));
-        System.out.println(prev.update(3.0));
-        System.out.println(prev.update(2.0));
-        System.out.println(prev.update(1.0));
-        System.out.println(prev.update(0.0));
+        System.out.println(prev.update(prev.getPrev() + 1));
     }
 
     private static void testRange() {
@@ -61,4 +94,5 @@ public final class Main {
             System.out.println(i + " " + GZUtil.goodRange(i, list));
         }
     }
+
 }

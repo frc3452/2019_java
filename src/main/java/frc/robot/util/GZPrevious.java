@@ -10,6 +10,6 @@ public class GZPrevious<T> {
     public boolean update(T newValue) {
         T temp = prev;
         prev = newValue;
-        return temp.equals(newValue);
+        return !temp.equals(newValue);
     }
 }

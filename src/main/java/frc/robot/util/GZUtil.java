@@ -238,6 +238,7 @@ public class GZUtil {
 		return result;
 	}
 
+
 	public static <T> boolean goodRange(int value, ArrayList<T> list) {
 		if (value < 0)
 			return false;
