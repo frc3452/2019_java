@@ -299,16 +299,17 @@ public class Auton {
 			position = new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation();
 			break;
 		case LEFT_2:
-			position = new Translation2d(27, 117);
+			position = new Translation2d(27, 205);
 			break;
 		case RIGHT_2:
-			position = new Translation2d(27, 205);
+			position = new Translation2d(27, 117);
 			break;
 		default:
 			System.out.println("UNHANDLED STARTING POSITION " + mCustomAutoStartPos + " IN updateCustomAuto()");
 			return;
 		}
 
+		System.out.println("Zeroing odometry to " + mCustomAutoStartPos);
 		Drive.getInstance().zeroOdometry(new RigidTransform2d(position, mCustomAutoStartingAngle.inverse()));
 	}
 
@@ -352,23 +353,24 @@ public class Auton {
 					else if (mCustomAutoStartPos == ZeroPositions.LEFT)
 						mCustomAutoStartPos = ZeroPositions.CENTER;
 					customAutoStartPosUpdate();
-				} else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
-					if (mCustomAutoStartPos == null) {
-					} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
-						mCustomAutoStartPos = ZeroPositions.LEFT;
-					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
-						mCustomAutoStartPos = ZeroPositions.RIGHT;
-					}
-					customAutoStartPosUpdate();
-				} else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
-					if (mCustomAutoStartPos == null) {
-					} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
-						mCustomAutoStartPos = ZeroPositions.LEFT_2;
-					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
-						mCustomAutoStartPos = ZeroPositions.RIGHT_2;
-					}
-					customAutoStartPosUpdate();
 				}
+				// } else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
+				// 	if (mCustomAutoStartPos == null) {
+				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
+				// 		mCustomAutoStartPos = ZeroPositions.LEFT;
+				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
+				// 		mCustomAutoStartPos = ZeroPositions.RIGHT;
+				// 	}
+				// 	customAutoStartPosUpdate();
+				// } else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
+				// 	if (mCustomAutoStartPos == null) {
+				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
+				// 		mCustomAutoStartPos = ZeroPositions.LEFT_2;
+				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
+				// 		mCustomAutoStartPos = ZeroPositions.RIGHT_2;
+				// 	}
+				// 	customAutoStartPosUpdate();
+				// }
 			}
 		}
 	}
