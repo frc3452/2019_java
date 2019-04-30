@@ -36,7 +36,17 @@ public final class Main {
         // closestTurn();
         // magnitude();
         // closestAngle();
+        // testAngles();
         RobotBase.startRobot(Robot::new);
+    }
+
+    private static void testAngles() {
+        Rotation2d tar = Rotation2d.fromDegrees(140);
+        Rotation2d current = Rotation2d.fromDegrees(138);
+
+        System.out.println("Turning " + (current.shouldTurnClockWiseToGetTo(tar) ? "right" : "left"));
+
+        // System.out.println(newRot);
     }
 
     private static void closestAngle() {

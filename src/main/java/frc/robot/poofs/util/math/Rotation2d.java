@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import frc.robot.poofs.util.Interpolable;
+import frc.robot.util.GZUtil;
 
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle
@@ -180,18 +181,20 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     }
 
     public static boolean shouldTurnClockwise(Rotation2d current, Rotation2d target) {
+
         double tar = target.getNormalDegrees();
+        double cur = current.getNormalDegrees();
 
         boolean cw;
 
-        if (tar > 180) {
-            if (between(current, Rotation2d.fromDegrees(tar - 180), target)) {
+        if (tar < 180) {
+            if (GZUtil.between(cur, tar + 180, 360) || GZUtil.between(cur, 0, tar)) {
                 cw = true;
             } else {
                 cw = false;
             }
         } else {
-            if (between(current, target, Rotation2d.fromDegrees(tar + 180))) {
+            if (GZUtil.between(cur, tar, 360) || GZUtil.between(cur, 0, tar - 180)) {
                 cw = false;
             } else {
                 cw = true;
