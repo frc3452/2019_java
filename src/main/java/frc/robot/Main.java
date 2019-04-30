@@ -10,6 +10,7 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZUtil;
 
@@ -35,13 +36,33 @@ public final class Main {
         // closestTurn();
         // magnitude();
         // closestAngle();
-        RobotBase.startRobot(Robot::new);
+        testing();
+        // RobotBase.startRobot(Robot::new);
     }
 
-    private static void closestAngle() {
-        Rotation2d closest = Rotation2d.closestCoordinatePlus(Rotation2d.fromDegrees(210));
-        System.out.println("Closest angle: " + closest);
+    static boolean moveUp = false;
+    static double gyro = 0.0;
+
+    private static void testing() {
+        ConfigurableDrive drive = new ConfigurableDrive(() -> true, () -> moveUp, () -> false);
+        drive.addFieldCentric(() -> fwdX, () -> fwdY, () -> 0.0, () -> 0.0, () -> gyro, 15, .15, .7, .5);
+
+        // target is 315
+        gyro = 180;
+
+        while (gyro < 315) {
+            gyro += 1;
+            drive.update();
+        }
+
     }
+
+    static double fwdX = .5, fwdY = .5;
+    // private static void closestAngle() {
+    // Rotation2d closest =
+    // Rotation2d.closestCoordinatePlus(Rotation2d.fromDegrees(210));
+    // System.out.println("Closest angle: " + closest);
+    // }
 
     enum Test {
         A, B, C

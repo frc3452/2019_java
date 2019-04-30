@@ -7,6 +7,7 @@ import frc.robot.ConfigurableDrive.ConfigurableDrive.ArrayLoopAround.ArrayResult
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZPrevious;
+import frc.robot.util.GZUtil;
 
 /**
  * This configurable drive controller was written as a senior project by Max
@@ -127,7 +128,7 @@ public class ConfigurableDrive {
     public boolean isDisabled() {
         if (mStyle == null)
             return false;
-            
+
         return mStyle.isDisabled();
     }
 
@@ -210,22 +211,50 @@ public class ConfigurableDrive {
      * @param joy
      * @param gyro
      */
-    public void addFieldCentric(GZJoystick joy, Supplier<Double> gyro, double turnToleranceDeg) {
-        DriveStyle fieldCentric = new DriveStyle("Field centric", () -> joy.getLeftAnalogY(),
-                () -> joy.getLeftAnalogX(), gyro) {
-            final double tolDeg = turnToleranceDeg;
+    public void addFieldCentric(Supplier<Double> fwdX, Supplier<Double> fwdY, Supplier<Double> revX,
+            Supplier<Double> revY, Supplier<Double> gyro, double turnToleranceDeg, double startingMagnitude,
+            double endingPercentage, double turnSpeed) {
+        DriveStyle fieldCentric = new DriveStyle("Field centric", fwdX, fwdY, revX, revY, gyro) {
 
             @Override
             public DriveSignal produceDriveSignal() {
-                double left = 0, right = 0; 
-                Rotation2d currentAngle = Rotation2d.fromDegrees(getAxis(3));
+                double left = 0, right = 0;
+
+                Rotation2d currentAngle = Rotation2d.fromDegrees(getAxis(5));
                 AnalogAngle targetAngle = new AnalogAngle(getAxis(1), getAxis(2));
 
-                boolean turnLeft = Rotation2d.shouldTurnClockwise(currentAngle, targetAngle.angle);
+                if (targetAngle.magnitude > startingMagnitude) {
+                    boolean turnRight = Rotation2d.shouldTurnClockwise(currentAngle, targetAngle.angle);
 
-                // System.out.println("Turn left: " + turnLeft);
+                    double degAway = Rotation2d.difference(currentAngle, targetAngle.angle);
 
-                return new DriveSignal(left, right);
+                    double desiredMove, move, rotate;
+                    if (degAway < turnToleranceDeg) {
+                        rotate = GZUtil.scaleBetween(degAway, 0, turnSpeed, 0, turnToleranceDeg);
+                    } else {
+                        rotate = turnSpeed;
+                    }
+
+                    // CW or right rotation is positive
+                    if (!turnRight)
+                        rotate *= -1;
+
+                    desiredMove = GZUtil.scaleBetween(targetAngle.magnitude, 0, endingPercentage, startingMagnitude,
+                            Math.sqrt(2));
+
+                    if (degAway > turnToleranceDeg) {
+                        move = 0;
+                    } else {
+                        move = GZUtil.scaleBetween(turnToleranceDeg - degAway, 0, desiredMove, 0, turnToleranceDeg);
+                    }
+
+                    
+                    DriveSignal output = arcade(move, rotate, false);
+                    System.out.println(output);
+                    return output;
+                }
+
+                return DriveSignal.NEUTRAL;
             }
         };
 

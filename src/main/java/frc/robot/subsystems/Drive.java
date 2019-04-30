@@ -131,7 +131,7 @@ public class Drive extends GZSubsystem {
 
 	private Drive() {
 		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
-		mConfigurableDrive.addFieldCentric(GZOI.driverJoy, () -> getGyroAngle().inverse().getNormalDegrees(), 15);
+		// mConfigurableDrive.addFieldCentric(GZOI.driverJoy, () -> getGyroAngle().inverse().getNormalDegrees(), 15);
 
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();

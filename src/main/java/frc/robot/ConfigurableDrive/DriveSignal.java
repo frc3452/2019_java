@@ -30,5 +30,10 @@ public class DriveSignal {
         return "L: " + df.format(mLeftMotor) + ", R: " + df.format(mRightMotor);
     }
 
+    public void print()
+    {
+        System.out.println(toString());
+    }
+
     private DecimalFormat df = new DecimalFormat("#0.00");
 }
