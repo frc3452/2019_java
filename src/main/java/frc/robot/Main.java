@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZJoystick.AnalogAngle;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all.
@@ -42,11 +41,6 @@ public final class Main {
     private static void closestAngle() {
         Rotation2d closest = Rotation2d.closestCoordinatePlus(Rotation2d.fromDegrees(210));
         System.out.println("Closest angle: " + closest);
-    }
-
-    private static void magnitude() {
-        AnalogAngle val = new AnalogAngle(-.3, -.3);
-        System.out.println(val);
     }
 
     enum Test {

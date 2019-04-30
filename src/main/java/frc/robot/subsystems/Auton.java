@@ -7,6 +7,7 @@ import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.ConfigurableDrive.LatchedBoolean;
+import frc.robot.ConfigurableDrive.GZJoystick.AnalogAngle;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.auto.commands.AutoModeBuilder;
 import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
@@ -326,7 +327,7 @@ public class Auton {
 				mCustomAutoStartPos = null;
 				mCustomAutoStartingAngle = null;
 			} else {
-				AnalogMode newAngle = GZOI.driverJoy.getRightAnalogAngle();
+				AnalogAngle newAngle = GZOI.driverJoy.getRightAnalogAngle();
 				Rotation2d mappedAngle = Rotation2d.closestCoordinatePlus(newAngle.angle);
 
 				if (Math.abs(newAngle.magnitude) > .2) {

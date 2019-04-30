@@ -27,7 +27,6 @@ import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
 import frc.robot.util.drivers.controllers.OperatorController;
-import frc.robot.ConfigurableDrive.GZJoystick;
 
 public class GZOI extends GZSubsystem {
 	public static DriverController driverJoy = new DriverController(.09);
@@ -219,13 +218,13 @@ public class GZOI extends GZSubsystem {
 			}
 
 		} else {
-			if (driverJoy.isDUpPressed()) {
-				drive.turnToHeading(Rotation2d.fromDegrees(180));
-			} else if (driverJoy.isDLeftPressed()) {
-				drive.turnFarRocketLeft();
-			} else if (driverJoy.isDRightPressed()) {
-				drive.turnFarRocketRight();
-			}
+			// if (driverJoy.isDUpPressed()) {
+			// 	drive.turnToHeading(Rotation2d.fromDegrees(180));
+			// } else if (driverJoy.isDLeftPressed()) {
+			// 	drive.turnFarRocketLeft();
+			// } else if (driverJoy.isDRightPressed()) {
+			// 	drive.turnFarRocketRight();
+			// }
 			// if (driverJoy.isDUpPressed()) {
 			// drive.turnToHeading(Rotation2d.fromDegrees(180));
 			// } else if (driverJoy.isDLeftPressed()) {

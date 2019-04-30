@@ -21,6 +21,7 @@ public class ConfigurableDrive {
     private final Supplier<Boolean> requiredToChange;
 
     private final ArrayList<DriveStyle> mStyles = new ArrayList<DriveStyle>();
+    private DriveStyle mStyle = null;
     private int mCurrentStyle = 0;
     private int mPrevStyle = -1;
 
@@ -86,18 +87,18 @@ public class ConfigurableDrive {
         }
 
         if (goodRange(mCurrentStyle, mStyles)) {
-            DriveStyle style = mStyles.get(mCurrentStyle);
+            mStyle = mStyles.get(mCurrentStyle);
 
             if (mCurrentStyle != mPrevStyle) {
-                configDriveMessage("Updated drive style: " + style.toString());
+                configDriveMessage("Updated drive style: " + mStyle.toString());
                 mPrevStyle = mCurrentStyle;
             }
 
-            DriveSignal output = style.produceDriveSignal();
+            DriveSignal output = mStyle.produceDriveSignal();
 
             if (output == null) {
                 configDriveThrowError(
-                        "Could not produce drive signal, output from " + style.toString() + " returned null");
+                        "Could not produce drive signal, output from " + mStyle.toString() + " returned null");
                 return DriveSignal.NEUTRAL;
             } else {
                 return output;
@@ -114,12 +115,34 @@ public class ConfigurableDrive {
     }
 
     public void addStandardDriveStyles(GZJoystick joy) {
+        addDisabled();
         addTankDrive(joy);
         addTankDriveWithModifiers(joy);
         addSingleAxisArcade(joy);
         addDualAxisArcade(joy);
         addRacingArcade(joy);
         addRacingArcadeWithModifier(joy);
+    }
+
+    public boolean isDisabled() {
+        if (mStyle == null)
+            return false;
+            
+        return mStyle.isDisabled();
+    }
+
+    public void addDisabled() {
+        addDriveStyle(new DriveStyle("Disabled") {
+            @Override
+            public DriveSignal produceDriveSignal() {
+                return new DriveSignal(0, 0);
+            }
+
+            @Override
+            public boolean isDisabled() {
+                return true;
+            }
+        });
     }
 
     public void addTankDrive(Supplier<Double> left, Supplier<Double> right) {
@@ -194,14 +217,19 @@ public class ConfigurableDrive {
 
             @Override
             public DriveSignal produceDriveSignal() {
+                double left = 0, right = 0; 
                 Rotation2d currentAngle = Rotation2d.fromDegrees(getAxis(3));
                 AnalogAngle targetAngle = new AnalogAngle(getAxis(1), getAxis(2));
 
-                // boolean turnLeft =
+                boolean turnLeft = Rotation2d.shouldTurnClockwise(currentAngle, targetAngle.angle);
 
-                return null;
+                // System.out.println("Turn left: " + turnLeft);
+
+                return new DriveSignal(left, right);
             }
         };
+
+        addDriveStyle(fieldCentric);
     }
 
     public void addRacingArcadeWithModifier(GZJoystick joy) {
@@ -260,6 +288,10 @@ public class ConfigurableDrive {
         public DriveStyle(String name, Supplier<Double>... axises) {
             this.axises = axises;
             this.name = name;
+        }
+
+        public boolean isDisabled() {
+            return false;
         }
 
         public abstract DriveSignal produceDriveSignal();

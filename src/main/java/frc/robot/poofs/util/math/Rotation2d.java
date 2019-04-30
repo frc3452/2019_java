@@ -168,13 +168,13 @@ public class Rotation2d implements Interpolable<Rotation2d> {
     }
 
     public static boolean between(Rotation2d value, Rotation2d lowBound, Rotation2d highBound) {
-        double n = value.getNormalDegrees();
+        double lowest = Math.min(lowBound.getNormalDegrees(), highBound.getNormalDegrees());
+        double highest = Math.max(lowBound.getNormalDegrees(), highBound.getDegrees());
+        return between(value.getNormalDegrees(), lowest, highest);
+    }
 
-        double l = lowBound.getNormalDegrees();
-
-        double h = highBound.getNormalDegrees();
-
-        if (n >= l && n <= h)
+    public static boolean between(double value, double low, double high) {
+        if (value >= low && value <= high)
             return true;
         return false;
     }
@@ -183,20 +183,28 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         double tar = target.getNormalDegrees();
 
         boolean cw;
+        String out = target.getNormalDegrees() + "\t" + current.getNormalDegrees();
 
         if (tar > 180) {
             if (between(current, Rotation2d.fromDegrees(tar - 180), target)) {
                 cw = true;
+                out += " case 1";
             } else {
+                out += " case 2";
                 cw = false;
             }
         } else {
             if (between(current, target, Rotation2d.fromDegrees(tar + 180))) {
+                out += " case 3";
                 cw = false;
             } else {
+                out += " case 4";
                 cw = true;
             }
         }
+
+        out += cw;
+        System.out.println(out);
 
         return cw;
     }

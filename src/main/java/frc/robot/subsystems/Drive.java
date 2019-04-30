@@ -16,6 +16,7 @@ import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
+import frc.robot.Constants;
 import frc.robot.GZOI;
 import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.ConfigurableDrive.DriveSignal;
@@ -130,6 +131,7 @@ public class Drive extends GZSubsystem {
 
 	private Drive() {
 		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
+		mConfigurableDrive.addFieldCentric(GZOI.driverJoy, () -> getGyroAngle().inverse().getNormalDegrees(), 15);
 
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
@@ -378,7 +380,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void out() {
-		DriveSignal mConfigOutput;
+		DriveSignal mConfigOutput = mConfigurableDrive.update();
 
 		switch (mState) {
 		case PATH_FOLLOWING:
@@ -398,7 +400,12 @@ public class Drive extends GZSubsystem {
 			handleClimbing(GZOI.driverJoy);
 			break;
 		case OPEN_LOOP_DRIVER:
-			arcade(GZOI.driverJoy);
+			if (mConfigurableDrive.isDisabled()) {
+				arcade(GZOI.driverJoy);
+			} else {
+				mIO.left_desired_output = mConfigOutput.getLeft();
+				mIO.right_desired_output = -mConfigOutput.getRight();
+			}
 			break;
 		case CLOSED_LOOP_DRIVER:
 			arcadeClosedLoop(GZOI.driverJoy);

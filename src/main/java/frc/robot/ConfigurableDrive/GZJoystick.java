@@ -4,13 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.DPad;
 import frc.robot.util.GZUtil;
-import frc.robot.ConfigurableDrive.LatchedBoolean;
 
 public class GZJoystick extends Joystick {
 
 	private double mTriggerPress = 0.3;
+
+	private LatchedBoolean lbA = new LatchedBoolean(), lbB = new LatchedBoolean(), lbX = new LatchedBoolean(),
+			lbY = new LatchedBoolean(), lbLB = new LatchedBoolean(), lbRB = new LatchedBoolean(),
+			lbBack = new LatchedBoolean(), lbStart = new LatchedBoolean(), lbLClick = new LatchedBoolean(),
+			lbRClick = new LatchedBoolean();
 
 	private DPad mUp, mDown, mRight, mLeft;
 	private LatchedBoolean dUp = new LatchedBoolean(), dDown = new LatchedBoolean(), dLeft = new LatchedBoolean(),
@@ -76,6 +81,33 @@ public class GZJoystick extends Joystick {
 		return GZUtil.applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y.val), mDeadband);
 	}
 
+	public static class AnalogAngle {
+		public final double magnitude;
+		public final Rotation2d angle;
+		public final double x, y;
+
+		public AnalogAngle(double x, double y) {
+			this.x = x;
+			this.y = y;
+			magnitude = Math.hypot(x, y);
+			angle = new Rotation2d(x, y, true).inverse();
+		}
+
+		@Override
+		public String toString() {
+			String out = "X:" + x + "\tY: " + y + "\t" + angle.toString() + "\tMagnitude [" + magnitude + "]";
+			return out;
+		}
+	}
+
+	public AnalogAngle getLeftAnalogAngle() {
+		return new AnalogAngle(getLeftAnalogX(), getLeftAnalogY());
+	}
+
+	public AnalogAngle getRightAnalogAngle() {
+		return new AnalogAngle(getRightAnalogX(), getRightAnalogY());
+	}
+
 	public Double getRightAnalogX() {
 		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X.val), mDeadband);
 	}
@@ -88,13 +120,11 @@ public class GZJoystick extends Joystick {
 		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
 	}
 
-	public Boolean getLeftTriggerPressed()
-	{
+	public Boolean getLeftTriggerPressed() {
 		return Math.abs(getLeftTrigger()) > mTriggerPress;
 	}
 
-	public Boolean getRightTriggerPressed()
-	{
+	public Boolean getRightTriggerPressed() {
 		return Math.abs(getRightTrigger()) > mTriggerPress;
 	}
 
@@ -102,9 +132,43 @@ public class GZJoystick extends Joystick {
 		return this.getRawButton(b.val);
 	}
 
-	public Boolean getButtonLatched(Buttons b)
-	{
-		return this.getRawButtonPressed(b.val);
+	public Boolean getButtonLatched(Buttons b) {
+		final boolean v = getButton(b);
+
+		switch (b) {
+		case A:
+			return lbA.update(v);
+		case B:
+			return lbB.update(v);
+		case X:
+			return lbX.update(v);
+		case Y:
+			return lbY.update(v);
+		case LB:
+			return lbLB.update(v);
+		case RB:
+			return lbRB.update(v);
+		case BACK:
+			return lbBack.update(v);
+		case START:
+			return lbStart.update(v);
+		case LEFT_CLICK:
+			return lbLClick.update(v);
+		case RIGHT_CLICK:
+			return lbRClick.update(v);
+		default: {
+			System.out.println("GZJOYSTICK LATCHED BOOLEAN FALLTHROUGH " + b);
+			return false;
+		}
+		}
+	}
+
+	public void check() {
+		String out = "";
+		for (Buttons b : allButtons) {
+			out += getButtonLatched(b) + "\t";
+		}
+		System.out.println(out);
 	}
 
 	public Boolean isDUpPressed() {
