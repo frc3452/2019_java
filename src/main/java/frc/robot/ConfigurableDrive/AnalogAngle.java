@@ -6,7 +6,7 @@ import frc.robot.poofs.util.math.Rotation2d;
 
 public class AnalogAngle {
     public final double magnitude;
-    public final Rotation2d angle;
+    public Rotation2d angle;
     public final double x, y;
 
     public AnalogAngle(double x, double y) {
@@ -14,6 +14,11 @@ public class AnalogAngle {
         this.y = y;
         this.magnitude = Math.hypot(x, y);
         this.angle = new Rotation2d(x, y, true).inverse();
+    }
+
+    public void setAngle(Rotation2d angle)
+    {
+        this.angle = angle;
     }
 
     DecimalFormat df = new DecimalFormat("#0.00");

@@ -96,8 +96,7 @@ public class Drive extends GZSubsystem {
 
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
-	private ConfigurableDrive mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(0.1),
-			() -> GZOI.driverJoy.getDUp(), () -> GZOI.driverJoy.getDDown(), false);
+	private ConfigurableDrive mConfigurableDrive;
 
 	DecimalFormat df = new DecimalFormat("#0.00");
 	private RobotPose mShuffleboardPose = new RobotPose();
@@ -130,8 +129,18 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
+		mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(0.1), () -> GZOI.driverJoy.getDUp(),
+				() -> GZOI.driverJoy.getDDown(), .25, false) {
+			public double getModifier() {
+				return .5;
+			}
+		};
+
+		mConfigurableDrive.addDisabled();
+		mConfigurableDrive.addFieldCentric(() -> GZOI.driverJoy.getLeftAnalogX(), () -> GZOI.driverJoy.getLeftAnalogY(),
+				() -> GZOI.driverJoy.getRightAnalogX(), () -> GZOI.driverJoy.getRightAnalogY(),
+				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .45, .25);
 		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
-		// mConfigurableDrive.addFieldCentric(GZOI.driverJoy, () -> getGyroAngle().inverse().getNormalDegrees(), 15);
 
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
@@ -971,7 +980,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void in() {
-		this.mModifyPercent = (mIsSlow ? 0.4 : 1);
+		this.mModifyPercent = (mIsSlow ? 0.45 : 1);
 
 		mIO.leftEncoderValid = L1.isEncoderValid();
 		mIO.rightEncoderValid = R1.isEncoderValid();

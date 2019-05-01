@@ -25,6 +25,12 @@ public class DriveSignal {
         return mRightMotor;
     }
 
+    public void applyModifier(double mod)
+    {
+        mLeftMotor *= mod;
+        mRightMotor *= mod;
+    }
+
     @Override
     public String toString() {
         return "L: " + df.format(mLeftMotor) + ", R: " + df.format(mRightMotor);

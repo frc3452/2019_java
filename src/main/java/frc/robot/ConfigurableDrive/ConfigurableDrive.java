@@ -31,12 +31,16 @@ public class ConfigurableDrive {
     private static final double kARCADE_DEADBAND = 0.05;
     private static final boolean kSHOULD_LOOP_LIST = false;
 
+    private final double ARCADE_Z_MODIFIER;
+
     public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
-            Supplier<Boolean> moveDownList, boolean shouldLoopAroundList) {
+            Supplier<Boolean> moveDownList, double arcadeMod, boolean shouldLoopAroundList) {
         requiredToChange = conditionsToChange;
 
         s_upTick = new Button(moveUpList);
         s_downTick = new Button(moveDownList);
+
+        this.ARCADE_Z_MODIFIER = arcadeMod;
 
         this.shouldLoopAroundList = shouldLoopAroundList;
 
@@ -44,9 +48,13 @@ public class ConfigurableDrive {
         // update();
     }
 
+    public double getModifier() {
+        return 1;
+    }
+
     public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList,
             boolean shouldLoopAroundList) {
-        this(() -> true, moveUpList, moveDownList, shouldLoopAroundList);
+        this(() -> true, moveUpList, moveDownList, 1, shouldLoopAroundList);
     }
 
     public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList) {
@@ -55,7 +63,7 @@ public class ConfigurableDrive {
 
     public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
             Supplier<Boolean> moveDownList) {
-        this(conditionsToChange, moveUpList, moveDownList, kSHOULD_LOOP_LIST);
+        this(conditionsToChange, moveUpList, moveDownList, 1, kSHOULD_LOOP_LIST);
     }
 
     public DriveSignal update() {
@@ -102,6 +110,11 @@ public class ConfigurableDrive {
                         "Could not produce drive signal, output from " + mStyle.toString() + " returned null");
                 return DriveSignal.NEUTRAL;
             } else {
+
+                if (!mStyle.ignoresLimits()) {
+                    output.applyModifier(getModifier());
+                }
+
                 return output;
             }
         } else {
@@ -116,7 +129,6 @@ public class ConfigurableDrive {
     }
 
     public void addStandardDriveStyles(GZJoystick joy) {
-        addDisabled();
         addTankDrive(joy);
         addTankDriveWithModifiers(joy);
         addSingleAxisArcade(joy);
@@ -217,11 +229,15 @@ public class ConfigurableDrive {
         DriveStyle fieldCentric = new DriveStyle("Field centric", fwdX, fwdY, revX, revY, gyro) {
 
             @Override
-            public DriveSignal produceDriveSignal() {
-                double left = 0, right = 0;
+            public boolean ignoresLimits() {
+                return true;
+            }
 
+            @Override
+            public DriveSignal produceDriveSignal() {
                 Rotation2d currentAngle = Rotation2d.fromDegrees(getAxis(5));
                 AnalogAngle targetAngle = new AnalogAngle(getAxis(1), getAxis(2));
+                targetAngle.setAngle(targetAngle.angle.rotateBy(Rotation2d.fromDegrees(90)));
 
                 if (targetAngle.magnitude > startingMagnitude) {
                     boolean turnRight = Rotation2d.shouldTurnClockwise(currentAngle, targetAngle.angle);
@@ -248,9 +264,8 @@ public class ConfigurableDrive {
                         move = GZUtil.scaleBetween(turnToleranceDeg - degAway, 0, desiredMove, 0, turnToleranceDeg);
                     }
 
-                    
                     DriveSignal output = arcade(move, rotate, false);
-                    System.out.println(output);
+                    // System.out.println(output + "\t" + targetAngle.angle + "\t" + currentAngle);
                     return output;
                 }
 
@@ -324,6 +339,10 @@ public class ConfigurableDrive {
         }
 
         public abstract DriveSignal produceDriveSignal();
+
+        public boolean ignoresLimits() {
+            return false;
+        }
 
         /**
          * <b> First axis passed will be axis 1, not 0 </b>

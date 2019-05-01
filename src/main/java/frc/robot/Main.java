@@ -36,8 +36,8 @@ public final class Main {
         // closestTurn();
         // magnitude();
         // closestAngle();
-        testing();
-        // RobotBase.startRobot(Robot::new);
+        // testing();
+        RobotBase.startRobot(Robot::new);
     }
 
     static boolean moveUp = false;
