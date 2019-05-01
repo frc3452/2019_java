@@ -2,7 +2,9 @@ package frc.robot.poofs.util.math;
 
 import static frc.robot.poofs.util.Util.epsilonEquals;
 
-import frc.robot.poofs.util.Interpolable;
+import frc.robot.ConfigurableDrive.Interpolable;
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 
 /**
  * Represents a 2d pose (rigid transform) containing translational and rotational elements.

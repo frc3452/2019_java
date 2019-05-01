@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.auto.commands.functions.Print;
 import frc.robot.auto.commands.functions.WaitCommand;
 import frc.robot.auto.commands.functions.drive.EncoderMovementCommand;
@@ -14,7 +15,6 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseDrivePath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.ResetPoseFromPath;
 import frc.robot.auto.commands.functions.drive.pathfollowing.WaitForMarker;
-import frc.robot.poofs.util.math.Rotation2d;
 
 public class GZCommandGroup extends CommandGroup {
 

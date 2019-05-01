@@ -4,13 +4,13 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.GZOI;
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathSegment;
 import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 
 /**
  * Class used to convert a list of Waypoints into a Path object consisting of

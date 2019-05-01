@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 import frc.robot.poofs.util.motion.MotionState;
 import frc.robot.subsystems.Drive;
 import frc.robot.util.GZUtil;

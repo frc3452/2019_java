@@ -1,7 +1,7 @@
 package frc.robot.poofs;
 
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Drive;
 

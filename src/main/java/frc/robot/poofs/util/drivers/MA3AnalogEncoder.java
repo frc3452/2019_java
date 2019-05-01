@@ -2,9 +2,8 @@ package frc.robot.poofs.util.drivers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Notifier;
-
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.poofs.util.CrashTrackingRunnable;
-import frc.robot.poofs.util.math.Rotation2d;
 
 /**
  * A 10-bit analog MA3 absolute encoder. http://cdn.usdigital.com/assets/datasheets/MA3_datasheet.pdf

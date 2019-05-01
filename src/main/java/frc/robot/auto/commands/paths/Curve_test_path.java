@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 
 public class Curve_test_path extends PathContainer {
     public Curve_test_path() {

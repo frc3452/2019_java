@@ -2,8 +2,6 @@ package frc.robot.ConfigurableDrive;
 
 import java.text.DecimalFormat;
 
-import frc.robot.poofs.util.math.Rotation2d;
-
 public class AnalogAngle {
     public final double magnitude;
     public Rotation2d angle;

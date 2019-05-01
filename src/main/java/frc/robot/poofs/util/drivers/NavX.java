@@ -5,7 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.ITimestampedDataSubscriber;
 
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 
 /**
  * Driver for a NavX board. Basically a wrapper for the {@link AHRS} class

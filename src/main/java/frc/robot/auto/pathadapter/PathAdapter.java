@@ -2,6 +2,8 @@ package frc.robot.auto.pathadapter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
@@ -9,8 +11,6 @@ import frc.robot.auto.pathadapter.fieldprofiles.PracticeField;
 import frc.robot.auto.pathadapter.fieldprofiles.ReferenceField;
 import frc.robot.auto.pathadapter.robotprofiles.PracticeBot;
 import frc.robot.auto.pathadapter.robotprofiles.RobotProfile;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 
 public class PathAdapter {
     private static final DriverStation ds = DriverStation.getInstance();

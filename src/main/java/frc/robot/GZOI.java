@@ -9,7 +9,7 @@ import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
 import frc.robot.ConfigurableDrive.LatchedBoolean;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;

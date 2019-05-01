@@ -1,9 +1,7 @@
 package frc.robot.auto.commands.functions.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.subsystems.Drive;
 
 public class EncoderToAngle extends Command {

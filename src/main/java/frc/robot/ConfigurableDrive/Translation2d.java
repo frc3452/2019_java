@@ -1,9 +1,7 @@
-package frc.robot.poofs.util.math;
+package frc.robot.ConfigurableDrive;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-import frc.robot.poofs.util.Interpolable;
 
 /**
  * A translation in a 2d coordinate frame. Translations are simply shifts in an

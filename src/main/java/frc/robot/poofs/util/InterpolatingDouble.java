@@ -1,5 +1,7 @@
 package frc.robot.poofs.util;
 
+import frc.robot.ConfigurableDrive.Interpolable;
+
 /**
  * A Double that can be interpolated using the InterpolatingTreeMap.
  * 

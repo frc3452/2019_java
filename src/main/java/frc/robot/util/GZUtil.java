@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.poofs.util.control.PathSegment;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 

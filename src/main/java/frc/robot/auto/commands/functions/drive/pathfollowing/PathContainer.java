@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPathFollowing;
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.util.GZPID.GZPIDPair;
 import frc.robot.util.GZUtil;
 

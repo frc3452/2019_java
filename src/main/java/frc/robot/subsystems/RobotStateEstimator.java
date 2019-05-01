@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.util.GZSubsystem;
 

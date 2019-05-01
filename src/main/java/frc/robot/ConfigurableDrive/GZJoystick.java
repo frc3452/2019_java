@@ -3,12 +3,44 @@ package frc.robot.ConfigurableDrive;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.util.DPad;
-import frc.robot.util.GZUtil;
+import edu.wpi.first.wpilibj.buttons.Button;
 
 public class GZJoystick extends Joystick {
+
+	public static class DPad extends Button {
+
+		private GenericHID stick;
+		private int povAngle;
+	
+		/**
+		 * Enable POV stick as a set of buttons based on direction
+		 *
+		 * @param stick
+		 *            - the stick with the axis to use as a button
+		 * @param povAngle
+		 *            - POV stick angle to treat as a button press (e.g. 0,45,90,135
+		 *            etc...)
+		 **/
+	
+		public DPad(GenericHID stick, int povAngle) {
+			this.stick = stick;
+			this.povAngle = povAngle;
+		}
+	
+		/**
+		 * Gets the value of the joystick button
+		 *
+		 * @return The value of the joystick button
+		 */
+		
+		@Override
+		public boolean get() {
+			return (stick.getPOV() == povAngle);
+		}
+	}
+	
 
 	private double mTriggerPress = 0.3;
 
@@ -70,15 +102,27 @@ public class GZJoystick extends Joystick {
 	}
 
 	public Double getLeftAnalogY() {
-		return GZUtil.applyDeadband(-this.getRawAxis(Axises.LEFT_ANALOG_Y.val), mDeadband);
+		return applyDeadband(-this.getRawAxis(Axises.LEFT_ANALOG_Y.val), mDeadband);
 	}
 
 	public Double getLeftAnalogX() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_ANALOG_X.val), mDeadband);
+		return applyDeadband(this.getRawAxis(Axises.LEFT_ANALOG_X.val), mDeadband);
 	}
 
 	public Double getRightAnalogY() {
-		return GZUtil.applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y.val), mDeadband);
+		return applyDeadband(-this.getRawAxis(Axises.RIGHT_ANALOG_Y.val), mDeadband);
+	}
+
+	public static double applyDeadband(double value, double deadband) {
+		if (Math.abs(value) > deadband) {
+			if (value > 0.0) {
+				return (value - deadband) / (1.0 - deadband);
+			} else {
+				return (value + deadband) / (1.0 - deadband);
+			}
+		} else {
+			return 0.0;
+		}
 	}
 
 	public static class AnalogAngle {
@@ -109,15 +153,15 @@ public class GZJoystick extends Joystick {
 	}
 
 	public Double getRightAnalogX() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X.val), mDeadband);
+		return applyDeadband(this.getRawAxis(Axises.RIGHT_ANALOG_X.val), mDeadband);
 	}
 
 	public Double getLeftTrigger() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.LEFT_TRIGGER.val), mDeadband);
+		return applyDeadband(this.getRawAxis(Axises.LEFT_TRIGGER.val), mDeadband);
 	}
 
 	public Double getRightTrigger() {
-		return GZUtil.applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
+		return applyDeadband(this.getRawAxis(Axises.RIGHT_TRIGGER.val), mDeadband);
 	}
 
 	public Boolean getLeftTriggerPressed() {

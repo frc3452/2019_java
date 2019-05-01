@@ -5,9 +5,6 @@ import java.util.function.Supplier;
 
 import frc.robot.ConfigurableDrive.ConfigurableDrive.ArrayLoopAround.ArrayResult;
 import frc.robot.ConfigurableDrive.GZJoystick.Buttons;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.util.GZPrevious;
-import frc.robot.util.GZUtil;
 
 /**
  * This configurable drive controller was written as a senior project by Max
@@ -130,11 +127,11 @@ public class ConfigurableDrive {
 
     public void addStandardDriveStyles(GZJoystick joy) {
         addTankDrive(joy);
-        addTankDriveWithModifiers(joy);
+        // addTankDriveWithModifiers(joy);
         addSingleAxisArcade(joy);
         addDualAxisArcade(joy);
         addRacingArcade(joy);
-        addRacingArcadeWithModifier(joy);
+        // addRacingArcadeWithModifier(joy);
     }
 
     public boolean isDisabled() {
@@ -213,7 +210,7 @@ public class ConfigurableDrive {
     }
 
     public void addRacingArcade(GZJoystick joy) {
-        addArcadeDrive("Racing arcade", () -> joy.getLeftAnalogY(), () -> joy.getRightTrigger() - joy.getLeftTrigger());
+        addArcadeDrive("Racing arcade", () -> joy.getRightTrigger() - joy.getLeftTrigger(), () -> joy.getLeftAnalogX());
     }
 
     /**
@@ -246,7 +243,7 @@ public class ConfigurableDrive {
 
                     double desiredMove, move, rotate;
                     if (degAway < turnToleranceDeg) {
-                        rotate = GZUtil.scaleBetween(degAway, 0, turnSpeed, 0, turnToleranceDeg);
+                        rotate = scaleBetween(degAway, 0, turnSpeed, 0, turnToleranceDeg);
                     } else {
                         rotate = turnSpeed;
                     }
@@ -255,13 +252,13 @@ public class ConfigurableDrive {
                     if (!turnRight)
                         rotate *= -1;
 
-                    desiredMove = GZUtil.scaleBetween(targetAngle.magnitude, 0, endingPercentage, startingMagnitude,
+                    desiredMove = scaleBetween(targetAngle.magnitude, 0, endingPercentage, startingMagnitude,
                             Math.sqrt(2));
 
                     if (degAway > turnToleranceDeg) {
                         move = 0;
                     } else {
-                        move = GZUtil.scaleBetween(turnToleranceDeg - degAway, 0, desiredMove, 0, turnToleranceDeg);
+                        move = scaleBetween(turnToleranceDeg - degAway, 0, desiredMove, 0, turnToleranceDeg);
                     }
 
                     DriveSignal output = arcade(move, rotate, false);
@@ -278,8 +275,8 @@ public class ConfigurableDrive {
 
     public void addRacingArcadeWithModifier(GZJoystick joy) {
 
-        addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getLeftAnalogY(),
-                () -> joy.getRightTrigger() - joy.getLeftTrigger(), () -> (joy.getButton(Buttons.RB) ? 1.0 : 0.0)) {
+        addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getRightTrigger() - joy.getLeftTrigger(),
+                () -> joy.getLeftAnalogX(), () -> (joy.getButton(Buttons.RB) ? 1.0 : 0.0)) {
 
             final double MODIFIER = 0.45;
             boolean shouldSlowSpeed = false;
@@ -495,6 +492,11 @@ public class ConfigurableDrive {
 
         DriveSignal retval = new DriveSignal(limit1to1(leftMotorOutput), limit1to1(rightMotorOutput));
         return retval;
+    }
+
+    public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
+            double max) {
+        return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
     }
 
     public static double limit1to1(double value) {

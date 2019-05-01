@@ -2,10 +2,10 @@ package frc.robot.poofs;
 
 import java.util.Map;
 
+import frc.robot.ConfigurableDrive.Rotation2d;
 import frc.robot.poofs.util.InterpolatingDouble;
 import frc.robot.poofs.util.InterpolatingTreeMap;
 import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 
 /**

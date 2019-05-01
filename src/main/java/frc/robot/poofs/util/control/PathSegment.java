@@ -2,8 +2,8 @@ package frc.robot.poofs.util.control;
 
 import java.util.Optional;
 
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 import frc.robot.poofs.util.motion.MotionProfile;
 import frc.robot.poofs.util.motion.MotionProfileConstraints;
 import frc.robot.poofs.util.motion.MotionProfileGenerator;

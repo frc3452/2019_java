@@ -1,13 +1,10 @@
-package frc.robot.poofs.util.math;
+package frc.robot.ConfigurableDrive;
 
 import static frc.robot.poofs.util.Util.epsilonEquals;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import frc.robot.poofs.util.Interpolable;
-import frc.robot.util.GZUtil;
 
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle
@@ -188,13 +185,13 @@ public class Rotation2d implements Interpolable<Rotation2d> {
         boolean cw;
 
         if (tar < 180) {
-            if (GZUtil.between(cur, tar + 180, 360) || GZUtil.between(cur, 0, tar)) {
+            if (between(cur, tar + 180, 360) || between(cur, 0, tar)) {
                 cw = true;
             } else {
                 cw = false;
             }
         } else {
-            if (GZUtil.between(cur, tar, 360) || GZUtil.between(cur, 0, tar - 180)) {
+            if (between(cur, tar, 360) || between(cur, 0, tar - 180)) {
                 cw = false;
             } else {
                 cw = true;
@@ -203,6 +200,7 @@ public class Rotation2d implements Interpolable<Rotation2d> {
 
         return cw;
     }
+    
 
     public boolean shouldTurnClockWiseToGetTo(Rotation2d target) {
         return shouldTurnClockwise(this, target);

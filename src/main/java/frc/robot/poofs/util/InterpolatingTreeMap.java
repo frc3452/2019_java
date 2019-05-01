@@ -3,6 +3,8 @@ package frc.robot.poofs.util;
 import java.util.Map;
 import java.util.TreeMap;
 
+import frc.robot.ConfigurableDrive.Interpolable;
+
 /**
  * Interpolating Tree Maps are used to get values at points that are not defined by making a guess from points that are
  * defined. This uses linear interpolation.

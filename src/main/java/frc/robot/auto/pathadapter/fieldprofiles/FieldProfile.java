@@ -1,7 +1,7 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.poofs.util.math.Translation2d;
+import frc.robot.ConfigurableDrive.Translation2d;
 
 public abstract class FieldProfile {
 

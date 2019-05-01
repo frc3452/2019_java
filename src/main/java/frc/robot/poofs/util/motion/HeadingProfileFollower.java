@@ -1,10 +1,11 @@
 package frc.robot.poofs.util.motion;
 
-import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.ConfigurableDrive.Rotation2d;
 
 /**
- * Class to deal with angle wrapping for following a heading profile. All states are assumed to be in units of degrees,
- * and wrap on the interval of [-180, 180].
+ * Class to deal with angle wrapping for following a heading profile. All states
+ * are assumed to be in units of degrees, and wrap on the interval of [-180,
+ * 180].
  */
 public class HeadingProfileFollower extends ProfileFollower {
 
