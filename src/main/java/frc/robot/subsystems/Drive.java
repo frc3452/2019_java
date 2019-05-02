@@ -138,7 +138,7 @@ public class Drive extends GZSubsystem {
 		mConfigurableDrive.addDisabled();
 		mConfigurableDrive.addFieldCentric(() -> GZOI.driverJoy.getLeftAnalogX(), () -> GZOI.driverJoy.getLeftAnalogY(),
 				() -> GZOI.driverJoy.getRightAnalogX(), () -> GZOI.driverJoy.getRightAnalogY(),
-				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .45, .25);
+				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .45, .185);
 		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
 
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
