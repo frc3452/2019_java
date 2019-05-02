@@ -125,25 +125,6 @@ public class GZJoystick extends Joystick {
 		}
 	}
 
-	public static class AnalogAngle {
-		public final double magnitude;
-		public final Rotation2d angle;
-		public final double x, y;
-
-		public AnalogAngle(double x, double y) {
-			this.x = x;
-			this.y = y;
-			magnitude = Math.hypot(x, y);
-			angle = new Rotation2d(x, y, true).inverse();
-		}
-
-		@Override
-		public String toString() {
-			String out = "X:" + x + "\tY: " + y + "\t" + angle.toString() + "\tMagnitude [" + magnitude + "]";
-			return out;
-		}
-	}
-
 	public AnalogAngle getLeftAnalogAngle() {
 		return new AnalogAngle(getLeftAnalogX(), getLeftAnalogY());
 	}
