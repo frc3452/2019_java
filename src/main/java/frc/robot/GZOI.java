@@ -19,7 +19,6 @@ import frc.robot.util.BooleanStateChange;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZPDP;
-import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
@@ -43,30 +42,12 @@ public class GZOI extends GZSubsystem {
 
 	private int mDisabledPrintOutLoops = 0;
 	private boolean mSafetyDisable = false;
-	private BooleanStateChange mDisabledStateChange = new BooleanStateChange();
 
 	private Drive drive = Drive.getInstance();
 	private Elevator elev = Elevator.getInstance();
 	private Superstructure supe = Superstructure.getInstance();
 
 	// private Auton auton = Auton.getInstance();
-
-	private GZQueuer<Double> mRumbleQueue = new GZQueuer<Double>() {
-		@Override
-		public Double getDefault() {
-			if (elev.isSpeedOverriden())
-				return 0.45;
-			else if (!drive.isSlow())
-				return 0.10;
-			else if (GZUtil.between(getMatchTime(), 29.1, 30))
-				return 0.6;
-			return 0.0;
-		}
-
-		@Override
-		public void onEmpty() {
-		}
-	};
 
 	private static GZOI mInstance = null;
 
@@ -96,8 +77,8 @@ public class GZOI extends GZSubsystem {
 
 	@Override
 	public void loop() {
-
-		// driverJoy.check();
+		driverJoy.update();
+		op.update();
 
 		// FLAGS
 		if (isTele())
@@ -111,21 +92,23 @@ public class GZOI extends GZSubsystem {
 		// cameraSettings();
 
 		// SAFTEY DISABLED
+		boolean safteyDisable = false;
 		if (isFMS())
-			mSafetyDisable = false;
+			safteyDisable = false;
 		else if (getSafteyKey())
-			mSafetyDisable = true;
+			safteyDisable = true;
 		else if (mUserButton.update(RobotController.getUserButton()))
-			mSafetyDisable = !mSafetyDisable;
+			safteyDisable = !mSafetyDisable;
 
-		if (mDisabledStateChange.update(mSafetyDisable)) {
+		if (mSafetyDisable != safteyDisable) {
+			mSafetyDisable = safteyDisable;
 			Robot.allSubsystems.disable(mSafetyDisable);
 			System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" : "enabled") + "!");
 		}
 
 		if (mSafetyDisable) {
 			if (++mDisabledPrintOutLoops > 300) {
-				System.out.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
+				System.err.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
 				mDisabledPrintOutLoops = 0;
 			}
 		}
@@ -142,7 +125,7 @@ public class GZOI extends GZSubsystem {
 	}
 
 	public void handleControls() {
-		// handleSuperStructureControl(driverJoy);
+		handleRumble();
 		handleSuperStructureControl();
 		handleDriverController();
 	}
@@ -184,6 +167,30 @@ public class GZOI extends GZSubsystem {
 			supe.toggleIntakeRoller();
 		} else if (op.POV90.wasActivated()) {
 			supe.intakeEject();
+		}
+	}
+
+	private void handleRumble() {
+		double driverRumble = 0;
+		double opRumble = 0;
+
+		if (elev.isSpeedOverriden()) {
+			driverRumble = Math.max(0.45, driverRumble);
+		}
+		if (!drive.isSlow()) {
+			driverRumble = Math.max(0.1, driverRumble);
+		}
+		if (GZUtil.between(getMatchTime(), 29.1, 30)) {
+			driverRumble = Math.max(.45, driverRumble);
+			opRumble = Math.max(.45, opRumble);
+		}
+
+		if (!driverJoy.isRumbling()) {
+			driverJoy.setRumble(driverRumble);
+		}
+
+		if (!op.isRumbling()) {
+			op.setRumble(opRumble);
 		}
 	}
 

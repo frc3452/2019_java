@@ -18,8 +18,6 @@ import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
-import frc.robot.util.drivers.GZJoystick.AnalogAngle;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements

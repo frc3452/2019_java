@@ -3,13 +3,9 @@ package frc.robot.auto.commands;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.ConditionalCommand;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
-import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
@@ -54,7 +50,6 @@ import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_Same;
 import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.subsystems.Auton;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZUtil;
