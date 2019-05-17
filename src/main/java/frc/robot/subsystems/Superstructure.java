@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kElevator.RocketHeight;
+import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive.DriveState;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
@@ -105,13 +108,29 @@ public class Superstructure extends GZSubsystem {
     public void prepForFeeder() {
         RequestList list = new RequestList();
         list.add(heightRequest(Heights.HP_1, true));
-        list.add(clawRequest(true, true));
+        list.add(intakeRequest(false, true));
+        list.add(clawRequest(false, true));
+        list.add(slidesRequest(true, true));
+
         manager.request(list);
     }
 
-    public void grabFromFeeder() {
+    public void zeroElevator() {
+        RequestList list = new RequestList();
+        list.add(new Request() {
+
+            @Override
+            public void act() {
+                elev.zero();
+            }
+        });
+        manager.request(list);
+    }
+
+    public void grabHatchFromFeeder() {
         RequestList list = new RequestList();
         list.add(clawRequest(true, true));
+        list.add(Drive.getInstance().openLoopRequest(-.45, 0));
         list.add(slidesRequest(false, true));
         manager.request(list);
     }
@@ -120,26 +139,148 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList();
         list.add(slidesRequest(true, true));
         list.add(clawRequest(false, true));
+        list.add(Drive.getInstance().openLoopRequest(-.125, 0));
         list.add(slidesRequest(false, true));
         list.add(heightRequest(mDefaultHeight, false));
+        manager.request(list);
     }
 
     public void intake() {
         RequestList list = new RequestList();
+        list.add(heightRequest(Heights.Home));
+        list.add(slidesRequest(false, true));
+        list.add(clawRequest(true, true));
         list.add(intakeRequest(true, true));
-        list.add(runIntakeRequest(kIntake.INTAKE_SPEED));
-        // list.add()
-        // list.add()
+        list.add(runIntakeRequest(IntakeState.INTAKING));
+        manager.request(list);
     }
 
-    private Request runIntakeRequest(double percentage) {
+    public void intakeEject() {
+        RequestList list = new RequestList();
+        list.add(intakeRequest(true, true));
+        list.add(runIntakeRequest(IntakeState.EJECTING));
+        manager.request(list);
+    }
+
+    public void toggleIntake() {
+        RequestList list = new RequestList();
+        list.add(intakeRequest(!intake.isExtended(), true));
+
+    }
+
+    public void toggleIntakeRoller() {
+        RequestList list = new RequestList();
+
+        IntakeState newState;
+
+        if (intake.getWantedState() != IntakeState.NEUTRAL)
+            newState = IntakeState.NEUTRAL;
+        else
+            newState = IntakeState.INTAKING;
+
+        list.add(runIntakeRequest(newState));
+        manager.request(list);
+    }
+
+    private Request heightJogRequest(double inches) {
         return new Request() {
 
             @Override
             public void act() {
-                intake.runIntake(percentage);
+                elev.jogHeight(inches);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return elev.nearTarget();
             }
         };
+    }
+
+    public void handOffCargo() {
+        RequestList list = new RequestList();
+        list.add(intakeRequest(false, true));
+        list.add(clawRequest(false, true));
+        list.add(heightRequest(Heights.Cargo_1));
+        list.add(new Request() {
+
+            @Override
+            public void act() {
+                elev.setHasHatchPanel(false);
+            }
+        });
+        manager.request(list);
+    }
+
+    public void rocketHeight(RocketHeight height) {
+        setHeight(Heights.getHeight(height, elev.isMovingHP()));
+    }
+
+    public void jogElevator(double jog) {
+        elev.jogHeight(jog);
+    }
+
+    private Request runIntakeRequest(IntakeState state) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                intake.setWantedState(state);
+            }
+        };
+    }
+
+    public boolean readyToGrabFromFeeder() {
+        return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, false, false));
+    }
+
+    private void grabCargoFromFeeder() {
+        RequestList list = new RequestList();
+        list.add(clawRequest(false, true));
+        list.add(slidesRequest(false, true));
+        list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
+        list.add(heightRequest(Heights.Cargo_1));
+        manager.request(list);
+    }
+
+    public void retrieve() {
+        if (elev.isMovingHP()) {
+            grabHatchFromFeeder();
+        } else {
+            if (intake.isExtended()) {
+                handOffCargo();
+            } else {
+                grabCargoFromFeeder();
+            }
+        }
+    }
+
+    public void cancel() {
+        manager.clear();
+    }
+
+    public void toggleClaw() {
+        manager.request(new Request() {
+
+            @Override
+            public void act() {
+                elev.toggleClaw();
+            }
+        });
+    }
+
+    public void toggleSlides() {
+        manager.request(new Request() {
+
+            @Override
+            public void act() {
+                elev.toggleSlides();
+            }
+        });
+    }
+
+    public void setHeight(Heights h) {
+        manager.request(heightRequest(h));
     }
 
     public void score() {
@@ -159,6 +300,7 @@ public class Superstructure extends GZSubsystem {
         list.add(waitForSlides(true));
         list.add(Request.waitRequest(.25));
         list.add(slidesRequest(false, true));
+        manager.request(list);
     }
 
     public static class SuperstructureState {
@@ -304,8 +446,12 @@ public class Superstructure extends GZSubsystem {
         elev.manual(leftAnalogY);
     }
 
-    public void pauseIntake() {
-        intake.pauseIntake();
+    public void advanceFeederStage() {
+        if (!readyToGrabFromFeeder()) {
+            prepForFeeder();
+        } else {
+            grabHatchFromFeeder();
+        }
     }
 
 }

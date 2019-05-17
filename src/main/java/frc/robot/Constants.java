@@ -109,6 +109,10 @@ public class Constants {
 
 		public static final double SLIDES_TOLERANCE = 3.5;
 
+		public static enum RocketHeight {
+			LOW, MIDDLE, HIGH
+		}
+
 		public static enum Heights {
 
 			Zero(h.zero()), Home(h.home()), Cargo_Intake(Home), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()),
@@ -134,6 +138,31 @@ public class Constants {
 
 			public String toString() {
 				return "IN: [" + this.inches + "]" + " HP: [" + this.moving_hp + "]";
+			}
+
+			public static Heights getHeight(RocketHeight rocketLevel, boolean hatch) {
+				switch (rocketLevel) {
+				case LOW:
+					if (hatch) {
+						return Heights.HP_1;
+					} else {
+						return Heights.Cargo_1;
+					}
+				case MIDDLE:
+					if (hatch) {
+						return Heights.HP_2;
+					} else {
+						return Heights.Cargo_2;
+					}
+				case HIGH:
+					if (hatch) {
+						return Heights.HP_3;
+					} else {
+						return Heights.Cargo_3;
+					}
+				default:
+					return Heights.Cargo_2;
+				}
 			}
 		}
 	}
@@ -237,16 +266,16 @@ public class Constants {
 		public static final double AUTO_CLIMB_SPEED = 1.0; // .25
 		// public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
 		// public static final double AUTO_CLIMB_SPEED = 0.75; // .25
-		
+
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		public static final double L_ROTATIONS_PER_DEGREE = 0.0088055555555556;
 		public static final double R_ROTATIONS_PER_DEGREE = 0.0077527777777778;
-		
+
 		public static final double TURN_TO_HEADING_ACCURACY_DEG = 5;
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6 * 3;
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6 * 5;
-		
+
 		public static final double JOG_MOTION_MAGIC_ACCEL = 5 * 6;
 		public static final double JOG_MOTION_MAGIC_VEL = 5 * 6;
 		public static final double JOG_ACCURACY_INCHES = 3;
@@ -270,7 +299,7 @@ public class Constants {
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
 		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
-		
+
 	}
 
 	public static class kPDP {

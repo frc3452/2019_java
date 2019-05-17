@@ -23,6 +23,7 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
+import frc.robot.poofs.util.DriveSignal;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
@@ -51,6 +52,8 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Master;
 import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.requests.Request;
+import frc.robot.util.requests.RequestManager;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -71,6 +74,7 @@ public class Drive extends GZSubsystem {
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
 
+	private boolean motionMagicMovementComplete = false;
 	private Rotation2d mTurnToHeadingGoal = null;
 	private boolean mTurnToHeadingComplete = false;
 	private Double mTurnToHeadingLeftT = null;
@@ -238,12 +242,31 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	private Request turnToHeadingRequest(Rotation2d headingTarget, boolean relative) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				if (relative) {
+					turnRelative(headingTarget);
+				} else {
+					turnToHeading(headingTarget);
+				}
+			}
+
+			@Override
+			public boolean isFinished() {
+				return mTurnToHeadingComplete || wantsToTeleDrive();
+			}
+		};
+	}
+
 	public void velocityStop() {
 		setVelocity(0, 0);
 	}
 
 	public synchronized void zeroOdometry(PathContainer pathContainer) {
-		zeroOdometry(pathContainer.getStartPose());	
+		zeroOdometry(pathContainer.getStartPose());
 	}
 
 	public synchronized void zeroOdometry(final RigidTransform2d pose) {
@@ -259,7 +282,7 @@ public class Drive extends GZSubsystem {
 		setWantDrivePath(pathContainer, ShouldTurnAfterPath.NONE);
 	}
 
-	public synchronized void setWantDrivePath(PathContainer pathContainer, ShouldTurnAfterPath turnAfterPath) {
+	private synchronized void setWantDrivePath(PathContainer pathContainer, ShouldTurnAfterPath turnAfterPath) {
 		mTurnAfterPath = turnAfterPath;
 
 		Path mPath = pathContainer.buildPath();
@@ -369,6 +392,37 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public Request openLoopRequest(double move, double rotate) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				arcade(move, rotate);
+			}
+
+			@Override
+			public boolean isFinished() {
+				return true;
+			}
+		};
+	}
+
+	public Request jogRequest(EncoderMovement movement) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				jog(movement);
+			}
+
+			@Override
+			public boolean isFinished() {
+				boolean done = motionMagicMovementComplete;
+				return done;
+			}
+		};
+	}
+
 	private synchronized void out() {
 		switch (mState) {
 		case PATH_FOLLOWING:
@@ -392,6 +446,12 @@ public class Drive extends GZSubsystem {
 			break;
 		case CLOSED_LOOP_DRIVER:
 			arcadeClosedLoop(GZOI.driverJoy);
+			break;
+		case MOTION_MAGIC:
+			if (encoderJogIsDone()) {
+				motionMagicMovementComplete = true;
+				velocityStop();
+			}
 			break;
 		case DEMO:
 			alternateArcade(GZOI.driverJoy);
@@ -717,9 +777,7 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void turnRelative(Rotation2d angle) {
 		Rotation2d target = getGyroAngle().rotateBy(angle);
-
 		System.out.println("Turning relatively " + angle.getNormalDegrees());
-
 		turnToHeading(target);
 	}
 
@@ -760,6 +818,7 @@ public class Drive extends GZSubsystem {
 			brake(true);
 			break;
 		case MOTION_MAGIC:
+			motionMagicMovementComplete = false;
 			brake(true);
 			break;
 		case MOTION_PROFILE:
@@ -844,6 +903,12 @@ public class Drive extends GZSubsystem {
 		if (Pneumatics.getInstance().isMotorTesting()) {
 			brake(false);
 		}
+	}
+
+	public boolean wantsToTeleDrive() {
+		DriveSignal ds = getDriveModification(GZOI.driverJoy);
+		boolean driving = (Math.abs(ds.getLeft()) > 0.125 || (Math.abs(ds.getRight()) > .2));
+		return driving;
 	}
 
 	public synchronized void loop() {
@@ -1064,18 +1129,21 @@ public class Drive extends GZSubsystem {
 
 	public synchronized void handleDriving(GZJoystick joy) {
 		if (mState != DriveState.CLIMB) {
-			// if (usingOpenLoop() || !mIO.encodersValid)
-			// System.out.println(driveOutputLessThan(.2));
 
-			// if (driveOutputLessThan(.2) || !mIO.encodersValid)
-			// setWantedState(DriveState.OPEN_LOOP_DRIVER);
-			// else
+			boolean shouldDrive = true;
 
-			// tank(GZOI.driverJoy.getLeftAnalogY(), 0);
+			if (mState == DriveState.TURN_TO_HEADING && !wantsToTeleDrive()) {
+				shouldDrive = false;
+			}
 
-			// setWantedState(DriveState.CLOSED_LOOP_DRIVER);
-			if (stateIsnt(DriveState.TURN_TO_HEADING)
-					|| (mState == DriveState.TURN_TO_HEADING && (Math.abs(joy.getLeftAnalogY()) > .135))) {
+			if (mState == DriveState.MOTION_MAGIC && !wantsToTeleDrive()) {
+				shouldDrive = false;
+			}
+			// stateIsnt(DriveState.TURN_TO_HEADING)
+			// || (mState == DriveState.TURN_TO_HEADING && (Math.abs(joy.getLeftAnalogY()) >
+			// .135))
+
+			if (shouldDrive) {
 				setWantedState(DriveState.OPEN_LOOP_DRIVER);
 			}
 		}
@@ -1111,8 +1179,7 @@ public class Drive extends GZSubsystem {
 
 	private synchronized void handleClimbing(GZJoystick joy) {
 		// RIGHT IS REAR
-		if (!joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed()
-				&& mClimbState == ClimbingState.BOTH) {
+		if (!joy.getLeftTriggerPressed() && !joy.getRightTriggerPressed() && mClimbState == ClimbingState.BOTH) {
 			handleAutomaticClimb(joy.getLeftAnalogY() * kDrivetrain.AUTO_CLIMB_SPEED);
 		} else {
 			switch (mClimbState) {
@@ -1155,6 +1222,12 @@ public class Drive extends GZSubsystem {
 		setVelocity(left, right);
 	}
 
+	private DriveSignal getDriveModification(GZJoystick joy) {
+		final double move = joy.getLeftAnalogY() * getTotalModifer();
+		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
+		return new DriveSignal(move, rotate);
+	}
+
 	private synchronized void arcade(GZJoystick joy) {
 		// final double move = joy.getLeftAnalogY() * elv;
 		// final double rotate = elv * turnScalar * ((joy.getRightTrigger() -
@@ -1162,12 +1235,9 @@ public class Drive extends GZSubsystem {
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		final double move = joy.getLeftAnalogY() * getTotalModifer();
-		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
+		DriveSignal ds = getDriveModification(joy);
 
-		// rotate *= .45;
-
-		cheesyNoState(move, rotate, !usingCurvature());
+		cheesyNoState(ds.getLeft(), ds.getRight(), !usingCurvature());
 		// 0.6 or 0.65
 	}
 
@@ -1208,8 +1278,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void arcade(double move, double rotate) {
-		if (setWantedState(DriveState.OPEN_LOOP))
-			arcadeNoState(move, rotate);
+		setWantedState(DriveState.OPEN_LOOP);
+		arcadeNoState(move, rotate);
 	}
 
 	public synchronized boolean eitherShifterTransitioning() {
@@ -1369,23 +1439,23 @@ public class Drive extends GZSubsystem {
 		jog(movement.left, movement.right);
 	}
 
-	public synchronized void jog(double leftInches, double rightInches) {
+	private synchronized void jog(double leftInches, double rightInches) {
 		double left = getLeftRotations() + inchesToRotations(leftInches);
 		double right = getRightRotations() + inchesToRotations(rightInches);
 
 		motionMagic(left, right, kDrivetrain.JOG_MOTION_MAGIC_ACCEL, kDrivetrain.JOG_MOTION_MAGIC_VEL);
 	}
 
-	public synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations, double accel,
-			double vel) {
+	private synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations,
+			double accel, double vel) {
 		motionMagic(motionMagic, leftRotations, rightRotations, accel, accel, vel, vel);
 	}
 
-	public synchronized void motionMagic(double leftRotations, double rightRotations, double accel, double vel) {
+	private synchronized void motionMagic(double leftRotations, double rightRotations, double accel, double vel) {
 		motionMagic(true, leftRotations, rightRotations, accel, vel);
 	}
 
-	public synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations,
+	private synchronized void motionMagic(boolean motionMagic, double leftRotations, double rightRotations,
 			double leftAccelInPerSec, double rightAccelInPerSec, double leftVelInPerSec, double rightVelInPerSec) {
 		if (motionMagic) {
 			setWantedState(DriveState.MOTION_MAGIC);

@@ -1,6 +1,5 @@
 package frc.robot.util.requests;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,7 +11,6 @@ public class RequestManager {
     private ArrayList<RequestList> queuedRequests = new ArrayList<>(0);;
     private Request currentRequest = new EmptyRequest();
 
-    
     private boolean newRequests = false;
     private boolean activeRequestsCompleted = false;
     private boolean allRequestsCompleted = false;
@@ -141,5 +139,9 @@ public class RequestManager {
         newRequests = true;
         activeRequestsCompleted = false;
         allRequestsCompleted = false;
+    }
+
+    public void clear() {
+        request(new EmptyRequest());
     }
 }

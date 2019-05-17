@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
+import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kElevator.RocketHeight;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
@@ -152,6 +154,42 @@ public class GZOI extends GZSubsystem {
 		// handleElevatorTesting();
 	}
 
+	private void handleSuperStructureControl(OperatorController op) {
+		if (op.cancel.get()) {
+			supe.cancel();
+		} else if (op.elevatorZero.get()) {
+			supe.zeroElevator();
+		} else if (op.hatchPanel1.updated()) {
+			supe.setHeight(Heights.HP_1);
+		} else if (op.hatchPanel2.updated()) {
+			supe.setHeight(Heights.HP_2);
+		} else if (op.hatchPanel3.updated()) {
+			supe.setHeight(Heights.HP_3);
+		} else if (op.cargo1.updated()) {
+			supe.setHeight(Heights.Cargo_1);
+		} else if (op.cargo2.updated()) {
+			supe.setHeight(Heights.Cargo_2);
+		} else if (op.cargo3.updated()) {
+			supe.setHeight(Heights.Cargo_3);
+		} else if (op.cargoShip.updated()) {
+			supe.setHeight(Heights.Cargo_Ship);
+		} else if (op.clawToggle.updated()) {
+			supe.toggleClaw();
+		} else if (op.slidesToggle.updated()) {
+			supe.toggleSlides();
+		} else if (op.elevatorJogDown.updated()) {
+			supe.jogElevator(-1);
+		} else if (op.elevatorJogUp.updated()) {
+			supe.jogElevator(1);
+		} else if (op.retrieve.updated()) {
+			supe.retrieve();
+		} else if (op.score.updated()) {
+			supe.score();
+		} else if (op.dropCrawler.updated()) {
+			supe.dropCrawler();
+		}
+	}
+
 	public void addRumble(double onTime, double offTime, int times) {
 		addRumble(1.0, onTime, offTime, times, false);
 	}
@@ -201,6 +239,8 @@ public class GZOI extends GZSubsystem {
 		}
 	}
 
+	// Driver variables
+
 	private void handleDriverController() {
 		if (driverJoy.getButton(Buttons.LB)) {
 
@@ -216,39 +256,33 @@ public class GZOI extends GZSubsystem {
 			}
 
 		} else {
-			if (driverJoy.isDUpPressed()) {
-				drive.turnToHeading(Rotation2d.fromDegrees(180));
-			} else if (driverJoy.isDLeftPressed()) {
-				drive.turnFarRocketLeft();
-			} else if (driverJoy.isDRightPressed()) {
-				drive.turnFarRocketRight();
-			}
-			// if (driverJoy.isDUpPressed()) {
-			// drive.turnToHeading(Rotation2d.fromDegrees(180));
-			// } else if (driverJoy.isDLeftPressed()) {
-			// drive.pathFarRocketLeft();
-			// } else if (driverJoy.isDRightPressed()) {
-			// drive.pathFarRocketRight();
-			// }
-
-			// if (driverJoy.getButton(Buttons.X)) {
-			// supe.fakeAutoScore();
-			// } else if (driverJoy.getButton(Buttons.RB)) {
-			// supe.fakeAutoFeeder();
-			// }
 			if (driverJoy.getButtonLatched(Buttons.A) && !driverJoy.getButton(Buttons.X)) {
 				drive.toggleSlowSpeed();
 			}
+		}
+
+		if (driverJoy.isDDownPressed()) {
+			supe.rocketHeight(RocketHeight.LOW);
+		} else if (driverJoy.isDLeftPressed()) {
+			supe.rocketHeight(RocketHeight.MIDDLE);
+		} else if (driverJoy.isDUpPressed()) {
+			supe.rocketHeight(RocketHeight.HIGH);
+		} else if (driverJoy.getButtonLatched(Buttons.START)) {
+			if (!Intake.getInstance().isExtended()) {
+				supe.advanceFeederStage();
+			} else {
+				supe.handOffCargo();
+			}
+		} else if (driverJoy.getButtonLatched(Buttons.RB)) {
+			supe.score();
+		} else if (driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+			supe.intake();
 		}
 
 		if (driverJoy.getButtonLatched(Buttons.BACK))
 			elev.toggleSpeedOverride();
 
 		drive.handleDriving(driverJoy);
-	}
-
-	private void handleSuperStructureControl(DeepSpaceController controller) {
-		final boolean queue = controller.queueAction.get();
 	}
 
 	public String getSmallString() {

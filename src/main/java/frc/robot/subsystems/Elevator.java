@@ -321,6 +321,10 @@ public class Elevator extends GZSubsystem {
         return mIO.mCargoSensorLoopCounter > kElevator.CARGO_SENSOR_LOOPS_FOR_VALID;
     }
 
+    public void setHasHatchPanel(boolean hp) {
+        this.mMovingHP = hp;
+    }
+
     /**
      * if we want to do something with multiple pid tuning slots
      */
@@ -381,8 +385,7 @@ public class Elevator extends GZSubsystem {
         mCarriageSlide.wantOff();
     }
 
-    public SolenoidState getClawState()
-    {
+    public SolenoidState getClawState() {
         return mClaw.getSolenoidState();
     }
 
