@@ -1,5 +1,7 @@
 package frc.robot.poofs.util.math;
 
+import java.util.List;
+
 import frc.robot.util.GZUtil;
 
 /**
@@ -117,6 +119,32 @@ public class Pose2d implements IPose2d<Pose2d> {
     @Override
     public Rotation2d getRotation() {
         return rotation_;
+    }
+
+    public Pose2d nearest(List<Pose2d> translations, double maxDistance) {
+        double minDistance = Double.POSITIVE_INFINITY;
+        int minDistanceIndex = -1;
+        for (int i = 0; i < translations.size(); i++) {
+            Translation2d t = translations.get(i).getTranslation();
+            double distance = t.distance(this.getTranslation());
+
+            if (distance > maxDistance) {
+                distance = Double.POSITIVE_INFINITY;
+            }
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceIndex = i;
+            }
+        }
+
+        if (minDistanceIndex == -1)
+            return null;
+        return translations.get(minDistanceIndex);
+    }
+
+    public Pose2d nearest(List<Pose2d> translations) {
+        return nearest(translations, Double.POSITIVE_INFINITY);
     }
 
     /**
@@ -252,7 +280,11 @@ public class Pose2d implements IPose2d<Pose2d> {
     }
 
     public Pose2d print() {
-        System.out.println(toString());
+        return print("");
+    }
+
+    public Pose2d print(String print) {
+        System.out.println(print + " " + toString());
         return this;
     }
 }

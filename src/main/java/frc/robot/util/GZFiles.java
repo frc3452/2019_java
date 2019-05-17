@@ -26,6 +26,7 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.SmartContr
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.requests.Request;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.

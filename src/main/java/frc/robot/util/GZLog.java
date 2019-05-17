@@ -17,7 +17,7 @@ public class GZLog {
 	}
 
 	private GZLog() {
-		
+
 	}
 
 	public void add(LogItem item) {
@@ -111,6 +111,8 @@ public class GZLog {
 		public InstantLogItem(GZSubsystem subsystem, String message) {
 			this.subsystem = subsystem;
 			this.message = message;
+
+			System.out.println(message);
 		}
 
 		public String subsystem() {

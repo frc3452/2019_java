@@ -1,19 +1,22 @@
 package frc.robot.subsystems;
 
+import java.util.Arrays;
+
+import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.RocketHeight;
-
-import java.util.Arrays;
-
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
+import frc.robot.poofs.util.math.Pose2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.Rocket;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.GZLog.InstantLogItem;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 import frc.robot.util.requests.Request;
 import frc.robot.util.requests.RequestList;
@@ -109,10 +112,12 @@ public class Superstructure extends GZSubsystem {
 
     public void prepForFeeder() {
         RequestList list = new RequestList();
+        list.add(log("Prepping for feeder station"));
         list.add(heightRequest(Heights.HP_1, true));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(true, true));
+        list.add(log("Prepped for feeder station"));
 
         manager.request(list);
     }
@@ -129,23 +134,77 @@ public class Superstructure extends GZSubsystem {
         manager.request(list);
     }
 
+    public static void main(String[] args) {
+        Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180 + 10));
+        Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
+        Translation2d feeder_center = feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+                feeder.getRotation().rotateBy(new Rotation2d(180)));
+
+        feeder.print("Feeder");
+        feeder_center.print("New Center");
+
+        Rotation2d difference = feeder.getRotation().inverse().rotateBy(here.getRotation());
+
+        Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(), difference);
+
+        kAuton.Right_Rocket_Near.getRotation().print().inverse().print();
+
+        // endpoint.print();
+        // endpoint =
+
+        // Rotation2d difference = here.getRotation().rotateBy(new
+        // Rotation2d(180)).inverse();
+        // new Translation2d(1, 0).direction().print();
+        // new Translation2d(.5, .5).direction().print();
+        // kAuton.Right_Rocket_Far.print().translateBy(kAuton.ROBOT_LENGTH / 2.0, new
+        // Rotation2d(61.25)).print();
+    }
+
+    private Request log(String message) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                GZFiles.getInstance().addLog(Superstructure.getInstance(), message);
+            }
+        };
+    }
+
     public void grabHatchFromFeeder() {
+
         RequestList list = new RequestList();
-        Translation2d feeder = Drive.getInstance().getOdometry().getTranslation()
-                .nearest(Arrays.asList(new Translation2d(19.5, 298.28), new Translation2d(19.5, 25.72)));
-        list.add(Drive.getInstance().setOdometryRequest(feeder));
+        list.add(log("Grabbing hatch from feeder station"));
+        {
+            Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180 + 10));
+            Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
+            if (feeder != null) {
+                list.add(log(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
+                        + " feeder station identified, zeroing odometry"));
+
+                Translation2d feeder_center = feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+                        feeder.getRotation().rotateBy(new Rotation2d(180)));
+
+                Rotation2d difference = feeder.getRotation().inverse().rotateBy(here.getRotation());
+
+                Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(), difference);
+                list.add(Drive.getInstance().setOdometryRequest(endpoint));
+            } else {
+                list.add(log(("Too far away from feeder station to identify Rocket")));
+            }
+        }
 
         list.add(clawRequest(true, true));
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
-
+        list.add(log("Finished grabbing hatch"));
         manager.request(list);
     }
 
     public void scoreHatch() {
         RequestList list = new RequestList();
 
+        list.add(log("Scoring hatch"));
         Rocket r = Drive.getInstance().getPosition();
         double rotation = 0;
         double jog = 0.0;
@@ -164,7 +223,7 @@ public class Superstructure extends GZSubsystem {
             }
             jog *= -1;
 
-            System.out.println("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation);
+            list.add(log("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation));
             list.add(Drive.getInstance().setOdometryRequest(r.position));
         }
 
@@ -178,32 +237,37 @@ public class Superstructure extends GZSubsystem {
             list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
         }
 
+        list.add(log("Hatch scoring completed"));
+
         manager.request(list);
     }
 
     public void intake() {
         RequestList list = new RequestList();
-        list.add(heightRequest(Heights.Home));
+        list.add(log("Getting ready to intake cargo"));
+        list.add(heightRequest(Heights.Home, false));
         list.add(slidesRequest(false, false));
         list.add(clawRequest(true, false));
         list.add(intakeRequest(true, false));
-        list.add(waitForClaw(true));
-        list.add(waitForSlides(false));
+        list.add(waitForState(new SuperstructureState(Heights.Home.inches, false, true, true)));
         list.add(runIntakeRequest(IntakeState.INTAKING));
+        list.add(log("Intaking cargo"));
         manager.request(list);
     }
 
     public void intakeEject() {
         RequestList list = new RequestList();
+        list.add(log("Preparing to eject cargo"));
         list.add(intakeRequest(true, true));
         list.add(runIntakeRequest(IntakeState.EJECTING));
+        list.add(log("Ejecting cargo"));
         manager.request(list);
     }
 
     public void toggleIntake() {
         RequestList list = new RequestList();
         list.add(intakeRequest(!intake.isExtended(), true));
-
+        list.add(log("Toggling intake"));
     }
 
     public void toggleIntakeRoller() {
@@ -216,6 +280,7 @@ public class Superstructure extends GZSubsystem {
         else
             newState = IntakeState.INTAKING;
 
+        list.add(log("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on")));
         list.add(runIntakeRequest(newState));
         manager.request(list);
     }
@@ -237,6 +302,7 @@ public class Superstructure extends GZSubsystem {
 
     public void handOffCargo() {
         RequestList list = new RequestList();
+        list.add(log("Handing off cargo"));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(heightRequest(Heights.HP_1));
@@ -247,6 +313,8 @@ public class Superstructure extends GZSubsystem {
                 elev.setHasHatchPanel(false);
             }
         });
+
+        list.add(log("Cargo handed off"));
         manager.request(list);
     }
 
@@ -274,10 +342,12 @@ public class Superstructure extends GZSubsystem {
 
     private void grabCargoFromFeeder() {
         RequestList list = new RequestList();
+        list.add(log("Grabbing cargo from feeder station"));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(heightRequest(Heights.Cargo_1));
+        list.add(log("Cargo grabbed"));
         manager.request(list);
     }
 
@@ -295,6 +365,7 @@ public class Superstructure extends GZSubsystem {
 
     public void cancel() {
         manager.clear();
+        manager.request(log("Cleared"));
     }
 
     public void toggleClaw() {
@@ -318,7 +389,11 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void setHeight(Heights h) {
-        manager.request(heightRequest(h));
+        RequestList list = new RequestList();
+        list.add(log("Moving to height " + h));
+        list.add(heightRequest(h));
+        list.add(log("At desired height"));
+        manager.request(list);
     }
 
     public void score() {
@@ -330,15 +405,15 @@ public class Superstructure extends GZSubsystem {
 
     public void scoreCargo() {
         RequestList list = new RequestList();
+        list.add(log("Scoring cargo"));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
         list.add(clawRequest(true, false));
         list.add(Request.waitRequest(.125));
         list.add(slidesRequest(true, false));
-        // list.add(waitForClaw(true));
         list.add(waitForSlides(true));
-        // list.add(Request.waitRequest(.25));
         list.add(slidesRequest(false, true));
+        list.add(log("Completed scoring cargo"));
         manager.request(list);
     }
 
@@ -379,6 +454,21 @@ public class Superstructure extends GZSubsystem {
             return other.equals(new SuperstructureState());
         }
 
+    }
+
+    private Request waitForState(SuperstructureState state) {
+        return new Request() {
+
+            @Override
+            public void act() {
+
+            }
+
+            @Override
+            public boolean isFinished() {
+                return SuperstructureState.isAt(state);
+            }
+        };
     }
 
     private Request slidesRequest(boolean extended, boolean waitForCompletion) {

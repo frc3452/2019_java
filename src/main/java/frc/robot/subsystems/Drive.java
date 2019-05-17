@@ -74,7 +74,10 @@ public class Drive extends GZSubsystem {
 	private double mModifyPercent = 1;
 	private boolean mIsSlow = false;
 
+	private double mTimeWithoutInputToAllowAutomatic = 0.125;
+	private double mTimeLastDrivingInputReceived = 0.0;
 	private boolean motionMagicMovementComplete = false;
+
 	private Rotation2d mTurnToHeadingGoal = null;
 	private boolean mTurnToHeadingComplete = false;
 	private Double mTurnToHeadingLeftT = null;
@@ -994,9 +997,16 @@ public class Drive extends GZSubsystem {
 
 	public boolean wantsToTeleDrive() {
 		ArcadeSignal ds = getDriveModification(GZOI.driverJoy);
-		boolean driving = (Math.abs(ds.getMove()) > 0.05 || (Math.abs(ds.getRotate()) > 0.04));
-		// System.out.println(ds + "\t" + driving);
-		return driving;
+		boolean wantsToDrive = (Math.abs(ds.getMove()) > 0.05 || (Math.abs(ds.getRotate()) > 0.04));
+
+		if (wantsToDrive)
+			mTimeLastDrivingInputReceived = Timer.getFPGATimestamp();
+
+		if (Timer.getFPGATimestamp() - mTimeLastDrivingInputReceived < mTimeWithoutInputToAllowAutomatic) {
+			wantsToDrive = true;
+		}
+
+		return wantsToDrive;
 	}
 
 	public synchronized void loop() {
@@ -1006,21 +1016,9 @@ public class Drive extends GZSubsystem {
 			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
 		}
 
-		SmartDashboard.putBoolean("Slow", !mIsSlow);
+		SmartDashboard.putBoolean("Fast", !mIsSlow);
 
-		// System.out.println(mTurnToHeadingComplete + "\t" + );
-		// System.out.println(mState + "\t" + mIO.left_output + "\t" + mIO.right_output
-		// + "\t" + mState.controlMode);
-
-		// System.out.println(df.format(getLeftRotations()) + "\t" +
-		// df.format(getRightRotations()) + "\t" +
-		// df.format(getGyroAngle().getDegrees()));
-
-		// System.out.println("front top - bottom " + getFrontTopLimit() + "\t" +
-		// getFrontBottomLimit());
-		// System.out.println("back top - bottom " + getRearTopLimit() + "\t" +
-		// getRearBottomLimit());
-
+		wantsToTeleDrive();
 		handleCoastOnTesting();
 		updateShuffleboard();
 		handleStates();

@@ -6,6 +6,9 @@ import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.poofs.util.control.Lookahead;
 import frc.robot.poofs.util.control.PathFollower;
+import frc.robot.poofs.util.math.Pose2d;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -168,6 +171,27 @@ public class Constants {
 	}
 
 	public static class kAuton {
+		public final static double ROBOT_WIDTH = (27 + (3.5 * 2));
+		public final static double ROBOT_LENGTH = (32 + (3.5 * 2));
+
+		public final static Pose2d Left_Feeder_Station = new Pose2d(new Translation2d(0, 298.28), new Rotation2d(180));
+		public final static Pose2d Right_Feeder_Station = new Pose2d(new Translation2d(0, 25.72), new Rotation2d(180));
+
+		public final static Pose2d Right_Rocket_Near = new Pose2d(
+				new Translation2d(166.57 + 48, ((27.44 - 7.875) / 2.0) + 7.875), new Rotation2d(270 - 61.25));
+		public final static Pose2d Right_Rocket_Far = new Pose2d(
+				new Translation2d((229.13 - (166.57 + 48)) + 229.13, ((27.44 - 7.875) / 2.0) + 7.875),
+				new Rotation2d(270 + 61.25));
+
+		public final static Pose2d Left_Rocket_Near = new Pose2d(
+				new Translation2d(Right_Rocket_Near.getTranslation().x(),
+						(27 * 12) - Right_Rocket_Near.getTranslation().y()),
+				Right_Rocket_Near.getRotation().inverse());
+		public final static Pose2d Left_Rocket_Far = new Pose2d(
+				new Translation2d(Right_Rocket_Near.getTranslation().x(),
+						(27 * 12) - Right_Rocket_Far.getTranslation().y()),
+				Right_Rocket_Far.getRotation().inverse());
+
 		public final static int SAFTEY_SWITCH = 96;
 
 		public final static DigitalSelectorConstants SELECTOR_ONES;

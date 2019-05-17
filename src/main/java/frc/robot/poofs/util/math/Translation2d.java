@@ -48,19 +48,30 @@ public class Translation2d implements ITranslation2d<Translation2d> {
         return new Translation2d(direction.cos() * magnitude, direction.sin() * magnitude);
     }
 
-    public Translation2d nearest(List<Translation2d> translations) {
+    public Translation2d nearest(List<Translation2d> translations, double maxDistance) {
         double minDistance = Double.POSITIVE_INFINITY;
         int minDistanceIndex = -1;
         for (int i = 0; i < translations.size(); i++) {
             Translation2d t = translations.get(i);
             double distance = t.distance(this);
+
+            if (distance > maxDistance) {
+                distance = Double.POSITIVE_INFINITY;
+            }
+
             if (distance < minDistance) {
                 minDistance = distance;
                 minDistanceIndex = i;
             }
         }
 
+        if (minDistanceIndex == -1)
+            return null;
         return translations.get(minDistanceIndex);
+    }
+
+    public Translation2d nearest(List<Translation2d> translations) {
+        return nearest(translations, Double.POSITIVE_INFINITY);
     }
 
     /**
@@ -114,15 +125,16 @@ public class Translation2d implements ITranslation2d<Translation2d> {
         return new Translation2d(x_ + other.x_, y_ + other.y_);
     }
 
-    public void translateBy(double distance, Rotation2d angle) {
+    public Translation2d translateBy(double distance, Rotation2d angle) {
         double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
         double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
 
-        double xDelta = Math.copySign(yTemp, xTemp);
-        double yDelta = Math.copySign(xTemp, yTemp);
+        double xDelta = xTemp;
+        double yDelta = yTemp;
+        // double xDelta = Math.copySign(xTemp, xTemp);
+        // double yDelta = Math.copySign(yTemp, yTemp);
 
-        x_ += xDelta;
-        y_ += yDelta;
+        return new Translation2d(x_ + xDelta, y_ + yDelta);
     }
 
     public boolean atOrigin() {
@@ -379,7 +391,11 @@ public class Translation2d implements ITranslation2d<Translation2d> {
     }
 
     public Translation2d print() {
-        System.out.println(this);
+        return print("");
+    }
+
+    public Translation2d print(String print) {
+        System.out.println(print + " " + this);
         return this;
     }
 
