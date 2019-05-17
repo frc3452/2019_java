@@ -134,31 +134,67 @@ public class Superstructure extends GZSubsystem {
         manager.request(list);
     }
 
-    public static void main(String[] args) {
-        Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180 + 10));
-        Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
-        Translation2d feeder_center = feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
-                feeder.getRotation().rotateBy(new Rotation2d(180)));
+    // public static void main(String[] args) {
+    // Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180+10));
+    // Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station,
+    // kAuton.Right_Feeder_Station), 100);
+    // if (feeder != null) {
 
-        feeder.print("Feeder");
-        feeder_center.print("New Center");
+    // System.out.println(((feeder.getTranslation().y() > 27 * 6) ? "Left" :
+    // "Right")
+    // + " feeder station identified, zeroing odometry");
 
-        Rotation2d difference = feeder.getRotation().inverse().rotateBy(here.getRotation());
+    // Translation2d feeder_center =
+    // feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+    // feeder.getRotation().rotateBy(new Rotation2d(180)));
 
-        Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(), difference);
+    // Rotation2d difference =
+    // feeder.getRotation().inverse().rotateBy(here.getRotation());
 
-        kAuton.Right_Rocket_Near.getRotation().print().inverse().print();
+    // Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(),
+    // difference);
+    // System.out.println(endpoint);
 
-        // endpoint.print();
-        // endpoint =
+    // } else {
+    // System.out.println("Too far away from feeder station to identify Rocket");
+    // }
+    // }
 
-        // Rotation2d difference = here.getRotation().rotateBy(new
-        // Rotation2d(180)).inverse();
-        // new Translation2d(1, 0).direction().print();
-        // new Translation2d(.5, .5).direction().print();
-        // kAuton.Right_Rocket_Far.print().translateBy(kAuton.ROBOT_LENGTH / 2.0, new
-        // Rotation2d(61.25)).print();
-    }
+    // public static void main(String[] args) {
+    // Rocket r = Rocket.LEFT_NEAR;
+    // double rotation = 0;
+    // double jog = 0.0;
+    // if (!r.equals(Rocket.NONE)) {
+    // if (r.near) {
+    // jog = 10;
+    // rotation = 180;
+    // } else {
+    // jog = 10;
+    // if (r.left) {
+    // rotation = 90 + 45;
+    // } else {
+    // rotation = 270 - 45;
+    // }
+    // }
+    // jog *= -1;
+
+    // Pose2d here = new Pose2d(178.94, 286.79,
+    // new Rotation2d(r.position.getRotation().rotateBy(new Rotation2d(-10))));
+
+    // Rotation2d angleAwayFromRocket = r.position.getRotation().rotateBy(new
+    // Rotation2d(180));
+
+    // Translation2d bot_center =
+    // r.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+    // angleAwayFromRocket);
+
+    // Rotation2d difference =
+    // r.position.getRotation().rotateBy(here.getRotation().inverse());
+
+    // Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(),
+    // difference.inverse());
+    // }
+    // }
 
     private Request log(String message) {
         return new Request() {
@@ -171,11 +207,10 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void grabHatchFromFeeder() {
-
         RequestList list = new RequestList();
         list.add(log("Grabbing hatch from feeder station"));
         {
-            Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180 + 10));
+            Pose2d here = new Pose2d(Drive.getInstance().getOdometryPose());
             Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
             if (feeder != null) {
                 list.add(log(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
@@ -205,7 +240,7 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList();
 
         list.add(log("Scoring hatch"));
-        Rocket r = Drive.getInstance().getPosition();
+        Rocket r = Drive.getInstance().getNearesetRocket();
         double rotation = 0;
         double jog = 0.0;
         if (!r.equals(Rocket.NONE)) {
@@ -225,12 +260,15 @@ public class Superstructure extends GZSubsystem {
 
             Pose2d here = new Pose2d(Drive.getInstance().getOdometry().getTranslation(),
                     Drive.getInstance().getGyroAngle());
+            Rotation2d angleAwayFromRocket = r.position.getRotation().rotateBy(new Rotation2d(180));
+
             Translation2d bot_center = r.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
-                    r.position.getRotation().rotateBy(new Rotation2d(180)));
+                    angleAwayFromRocket);
 
-            Rotation2d difference = r.position.getRotation().inverse().rotateBy(here.getRotation());
+            Rotation2d difference = r.position.getRotation().rotateBy(here.getRotation().inverse());
 
-            Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(), difference);
+            Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(), difference.inverse());
+
             list.add(log("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation));
             list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }

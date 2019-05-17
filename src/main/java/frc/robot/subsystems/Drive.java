@@ -437,7 +437,12 @@ public class Drive extends GZSubsystem {
 		};
 	}
 
-	public Rocket getPosition() {
+	public Pose2d getOdometryPose() {
+		RigidTransform2d pose = new RigidTransform2d(getOdometry());
+		return new Pose2d(pose.getTranslation(), pose.getRotation());
+	}
+
+	public Rocket getNearesetRocket() {
 		RigidTransform2d pose = new RigidTransform2d(getOdometry());
 		Translation2d p = pose.getTranslation();
 
@@ -452,36 +457,12 @@ public class Drive extends GZSubsystem {
 		} else {
 			return Rocket.NONE;
 		}
-
-		// final double x = pose.getTranslation().x();
-		// final double y = pose.getTranslation().y();
-		// // Near
-		// if (x < 229.28) {
-		// // Left
-		// if (y > 162) {
-		// return Rocket.LEFT_NEAR;
-		// } else {
-		// return Rocket.RIGHT_NEAR;
-		// }
-
-		// // Far
-		// } else {
-		// // Left
-		// if (y > 162) {
-		// return Rocket.LEFT_FAR;
-		// } else {
-		// return Rocket.RIGHT_FAR;
-		// }
-		// }
-
 	}
 
 	public static enum Rocket {
-
-		LEFT_NEAR(kAuton.Left_Rocket_Near, true, true),
-		LEFT_FAR(kAuton.Left_Rocket_Far, true, false),
-		RIGHT_NEAR(kAuton.Right_Rocket_Near, false, true),
-		RIGHT_FAR(kAuton.Right_Rocket_Far, false, false), NONE(new Pose2d(new Translation2d(2000,2000)), false, false);
+		LEFT_NEAR(kAuton.Left_Rocket_Near, true, true), LEFT_FAR(kAuton.Left_Rocket_Far, true, false),
+		RIGHT_NEAR(kAuton.Right_Rocket_Near, false, true), RIGHT_FAR(kAuton.Right_Rocket_Far, false, false),
+		NONE(new Pose2d(new Translation2d(2000, 2000)), false, false);
 
 		public final Pose2d position;
 		public final boolean left, near;

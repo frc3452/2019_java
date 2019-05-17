@@ -178,10 +178,10 @@ public class Constants {
 		public final static Pose2d Right_Feeder_Station = new Pose2d(new Translation2d(0, 25.72), new Rotation2d(180));
 
 		public final static Pose2d Right_Rocket_Near = new Pose2d(
-				new Translation2d(166.57 + 48, ((27.44 - 7.875) / 2.0) + 7.875), new Rotation2d(270 - 61.25));
+				new Translation2d(166.57 + 48, ((27.44 - 7.875) / 2.0) + 7.875), new Rotation2d(90 - 61.25));
 		public final static Pose2d Right_Rocket_Far = new Pose2d(
 				new Translation2d((229.13 - (166.57 + 48)) + 229.13, ((27.44 - 7.875) / 2.0) + 7.875),
-				new Rotation2d(270 + 61.25));
+				new Rotation2d(90 + 61.25));
 
 		public final static Pose2d Left_Rocket_Near = new Pose2d(
 				new Translation2d(Right_Rocket_Near.getTranslation().x(),

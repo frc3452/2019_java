@@ -252,7 +252,7 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
         return getList(45, 135, 225, 315);
     }
 
-    public static ArrayList<Rotation2d> rotateListBy(ArrayList<Rotation2d> list,Rotation2d rot) {
+    public static ArrayList<Rotation2d> rotateListBy(ArrayList<Rotation2d> list, Rotation2d rot) {
         ArrayList<Rotation2d> newList = new ArrayList<>();
 
         for (Rotation2d r : list) {
@@ -387,7 +387,11 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
     }
 
     public Rotation2d print() {
-        System.out.println(this);
+        return print("");
+    }
+
+    public Rotation2d print(String message) {
+        System.out.println(message + " " + this);
         return this;
     }
 }

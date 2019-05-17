@@ -131,8 +131,10 @@ public class Translation2d implements ITranslation2d<Translation2d> {
 
         double xDelta = xTemp;
         double yDelta = yTemp;
-        // double xDelta = Math.copySign(xTemp, xTemp);
-        // double yDelta = Math.copySign(yTemp, yTemp);
+
+        yDelta *= -1;
+        // double xDelta = Math.copySign(yTemp, xTemp);
+        // double yDelta = Math.copySign(xTemp, yTemp);
 
         return new Translation2d(x_ + xDelta, y_ + yDelta);
     }
