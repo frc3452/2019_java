@@ -123,13 +123,23 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(false, true));
         list.add(heightRequest(mDefaultHeight, false));
     }
-    
-    public void intake()
-    {
+
+    public void intake() {
         RequestList list = new RequestList();
-        list.add(intakeRequest(true, false));
+        list.add(intakeRequest(true, true));
+        list.add(runIntakeRequest(kIntake.INTAKE_SPEED));
         // list.add()
         // list.add()
+    }
+
+    private Request runIntakeRequest(double percentage) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                intake.runIntake(percentage);
+            }
+        };
     }
 
     public void score() {
