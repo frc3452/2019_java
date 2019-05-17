@@ -6,16 +6,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
-import frc.robot.subsystems.Drive.DriveState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.BooleanStateChange;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
@@ -24,7 +21,6 @@ import frc.robot.util.GZQueuer;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.GZJoystick.Buttons;
 import frc.robot.util.drivers.controllers.DeepSpaceController;
 import frc.robot.util.drivers.controllers.DriverController;
@@ -253,59 +249,6 @@ public class GZOI extends GZSubsystem {
 
 	private void handleSuperStructureControl(DeepSpaceController controller) {
 		final boolean queue = controller.queueAction.get();
-
-		if (controller.idle.get())
-			supe.idle();
-
-		if (controller.elevatorZero.get())
-			supe.zeroElevator();
-		else if (controller.hatchPanel1.pressedFor(.35))
-			supe.runHeight(Heights.Home);
-		else if (controller.hatchPanel1.get())
-			supe.runHeight(Heights.HP_1, queue);
-		else if (controller.hatchPanel2.get())
-			supe.runHeight(Heights.HP_2, queue);
-		else if (controller.hatchPanel3.get())
-			supe.runHeight(Heights.HP_3, queue);
-		else if (controller.cargo1.get())
-			supe.runHeight(Heights.Cargo_1, queue);
-		else if (controller.cargo2.get())
-			supe.runHeight(Heights.Cargo_2, queue);
-		else if (controller.cargo3.get())
-			supe.runHeight(Heights.Cargo_3, queue);
-		else if (controller.cargoShip.updated())
-			supe.runHeight(Heights.Cargo_Ship, queue);
-		else if (controller.elevatorJogDown.updated())
-			supe.jog(-1.0);
-		else if (controller.elevatorJogUp.updated())
-			supe.jog(1.0);
-
-		// else if (controller.elevatorManual.get())
-		// supe.elevManual(controller.getRightAnalogY() * 0.25);
-
-		if (controller.slidesToggle.updated())
-			supe.toggleSlides();
-		else if (controller.clawToggle.updated())
-			supe.toggleClaw();
-
-		// if controller.grab.updated()
-		// supe.doappropriateIntake(queue);
-
-		if (controller.retrieve.updated())
-			supe.retrieveGamePiece(queue);
-		else if (controller.score.updated())
-			supe.scoreGamePiece(queue);
-		else if (controller.intakeCargo.updated())
-			supe.runAction(Actions.INTAKE_CARGO, queue);
-		else if (controller.intakeToggle.updated())
-			supe.toggleIntake();
-		else if (controller.intakeReverse.updated())
-			supe.pauseIntake();
-		else if (controller.scootCargoOnGround.updated())
-			supe.runAction(Actions.SCOOT_CARGO_ON_GROUND, queue);
-
-		if (controller.dropCrawler.updated())
-			supe.dropCrawler();
 	}
 
 	public String getSmallString() {

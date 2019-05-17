@@ -4,27 +4,15 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
-import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
-import frc.robot.auto.commands.functions.superstructure.OpenClaw;
-import frc.robot.auto.commands.functions.superstructure.RetractSlides;
-import frc.robot.auto.commands.functions.superstructure.RunAction;
-import frc.robot.auto.commands.paths.Curve_test_path;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
@@ -135,16 +123,16 @@ public class Auton {
 			{
 				// add(new GoToHeight(Heights.HP_2));
 				tele();
-				add(new RunAction(Actions.SCORE_HATCH));
+				// add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
 
 		commandArray.add(new GZCommand("Place High (Level 2)", () -> new GZCommandGroup() {
 			{
 				tele();
-				add(new GoToHeight(Heights.HP_2));
+				// add(new GoToHeight(Heights.HP_2));
 				tele();
-				add(new RunAction(Actions.SCORE_HATCH));
+				// add(new RunAction(Actions.SCORE_HATCH));
 				tele();
 				// angleR(Rotation2d.fromDegrees(180));
 				tele();
@@ -206,8 +194,8 @@ public class Auton {
 	}
 
 	public boolean isAutoControl() {
-		if (autonomousCommand == null)
-			return Superstructure.getInstance().fakeAutoScore();
+		// if (autonomousCommand == null)
+		// 	return Superstructure.getInstance().fakeAutoScore();
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();

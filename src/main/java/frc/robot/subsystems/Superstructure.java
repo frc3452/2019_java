@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.kElevator.Heights;
+import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive.DriveState;
@@ -8,6 +9,10 @@ import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
+import frc.robot.util.requests.Request;
+import frc.robot.util.requests.RequestList;
+import frc.robot.util.requests.RequestManager;
 
 public class Superstructure extends GZSubsystem {
 
@@ -16,12 +21,7 @@ public class Superstructure extends GZSubsystem {
 
     private GZSubsystemManager subsystems;
 
-    private boolean mIntakingCargo = false;
-    private boolean mHasAutoScored = false;
-    private boolean mHasAutoFeeder = false;
-
-    private GZFlag mActionDone = new GZFlag();
-    private GZFlagMultiple mFlag = new GZFlagMultiple(30);
+    private RequestManager manager = new RequestManager();
 
     private final Heights mDefaultHeight = Heights.HP_1;
 
@@ -37,428 +37,241 @@ public class Superstructure extends GZSubsystem {
         subsystems = new GZSubsystemManager(elev, intake); // intake
     }
 
-    private Actions mAction = Actions.IDLE;
-    private Actions mQueuedAction = Actions.IDLE;
-    private Heights mQueuedHeight = Heights.Home;
-
-    public enum Actions {
-        OFF, IDLE, STOW, STOW_LOW, INTAKE_CARGO, GRAB_CARGO_DURING_INTAKE, SCOOT_CARGO_ON_GROUND, GRAB_HP_FROM_FEED,
-        GRAB_CARGO_FROM_FEED, GO_TO_QUEUED_HEIGHT, THROW_CARGO, SCORE_HATCH;
-    }
-
-    public Actions getCurrentAction() {
-        return mAction;
-    }
-
-    public boolean isIntakingCargo() {
-        return mIntakingCargo;
-    }
-
-    public boolean hasAutoScored() {
-        return mHasAutoScored;
-    }
-
-    public boolean hasAutoFeeder() {
-        return mHasAutoFeeder;
-    }
-
-    public boolean fakeAutoScore() {
-        mHasAutoScored = true;
-        return true;
-    }
-
-    public boolean fakeAutoFeeder() {
-        mHasAutoFeeder = true;
-        return true;
-    }
-
-    // ACTIONS
-    public void runAction(Actions action, boolean queue) {
-        if (queue) {
-            queueAction(action);
-            return;
-        }
-
-        // if (mAction == action)
-        mAction = action;
-        if (mAction == Actions.SCORE_HATCH || mAction == Actions.THROW_CARGO) {
-            mHasAutoScored = true;
-        }
-
-        if (mAction != Actions.IDLE && mAction != Actions.OFF)
-            mActionDone.rst();
-
-        mFlag.reset();
-        switch (action) {
-        case OFF:
-            break;
-        case IDLE:
-            // elev.stopMovement();
-            // intake.stop();
-            break;
-        case GO_TO_QUEUED_HEIGHT:
-            elev.setHeight(mQueuedHeight);
-            break;
-        case INTAKE_CARGO:
-            intake.extend();
-            elev.setHeight(Heights.Cargo_Intake);
-            elev.openClaw();
-            // elev.extendSlides();
-            elev.retractSlides();
-            break;
-        case SCOOT_CARGO_ON_GROUND:
-            break;
-        case GRAB_CARGO_DURING_INTAKE:
-            break;
-        case STOW:
-            stow();
-            break;
-        case SCORE_HATCH:
-            break;
-        case STOW_LOW:
-            stow();
-            elev.setHeight(Heights.Home);
-            break;
-        case THROW_CARGO:
-            break;
-        case GRAB_CARGO_FROM_FEED:
-            break;
-        case GRAB_HP_FROM_FEED:
-            intake.retract();
-            intake.stop();
-            // elev.setHeight(Heights.HP_1);
-            elev.closeClaw();
-            break;
-        }
-    }
-
     @Override
     public void loop() {
-        mIntakingCargo = !Intake.getInstance().isRetracted();
-        // System.out.println(hasAutoScored() + "\t" + hasAutoFeeder());
+        if (GZOI.getInstance().isEnabled())
+            manager.update();
+    }
 
-        if (Drive.getInstance().getState() == DriveState.CLIMB && Drive.getInstance().getRearBottomLimit()) {
-            System.out.println("Auto Drop crawler!");
-            Pneumatics.getInstance().forceDropCrawler();
-        }
+    private Request waitForClaw(boolean open) {
+        return new Request() {
 
-        if (GZOI.getInstance().isDisabled() && mAction != Actions.IDLE)
-            runAction(Actions.IDLE);
+            @Override
+            public void act() {
 
-        if (mAction == Actions.OFF || this.isSafetyDisabled())
-            stop();
-        else {
+            }
 
-            switch (mAction) {
-            case IDLE:
-                break;
-            case STOW:
-                if (isStowed())
-                    done();
-                break;
-            case GO_TO_QUEUED_HEIGHT:
-                if (elev.nearTarget())
-                    done();
-                break;
-            case SCORE_HATCH:
-                if (!mFlag.get(1)) {
+            @Override
+            public boolean isFinished() {
+                if (open)
+                    return elev.isClawOpen();
+                return elev.isClawClosed();
+            }
+        };
+    }
 
-                    extendSlides();
-                    if (elev.areSlidesOut())
-                        mFlag.trip(1);
+    private Request waitForSlides(boolean extended) {
+        return new Request() {
 
-                } else if (!mFlag.getNext()) {
-                    closeClaw();
+            @Override
+            public void act() {
 
-                    if (elev.isClawClosed())
-                        mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    elev.retractSlides();
+            }
 
-                    if (elev.areSlidesIn())
-                        mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    elev.setHeight(mDefaultHeight);
-                    if (elev.nearTarget())
-                        done();
-                }
+            @Override
+            public boolean isFinished() {
+                if (extended)
+                    return elev.areSlidesOut();
+                return elev.areSlidesIn();
+            }
+        };
+    }
 
-                break;
-            case SCOOT_CARGO_ON_GROUND:
-                if (mFlag.not(1)) {
-                    intake.extend();
-                    if (intake.isExtended())
-                        mFlag.tripNext();
-                } else if (mFlag.notNext()) {
-                    intake.runIntake(kIntake.SHOOTING_SPEED);
-                    done();
-                }
-                break;
-            case GRAB_CARGO_FROM_FEED:
+    private Request clawRequest(boolean open, boolean waitForCompletion) {
+        return new Request() {
 
-                if (mFlag.not(1)) {
-                    closeClaw();
-                    if (elev.isClawClosed()) {
-                        mFlag.tripNext();
-                    }
-                } else if (mFlag.notNext()) {
-                    retractSlides();
-                    if (elev.areSlidesIn()) {
-                        mFlag.tripNext();
-                    }
-                } else if (mFlag.notNext()) {
-                    elev.setHeight(mDefaultHeight);
-                    if (elev.nearTarget()) {
-                        done();
-                    }
-                }
-
-                break;
-            case THROW_CARGO:
-                if (mFlag.not(1)) {
-                    elev.retractSlides();
-                    if (elev.areSlidesIn())
-                        mFlag.tripNext();
-                } else if (mFlag.notNext()) {
-                    elev.extendSlides();
+            @Override
+            public void act() {
+                if (open)
                     elev.openClaw();
-                    if (elev.areSlidesOut() && elev.isClawOpen()) {
-                        mFlag.tripNext();
-                    }
-                } else if (mFlag.notNext()) {
-                    elev.retractSlides();
-                    if (elev.areSlidesOut()) {
-                        done();
-                        // ThrowCargo.tripNext();
-                    }
-                } else if (mFlag.notNext()) {
-                    // elev.setHeight(mDefaultHeight);
-                    // if (elev.nearTarget()) {
-                    // done();
-                    // }
-                }
+                else
+                    elev.closeClaw();
+            }
 
-                break;
-            case STOW_LOW:
-                if (isStowed() && elev.nearTarget())
-                    done();
-                break;
-            case INTAKE_CARGO:
-                if (mFlag.not(1)) {
-                    if (elev.isClawOpen() && elev.areSlidesIn() && intake.isExtended()) {
-                        mFlag.tripNext();
+            @Override
+            public boolean isFinished() {
+                if (waitForCompletion)
+                    if (open) {
+                        return elev.isClawOpen();
+                    } else {
+                        return elev.isClawClosed();
                     }
-                } else if (!mFlag.getNext()) {
-                    runIntake(kIntake.INTAKE_SPEED);
-                    mFlag.tripNext();
-                }
-                break;
-            case GRAB_CARGO_DURING_INTAKE:
-                if (mFlag.not(1)) {
-                    intake.retract();
-                    if (intake.isRetracted())
-                        mFlag.tripNext();
-                } else if (mFlag.notNext()) {
-                    closeClaw();
-                    if (elev.isClawClosed())
-                        mFlag.tripNext();
-                } else if (mFlag.notNext()) {
-                    mFlag.tripNext();
-                    // elev.setHeight(Heights.Cargo_1);
-                    // if (elev.nearTarget())
-                    // GrabCargoDuringIntake.tripNext();
-                } else if (mFlag.notNext()) {
-                    elev.setHeight(Heights.HP_1);
-                    if (elev.nearTarget())
-                        done();
-                }
-                // if (GrabCargoDuringIntake.not(1)) {
-                // intake.stop();
-                // intake.retract();
-                // if (intake.isRetracted())
-                // GrabCargoDuringIntake.tripNext();
+                else
+                    return true;
+            }
+        };
+    }
 
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // closeClaw();
-                // if (elev.isClawClosed())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // intake.extend();
-                // if (intake.isExtended())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // elev.setHeight(Heights.HP_1.inches + kElevator.CARGO_TRANSFER_JOG);
-                // if (elev.nearTarget())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // intake.retract();
-                // if (intake.isRetracted())
-                // GrabCargoDuringIntake.tripNext();
-                // } else if (GrabCargoDuringIntake.notNext()) {
-                // elev.setHeight(Heights.HP_1);
-                // if (elev.nearTarget())
-                // done();
-                // }
-                break;
-            case GRAB_HP_FROM_FEED:
-                if (!mFlag.get(1)) {
-                    if (elev.isClawClosed()) {
-                        mFlag.trip(1);
-                    }
-                } else if (!mFlag.getNext()) {
+    public void prepForFeeder() {
+        RequestList list = new RequestList();
+        list.add(heightRequest(Heights.HP_1, true));
+        list.add(clawRequest(true, true));
+        manager.request(list);
+    }
+
+    public void grabFromFeeder() {
+        RequestList list = new RequestList();
+        list.add(clawRequest(true, true));
+        list.add(slidesRequest(false, true));
+        manager.request(list);
+    }
+
+    public void scoreHatch() {
+        RequestList list = new RequestList();
+        list.add(slidesRequest(true, true));
+        list.add(clawRequest(false, true));
+        list.add(slidesRequest(false, true));
+        list.add(heightRequest(mDefaultHeight, false));
+    }
+    
+    public void intake()
+    {
+        RequestList list = new RequestList();
+        list.add(intakeRequest(true, false));
+        // list.add()
+        // list.add()
+    }
+
+    public void score() {
+        if (elev.isMovingHP())
+            scoreHatch();
+        else
+            scoreCargo();
+    }
+
+    public void scoreCargo() {
+        RequestList list = new RequestList();
+        list.add(clawRequest(false, true));
+        list.add(slidesRequest(false, true));
+        list.add(slidesRequest(true, false));
+        list.add(clawRequest(true, false));
+        list.add(waitForClaw(true));
+        list.add(waitForSlides(true));
+        list.add(Request.waitRequest(.25));
+        list.add(slidesRequest(false, true));
+    }
+
+    public static class SuperstructureState {
+        public final SolenoidState slides;
+        public final SolenoidState claw;
+        public final SolenoidState intake;
+        public final double height;
+
+        public SuperstructureState() {
+            slides = Elevator.getInstance().getSlidesState();
+            claw = Elevator.getInstance().getClawState();
+            intake = Intake.getInstance().getSolenoidState();
+            height = Elevator.getInstance().getHeightInches();
+        }
+
+        public SuperstructureState(double height, boolean slidesExtended, boolean clawOpen, boolean intakeExtended) {
+            this.height = height;
+            this.slides = (slidesExtended ? SolenoidState.ON : SolenoidState.OFF);
+            this.claw = (clawOpen ? SolenoidState.OFF : SolenoidState.ON);
+            this.intake = (intakeExtended ? SolenoidState.ON : SolenoidState.OFF);
+        }
+
+        public boolean equals(SuperstructureState other, double elevatorEpsilon) {
+            boolean equals = true;
+            equals &= Math.abs(other.height - this.height) < elevatorEpsilon;
+            equals &= this.slides.equals(other.slides);
+            equals &= this.claw.equals(other.claw);
+            equals &= this.intake.equals(other.intake);
+            return equals;
+        }
+
+        public boolean equals(SuperstructureState other) {
+            return equals(other, kElevator.TARGET_TOLERANCE);
+        }
+
+        public static boolean isAt(SuperstructureState other) {
+            return other.equals(new SuperstructureState());
+        }
+
+    }
+
+    private Request slidesRequest(boolean extended, boolean waitForCompletion) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                if (extended)
                     elev.extendSlides();
-                    mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    if (elev.areSlidesOut())
-                        mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    openClaw();
-                    mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    if (elev.isClawOpen())
-                        mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    retractSlides();
-                    if (elev.areSlidesIn())
-                        mFlag.tripNext();
-                } else if (!mFlag.getNext()) {
-                    elev.setHeight(Heights.HP_1);
-
-                    if (elev.nearTarget())
-                        done();
-                } else {
-                    done();
-                }
-                break;
+                else
+                    elev.retractSlides();
             }
-        }
-    }
 
-    private boolean isStowed() {
-
-        return elev.areSlidesIn() /** && intake.isRaised() */
-        ;
-    }
-
-    public void idle() {
-        runAction(Actions.IDLE);
-    }
-
-    public void retrieveGamePiece(boolean queue) {
-
-        if (Elevator.getInstance().isMovingHP() && !Superstructure.getInstance().isIntakingCargo()) {
-            runAction(Actions.GRAB_HP_FROM_FEED, queue);
-        } else if (!Elevator.getInstance().isMovingHP() && !Superstructure.getInstance().isIntakingCargo()) {
-            runAction(Actions.GRAB_CARGO_FROM_FEED, queue);
-        } else if (Superstructure.getInstance().isIntakingCargo()) {
-            runAction(Actions.GRAB_CARGO_DURING_INTAKE, queue);
-        }
-
-    }
-
-    public void scoreGamePiece(boolean queue) {
-        if (Elevator.getInstance().isMovingHP()) {
-            runAction(Actions.SCORE_HATCH, queue);
-        } else {
-            runAction(Actions.THROW_CARGO, queue);
-        }
-    }
-
-    public void done() {
-        mActionDone.tripFlag();
-        idle();
-    }
-
-    public void runHeight(Heights h) {
-        runHeight(h, false);
-    }
-
-    public boolean isActionDone() {
-        return mActionDone.get();
-    }
-
-    public void runHeight(Heights h, boolean queue) {
-        if (queue) {
-            if (mQueuedHeight != h) {
-                mQueuedHeight = h;
-                queueAction(Actions.GO_TO_QUEUED_HEIGHT);
-                System.out.println("Queued height: " + mQueuedHeight);
+            @Override
+            public boolean isFinished() {
+                if (waitForCompletion)
+                    if (extended) {
+                        return elev.areSlidesOut();
+                    } else {
+                        return elev.areSlidesIn();
+                    }
+                else
+                    return true;
             }
-            return;
-        }
-        elev.setHeight(h);
+        };
     }
 
-    public void jog(double inches) {
-        elev.jogHeight(inches);
+    private Request intakeRequest(boolean extended, boolean waitForCompletion) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                if (extended)
+                    intake.extend();
+                else
+                    intake.retract();
+            }
+
+            @Override
+            public boolean isFinished() {
+                if (waitForCompletion)
+                    if (extended) {
+                        return intake.isExtended();
+                    } else {
+                        return intake.isRetracted();
+                    }
+                else
+                    return true;
+            }
+        };
     }
 
-    public void runIntake(double speed) {
-        intake.runIntake(speed);
+    private Request heightRequest(Heights height) {
+        return heightRequest(height, true);
     }
 
-    private void queueAction(Actions action) {
-        if (mQueuedAction != action) {
-            mQueuedAction = action;
-            System.out.println("Queued action " + mQueuedAction);
-        }
+    private Request heightRequest(Heights height, boolean waitForCompletion) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                elev.setHeight(height);
+            }
+
+            @Override
+            public boolean isFinished() {
+                if (waitForCompletion)
+                    return elev.nearTarget();
+                return true;
+            }
+        };
     }
 
-    public void runQueuedAction() {
-        if (mQueuedAction != Actions.IDLE) {
-            runAction(mQueuedAction);
-            mQueuedAction = Actions.IDLE;
-        }
-    }
-
-    public void runAction(Actions action) {
-        runAction(action, false);
-    }
-
-    public void stow() {
-        // intake.raise();
-        elev.retractSlides();
-        intake.stop();
-    }
-
-    public void zeroElevator() {
-        elev.zero();
-    }
-
-    public void toggleIntake() {
-        intake.toggle();
-    }
+    // public void goToHeight(Heights h) {
+    // manager.request(heightRequest(h));
+    // }
 
     public void dropCrawler() {
         Pneumatics.getInstance().dropCrawler();
     }
 
-    public void openClaw() {
-        elev.openClaw();
-    }
-
-    public void toggleClaw() {
-        elev.toggleClaw();
-    }
-
-    public void toggleSlides() {
-        elev.toggleSlides();
-    }
-
-    public void closeClaw() {
-        elev.closeClaw();
-    }
-
-    public void extendSlides() {
-        elev.extendSlides();
-    }
-
-    public void retractSlides() {
-        elev.retractSlides();
-    }
-
     public String getStateString() {
-        return mAction.toString() + " STEP " + mFlag.numOfFlagsTripped();
+        return "";
+        // return mAction.toString() + " STEP " + mFlag.numOfFlagsTripped();
     }
 
     @Override

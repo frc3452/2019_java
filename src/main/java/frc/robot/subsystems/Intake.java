@@ -43,10 +43,10 @@ public class Intake extends GZSubsystem {
     }
 
     public void pauseIntake() {
-        if (mIO.left_desired_output != 0) {
-            mIO.left_desired_output = 0.0;
+        if (mIO.desired_output != 0) {
+            mIO.desired_output = 0.0;
         } else {
-            mIO.left_desired_output = kIntake.INTAKE_SPEED;
+            mIO.desired_output = kIntake.INTAKE_SPEED;
         }
     }
 
@@ -113,7 +113,7 @@ public class Intake extends GZSubsystem {
 
     protected void runIntake(double left, double right) {
         setWantedState(IntakeState.MANUAL);
-        mIO.left_desired_output = left;
+        mIO.desired_output = left;
     }
 
     protected void runIntake(double speed) {
@@ -161,7 +161,7 @@ public class Intake extends GZSubsystem {
     public class IO {
         // out
         private double output = 0;
-        public Double left_desired_output = 0.0;
+        public Double desired_output = 0.0;
     }
 
     private void switchToState(IntakeState s) {
@@ -177,7 +177,7 @@ public class Intake extends GZSubsystem {
         case MANUAL:
             break;
         case NEUTRAL:
-            mIO.left_desired_output = 0.0;
+            mIO.desired_output = 0.0;
             break;
         default:
             break;
@@ -200,7 +200,7 @@ public class Intake extends GZSubsystem {
 
     private void out() {
         if (mState != IntakeState.NEUTRAL) {
-            mIO.output = mIO.left_desired_output;
+            mIO.output = mIO.desired_output;
         } else {
             mIO.output = 0;
         }

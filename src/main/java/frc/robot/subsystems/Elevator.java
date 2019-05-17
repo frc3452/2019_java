@@ -357,6 +357,10 @@ public class Elevator extends GZSubsystem {
         return GZUtil.epsilonEquals(getHeightInches(), mDesiredHeight, with_Inches_Tolerance);
     }
 
+    public boolean near(double height) {
+        return GZUtil.epsilonEquals(getHeightInches(), height, kElevator.TARGET_TOLERANCE);
+    }
+
     protected void openClaw() {
         mClaw.wantOff();
     }
@@ -375,6 +379,11 @@ public class Elevator extends GZSubsystem {
 
     protected void retractSlides() {
         mCarriageSlide.wantOff();
+    }
+
+    public SolenoidState getClawState()
+    {
+        return mClaw.getSolenoidState();
     }
 
     public boolean isClawClosed() {

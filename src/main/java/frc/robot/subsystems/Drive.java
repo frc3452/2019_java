@@ -30,7 +30,6 @@ import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -752,7 +751,7 @@ public class Drive extends GZSubsystem {
 		case CLIMB:
 			brake(true);
 			mNavX.zeroRoll();
-			Superstructure.getInstance().runAction(Actions.STOW_LOW);
+			// Superstructure.getInstance().runAction(Actions.STOW_LOW);
 			break;
 		case PATH_FOLLOWING:
 			brake(true);
