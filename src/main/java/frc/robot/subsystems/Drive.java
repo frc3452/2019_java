@@ -23,7 +23,6 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
-import frc.robot.poofs.util.DriveSignal;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
@@ -55,7 +54,6 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.requests.Request;
-import frc.robot.util.requests.RequestManager;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -394,6 +392,17 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public Request setOdometryRequest(Translation2d translation) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				Rotation2d r = getOdometry().getRotation();
+				zeroOdometry(new RigidTransform2d(translation, r));
+			}
+		};
+	}
+
 	public Request openLoopRequest(double move, double rotate) {
 		return new Request() {
 
@@ -463,12 +472,17 @@ public class Drive extends GZSubsystem {
 	}
 
 	public static enum Rocket {
-		LEFT_NEAR(true, true), LEFT_FAR(true, false), RIGHT_NEAR(false, true), RIGHT_FAR(false, false),
-		NONE(false, false);
 
+		LEFT_NEAR(new Translation2d(197.47, 296.96), true, true),
+		LEFT_FAR(new Translation2d(260.79, 296.96), true, false),
+		RIGHT_NEAR(new Translation2d(197.47, 27.04), false, true),
+		RIGHT_FAR(new Translation2d(260.79, 27.04), false, false), NONE(new Translation2d(1000, 1000), false, false);
+
+		public final Translation2d position;
 		public final boolean left, near;
 
-		private Rocket(boolean left, boolean near) {
+		private Rocket(Translation2d position, boolean left, boolean near) {
+			this.position = position;
 			this.left = left;
 			this.near = near;
 		}
@@ -869,11 +883,12 @@ public class Drive extends GZSubsystem {
 
 			Rotation2d current = getGyroAngle().inverse();
 
-			boolean shouldTurnLeft = Rotation2d.shouldTurnClockwise(current, mTurnToHeadingGoal);
+			boolean shouldTurnRight = Rotation2d.shouldTurnClockwise(current, mTurnToHeadingGoal);
 
 			double toTurn = current.difference(mTurnToHeadingGoal);
-			double leftTar = initLeft + (toTurn * kDrivetrain.L_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? -1.0 : 1.0);
-			double rightTar = initRight + (toTurn * kDrivetrain.R_ROTATIONS_PER_DEGREE) * (shouldTurnLeft ? 1.0 : -1.0);
+			double leftTar = initLeft + (toTurn * kDrivetrain.L_ROTATIONS_PER_DEGREE) * (shouldTurnRight ? 1.0 : -1.0);
+			double rightTar = initRight
+					+ (toTurn * kDrivetrain.R_ROTATIONS_PER_DEGREE) * (shouldTurnRight ? -1.0 : 1.0);
 
 			motionMagic(false, leftTar, rightTar, kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_ACCEL,
 					kDrivetrain.TURN_TO_HEADING_MOTION_MAGIC_VEL);

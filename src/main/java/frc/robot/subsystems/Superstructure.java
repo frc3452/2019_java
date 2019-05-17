@@ -1,17 +1,17 @@
 package frc.robot.subsystems;
 
+import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.RocketHeight;
+
+import java.util.Arrays;
+
+import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.Constants.kElevator;
-import frc.robot.Constants.kIntake;
-import frc.robot.GZOI;
-import frc.robot.subsystems.Drive.DriveState;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.Rocket;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.util.GZFlag;
-import frc.robot.util.GZFlagMultiple;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
@@ -131,28 +131,30 @@ public class Superstructure extends GZSubsystem {
 
     public void grabHatchFromFeeder() {
         RequestList list = new RequestList();
+        Translation2d feeder = Drive.getInstance().getOdometry().getTranslation()
+                .nearest(Arrays.asList(new Translation2d(19.5, 298.28), new Translation2d(19.5, 25.72)));
+        list.add(Drive.getInstance().setOdometryRequest(feeder));
+
         list.add(clawRequest(true, true));
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
+
         manager.request(list);
     }
 
     public void scoreHatch() {
         RequestList list = new RequestList();
-        list.add(slidesRequest(true, true));
-        list.add(clawRequest(false, true));
-        list.add(slidesRequest(false, true));
 
         Rocket r = Drive.getInstance().getPosition();
+        double rotation = 0;
+        double jog = 0.0;
         if (!r.equals(Rocket.NONE)) {
-            double rotation;
-            double jog = 0.0;
             if (r.near) {
                 jog = 10;
                 rotation = 180;
             } else {
-                jog = 20;
+                jog = 10;
 
                 if (r.left) {
                     rotation = 90 + 45;
@@ -163,12 +165,19 @@ public class Superstructure extends GZSubsystem {
             jog *= -1;
 
             System.out.println("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation);
+            list.add(Drive.getInstance().setOdometryRequest(r.position));
+        }
+
+        list.add(slidesRequest(true, true));
+        list.add(clawRequest(false, true));
+        list.add(slidesRequest(false, true));
+        list.add(heightRequest(mDefaultHeight, false));
+
+        if (!r.equals(Rocket.NONE)) {
             list.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
             list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
         }
 
-        // list.add(waitForClaw(false));
-        list.add(heightRequest(mDefaultHeight, false));
         manager.request(list);
     }
 

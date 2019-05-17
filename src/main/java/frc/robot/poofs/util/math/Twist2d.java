@@ -1,9 +1,13 @@
 package frc.robot.poofs.util.math;
 
+import java.text.DecimalFormat;
+
+import frc.robot.util.GZUtil;
+
 /**
  * A movement along an arc at constant curvature and velocity. We can use ideas from "differential calculus" to create
  * new RigidTransform2d's from a Twist2d and visa versa.
- * 
+ * <p>
  * A Twist can be used to represent a difference between two poses, a velocity, an acceleration, etc.
  */
 public class Twist2d {
@@ -25,5 +29,24 @@ public class Twist2d {
 
     public Twist2d scaled(double scale) {
         return new Twist2d(dx * scale, dy * scale, dtheta * scale);
+    }
+
+    public double norm() {
+        // Common case of dy == 0
+        if (dy == 0.0)
+            return Math.abs(dx);
+        return Math.hypot(dx, dy);
+    }
+
+    public double curvature() {
+        if (Math.abs(dtheta) < GZUtil.kEpsilon && norm() < GZUtil.kEpsilon)
+            return 0.0;
+        return dtheta / norm();
+    }
+
+    @Override
+    public String toString() {
+        final DecimalFormat fmt = new DecimalFormat("#0.000");
+        return "(" + fmt.format(dx) + "," + fmt.format(dy) + "," + fmt.format(Math.toDegrees(dtheta)) + " deg)";
     }
 }
