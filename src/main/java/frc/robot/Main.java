@@ -7,12 +7,7 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.util.GZUtil;
-import frc.robot.util.drivers.GZJoystick.AnalogAngle;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all.

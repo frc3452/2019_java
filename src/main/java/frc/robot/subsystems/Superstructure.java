@@ -13,10 +13,10 @@ import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.Rocket;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.util.ArcadeSignal;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
-import frc.robot.util.GZLog.InstantLogItem;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 import frc.robot.util.requests.Request;
 import frc.robot.util.requests.RequestList;
@@ -111,19 +111,19 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void prepForFeeder() {
-        RequestList list = new RequestList();
-        list.add(log("Prepping for feeder station"));
+        RequestList list = new RequestList(this);
+        list.log("Prepping for feeder station");
         list.add(heightRequest(Heights.HP_1, true));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(true, true));
-        list.add(log("Prepped for feeder station"));
+        list.log("Prepped for feeder station");
 
         manager.request(list);
     }
 
     public void zeroElevator() {
-        RequestList list = new RequestList();
+        RequestList list = new RequestList(this);
         list.add(new Request() {
 
             @Override
@@ -196,35 +196,33 @@ public class Superstructure extends GZSubsystem {
     // }
     // }
 
-    private Request log(String message) {
-        return new Request() {
-
-            @Override
-            public void act() {
-                GZFiles.getInstance().addLog(Superstructure.getInstance(), message);
-            }
-        };
-    }
-
     public void grabHatchFromFeeder() {
-        RequestList list = new RequestList();
-        list.add(log("Grabbing hatch from feeder station"));
+        RequestList list = new RequestList(this);
+        list.log("Grabbing hatch from feeder station");
         {
             Pose2d here = new Pose2d(Drive.getInstance().getOdometryPose());
+
             Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
+
+            Translation2d zeroPosition;
+
             if (feeder != null) {
-                list.add(log(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
-                        + " feeder station identified, zeroing odometry"));
+                list.log(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
+                        + " feeder station identified, zeroing odometry");
 
                 Translation2d feeder_center = feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
                         feeder.getRotation().rotateBy(new Rotation2d(180)));
 
-                Rotation2d difference = feeder.getRotation().inverse().rotateBy(here.getRotation());
+                if (Math.abs(here.getRotation().distanceDeg(new Rotation2d(180))) < 35) {
+                    Rotation2d difference = feeder.getRotation().inverse().rotateBy(here.getRotation());
+                    zeroPosition = feeder_center.rotateAround(feeder.getTranslation(), difference);
+                } else {
+                    zeroPosition = feeder_center;
+                }
 
-                Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(), difference);
-                list.add(Drive.getInstance().setOdometryRequest(endpoint));
+                list.add(Drive.getInstance().setOdometryRequest(zeroPosition));
             } else {
-                list.add(log(("Too far away from feeder station to identify Rocket")));
+                list.log(("Too far away from feeder station to identify Rocket"));
             }
         }
 
@@ -232,44 +230,91 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
-        list.add(log("Finished grabbing hatch"));
+        list.log("Finished grabbing hatch");
         manager.request(list);
     }
 
     public void scoreHatch() {
-        RequestList list = new RequestList();
+        RequestList list = new RequestList(this);
 
-        list.add(log("Scoring hatch"));
-        Rocket r = Drive.getInstance().getNearesetRocket();
+        list.log("Scoring hatch");
+        Rocket rocket;
+
+        Pose2d here = new Pose2d(Drive.getInstance().getOdometry().getTranslation(),
+                Drive.getInstance().getGyroAngle());
+
+        Rocket odometryRocket = Drive.getInstance().odometryNearestRocket();
+
+        Rocket gyroRocket = Rocket.NONE;
+
+        // Gyro only valid if above hatch 1
+        if (elev.getHeightInches() > Heights.Cargo_1.inches) {
+            // Use gyro angle to determine which one we're placing on
+            gyroRocket = Rocket.closestByAngle(here, 10);
+        }
+        boolean recalibrateWithGyro = false;
+        if (odometryRocket.identified() && gyroRocket.identified()) {
+            if (odometryRocket.equals(gyroRocket)) {
+                rocket = odometryRocket;
+                list.log("Rocket indentification: agree");
+                recalibrateWithGyro = true;
+            } else {
+                rocket = Rocket.NONE;
+                list.log("NO Rocket identification: unequal");
+            }
+        } else if (odometryRocket.unsure() && gyroRocket.unsure()) {
+            rocket = Rocket.NONE;
+            list.log("NO Rocket identification: Both unsure");
+        } else if (odometryRocket.identified()) {
+            rocket = odometryRocket;
+            list.log("Rocket identification: odometry");
+        } else if (gyroRocket.identified()) {
+            rocket = gyroRocket;
+            list.log("Rocket identification: gyro");
+            recalibrateWithGyro = true;
+        } else {
+            rocket = Rocket.NONE;
+            list.log("What, this wasn't a real case: " + "Odom identified: " + odometryRocket.identified()
+                    + "\tGyro identified: " + gyroRocket.identified());
+        }
+
         double rotation = 0;
         double jog = 0.0;
-        if (!r.equals(Rocket.NONE)) {
-            if (r.near) {
+        ArcadeSignal after = new ArcadeSignal();
+        if (rocket.identified()) {
+            list.add(GZOI.driverJoy.rumbleRequest(6, .5));
+            if (rocket.near) {
                 jog = 10;
                 rotation = 180;
             } else {
                 jog = 10;
 
-                if (r.left) {
+                if (rocket.left) {
                     rotation = 90 + 45;
                 } else {
                     rotation = 270 - 45;
                 }
             }
+            after = new ArcadeSignal(.3, 0, 5);
+
             jog *= -1;
 
-            Pose2d here = new Pose2d(Drive.getInstance().getOdometry().getTranslation(),
-                    Drive.getInstance().getGyroAngle());
-            Rotation2d angleAwayFromRocket = r.position.getRotation().rotateBy(new Rotation2d(180));
+            Translation2d endpoint;
 
-            Translation2d bot_center = r.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
-                    angleAwayFromRocket);
+            if (recalibrateWithGyro) {
+                Rotation2d angleAwayFromRocket = rocket.position.getRotation().rotateBy(new Rotation2d(180));
 
-            Rotation2d difference = r.position.getRotation().rotateBy(here.getRotation().inverse());
+                Translation2d bot_center = rocket.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+                        angleAwayFromRocket);
 
-            Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(), difference.inverse());
+                Rotation2d difference = rocket.position.getRotation().rotateBy(here.getRotation().inverse());
 
-            list.add(log("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation));
+                endpoint = bot_center.rotateAround(rocket.position.getTranslation(), difference.inverse());
+            } else {
+                endpoint = rocket.position.getTranslation();
+            }
+
+            list.log("Placing on rocket " + rocket + ". Backing up " + jog + " and turning to " + rotation);
             list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }
 
@@ -278,46 +323,55 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(false, true));
         list.add(heightRequest(mDefaultHeight, false));
 
-        if (!r.equals(Rocket.NONE)) {
+        if (rocket.identified()) {
             list.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
             list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
+            list.add(Drive.getInstance().openLoopRequest(after));
         }
 
-        list.add(log("Hatch scoring completed"));
+        list.log("Hatch scoring completed");
 
         manager.request(list);
     }
 
+    public void operatorIntake() {
+        if (Intake.getInstance().wantsIn()) {
+            intake();
+        } else {
+            toggleIntake();
+        }
+    }
+
     public void intake() {
-        RequestList list = new RequestList();
-        list.add(log("Getting ready to intake cargo"));
+        RequestList list = new RequestList(this);
+        list.log("Getting ready to intake cargo");
         list.add(heightRequest(Heights.Home, false));
         list.add(slidesRequest(false, false));
         list.add(clawRequest(true, false));
         list.add(intakeRequest(true, false));
         list.add(waitForState(new SuperstructureState(Heights.Home.inches, false, true, true)));
         list.add(runIntakeRequest(IntakeState.INTAKING));
-        list.add(log("Intaking cargo"));
+        list.log("Intaking cargo");
         manager.request(list);
     }
 
     public void intakeEject() {
-        RequestList list = new RequestList();
-        list.add(log("Preparing to eject cargo"));
+        RequestList list = new RequestList(this);
+        list.log("Preparing to eject cargo");
         list.add(intakeRequest(true, true));
         list.add(runIntakeRequest(IntakeState.EJECTING));
-        list.add(log("Ejecting cargo"));
+        list.log("Ejecting cargo");
         manager.request(list);
     }
 
     public void toggleIntake() {
-        RequestList list = new RequestList();
+        RequestList list = new RequestList(this);
         list.add(intakeRequest(!intake.isExtended(), true));
-        list.add(log("Toggling intake"));
+        list.log("Toggling intake");
     }
 
     public void toggleIntakeRoller() {
-        RequestList list = new RequestList();
+        RequestList list = new RequestList(this);
 
         IntakeState newState;
 
@@ -326,7 +380,7 @@ public class Superstructure extends GZSubsystem {
         else
             newState = IntakeState.INTAKING;
 
-        list.add(log("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on")));
+        list.log("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on"));
         list.add(runIntakeRequest(newState));
         manager.request(list);
     }
@@ -347,8 +401,8 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void handOffCargo() {
-        RequestList list = new RequestList();
-        list.add(log("Handing off cargo"));
+        RequestList list = new RequestList(this);
+        list.log("Handing off cargo");
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(heightRequest(Heights.HP_1));
@@ -360,7 +414,7 @@ public class Superstructure extends GZSubsystem {
             }
         });
 
-        list.add(log("Cargo handed off"));
+        list.log("Cargo handed off");
         manager.request(list);
     }
 
@@ -387,13 +441,13 @@ public class Superstructure extends GZSubsystem {
     }
 
     private void grabCargoFromFeeder() {
-        RequestList list = new RequestList();
-        list.add(log("Grabbing cargo from feeder station"));
+        RequestList list = new RequestList(this);
+        list.log("Grabbing cargo from feeder station");
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(heightRequest(Heights.Cargo_1));
-        list.add(log("Cargo grabbed"));
+        list.log("Cargo grabbed");
         manager.request(list);
     }
 
@@ -411,7 +465,7 @@ public class Superstructure extends GZSubsystem {
 
     public void cancel() {
         manager.clear();
-        manager.request(log("Cleared"));
+        manager.request(Request.log(this, "Cleared"));
     }
 
     public void toggleClaw() {
@@ -435,10 +489,10 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void setHeight(Heights h) {
-        RequestList list = new RequestList();
-        list.add(log("Moving to height " + h));
+        RequestList list = new RequestList(this);
+        list.log("Moving to height " + h);
         list.add(heightRequest(h));
-        list.add(log("At desired height"));
+        list.log("At desired height");
         manager.request(list);
     }
 
@@ -450,8 +504,8 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void scoreCargo() {
-        RequestList list = new RequestList();
-        list.add(log("Scoring cargo"));
+        RequestList list = new RequestList(this);
+        list.log("Scoring cargo");
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
         list.add(clawRequest(true, false));
@@ -459,7 +513,7 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(true, false));
         list.add(waitForSlides(true));
         list.add(slidesRequest(false, true));
-        list.add(log("Completed scoring cargo"));
+        list.log("Completed scoring cargo");
         manager.request(list);
     }
 

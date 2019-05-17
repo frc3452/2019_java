@@ -1,90 +1,32 @@
 package frc.robot.util.drivers.controllers;
 
 import frc.robot.subsystems.Intake;
+import frc.robot.util.drivers.GZJoystick;
 
-public class OperatorController extends DeepSpaceController {
+public class OperatorController extends GZJoystick {
 
-        private boolean firstSet = false;
-        private boolean isButtonBoard = true;
-        private boolean p_isButtonBoard = false;
+    public OperatorController() {
+        this(1);
+    }
 
-        public OperatorController() {
-                this(1);
-        }
+    public ButtonCheck hatchPanel1, hatchPanel2, hatchPanel3, cargo1, cargo2, cargo3;
 
-        public OperatorController(int port) {
-                super(port);
+    public OperatorController(int port) {
+        super(port);
 
-                this.idle = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.A) || getButton(Buttons.B) || getButton(Buttons.Y)
-                                                || getButton(Buttons.X) || getButton(Buttons.LB)
-                                                || getButton(Buttons.RB));
-                this.cancel = new GZButton(this, () -> false, () -> false);
+        hatchPanel1 = new ButtonCheck(() -> this.aButton.isBeingPressed() && !this.leftCenterClick.isBeingPressed());
+        hatchPanel2 = new ButtonCheck(() -> this.bButton.isBeingPressed() && !this.leftCenterClick.isBeingPressed());
+        hatchPanel3 = new ButtonCheck(() -> this.yButton.isBeingPressed() && !this.leftCenterClick.isBeingPressed());
 
-                this.queueAction = new GZButton(this, () -> false, () -> false);
+        cargo1 = new ButtonCheck(() -> this.aButton.isBeingPressed() && this.leftCenterClick.isBeingPressed());
+        cargo2 = new ButtonCheck(() -> this.bButton.isBeingPressed() && this.leftCenterClick.isBeingPressed());
+        cargo3 = new ButtonCheck(() -> this.yButton.isBeingPressed() && this.leftCenterClick.isBeingPressed());
 
-                this.elevatorZero = new GZButton(this, () -> false, () -> getButton(Buttons.X));
+        // this.intakeReverse = new GZButton(this, () -> false, () -> getDLeft());
+        // this.intakeToggle = new GZButton(this, () -> false,
+        // () -> getButton(Buttons.BACK) && Intake.getInstance().isExtended());
+        // this.intakeCargo = new GZButton(this, () -> false,
+        // () -> getButton(Buttons.BACK) && Intake.getInstance().isRetracted());
 
-                this.hatchPanel1 = new GZButton(this, true, () -> false,
-                                () -> getButton(Buttons.A) && !getButton(Buttons.LEFT_CLICK));
-                this.hatchPanel2 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.B) && !getButton(Buttons.LEFT_CLICK));
-                this.hatchPanel3 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.Y) && !getButton(Buttons.LEFT_CLICK));
-
-                this.cargo1 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.A));
-                this.cargo2 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.B));
-                this.cargo3 = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.LEFT_CLICK) && getButton(Buttons.Y));
-                this.cargoShip = new GZButton(this, () -> false, () -> getButton(Buttons.START));
-                // this.cargoShip = new GZButton(this, () -> false, () -> false);
-
-                this.elevatorJogUp = new GZButton(this, () -> false, () -> getDUp());
-                this.elevatorJogDown = new GZButton(this, () -> false, () -> getDDown());
-
-                this.slidesToggle = new GZButton(this, () -> false, () -> getButton(Buttons.LB));
-                this.clawToggle = new GZButton(this, () -> false, () -> getButton(Buttons.RB));
-                
-                this.intakeReverse = new GZButton(this, () -> false, () -> getDLeft());
-                this.intakeToggle = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.BACK) && Intake.getInstance().isExtended());
-                this.intakeCargo = new GZButton(this, () -> false,
-                                () -> getButton(Buttons.BACK) && Intake.getInstance().isRetracted());
-
-
-                this.retrieve = new GZButton(this, () -> false, () -> getLeftTriggerPressed());
-                this.score = new GZButton(this, () -> false, () -> getRightTriggerPressed());
-              
-                this.scootCargoOnGround = new GZButton(this, () -> false, () -> getDRight());
-
-                this.dropCrawler = new GZButton(this, () -> false, () -> getButton(Buttons.RIGHT_CLICK));
-        }
-
-        public void setButtonBoard(boolean isButtonBoard) {
-                this.isButtonBoard = isButtonBoard;
-
-                if (this.isButtonBoard != this.p_isButtonBoard || !firstSet) {
-                        System.out.println("WARNING Operator controller selected: "
-                                        + (this.isButtonBoard ? "Button board" : "Xbox controller"));
-                        for (GZButton b : allButtons)
-                                b.useSupplier1(isButtonBoard);
-                }
-
-                p_isButtonBoard = this.isButtonBoard;
-                firstSet = true;
-        }
-
-        public void setButtonBoard() {
-                setButtonBoard(true);
-        }
-
-        public boolean isButtonBoard() {
-                return isButtonBoard;
-        }
-
-        public void setXboxController() {
-                setButtonBoard(false);
-        }
+    }
 }

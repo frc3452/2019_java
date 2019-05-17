@@ -10,7 +10,7 @@ import java.util.List;
  * A translation in a 2d coordinate frame. Translations are simply shifts in an
  * (x, y) plane.
  */
-public class Translation2d implements ITranslation2d<Translation2d> {
+public class Translation2d extends GZGeometry<Translation2d> implements ITranslation2d<Translation2d> {
     protected static final Translation2d kIdentity = new Translation2d();
 
     public static final Translation2d identity() {
@@ -49,6 +49,13 @@ public class Translation2d implements ITranslation2d<Translation2d> {
     }
 
     public Translation2d nearest(List<Translation2d> translations, double maxDistance) {
+        int index = nearestIndex(translations, maxDistance);
+        if (index == -1)
+            return null;
+        return translations.get(index);
+    }
+
+    public int nearestIndex(List<Translation2d> translations, double maxDistance) {
         double minDistance = Double.POSITIVE_INFINITY;
         int minDistanceIndex = -1;
         for (int i = 0; i < translations.size(); i++) {
@@ -65,9 +72,7 @@ public class Translation2d implements ITranslation2d<Translation2d> {
             }
         }
 
-        if (minDistanceIndex == -1)
-            return null;
-        return translations.get(minDistanceIndex);
+        return minDistanceIndex;
     }
 
     public Translation2d nearest(List<Translation2d> translations) {
@@ -379,25 +384,6 @@ public class Translation2d implements ITranslation2d<Translation2d> {
 
     @Override
     public Translation2d getTranslation() {
-        return this;
-    }
-
-    public void printSwerve() {
-        System.out.println(swerveString());
-    }
-
-    public String swerveString() {
-        String out = "";
-        out += "Angle: " + this.direction() + " Magnitude: " + this.norm();
-        return out;
-    }
-
-    public Translation2d print() {
-        return print("");
-    }
-
-    public Translation2d print(String print) {
-        System.out.println(print + " " + this);
         return this;
     }
 

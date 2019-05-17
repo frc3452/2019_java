@@ -195,7 +195,7 @@ public class Auton {
 
 	public boolean isAutoControl() {
 		// if (autonomousCommand == null)
-		// 	return Superstructure.getInstance().fakeAutoScore();
+		// return Superstructure.getInstance().fakeAutoScore();
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
@@ -241,21 +241,17 @@ public class Auton {
 		}
 	}
 
-	/**
-	 * Sets the names for the override and the value of the array in which to
-	 * override
-	 */
 	private void controllerChooser() {
 		customAuto();
 
-		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
-			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
+		if (GZOI.driverJoy.leftBumper.isBeingPressed() && GZOI.driverJoy.rightBumper.isBeingPressed()) {
+			if (GZOI.driverJoy.aButton.wasActivated()) {
 				m_controllerOverrideValue++;
 				sanityCheckControllerValue();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.B)) {
+			} else if (GZOI.driverJoy.bButton.wasActivated()) {
 				m_controllerOverrideValue--;
 				sanityCheckControllerValue();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
+			} else if (GZOI.driverJoy.rightCenterClick.wasActivated()) {
 				m_controllerOverrideValue = -1;
 				printSelectors();
 				return;
@@ -306,18 +302,18 @@ public class Auton {
 	}
 
 	private void customAuto() {
-		if (GZOI.driverJoy.getButton(Buttons.BACK)) {
-			if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+		if (GZOI.driverJoy.backButton.isBeingPressed()) {
+			if (GZOI.driverJoy.leftCenterClick.longPressed()) {
 				updateCustomAuto();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
+			} else if (GZOI.driverJoy.rightCenterClick.wasActivated()) {
 				System.out.println("WARNING Custom auto deselected!");
 				mCustomAutoStartPos = null;
 				mCustomAutoStartingAngle = null;
 			} else {
-				AnalogAngle newAngle = GZOI.driverJoy.getRightAnalogAngle();
-				Rotation2d mappedAngle = Rotation2d.closestCoordinatePlus(newAngle.angle);
+				Translation2d newAngle = GZOI.driverJoy.getRightAnalogAngle();
+				Rotation2d mappedAngle = Rotation2d.nearestCardinalPlus(newAngle.direction());
 
-				if (Math.abs(newAngle.magnitude) > .2) {
+				if (Math.abs(newAngle.norm()) > .2) {
 					if (mCustomAutoStartingAngle == null || !mCustomAutoStartingAngle.equals(mappedAngle)) {
 						System.out.println("WARNING Custom auto angle set to " + mappedAngle.getNormalDegrees());
 						mCustomAutoStartingAngle = mappedAngle;
@@ -341,26 +337,26 @@ public class Auton {
 					else if (mCustomAutoStartPos == ZeroPositions.LEFT)
 						mCustomAutoStartPos = ZeroPositions.CENTER;
 					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
+						mCustomAutoStartPos = ZeroPositions.LEFT;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT;
+					}
+					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
+						mCustomAutoStartPos = ZeroPositions.LEFT_2;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT_2;
+					}
+					customAutoStartPosUpdate();
 				}
-				// } else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
-				// 	if (mCustomAutoStartPos == null) {
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
-				// 		mCustomAutoStartPos = ZeroPositions.LEFT;
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
-				// 		mCustomAutoStartPos = ZeroPositions.RIGHT;
-				// 	}
-				// 	customAutoStartPosUpdate();
-				// } else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
-				// 	if (mCustomAutoStartPos == null) {
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
-				// 		mCustomAutoStartPos = ZeroPositions.LEFT_2;
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
-				// 		mCustomAutoStartPos = ZeroPositions.RIGHT_2;
-				// 	}
-				// 	customAutoStartPosUpdate();
-				// }
 			}
 		}
+
 	}
 
 	private void customAutoStartPosUpdate() {

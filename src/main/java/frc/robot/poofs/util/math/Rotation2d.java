@@ -14,7 +14,7 @@ import static frc.robot.util.GZUtil.kEpsilon;
  * <p>
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
-public class Rotation2d implements IRotation2d<Rotation2d> {
+public class Rotation2d extends GZGeometry<Rotation2d> implements IRotation2d<Rotation2d> {
     protected static final Rotation2d kIdentity = new Rotation2d();
 
     public static final Rotation2d identity() {
@@ -270,73 +270,42 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
         return angle;
     }
 
-    public static Rotation2d closestCoordinatePlus(Rotation2d value) {
-        return closest(value, getCardinalsPlus());
+    public static Rotation2d nearestCardinalPlus(Rotation2d value) {
+        return value.nearest(getCardinalsPlus());
     }
 
-    public static Rotation2d closest(Rotation2d value, ArrayList<Rotation2d> rotations) {
-        double min = Double.MAX_VALUE;
-        int pos = -1;
-        List<Double> distances = new ArrayList<Double>();
-        for (Rotation2d r : rotations) {
-            double distanceTemp = Rotation2d.difference(value, r);
-            distances.add(distanceTemp);
-        }
-        {
-            int counter = 0;
-            for (Double d : distances) {
-                if (d < min) {
-                    min = d;
-                    pos = counter;
-                }
-                counter++;
-            }
-        }
-        return rotations.get(pos);
+    public Rotation2d nearest(List<Rotation2d> rotations) {
+        return nearest(rotations, Double.POSITIVE_INFINITY);
     }
 
-    public static int closestGetPos(Rotation2d value, ArrayList<Rotation2d> rotations) {
-        double min = Double.MAX_VALUE;
-        int pos = -1;
-        List<Double> distances = new ArrayList<Double>();
-        for (Rotation2d r : rotations) {
-            double distanceTemp = Rotation2d.difference(value, r);
-            distances.add(distanceTemp);
-        }
-        {
-            int counter = 0;
-            for (Double d : distances) {
-                if (d < min) {
-                    min = d;
-                    pos = counter;
-                }
-                counter++;
-            }
-        }
-        return pos;
+    public Rotation2d nearest(List<Rotation2d> rotations, double maxDistance) {
+        int index = nearestIndex(rotations, maxDistance);
+
+        if (index == -1)
+            return null;
+        return rotations.get(index);
     }
 
-    public static int closestGetPos(Rotation2d value, Rotation2d other, ArrayList<Rotation2d> rotations) {
-        double min = Double.MAX_VALUE;
-        int pos = -1;
-        List<Double> distances = new ArrayList<Double>();
-        for (Rotation2d r : rotations) {
-            double distanceTemp1 = Rotation2d.difference(value, r);
-            double distanceTemp2 = Rotation2d.difference(other, r);
-            distances.add(Math.min(distanceTemp1, distanceTemp2));
-        }
-        {
-            int counter = 0;
-            for (Double d : distances) {
-                if (d < min) {
-                    min = d;
-                    pos = counter;
-                }
-                counter++;
+    public int nearestIndex(List<Rotation2d> rotations, double maxDistance) {
+        double minDistance = Double.POSITIVE_INFINITY;
+        int minDistanceIndex = -1;
+        for (int i = 0; i < rotations.size(); i++) {
+            Rotation2d t = rotations.get(i);
+            double distance = t.distance(this);
+
+            if (distance > maxDistance) {
+                distance = Double.POSITIVE_INFINITY;
+            }
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceIndex = i;
             }
         }
-        return pos;
+
+        return minDistanceIndex;
     }
+
 
     public static boolean between(Rotation2d value, Rotation2d lowBound, Rotation2d highBound) {
         double n = value.getNormalDegrees();

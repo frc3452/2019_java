@@ -1,17 +1,33 @@
 package frc.robot.util.requests;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import frc.robot.util.GZSubsystem;
 
 public class RequestList {
 
 	ArrayList<Request> requests;
 	boolean parallel = false;
 
+	private GZSubsystem subsystem = null;
+
 	public RequestList() {
 		this(Arrays.asList(new EmptyRequest()), false);
+	}
+
+	public RequestList(GZSubsystem subsystem) {
+		this();
+		this.subsystem = subsystem;
+	}
+
+	public void log(String message) {
+		if (subsystem != null) {
+			add(Request.log(subsystem, message));
+		} else {
+			System.out.println("Request list never initialized subsystem, cannot log!");
+		}
 	}
 
 	public RequestList(Request request) {

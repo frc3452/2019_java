@@ -1,10 +1,11 @@
 package frc.robot.util.requests;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.util.GZFiles;
+import frc.robot.util.GZSubsystem;
 
 public abstract class Request {
 
@@ -12,6 +13,16 @@ public abstract class Request {
 
 	public boolean isFinished() {
 		return true;
+	}
+
+	public static Request log(GZSubsystem subsystem, String message) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				GZFiles.getInstance().addLog(subsystem, message);
+			}
+		};
 	}
 
 	public List<Prerequisite> prerequisites = new ArrayList<>();

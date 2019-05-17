@@ -1,5 +1,6 @@
 package frc.robot.poofs.util.math;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import frc.robot.util.GZUtil;
@@ -10,7 +11,7 @@ import frc.robot.util.GZUtil;
  * <p>
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
-public class Pose2d implements IPose2d<Pose2d> {
+public class Pose2d extends GZGeometry<Pose2d> implements IPose2d<Pose2d> {
     protected static final Pose2d kIdentity = new Pose2d();
 
     public static final Pose2d identity() {
@@ -121,11 +122,29 @@ public class Pose2d implements IPose2d<Pose2d> {
         return rotation_;
     }
 
-    public Pose2d nearest(List<Pose2d> translations, double maxDistance) {
+    public Pose2d nearestByAngleIndex(List<Pose2d> poses, double maxTolerance) {
+        List<Rotation2d> rotations = new ArrayList<>();
+        poses.forEach((p) -> rotations.add(p.getRotation()));
+
+        int index = getRotation().nearestIndex(rotations, maxTolerance);
+        if (index == -1)
+            return null;
+
+        return poses.get(index);
+    }
+
+    public Pose2d nearest(List<Pose2d> poses, double maxDistance) {
+        int index = nearestIndex(poses, maxDistance);
+        if (index == -1)
+            return null;
+        return poses.get(index);
+    }
+
+    public int nearestIndex(List<Pose2d> poses, double maxDistance) {
         double minDistance = Double.POSITIVE_INFINITY;
         int minDistanceIndex = -1;
-        for (int i = 0; i < translations.size(); i++) {
-            Translation2d t = translations.get(i).getTranslation();
+        for (int i = 0; i < poses.size(); i++) {
+            Translation2d t = poses.get(i).getTranslation();
             double distance = t.distance(this.getTranslation());
 
             if (distance > maxDistance) {
@@ -138,9 +157,7 @@ public class Pose2d implements IPose2d<Pose2d> {
             }
         }
 
-        if (minDistanceIndex == -1)
-            return null;
-        return translations.get(minDistanceIndex);
+        return minDistanceIndex;
     }
 
     public Pose2d nearest(List<Pose2d> translations) {
@@ -277,14 +294,5 @@ public class Pose2d implements IPose2d<Pose2d> {
     @Override
     public Pose2d mirror() {
         return new Pose2d(new Translation2d(getTranslation().x(), -getTranslation().y()), getRotation().inverse());
-    }
-
-    public Pose2d print() {
-        return print("");
-    }
-
-    public Pose2d print(String print) {
-        System.out.println(print + " " + toString());
-        return this;
     }
 }

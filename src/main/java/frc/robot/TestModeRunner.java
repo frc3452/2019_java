@@ -6,7 +6,6 @@ import frc.robot.subsystems.Auton;
 import frc.robot.util.GZArrayList;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.MotorChecker.AmperageChecker;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class TestModeRunner {
     private static TestModeRunner mInstance = null;
@@ -127,16 +126,15 @@ public class TestModeRunner {
     }
 
     public void update() {
-        if (GZOI.driverJoy.getButtons(Buttons.BACK, Buttons.START)) {
+        if (GZOI.driverJoy.backButton.isBeingPressed() && GZOI.driverJoy.startButton.isBeingPressed()) {
             isEnabled = true;
-        } else if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+        } else if (GZOI.driverJoy.backButton.wasActivated()) {
             isEnabled = false;
         }
 
         boolean stateChange = false;
 
-        if (isEnabled != wasEnabled)
-        {
+        if (isEnabled != wasEnabled) {
             stateChange = true;
             System.out.println("Test mode " + (isEnabled ? "enabled" : "disabled"));
         }
@@ -147,13 +145,13 @@ public class TestModeRunner {
             return;
 
         // HANDLE JOYSTICK INPUT
-        if (GZOI.driverJoy.isDLeftPressed())
+        if (GZOI.driverJoy.POV270.wasActivated())
             inMenu = -1;
-        else if (inMenu == -1 && GZOI.driverJoy.isDRightPressed())
+        else if (inMenu == -1 && GZOI.driverJoy.POV90.wasActivated())
             inMenu = posInMenu;
-        if (GZOI.driverJoy.isDDownPressed())
+        if (GZOI.driverJoy.POV180.wasActivated())
             posInMenu++;
-        else if (GZOI.driverJoy.isDUpPressed())
+        else if (GZOI.driverJoy.POV0.wasActivated())
             posInMenu--;
 
         // KEEP MENU AND POSITION IN MENU WITHIN BOUNDS
@@ -195,7 +193,7 @@ public class TestModeRunner {
 
         // SELECT PRESSED
         boolean selectPressed = false;
-        if (inMenu != -1 && GZOI.driverJoy.getButtonLatched(Buttons.A)) {
+        if (inMenu != -1 && GZOI.driverJoy.aButton.wasActivated()) {
             optionsList.get(inMenu).getOptions().get(posInMenu).toggleSelected();
             selectPressed = true;
         }
@@ -209,7 +207,7 @@ public class TestModeRunner {
             print(message);
         }
 
-        if (GZOI.driverJoy.getButtonLatched(Buttons.Y)) {
+        if (GZOI.driverJoy.yButton.wasActivated()) {
             for (OptionList o : optionsList)
                 if (o.isSelected())
                     o.run();
