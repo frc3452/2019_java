@@ -428,11 +428,18 @@ public class Drive extends GZSubsystem {
 
 			@Override
 			public void act() {
-				if (absolute) {
-					turnToHeading(heading);
-				} else {
-					turnRelative(heading);
+				if (!isFinished()) {
+					if (absolute) {
+						turnToHeading(heading);
+					} else {
+						turnRelative(heading);
+					}
 				}
+			}
+
+			@Override
+			public boolean isFinished() {
+				return mTurnToHeadingComplete || wantsToTeleDrive();
 			}
 		};
 	}
@@ -483,7 +490,9 @@ public class Drive extends GZSubsystem {
 
 			@Override
 			public void act() {
-				jog(movement);
+				if (!isFinished()) {
+					jog(movement);
+				}
 			}
 
 			@Override
