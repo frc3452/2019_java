@@ -3,10 +3,12 @@ package frc.robot.subsystems;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.RocketHeight;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
+import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kIntake;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive.DriveState;
+import frc.robot.subsystems.Drive.Rocket;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.GZFlag;
 import frc.robot.util.GZFlagMultiple;
@@ -130,8 +132,9 @@ public class Superstructure extends GZSubsystem {
     public void grabHatchFromFeeder() {
         RequestList list = new RequestList();
         list.add(clawRequest(true, true));
-        list.add(Drive.getInstance().openLoopRequest(-.45, 0));
         list.add(slidesRequest(false, true));
+        list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
+        list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
         manager.request(list);
     }
 
@@ -139,8 +142,32 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList();
         list.add(slidesRequest(true, true));
         list.add(clawRequest(false, true));
-        list.add(Drive.getInstance().openLoopRequest(-.125, 0));
         list.add(slidesRequest(false, true));
+
+        Rocket r = Drive.getInstance().getPosition();
+        if (!r.equals(Rocket.NONE)) {
+            double rotation;
+            double jog = 0.0;
+            if (r.near) {
+                jog = 10;
+                rotation = 180;
+            } else {
+                jog = 20;
+
+                if (r.left) {
+                    rotation = 90 + 45;
+                } else {
+                    rotation = 270 - 45;
+                }
+            }
+            jog *= -1;
+
+            System.out.println("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation);
+            list.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
+            list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
+        }
+
+        // list.add(waitForClaw(false));
         list.add(heightRequest(mDefaultHeight, false));
         manager.request(list);
     }
@@ -148,9 +175,11 @@ public class Superstructure extends GZSubsystem {
     public void intake() {
         RequestList list = new RequestList();
         list.add(heightRequest(Heights.Home));
-        list.add(slidesRequest(false, true));
-        list.add(clawRequest(true, true));
-        list.add(intakeRequest(true, true));
+        list.add(slidesRequest(false, false));
+        list.add(clawRequest(true, false));
+        list.add(intakeRequest(true, false));
+        list.add(waitForClaw(true));
+        list.add(waitForSlides(false));
         list.add(runIntakeRequest(IntakeState.INTAKING));
         manager.request(list);
     }
@@ -201,7 +230,7 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList();
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
-        list.add(heightRequest(Heights.Cargo_1));
+        list.add(heightRequest(Heights.HP_1));
         list.add(new Request() {
 
             @Override
@@ -294,11 +323,12 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList();
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
-        list.add(slidesRequest(true, false));
         list.add(clawRequest(true, false));
-        list.add(waitForClaw(true));
+        list.add(Request.waitRequest(.125));
+        list.add(slidesRequest(true, false));
+        // list.add(waitForClaw(true));
         list.add(waitForSlides(true));
-        list.add(Request.waitRequest(.25));
+        // list.add(Request.waitRequest(.25));
         list.add(slidesRequest(false, true));
         manager.request(list);
     }

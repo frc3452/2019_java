@@ -56,6 +56,19 @@ public class Translation2d implements Interpolable<Translation2d> {
         return x_ * x_ + y_ * y_;
     }
 
+    public boolean insideRange(Translation2d bottomLeft, Translation2d topRight) {
+        return insideRange(this, bottomLeft, topRight);
+    }
+
+    public static boolean insideRange(Translation2d point, Translation2d bottomLeft, Translation2d topRight) {
+        boolean inside = true;
+
+        inside &= point.x() < topRight.x() && point.x() > bottomLeft.x();
+        inside &= point.y() < topRight.y() && point.y() > bottomLeft.y();
+
+        return inside;
+    }
+
     public double x() {
         return x_;
     }

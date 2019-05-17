@@ -276,9 +276,9 @@ public class Constants {
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6 * 3;
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6 * 5;
 
-		public static final double JOG_MOTION_MAGIC_ACCEL = 5 * 6;
-		public static final double JOG_MOTION_MAGIC_VEL = 5 * 6;
-		public static final double JOG_ACCURACY_INCHES = 3;
+		public static final double JOG_MOTION_MAGIC_ACCEL = 10 * 6;
+		public static final double JOG_MOTION_MAGIC_VEL = 20 * 6;
+		public static final double JOG_ACCURACY_INCHES = 6;
 
 		// 2019 Robot
 

@@ -8,10 +8,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.RocketHeight;
+import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
+import frc.robot.subsystems.Drive.Rocket;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
@@ -283,6 +285,16 @@ public class GZOI extends GZSubsystem {
 			elev.toggleSpeedOverride();
 
 		drive.handleDriving(driverJoy);
+
+		if (driverJoy.isDRightPressed()) {
+			drive.turnToHeading(Rotation2d.fromDegrees(0));
+		}
+
+		// {
+		// Rocket r = drive.getPosition();
+		// if (!r.equals(Rocket.NONE))
+		// System.out.println(r);
+		// }
 	}
 
 	public String getSmallString() {

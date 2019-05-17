@@ -29,8 +29,10 @@ import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.poofs.util.math.Twist2d;
 import frc.robot.subsystems.Health.AlertLevel;
+import frc.robot.util.ArcadeSignal;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -242,7 +244,7 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
-	private Request turnToHeadingRequest(Rotation2d headingTarget, boolean relative) {
+	public Request turnToHeadingRequest(Rotation2d headingTarget, boolean relative) {
 		return new Request() {
 
 			@Override
@@ -407,7 +409,76 @@ public class Drive extends GZSubsystem {
 		};
 	}
 
+	public Request headingRequest(Rotation2d heading, boolean absolute) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				if (absolute) {
+					turnToHeading(heading);
+				} else {
+					turnRelative(heading);
+				}
+			}
+		};
+	}
+
+	public Rocket getPosition() {
+		RigidTransform2d pose = new RigidTransform2d(getOdometry());
+		Translation2d p = pose.getTranslation();
+
+		if (p.insideRange(new Translation2d(165, 269), new Translation2d(229.28, 324))) {
+			return Rocket.LEFT_NEAR;
+		} else if (p.insideRange(new Translation2d(229.28, 269), new Translation2d(293.56, 324))) {
+			return Rocket.LEFT_FAR;
+		} else if (p.insideRange(new Translation2d(165, 0), new Translation2d(229.28, 324 - 269))) {
+			return Rocket.RIGHT_NEAR;
+		} else if (p.insideRange(new Translation2d(229.28, 0), new Translation2d(293.56, 324 - 269))) {
+			return Rocket.RIGHT_FAR;
+		} else {
+			return Rocket.NONE;
+		}
+
+		// final double x = pose.getTranslation().x();
+		// final double y = pose.getTranslation().y();
+		// // Near
+		// if (x < 229.28) {
+		// // Left
+		// if (y > 162) {
+		// return Rocket.LEFT_NEAR;
+		// } else {
+		// return Rocket.RIGHT_NEAR;
+		// }
+
+		// // Far
+		// } else {
+		// // Left
+		// if (y > 162) {
+		// return Rocket.LEFT_FAR;
+		// } else {
+		// return Rocket.RIGHT_FAR;
+		// }
+		// }
+
+	}
+
+	public static enum Rocket {
+		LEFT_NEAR(true, true), LEFT_FAR(true, false), RIGHT_NEAR(false, true), RIGHT_FAR(false, false),
+		NONE(false, false);
+
+		public final boolean left, near;
+
+		private Rocket(boolean left, boolean near) {
+			this.left = left;
+			this.near = near;
+		}
+	}
+
 	public Request jogRequest(EncoderMovement movement) {
+		return jogRequest(movement, true);
+	}
+
+	public Request jogRequest(EncoderMovement movement, boolean wait) {
 		return new Request() {
 
 			@Override
@@ -417,8 +488,9 @@ public class Drive extends GZSubsystem {
 
 			@Override
 			public boolean isFinished() {
-				boolean done = motionMagicMovementComplete;
-				return done;
+				if (wait)
+					return motionMagicMovementComplete || wantsToTeleDrive();
+				return true;
 			}
 		};
 	}
@@ -906,8 +978,9 @@ public class Drive extends GZSubsystem {
 	}
 
 	public boolean wantsToTeleDrive() {
-		DriveSignal ds = getDriveModification(GZOI.driverJoy);
-		boolean driving = (Math.abs(ds.getLeft()) > 0.125 || (Math.abs(ds.getRight()) > .2));
+		ArcadeSignal ds = getDriveModification(GZOI.driverJoy);
+		boolean driving = (Math.abs(ds.getMove()) > 0.05 || (Math.abs(ds.getRotate()) > 0.04));
+		// System.out.println(ds + "\t" + driving);
 		return driving;
 	}
 
@@ -1128,6 +1201,8 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void handleDriving(GZJoystick joy) {
+
+		// System.out.println(wantsToTeleDrive());
 		if (mState != DriveState.CLIMB) {
 
 			boolean shouldDrive = true;
@@ -1139,6 +1214,8 @@ public class Drive extends GZSubsystem {
 			if (mState == DriveState.MOTION_MAGIC && !wantsToTeleDrive()) {
 				shouldDrive = false;
 			}
+
+			wantsToTeleDrive();
 			// stateIsnt(DriveState.TURN_TO_HEADING)
 			// || (mState == DriveState.TURN_TO_HEADING && (Math.abs(joy.getLeftAnalogY()) >
 			// .135))
@@ -1222,10 +1299,10 @@ public class Drive extends GZSubsystem {
 		setVelocity(left, right);
 	}
 
-	private DriveSignal getDriveModification(GZJoystick joy) {
+	private ArcadeSignal getDriveModification(GZJoystick joy) {
 		final double move = joy.getLeftAnalogY() * getTotalModifer();
 		final double rotate = (joy.getRightTrigger() - joy.getLeftTrigger()) * getTurnModifier();
-		return new DriveSignal(move, rotate);
+		return new ArcadeSignal(move, rotate);
 	}
 
 	private synchronized void arcade(GZJoystick joy) {
@@ -1235,9 +1312,9 @@ public class Drive extends GZSubsystem {
 		// arcadeNoState(move, rotate, !joy.getButton(Buttons.RB));
 		// arcadeNoState(move, rotate, false);
 
-		DriveSignal ds = getDriveModification(joy);
+		ArcadeSignal ds = getDriveModification(joy);
 
-		cheesyNoState(ds.getLeft(), ds.getRight(), !usingCurvature());
+		cheesyNoState(ds.getMove(), ds.getRotate(), !usingCurvature());
 		// 0.6 or 0.65
 	}
 

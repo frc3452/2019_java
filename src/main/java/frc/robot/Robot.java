@@ -44,6 +44,8 @@ public class Robot extends TimedRobot {
 
 	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/WORLDS/" + date);
 
+	public static double enabledTime = 0.0;
+
 	@Override
 	public void robotInit() {
 		auton.fillAutonArray();
