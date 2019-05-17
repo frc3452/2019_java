@@ -434,10 +434,17 @@ public class Drive extends GZSubsystem {
 
 			@Override
 			public boolean isFinished() {
-				if ((Timer.getFPGATimestamp() - startTime) > waitTime)
-					return true;
+				boolean done = false;
 
-				return wantsToTeleDrive();
+				if ((Timer.getFPGATimestamp() - startTime) > waitTime)
+					done = true;
+
+				done |= wantsToTeleDrive();
+
+				if (done) {
+					stop();
+				}
+				return done;
 			}
 		};
 	}
