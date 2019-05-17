@@ -26,6 +26,7 @@ import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
+import frc.robot.poofs.util.math.Pose2d;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
@@ -54,6 +55,7 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.requests.Request;
+import frc.robot.Constants.kAuton;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -476,15 +478,15 @@ public class Drive extends GZSubsystem {
 
 	public static enum Rocket {
 
-		LEFT_NEAR(new Translation2d(197.47, 296.96), true, true),
-		LEFT_FAR(new Translation2d(260.79, 296.96), true, false),
-		RIGHT_NEAR(new Translation2d(197.47, 27.04), false, true),
-		RIGHT_FAR(new Translation2d(260.79, 27.04), false, false), NONE(new Translation2d(1000, 1000), false, false);
+		LEFT_NEAR(kAuton.Left_Rocket_Near, true, true),
+		LEFT_FAR(kAuton.Left_Rocket_Far, true, false),
+		RIGHT_NEAR(kAuton.Right_Rocket_Near, false, true),
+		RIGHT_FAR(kAuton.Right_Rocket_Far, false, false), NONE(new Pose2d(new Translation2d(2000,2000)), false, false);
 
-		public final Translation2d position;
+		public final Pose2d position;
 		public final boolean left, near;
 
-		private Rocket(Translation2d position, boolean left, boolean near) {
+		private Rocket(Pose2d position, boolean left, boolean near) {
 			this.position = position;
 			this.left = left;
 			this.near = near;

@@ -223,8 +223,16 @@ public class Superstructure extends GZSubsystem {
             }
             jog *= -1;
 
+            Pose2d here = new Pose2d(Drive.getInstance().getOdometry().getTranslation(),
+                    Drive.getInstance().getGyroAngle());
+            Translation2d bot_center = r.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+                    r.position.getRotation().rotateBy(new Rotation2d(180)));
+
+            Rotation2d difference = r.position.getRotation().inverse().rotateBy(here.getRotation());
+
+            Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(), difference);
             list.add(log("Placing on rocket " + r + ". Backing up " + jog + " and turning to " + rotation));
-            list.add(Drive.getInstance().setOdometryRequest(r.position));
+            list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }
 
         list.add(slidesRequest(true, true));
