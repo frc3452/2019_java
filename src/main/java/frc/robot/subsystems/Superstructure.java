@@ -256,6 +256,7 @@ public class Superstructure extends GZSubsystem {
         list.log("Scoring hatch");
 
         RocketIdentifcation r = Drive.getInstance().getRocket();
+        list.log(r.how);
 
         double rotation = 0;
         double jog = 0.0;
