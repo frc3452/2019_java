@@ -10,7 +10,7 @@ public class ArcadeSignal {
     }
 
     public ArcadeSignal(double move, double rotate) {
-        this(move, rotate, 0);
+        this(move, rotate,-1);
     }
 
     public ArcadeSignal(double move, double rotate, double timeout) {
