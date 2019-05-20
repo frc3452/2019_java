@@ -12,6 +12,7 @@ import frc.robot.poofs.util.math.Pose2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.Rocket;
+import frc.robot.subsystems.Drive.RocketIdentifcation;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.ArcadeSignal;
 import frc.robot.util.GZFiles;
@@ -254,63 +255,20 @@ public class Superstructure extends GZSubsystem {
 
         list.log("Scoring hatch");
 
-        Rocket rocket;
-        Pose2d here = new Pose2d(Drive.getInstance().getOdometry().getTranslation(),
-                Drive.getInstance().getGyroAngle());
-
-        Rocket odometryRocket = Drive.getInstance().odometryNearestRocket();
-
-        Rocket gyroRocket = Rocket.NONE;
-
-        // Gyro only valid if above hatch 1
-        if (elev.getHeightInches() > Heights.Cargo_1.inches) {
-            // Use gyro angle to determine which one we're placing on
-            gyroRocket = Rocket.closestByAngle(here, 10);
-        }
-
-        boolean recalibrateWithGyro = false;
-
-        // Bot forms of odometry acquired
-        if (odometryRocket.identified() && gyroRocket.identified()) {
-            // They agree
-            if (odometryRocket.equals(gyroRocket)) {
-                rocket = odometryRocket;
-                list.log("Rocket indentification: agree");
-                recalibrateWithGyro = true;
-            } else {
-                // They don't agree
-                rocket = Rocket.NONE;
-                list.log("NO Rocket identification: unequal");
-            }
-            // No way of identifying
-        } else if (odometryRocket.unsure() && gyroRocket.unsure()) {
-            rocket = Rocket.NONE;
-            list.log("NO Rocket identification: Both unsure");
-        } else if (odometryRocket.identified()) {
-            rocket = odometryRocket;
-            list.log("Rocket identification: odometry");
-        } else if (gyroRocket.identified()) {
-            rocket = gyroRocket;
-            list.log("Rocket identification: gyro");
-            recalibrateWithGyro = true;
-        } else {
-            rocket = Rocket.NONE;
-            list.log("What, this wasn't a real case: " + "Odom identified: " + odometryRocket + "\tGyro identified: "
-                    + gyroRocket);
-        }
+        RocketIdentifcation r = Drive.getInstance().getRocket();
 
         double rotation = 0;
         double jog = 0.0;
         ArcadeSignal after = new ArcadeSignal();
-        if (rocket.identified()) {
+        if (r.rocket.identified()) {
             list.add(GZOI.driverJoy.rumbleRequest(6, .5));
-            if (rocket.near) {
+            if (r.rocket.near) {
                 jog = 10;
                 rotation = 180;
             } else {
                 jog = 10;
 
-                if (rocket.left) {
+                if (r.rocket.left) {
                     rotation = 90 + 45;
                 } else {
                     rotation = 270 - 45;
@@ -323,24 +281,24 @@ public class Superstructure extends GZSubsystem {
             Translation2d endpoint;
 
             // Angle to translate away from exact point
-            Rotation2d angleAwayFromRocket = rocket.position.getRotation().rotateBy(new Rotation2d(180));
+            Rotation2d angleAwayFromRocket = r.rocket.position.getRotation().rotateBy(new Rotation2d(180));
 
             // Scoot absolute point away by half a robot to find new center
-            Translation2d bot_center = rocket.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
+            Translation2d bot_center = r.rocket.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
                     angleAwayFromRocket);
 
-            // Above statement identified that we can use gyro to adjust our odoemtry
-            if (recalibrateWithGyro) {
+            // Should we twist our new point accodring to the gyro
+            if (r.recalibrateWithGyro) {
                 // How much we were off by
-                Rotation2d difference = rocket.position.getRotation().rotateBy(here.getRotation().inverse());
+                Rotation2d difference = r.rocket.position.getRotation().rotateBy(r.here.getRotation().inverse());
                 // New point
-                endpoint = bot_center.rotateAround(rocket.position.getTranslation(), difference.inverse());
+                endpoint = bot_center.rotateAround(r.rocket.position.getTranslation(), difference.inverse());
             } else {
                 // Can't use gyro adjustment, use absolute point
                 endpoint = bot_center;
             }
 
-            list.log("Placing on rocket " + rocket + ". Backing up " + jog + " and turning to " + rotation);
+            list.log("Placing on rocket " + r.rocket + ". Backing up " + jog + " and turning to " + rotation);
             list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }
 
@@ -349,7 +307,7 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(false, true));
         list.add(heightRequest(mDefaultHeight, false));
 
-        if (rocket.identified()) {
+        if (r.rocket.identified()) {
             list.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
             list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
             list.add(Drive.getInstance().openLoopRequest(after));

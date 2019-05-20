@@ -122,7 +122,7 @@ public class Pose2d extends GZGeometry<Pose2d> implements IPose2d<Pose2d> {
         return rotation_;
     }
 
-    public Pose2d nearestByAngleIndex(List<Pose2d> poses, double maxTolerance) {
+    public Pose2d nearestByAngle(List<Pose2d> poses, double maxTolerance) {
         List<Rotation2d> rotations = new ArrayList<>();
         poses.forEach((p) -> rotations.add(p.getRotation()));
 

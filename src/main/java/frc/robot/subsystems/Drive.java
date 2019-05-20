@@ -17,6 +17,7 @@ import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
@@ -492,6 +493,70 @@ public class Drive extends GZSubsystem {
 		}
 	}
 
+	public static class RocketIdentifcation {
+		public final Rocket rocket;
+		public final String how;
+		public final boolean recalibrateWithGyro;
+		public final Pose2d here;
+
+		public RocketIdentifcation(Rocket rocket, String how, boolean recalibrateWithGyro, Pose2d here) {
+			this.rocket = rocket;
+			this.how = how;
+			this.recalibrateWithGyro = recalibrateWithGyro;
+			this.here = here;
+		}
+
+	}
+
+	public RocketIdentifcation getRocket() {
+
+		Rocket rocket = Rocket.NONE;
+		final String how;
+		boolean recalibrateWithGyro = false;
+
+		Pose2d here = new Pose2d(getOdometry().getTranslation(), getGyroAngle());
+
+		Rocket odometryRocket = odometryNearestRocket();
+		Rocket gyroRocket = Rocket.NONE;
+
+		// Gyro only valid if above hatch 1
+		if (Elevator.getInstance().getHeightInches() > Heights.Cargo_1.inches) {
+			// Use gyro angle to determine which one we're placing on
+			gyroRocket = Rocket.closestByAngle(here, 10);
+		}
+
+		// Both forms of odometry acquired
+		if (odometryRocket.identified() && gyroRocket.identified()) {
+			// They agree
+			if (odometryRocket.equals(gyroRocket)) {
+				rocket = odometryRocket;
+				how = "Rocket indentification: agree";
+				recalibrateWithGyro = true;
+			} else {
+				// They don't agree
+				rocket = Rocket.NONE;
+				how = "NO Rocket identification: unequal";
+			}
+			// No way of identifying
+		} else if (odometryRocket.unsure() && gyroRocket.unsure()) {
+			rocket = Rocket.NONE;
+			how = "NO Rocket identification: Both unsure";
+		} else if (odometryRocket.identified()) {
+			rocket = odometryRocket;
+			how = "Rocket identification: odometry";
+		} else if (gyroRocket.identified()) {
+			rocket = gyroRocket;
+			how = "Rocket identification: gyro";
+			recalibrateWithGyro = true;
+		} else {
+			rocket = Rocket.NONE;
+			how = "Rocket identification: What, this wasn't a real case: " + "Odom identified: " + odometryRocket
+					+ "\tGyro identified: " + gyroRocket;
+		}
+
+		return new RocketIdentifcation(rocket, how, recalibrateWithGyro, here);
+	}
+
 	public static enum Rocket {
 		LEFT_NEAR(kAuton.Left_Rocket_Near, true, true), LEFT_FAR(kAuton.Left_Rocket_Far, true, false),
 		RIGHT_NEAR(kAuton.Right_Rocket_Near, false, true), RIGHT_FAR(kAuton.Right_Rocket_Far, false, false),
@@ -515,7 +580,7 @@ public class Drive extends GZSubsystem {
 		}
 
 		public static Rocket closestByAngle(Pose2d pose, double tolerance) {
-			Pose2d nearestRocket = pose.nearestByAngleIndex(
+			Pose2d nearestRocket = pose.nearestByAngle(
 					Arrays.asList(LEFT_NEAR.position, LEFT_FAR.position, RIGHT_NEAR.position, RIGHT_FAR.position),
 					tolerance);
 			if (nearestRocket == null)
