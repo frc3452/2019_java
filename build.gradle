@@ -67,6 +67,8 @@ dependencies {
     compile fileTree(dir: 'lib', include: '**/*.jar')
 
     testCompile 'junit:junit:4.12'
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.0.3")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.3")
 
     snobotSimCompile snobotSimJava()
 }
