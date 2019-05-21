@@ -19,7 +19,7 @@ public class MyTest {
         delta = 5;
 
         expected = 1;
-        actual = 10;
+        actual = 6;
         assertEquals("Should be near", expected, actual, delta);
         // assertEquals("Should be equal", expected, actual);
     }
