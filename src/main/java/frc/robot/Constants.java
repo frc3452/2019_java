@@ -186,11 +186,11 @@ public class Constants {
 		public final static Pose2d Left_Rocket_Near = new Pose2d(
 				new Translation2d(Right_Rocket_Near.getTranslation().x(),
 						(27 * 12) - Right_Rocket_Near.getTranslation().y()),
-				Right_Rocket_Near.getRotation().inverse());
+				new Rotation2d(270 + 61.25));
 		public final static Pose2d Left_Rocket_Far = new Pose2d(
 				new Translation2d(Right_Rocket_Near.getTranslation().x(),
 						(27 * 12) - Right_Rocket_Far.getTranslation().y()),
-				Right_Rocket_Far.getRotation().inverse());
+				new Rotation2d(270 - 61.25));
 
 		public final static int SAFTEY_SWITCH = 96;
 
@@ -206,6 +206,10 @@ public class Constants {
 				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 3, 2, 1, 0);
 			}
 		}
+	}
+
+	public static class kSuperstructure {
+		public final static boolean EXTRA_LOGS = true;
 	}
 
 	public static class kPathFollowing {

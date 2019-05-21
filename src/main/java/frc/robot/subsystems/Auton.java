@@ -269,27 +269,7 @@ public class Auton {
 		}
 
 		Translation2d position;
-
-		switch (mCustomAutoStartPos) {
-		case CENTER:
-			position = new Center_CS_Face_Left().getStartPose().getTranslation();
-			break;
-		case LEFT:
-			position = new Left_Rocket_Close_Same().getStartPose().getTranslation();
-			break;
-		case RIGHT:
-			position = new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation();
-			break;
-		case LEFT_2:
-			position = new Translation2d(27, 205);
-			break;
-		case RIGHT_2:
-			position = new Translation2d(27, 117);
-			break;
-		default:
-			System.out.println("UNHANDLED STARTING POSITION " + mCustomAutoStartPos + " IN updateCustomAuto()");
-			return;
-		}
+		position = mCustomAutoStartPos.position;
 
 		System.out.println("Zeroing odometry to " + mCustomAutoStartPos);
 		Drive.getInstance().zeroOdometry(new RigidTransform2d(position, mCustomAutoStartingAngle.inverse()));
@@ -309,7 +289,9 @@ public class Auton {
 				mCustomAutoStartingAngle = null;
 			} else {
 				Translation2d newAngle = GZOI.driverJoy.getRightAnalogAngle();
-				Rotation2d mappedAngle = Rotation2d.nearestCardinalPlus(newAngle.direction());
+				Rotation2d mappedAngle = newAngle.direction().nearestCardinalPlus();
+
+				// System.out.println(mappedAngle + "\t" + newAngle + "\t" + newAngle.norm());
 
 				if (Math.abs(newAngle.norm()) > .2) {
 					if (mCustomAutoStartingAngle == null || !mCustomAutoStartingAngle.equals(mappedAngle)) {

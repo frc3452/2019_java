@@ -113,23 +113,23 @@ public class Superstructure extends GZSubsystem {
 
     public void prepToGrabHatch() {
         RequestList list = new RequestList(this);
-        list.log("Prepping for grabbing");
+        list.extraLog("Prepping for grabbing");
         list.add(heightRequest(Heights.HP_1, true));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(true, true));
-        list.log("Prepped");
+        list.extraLog("Prepped");
 
         manager.request(list);
     }
 
     public void prepForFeeder() {
         RequestList list = new RequestList(this);
-        list.log("Prepping for feeder station");
+        list.extraLog("Prepping for feeder station");
         list.add(heightRequest(Heights.HP_1, true));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
-        list.log("Prepped for feeder station");
+        list.extraLog("Prepped for feeder station");
 
         manager.request(list);
     }
@@ -329,7 +329,7 @@ public class Superstructure extends GZSubsystem {
 
     public void intake() {
         RequestList list = new RequestList(this);
-        list.log("Getting ready to intake cargo");
+        list.extraLog("Getting ready to intake cargo");
         list.add(heightRequest(Heights.Home, false));
         list.add(slidesRequest(false, false));
         list.add(clawRequest(true, false));
@@ -338,23 +338,23 @@ public class Superstructure extends GZSubsystem {
         list.add(waitForState(new SuperstructureState(Heights.Home.inches, false, true, true)));
 
         list.add(runIntakeRequest(IntakeState.INTAKING));
-        list.log("Intaking cargo");
+        list.extraLog("Intaking cargo");
         manager.request(list);
     }
 
     public void intakeEject() {
         RequestList list = new RequestList(this);
-        list.log("Preparing to eject cargo");
+        list.extraLog("Preparing to eject cargo");
         list.add(intakeRequest(true, true));
         list.add(runIntakeRequest(IntakeState.EJECTING));
-        list.log("Ejecting cargo");
+        list.extraLog("Ejecting cargo");
         manager.request(list);
     }
 
     public void toggleIntake() {
         RequestList list = new RequestList(this);
         list.add(intakeRequest(!intake.isExtended(), true));
-        list.log("Toggling intake");
+        list.extraLog("Toggling intake");
     }
 
     public void toggleIntakeRoller() {
@@ -367,7 +367,7 @@ public class Superstructure extends GZSubsystem {
         else
             newState = IntakeState.INTAKING;
 
-        list.log("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on"));
+        list.extraLog("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on"));
         list.add(runIntakeRequest(newState));
         manager.request(list);
     }
@@ -389,7 +389,7 @@ public class Superstructure extends GZSubsystem {
 
     public void handOffCargo() {
         RequestList list = new RequestList(this);
-        list.log("Handing off cargo");
+        list.extraLog("Handing off cargo");
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(heightRequest(Heights.HP_1));
@@ -401,7 +401,7 @@ public class Superstructure extends GZSubsystem {
             }
         });
 
-        list.log("Cargo handed off");
+        list.extraLog("Cargo handed off");
         manager.request(list);
     }
 
@@ -433,12 +433,12 @@ public class Superstructure extends GZSubsystem {
 
     private void grabCargoFromFeeder() {
         RequestList list = new RequestList(this);
-        list.log("Grabbing cargo from feeder station");
+        list.extraLog("Grabbing cargo from feeder station");
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
         list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(heightRequest(Heights.Cargo_1));
-        list.log("Cargo grabbed");
+        list.extraLog("Cargo grabbed");
         manager.request(list);
     }
 
@@ -481,9 +481,9 @@ public class Superstructure extends GZSubsystem {
 
     public void setHeight(Heights h) {
         RequestList list = new RequestList(this);
-        list.log("Moving to height " + h);
+        list.extraLog("Moving to height " + h);
         list.add(heightRequest(h));
-        list.log("At desired height");
+        list.extraLog("At desired height");
         manager.request(list);
     }
 
@@ -496,7 +496,7 @@ public class Superstructure extends GZSubsystem {
 
     public void scoreCargo() {
         RequestList list = new RequestList(this);
-        list.log("Scoring cargo");
+        list.extraLog("Scoring cargo");
         // Prep for throw
         list.add(clawRequest(false, false));
         list.add(slidesRequest(false, false));
@@ -514,7 +514,7 @@ public class Superstructure extends GZSubsystem {
 
         // Pull back
         list.add(slidesRequest(false, true));
-        list.log("Completed scoring cargo");
+        list.extraLog("Completed scoring cargo");
         manager.request(list);
     }
 
@@ -679,26 +679,31 @@ public class Superstructure extends GZSubsystem {
         elev.manual(leftAnalogY);
     }
 
-    int feederStage = 1;
+    // int feederStage = 1;
 
     public void advanceFeederStage() {
-        switch (feederStage) {
-        case 1:
+        if (!preppedForFeeder()) {
             prepForFeeder();
-            break;
-        case 2:
-            prepToGrabHatch();
-            break;
-        case 3:
+        } else {
             grabHatchFromFeeder();
-            break;
         }
+        // switch (feederStage) {
+        // case 1:
+        // prepForFeeder();
+        // break;
+        // case 2:
+        // prepToGrabHatch();
+        // break;
+        // case 3:
+        // grabHatchFromFeeder();
+        // break;
+        // }
         manager.queue(GZOI.driverJoy.rumbleRequest(8, .125));
 
-        if (feederStage != 3)
-            feederStage++;
-        else
-            feederStage = 1;
+        // if (feederStage != 3)
+        // feederStage++;
+        // else
+        // feederStage = 1;
     }
 
 }

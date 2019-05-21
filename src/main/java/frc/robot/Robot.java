@@ -48,6 +48,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		Drive.getInstance().setDefaultStartingPosition();
+
 		auton.fillAutonArray();
 
 		health.assignSubsystems(allSubsystems.getSubsystems());

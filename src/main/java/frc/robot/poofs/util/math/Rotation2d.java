@@ -270,8 +270,8 @@ public class Rotation2d extends GZGeometry<Rotation2d> implements IRotation2d<Ro
         return angle;
     }
 
-    public static Rotation2d nearestCardinalPlus(Rotation2d value) {
-        return value.nearest(getCardinalsPlus());
+    public Rotation2d nearestCardinalPlus() {
+        return this.nearest(getCardinalsPlus());
     }
 
     public Rotation2d nearest(List<Rotation2d> rotations) {
@@ -286,16 +286,30 @@ public class Rotation2d extends GZGeometry<Rotation2d> implements IRotation2d<Ro
         return rotations.get(index);
     }
 
+    public Pose2d nearestPoseByAngle(List<Pose2d> poses, double maxTolerance) {
+        List<Rotation2d> rotations = new ArrayList<>();
+        poses.forEach((p) -> rotations.add(p.getRotation()));
+
+        int index = nearestIndex(rotations, maxTolerance);
+        if (index == -1)
+            return null;
+
+        return poses.get(index);
+    }
+
     public int nearestIndex(List<Rotation2d> rotations, double maxDistance) {
         double minDistance = Double.POSITIVE_INFINITY;
         int minDistanceIndex = -1;
+        // System.out.println("Rotations: " + rotations.size());
         for (int i = 0; i < rotations.size(); i++) {
             Rotation2d t = rotations.get(i);
-            double distance = t.distance(this);
+            double distance = Math.abs(t.distanceDeg(this));
 
             if (distance > maxDistance) {
                 distance = Double.POSITIVE_INFINITY;
             }
+            // System.out.println("Rotation " + i + ": " + t.toString() + "\tDistance: " +
+            // distance);
 
             if (distance < minDistance) {
                 minDistance = distance;
@@ -305,7 +319,6 @@ public class Rotation2d extends GZGeometry<Rotation2d> implements IRotation2d<Ro
 
         return minDistanceIndex;
     }
-
 
     public static boolean between(Rotation2d value, Rotation2d lowBound, Rotation2d highBound) {
         double n = value.getNormalDegrees();

@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.poofs.util.math.Rotation2d;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all.
@@ -25,7 +26,19 @@ public final class Main {
      * If you change your main robot class, change the parameter type.
      */
     public static void main(String... aArgs) {
-
         RobotBase.startRobot(Robot::new);
+        // test();
+    }
+
+    public static void test() {
+        // Rotation2d 
+
+        // double d = new Rotation2d(0).nearestCardinalPlus().getNormalDegrees();
+        // System.out.println(d);
+        // for (double d = 0; d <= 360; d += 10)
+        // {
+        //     Rotation2d r = new Rotation2d(d).nearestCardinalPlus();
+        //     System.out.println(d + "\t" + r.getNormalDegrees());
+        // }
     }
 }

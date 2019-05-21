@@ -244,12 +244,12 @@ public class GZOI extends GZSubsystem {
 			supe.rocketHeight(RocketHeight.LOW);
 		} else if (driverJoy.POV270.wasActivated()) {
 			supe.rocketHeight(RocketHeight.MIDDLE);
-		} else if (driverJoy.POV90.wasActivated()) {
+		} else if (driverJoy.POV0.wasActivated()) {
 			supe.rocketHeight(RocketHeight.HIGH);
 		} else if (driverJoy.startButton.wasActivated()) {
 			if (Intake.getInstance().isRetracted()) {
 				supe.advanceFeederStage();
-			} else {
+			} else if (Intake.getInstance().isExtended()) {
 				supe.handOffCargo();
 			}
 		} else if (driverJoy.rightBumper.wasActivated()) {
@@ -267,7 +267,7 @@ public class GZOI extends GZSubsystem {
 		drive.handleDriving(driverJoy);
 
 		if (driverJoy.POV90.wasActivated()) {
-			drive.turnToHeading(Rotation2d.fromDegrees(180));
+			drive.turnRelative(Rotation2d.fromDegrees(90));
 		}
 	}
 
