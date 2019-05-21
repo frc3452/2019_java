@@ -247,7 +247,7 @@ public class GZOI extends GZSubsystem {
 		} else if (driverJoy.POV90.wasActivated()) {
 			supe.rocketHeight(RocketHeight.HIGH);
 		} else if (driverJoy.startButton.wasActivated()) {
-			if (!Intake.getInstance().isExtended()) {
+			if (Intake.getInstance().isRetracted()) {
 				supe.advanceFeederStage();
 			} else {
 				supe.handOffCargo();
