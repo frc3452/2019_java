@@ -476,13 +476,13 @@ public class Drive extends GZSubsystem {
 		};
 	}
 
-	public Pose2d getOdometryPose() {
+	public Pose2d getFixedPose() {
 		RigidTransform2d pose = new RigidTransform2d(getOdometry());
-		return new Pose2d(pose.getTranslation(), pose.getRotation());
+		return new Pose2d(pose.getTranslation(), getGyroAngle());
 	}
 
 	public Rocket odometryNearestRocket() {
-		Pose2d pose = getOdometryPose();
+		Pose2d pose = getFixedPose();
 		Translation2d p = pose.getTranslation();
 
 		if (p.insideRange(new Translation2d(165, 269), new Translation2d(229.28, 324))) {

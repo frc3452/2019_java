@@ -19,7 +19,17 @@ public class RequestManager {
         return allRequestsCompleted;
     }
 
-    public void update() {
+    private double lastTimeStamp = Double.NaN;
+    private double dt = Double.NaN;
+
+    public double getTimeDelta() {
+        return dt;
+    }
+
+    public void update(double timestamp) {
+        dt = timestamp - lastTimeStamp;
+        lastTimeStamp = timestamp;
+
         if (!activeRequestsCompleted) {
             if (newRequests) {
                 if (activeRequests.isParallel()) {

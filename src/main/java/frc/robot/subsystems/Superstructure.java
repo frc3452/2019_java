@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.Arrays;
 
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
@@ -25,8 +26,8 @@ import frc.robot.util.requests.RequestManager;
 
 public class Superstructure extends GZSubsystem {
 
-    private Elevator elev = Elevator.getInstance();
-    private Intake intake = Intake.getInstance();
+    private Elevator elev;
+    private Intake intake;
 
     private GZSubsystemManager subsystems;
 
@@ -43,13 +44,20 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Superstructure() {
+        elev = Elevator.getInstance();
+        intake = Intake.getInstance();
         subsystems = new GZSubsystemManager(elev, intake); // intake
     }
 
     @Override
     public void loop() {
-        if (GZOI.getInstance().isEnabled())
-            manager.update();
+        if (GZOI.getInstance().isEnabled()) {
+            // for (int i = 0; i < 10; i++) {
+            manager.update(Timer.getFPGATimestamp());
+            double dt = manager.getTimeDelta();
+            System.out.println(dt);
+            // }
+        }
     }
 
     private Request waitForClaw(boolean open) {
@@ -74,7 +82,6 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-
             }
 
             @Override
@@ -212,7 +219,7 @@ public class Superstructure extends GZSubsystem {
         RequestList list = new RequestList(this);
         list.log("Grabbing hatch from feeder station");
         {
-            Pose2d here = new Pose2d(Drive.getInstance().getOdometryPose());
+            Pose2d here = new Pose2d(Drive.getInstance().getFixedPose());
 
             Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
 

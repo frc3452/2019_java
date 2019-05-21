@@ -27,18 +27,5 @@ public final class Main {
      */
     public static void main(String... aArgs) {
         RobotBase.startRobot(Robot::new);
-        // test();
-    }
-
-    public static void test() {
-        // Rotation2d 
-
-        // double d = new Rotation2d(0).nearestCardinalPlus().getNormalDegrees();
-        // System.out.println(d);
-        // for (double d = 0; d <= 360; d += 10)
-        // {
-        //     Rotation2d r = new Rotation2d(d).nearestCardinalPlus();
-        //     System.out.println(d + "\t" + r.getNormalDegrees());
-        // }
     }
 }
