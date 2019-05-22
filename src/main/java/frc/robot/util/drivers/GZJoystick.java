@@ -12,17 +12,33 @@ public class GZJoystick extends Joystick {
 
 	private double mTriggerPress = 0.3;
 
-	private double mDeadband = 0.04;
+	private double mDeadband;
 
 	public boolean rumbling;
 
 	public GZJoystick(int port, double deadband) {
-		this(port);
+		super(port);
 		this.mDeadband = deadband;
+		aButton = new ButtonCheck(A_BUTTON);
+        bButton = new ButtonCheck(B_BUTTON);
+        xButton = new ButtonCheck(X_BUTTON);
+        yButton = new ButtonCheck(Y_BUTTON);
+        startButton = new ButtonCheck(START_BUTTON);
+        backButton = new ButtonCheck(BACK_BUTTON);
+        leftBumper = new ButtonCheck(LEFT_BUMPER);
+        rightBumper = new ButtonCheck(RIGHT_BUMPER);
+        leftCenterClick = new ButtonCheck(LEFT_CENTER_CLICK);
+        rightCenterClick = new ButtonCheck(RIGHT_CENTER_CLICK);     
+        leftTrigger = new ButtonCheck(LEFT_TRIGGER);
+        rightTrigger = new ButtonCheck(RIGHT_TRIGGER);
+        POV0 = new ButtonCheck(POV_0);
+        POV90 = new ButtonCheck(POV_90);
+        POV180 = new ButtonCheck(POV_180);
+        POV270 = new ButtonCheck(POV_270);
 	}
 
 	public GZJoystick(int port) {
-		super(port);
+		this(port, 0.04);
 	}
 
 	public Double getLeftAnalogY() {

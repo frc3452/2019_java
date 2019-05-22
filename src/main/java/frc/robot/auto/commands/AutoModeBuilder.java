@@ -49,6 +49,7 @@ import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_Same;
 import frc.robot.auto.pathadapter.PathAdapter;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
@@ -86,7 +87,16 @@ public class AutoModeBuilder {
     }
 
     public static enum ZeroPositions {
-        CENTER, LEFT, RIGHT, LEFT_2, RIGHT_2
+        CENTER(new Center_CS_Face_Left().getStartPose().getTranslation()),
+        LEFT(new Left_Rocket_Close_Same().getStartPose().getTranslation()),
+        RIGHT(new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation()),
+        LEFT_2(new Translation2d(27, 205)), RIGHT_2(new Translation2d(27, 117));
+
+        public final Translation2d position;
+
+        private ZeroPositions(Translation2d translation) {
+            this.position = translation;
+        }
     }
 
     public static enum StartingPosition {
@@ -453,31 +463,32 @@ public class AutoModeBuilder {
         GZCommandGroup score = new GZCommandGroup();
         // switch (gamepiece) {
         // case CARGO:
-        //     if (location.isOnCargoShip()) {
-        //         score.add(new GoToHeight(Heights.Cargo_Ship));
-        //     } else {
-        //         score.add(new GoToHeight(Heights.Cargo_1));
-        //     }
-        //     score.add(new RunAction(Actions.THROW_CARGO));
-        //     break;
+        // if (location.isOnCargoShip()) {
+        // score.add(new GoToHeight(Heights.Cargo_Ship));
+        // } else {
+        // score.add(new GoToHeight(Heights.Cargo_1));
+        // }
+        // score.add(new RunAction(Actions.THROW_CARGO));
+        // break;
         // case HATCH_PANEL:
-        //     // ret.add(new GoToHeight(Heights.Cargo_1));
-        //     if (location.isOnCargoShip()) {
-        //         score.add(new ExtendSlides());
-        //         score.add(new GoToHeight(Heights.HP_1));
-        //     } else { // rocket
-        //         score.add(new GoToHeight(Heights.HP_2));
-        //     }
-        //     score.add(new RunAction(Actions.SCORE_HATCH));
-        //     break;
+        // // ret.add(new GoToHeight(Heights.Cargo_1));
+        // if (location.isOnCargoShip()) {
+        // score.add(new ExtendSlides());
+        // score.add(new GoToHeight(Heights.HP_1));
+        // } else { // rocket
+        // score.add(new GoToHeight(Heights.HP_2));
+        // }
+        // score.add(new RunAction(Actions.SCORE_HATCH));
+        // break;
         // }
         score.tele();
 
-        // ConditionalCommand scoreCommand = new ConditionalCommand(new NoCommand(), score) {
-        //     @Override
-        //     protected boolean condition() {
-        //         return Superstructure.getInstance().hasAutoScored();
-        //     }
+        // ConditionalCommand scoreCommand = new ConditionalCommand(new NoCommand(),
+        // score) {
+        // @Override
+        // protected boolean condition() {
+        // return Superstructure.getInstance().hasAutoScored();
+        // }
         // };
 
         // ret.add(scoreCommand);

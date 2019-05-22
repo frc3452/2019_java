@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import frc.robot.Constants.kSuperstructure;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.util.GZSubsystem;
 
 public class RequestList {
 
 	ArrayList<Request> requests;
 	boolean parallel = false;
+
+	boolean ignoreLogs = false;
 
 	private GZSubsystem subsystem = null;
 
@@ -20,6 +24,14 @@ public class RequestList {
 	public RequestList(GZSubsystem subsystem) {
 		this();
 		this.subsystem = subsystem;
+	}
+
+	public void extraLog(String message) {
+		if (subsystem.equals(Superstructure.getInstance())) {
+			if (kSuperstructure.EXTRA_LOGS){
+				log(message);
+			}
+		}
 	}
 
 	public void log(String message) {

@@ -21,6 +21,7 @@ import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
+import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
@@ -208,6 +209,10 @@ public class Drive extends GZSubsystem {
 		SmartDashboard.putData(mShuffleboardPose);
 	}
 
+	public void setDefaultStartingPosition() {
+		zeroOdometry(new RigidTransform2d(ZeroPositions.LEFT.position, new Rotation2d(0)));
+	}
+
 	public synchronized void setGyroAngle(Rotation2d angle) {
 		mNavX.reset();
 		mNavX.setAngleAdjustment(angle);
@@ -363,7 +368,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized Rotation2d getGyroAngle() {
-		return mNavX.getYaw();
+		return mNavX.getYaw().inverse();
 	}
 
 	private static double rpmToTicksPer100ms(double rpm) {
@@ -471,13 +476,13 @@ public class Drive extends GZSubsystem {
 		};
 	}
 
-	public Pose2d getOdometryPose() {
+	public Pose2d getFixedPose() {
 		RigidTransform2d pose = new RigidTransform2d(getOdometry());
-		return new Pose2d(pose.getTranslation(), pose.getRotation());
+		return new Pose2d(pose.getTranslation(), getGyroAngle());
 	}
 
 	public Rocket odometryNearestRocket() {
-		Pose2d pose = getOdometryPose();
+		Pose2d pose = getFixedPose();
 		Translation2d p = pose.getTranslation();
 
 		if (p.insideRange(new Translation2d(165, 269), new Translation2d(229.28, 324))) {
@@ -522,7 +527,9 @@ public class Drive extends GZSubsystem {
 		// Gyro only valid if above hatch 1
 		if (Elevator.getInstance().getHeightInches() > Heights.Cargo_1.inches) {
 			// Use gyro angle to determine which one we're placing on
-			gyroRocket = Rocket.closestByAngle(here, 10);
+			// Pose2d editedPose = new Pose2d(here.getTranslation(),
+			// here.getRotation().inverse());
+			gyroRocket = Rocket.closestByAngle(getGyroAngle(), 10);
 		}
 
 		// Both forms of odometry acquired
@@ -554,6 +561,8 @@ public class Drive extends GZSubsystem {
 					+ "\tGyro identified: " + gyroRocket;
 		}
 
+		// how += odometryRocket + "\t" + gyroRocket;
+
 		return new RocketIdentifcation(rocket, how, recalibrateWithGyro, here);
 	}
 
@@ -579,8 +588,8 @@ public class Drive extends GZSubsystem {
 			return !identified();
 		}
 
-		public static Rocket closestByAngle(Pose2d pose, double tolerance) {
-			Pose2d nearestRocket = pose.nearestByAngle(
+		public static Rocket closestByAngle(Rotation2d rotation, double tolerance) {
+			Pose2d nearestRocket = rotation.nearestPoseByAngle(
 					Arrays.asList(LEFT_NEAR.position, LEFT_FAR.position, RIGHT_NEAR.position, RIGHT_FAR.position),
 					tolerance);
 			if (nearestRocket == null)
@@ -993,7 +1002,7 @@ public class Drive extends GZSubsystem {
 			final double initLeft = getLeftRotations();
 			final double initRight = getRightRotations();
 
-			Rotation2d current = getGyroAngle().inverse();
+			Rotation2d current = getGyroAngle();
 
 			boolean shouldTurnRight = Rotation2d.shouldTurnClockwise(current, mTurnToHeadingGoal);
 
@@ -1119,7 +1128,6 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void loop() {
-
 		if (kDrivetrain.TUNING) {
 			SmartDashboard.putNumber("Target", mIO.left_output);
 			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
