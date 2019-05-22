@@ -2,6 +2,7 @@ package frc.robot.util.requests;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.util.GZFiles;
@@ -81,6 +82,16 @@ public abstract class Request {
 			@Override
 			public boolean isFinished() {
 				return (Timer.getFPGATimestamp() - startTime) > waitTime;
+			}
+		};
+	}
+
+	public static Request printTime() {
+		return new Request() {
+
+			@Override
+			public void act() {
+				System.out.println(Timer.getFPGATimestamp());
 			}
 		};
 	}

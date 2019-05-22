@@ -6,6 +6,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "CodeLens (Launch) - Test",
+      "request": "launch",
+      "mainClass": "frc.robot.Test",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - RequestManagerTest",
+      "request": "launch",
+      "mainClass": "RequestManagerTest",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
       "name": "CodeLens (Launch) - Superstructure",
       "request": "launch",
       "mainClass": "frc.robot.subsystems.Superstructure",

@@ -28,7 +28,7 @@ public class RequestList {
 
 	public void extraLog(String message) {
 		if (subsystem.equals(Superstructure.getInstance())) {
-			if (kSuperstructure.EXTRA_LOGS){
+			if (kSuperstructure.EXTRA_LOGS) {
 				log(message);
 			}
 		}
@@ -66,12 +66,17 @@ public class RequestList {
 		return parallel;
 	}
 
+	public void setParallel() {
+		this.parallel = true;
+	}
+
 	public List<Request> getRequests() {
 		return requests;
 	}
 
-	public void add(Request request) {
+	public RequestList add(Request request) {
 		requests.add(request);
+		return this;
 	}
 
 	public void addToForefront(Request request) {

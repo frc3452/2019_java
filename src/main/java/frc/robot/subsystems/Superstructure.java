@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -20,14 +21,15 @@ import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
+import frc.robot.util.requests.QuickCompleteRequest;
 import frc.robot.util.requests.Request;
 import frc.robot.util.requests.RequestList;
 import frc.robot.util.requests.RequestManager;
 
 public class Superstructure extends GZSubsystem {
 
-    private Elevator elev;
-    private Intake intake;
+    private static Elevator elev_;
+    private static Intake intake_;
 
     private GZSubsystemManager subsystems;
 
@@ -44,9 +46,9 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Superstructure() {
-        elev = Elevator.getInstance();
-        intake = Intake.getInstance();
-        subsystems = new GZSubsystemManager(elev, intake); // intake
+        elev_ = Elevator.getInstance();
+        intake_ = Intake.getInstance();
+        subsystems = new GZSubsystemManager(elev_, intake_); // intake
     }
 
     @Override
@@ -54,8 +56,8 @@ public class Superstructure extends GZSubsystem {
         if (GZOI.getInstance().isEnabled()) {
             // for (int i = 0; i < 10; i++) {
             manager.update(Timer.getFPGATimestamp());
-            double dt = manager.getTimeDelta();
-            System.out.println(dt);
+            // double dt = manager.getTimeDelta();
+            // System.out.println(dt);
             // }
         }
     }
@@ -71,8 +73,8 @@ public class Superstructure extends GZSubsystem {
             @Override
             public boolean isFinished() {
                 if (open)
-                    return elev.isClawOpen();
-                return elev.isClawClosed();
+                    return elev_.isClawOpen();
+                return elev_.isClawClosed();
             }
         };
     }
@@ -87,58 +89,46 @@ public class Superstructure extends GZSubsystem {
             @Override
             public boolean isFinished() {
                 if (extended)
-                    return elev.areSlidesOut();
-                return elev.areSlidesIn();
+                    return elev_.areSlidesOut();
+                return elev_.areSlidesIn();
             }
         };
     }
 
     private Request clawRequest(boolean open, boolean waitForCompletion) {
-        return new Request() {
+        return new QuickCompleteRequest(!waitForCompletion) {
 
             @Override
-            public void act() {
+            public void _act() {
                 if (open)
-                    elev.openClaw();
+                    elev_.openClaw();
                 else
-                    elev.closeClaw();
+                    elev_.closeClaw();
             }
 
             @Override
-            public boolean isFinished() {
-                if (waitForCompletion)
-                    if (open) {
-                        return elev.isClawOpen();
-                    } else {
-                        return elev.isClawClosed();
-                    }
-                else
-                    return true;
+            public boolean _isFinished() {
+                if (open)
+                    return elev_.isClawOpen();
+                return elev_.isClawClosed();
             }
-        };
+        }.generate();
     }
 
     public void prepToGrabHatch() {
         RequestList list = new RequestList(this);
         list.extraLog("Prepping for grabbing");
-        list.add(heightRequest(Heights.HP_1, true));
-        list.add(intakeRequest(false, true));
-        list.add(clawRequest(false, true));
-        list.add(slidesRequest(true, true));
-        list.extraLog("Prepped");
+        list.add(heightRequest(Heights.HP_1, false));
+        list.add(intakeRequest(false, false));
+        list.add(clawRequest(false, false));
+        list.add(slidesRequest(true, false));
+        list.setParallel();
 
-        manager.request(list);
-    }
+        RequestList queue = new RequestList(this);
+        queue.add(waitForState());
+        queue.extraLog("Prepped");
 
-    public void prepForFeeder() {
-        RequestList list = new RequestList(this);
-        list.extraLog("Prepping for feeder station");
-        list.add(heightRequest(Heights.HP_1, true));
-        list.add(intakeRequest(false, true));
-        list.add(clawRequest(false, true));
-        list.extraLog("Prepped for feeder station");
-
-        manager.request(list);
+        manager.request(list, queue);
     }
 
     public void zeroElevator() {
@@ -147,7 +137,7 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                elev.zero();
+                elev_.zero();
             }
         });
         manager.request(list);
@@ -313,17 +303,20 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(true, true));
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
-        list.add(heightRequest(mDefaultHeight, false));
+        
+        RequestList finalMove = new RequestList(this);
+
+        finalMove.add(heightRequest(mDefaultHeight, !r.rocket.identified()));
 
         if (r.rocket.identified()) {
-            list.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
-            list.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
-            list.add(Drive.getInstance().openLoopRequest(after));
+            finalMove.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
+            finalMove.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
+            finalMove.add(Drive.getInstance().openLoopRequest(after));
         }
 
-        list.log("Hatch scoring completed");
+        finalMove.log("Hatch scoring completed");
 
-        manager.request(list);
+        manager.request(list, finalMove);
     }
 
     public void operatorIntake() {
@@ -341,12 +334,13 @@ public class Superstructure extends GZSubsystem {
         list.add(slidesRequest(false, false));
         list.add(clawRequest(true, false));
         list.add(intakeRequest(true, false));
+        list.add(waitForState());
+        list.setParallel();
 
-        list.add(waitForState(new SuperstructureState(Heights.Home.inches, false, true, true)));
-
-        list.add(runIntakeRequest(IntakeState.INTAKING));
-        list.extraLog("Intaking cargo");
-        manager.request(list);
+        var queue = new RequestList(this);
+        queue.add(runIntakeRequest(IntakeState.INTAKING));
+        queue.extraLog("Intaking cargo");
+        manager.request(list, queue);
     }
 
     public void intakeEject() {
@@ -354,14 +348,17 @@ public class Superstructure extends GZSubsystem {
         list.extraLog("Preparing to eject cargo");
         list.add(intakeRequest(true, true));
         list.add(runIntakeRequest(IntakeState.EJECTING));
-        list.extraLog("Ejecting cargo");
-        manager.request(list);
+        list.setParallel();
+        var queue = new RequestList(this);
+        queue.extraLog("Ejecting cargo");
+        manager.request(list, queue);
     }
 
     public void toggleIntake() {
         RequestList list = new RequestList(this);
-        list.add(intakeRequest(!intake.isExtended(), true));
+        list.add(intakeRequest(!intake_.isExtended(), true));
         list.extraLog("Toggling intake");
+        manager.request(list);
     }
 
     public void toggleIntakeRoller() {
@@ -369,7 +366,7 @@ public class Superstructure extends GZSubsystem {
 
         IntakeState newState;
 
-        if (intake.getWantedState() != IntakeState.NEUTRAL)
+        if (intake_.getWantedState() != IntakeState.NEUTRAL)
             newState = IntakeState.NEUTRAL;
         else
             newState = IntakeState.INTAKING;
@@ -384,12 +381,12 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                elev.jogHeight(inches);
+                elev_.jogHeight(inches);
             }
 
             @Override
             public boolean isFinished() {
-                return elev.nearTarget();
+                return elev_.nearTarget();
             }
         };
     }
@@ -404,7 +401,7 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                elev.setHasHatchPanel(false);
+                elev_.setHasHatchPanel(false);
             }
         });
 
@@ -413,11 +410,11 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void rocketHeight(RocketHeight height) {
-        setHeight(Heights.getHeight(height, elev.isMovingHP()));
+        setHeight(Heights.getHeight(height, elev_.isMovingHP()));
     }
 
     public void jogElevator(double jog) {
-        elev.jogHeight(jog);
+        elev_.jogHeight(jog);
     }
 
     private Request runIntakeRequest(IntakeState state) {
@@ -425,13 +422,13 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                intake.setWantedState(state);
+                intake_.setWantedState(state);
             }
         };
     }
 
     public boolean preppedForFeeder() {
-        return intake.isRetracted() && elev.near(Heights.HP_1.inches) && elev.isClawClosed();
+        return intake_.isRetracted() && elev_.near(Heights.HP_1.inches) && elev_.isClawClosed();
     }
 
     public boolean readyToGrabFromFeeder() {
@@ -450,10 +447,10 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void retrieve() {
-        if (elev.isMovingHP()) {
+        if (elev_.isMovingHP()) {
             grabHatchFromFeeder();
         } else {
-            if (intake.isExtended()) {
+            if (intake_.isExtended()) {
                 handOffCargo();
             } else {
                 grabCargoFromFeeder();
@@ -471,7 +468,7 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                elev.toggleClaw();
+                elev_.toggleClaw();
             }
         });
     }
@@ -481,7 +478,7 @@ public class Superstructure extends GZSubsystem {
 
             @Override
             public void act() {
-                elev.toggleSlides();
+                elev_.toggleSlides();
             }
         });
     }
@@ -495,34 +492,44 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void score() {
-        if (elev.isMovingHP())
+        if (elev_.isMovingHP())
             scoreHatch();
         else
             scoreCargo();
     }
 
     public void scoreCargo() {
-        RequestList list = new RequestList(this);
-        list.extraLog("Scoring cargo");
+
+        ArrayList<RequestList> list = new ArrayList<>();
+
         // Prep for throw
-        list.add(clawRequest(false, false));
-        list.add(slidesRequest(false, false));
+        {
+            RequestList prepForThrow = new RequestList(this);
+            prepForThrow.extraLog("Scoring cargo");
+
+            prepForThrow.add(clawRequest(false, false));
+            prepForThrow.add(slidesRequest(false, false));
+            list.add(prepForThrow);
+        }
 
         // Wait
-        list.add(waitForSlides(false));
-        list.add(waitForClaw(false));
+        {
+            RequestList wait = new RequestList(this);
+            wait.add(waitForSlides(false));
+            wait.add(waitForClaw(false));
+        }
 
         // Shoot
-        list.add(clawRequest(true, false));
-        list.add(slidesRequest(true, false));
+        // list.add(clawRequest(true, false));
+        // list.add(slidesRequest(true, false));
 
-        // Wait
-        list.add(waitForSlides(true));
+        // // Wait
+        // list.add(waitForSlides(true));
 
-        // Pull back
-        list.add(slidesRequest(false, true));
-        list.extraLog("Completed scoring cargo");
-        manager.request(list);
+        // // Pull back
+        // list.add(slidesRequest(false, true));
+        // list.extraLog("Completed scoring cargo");
+        // manager.request(list);
     }
 
     public static class SuperstructureState {
@@ -562,75 +569,67 @@ public class Superstructure extends GZSubsystem {
             return other.equals(new SuperstructureState());
         }
 
+        public static boolean isAtTarget() {
+            return isAt(getTarget());
+        }
+
+        public static SuperstructureState getTarget() {
+            return new SuperstructureState(elev_.getTarget(), elev_.doSlidesWantOut(), elev_.clawWantsOpen(),
+                    intake_.wantsOut());
+        }
+
     }
 
-    private Request waitForState(SuperstructureState state) {
+    private Request waitForState() {
         return new Request() {
 
             @Override
             public void act() {
-
             }
 
             @Override
             public boolean isFinished() {
-                return SuperstructureState.isAt(state);
+                return SuperstructureState.isAtTarget();
             }
         };
     }
 
     private Request slidesRequest(boolean extended, boolean waitForCompletion) {
-        return new Request() {
+        return new QuickCompleteRequest(!waitForCompletion) {
 
             @Override
-            public void act() {
-                if (extended)
-                    elev.extendSlides();
-                else
-                    elev.retractSlides();
-            }
-
-            @Override
-            public boolean isFinished() {
-                if (waitForCompletion) {
-                    if (extended) {
-                        return elev.areSlidesOut();
-                    } else {
-                        return elev.areSlidesIn();
-                    }
+            public void _act() {
+                if (extended) {
+                    elev_.extendSlides();
                 } else {
-                    return true;
+                    elev_.retractSlides();
                 }
             }
-        };
+
+            @Override
+            public boolean _isFinished() {
+                return elev_.slidesAtDesired();
+            }
+        }.generate();
 
     }
 
     private Request intakeRequest(boolean extended, boolean waitForCompletion) {
-        return new Request() {
+        return new QuickCompleteRequest(!waitForCompletion) {
 
             @Override
-            public void act() {
+            public void _act() {
                 if (extended)
-                    intake.extend();
+                    intake_.extend();
                 else
-                    intake.retract();
+                    intake_.retract();
             }
 
             @Override
-            public boolean isFinished() {
-                if (waitForCompletion) {
-                    if (extended) {
-                        return intake.isExtended();
-                    } else {
-                        return intake.isRetracted();
-                    }
-                } else {
-                    return true;
-                }
+            public boolean _isFinished() {
+                return !intake_.wantsToMove();
             }
-        };
-
+        }.generate();
     }
 
     private Request heightRequest(Heights height) {
@@ -638,25 +637,19 @@ public class Superstructure extends GZSubsystem {
     }
 
     private Request heightRequest(Heights height, boolean waitForCompletion) {
-        return new Request() {
+        return new QuickCompleteRequest(!waitForCompletion) {
 
             @Override
-            public void act() {
-                elev.setHeight(height);
+            public void _act() {
+                elev_.setHeight(height);
             }
 
             @Override
-            public boolean isFinished() {
-                if (waitForCompletion)
-                    return elev.nearTarget();
-                return true;
+            public boolean _isFinished() {
+                return elev_.nearTarget();
             }
-        };
+        }.generate();
     }
-
-    // public void goToHeight(Heights h) {
-    // manager.request(heightRequest(h));
-    // }
 
     public void dropCrawler() {
         Pneumatics.getInstance().dropCrawler();
@@ -682,35 +675,17 @@ public class Superstructure extends GZSubsystem {
     protected void initDefaultCommand() {
     }
 
-    public void elevManual(Double leftAnalogY) {
-        elev.manual(leftAnalogY);
+    public void elevManual(Double manual) {
+        elev_.manual(manual);
     }
-
-    // int feederStage = 1;
 
     public void advanceFeederStage() {
         if (!preppedForFeeder()) {
-            prepForFeeder();
+            prepToGrabHatch();
         } else {
             grabHatchFromFeeder();
         }
-        // switch (feederStage) {
-        // case 1:
-        // prepForFeeder();
-        // break;
-        // case 2:
-        // prepToGrabHatch();
-        // break;
-        // case 3:
-        // grabHatchFromFeeder();
-        // break;
-        // }
         manager.queue(GZOI.driverJoy.rumbleRequest(8, .125));
-
-        // if (feederStage != 3)
-        // feederStage++;
-        // else
-        // feederStage = 1;
     }
 
 }

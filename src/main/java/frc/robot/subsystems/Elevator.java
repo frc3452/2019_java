@@ -357,6 +357,10 @@ public class Elevator extends GZSubsystem {
         return mDesiredHeight > getHeightInches();
     }
 
+    public double getTarget() {
+        return mDesiredHeight;
+    }
+
     public boolean nearTarget(double with_Inches_Tolerance) {
         return GZUtil.epsilonEquals(getHeightInches(), mDesiredHeight, with_Inches_Tolerance);
     }
@@ -375,6 +379,14 @@ public class Elevator extends GZSubsystem {
 
     public boolean slidesAtDesired() {
         return !mCarriageSlide.wantsStateChange();
+    }
+
+    public boolean doSlidesWantOut() {
+        return mCarriageSlide.getWantOff();
+    }
+
+    public boolean clawWantsOpen() {
+        return mClaw.getWantOff();
     }
 
     protected void extendSlides() {

@@ -448,7 +448,7 @@ public class Drive extends GZSubsystem {
 				done |= wantsToTeleDrive();
 
 				if (done) {
-					stop();
+					velocityStop();
 				}
 				return done;
 			}
