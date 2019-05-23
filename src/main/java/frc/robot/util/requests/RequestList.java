@@ -26,20 +26,27 @@ public class RequestList {
 		this.subsystem = subsystem;
 	}
 
-	public void extraLog(String message) {
+	public RequestList extraLog(String message) {
 		if (subsystem.equals(Superstructure.getInstance())) {
 			if (kSuperstructure.EXTRA_LOGS) {
 				log(message);
 			}
 		}
+
+		return this;
 	}
 
-	public void log(String message) {
+	public RequestList log(String message) {
+		return log(message, false);
+	}
+
+	public RequestList log(String message, boolean insertTimeStamp) {
 		if (subsystem != null) {
-			add(Request.log(subsystem, message));
+			add(Request.log(subsystem, message, insertTimeStamp));
 		} else {
 			System.out.println("Request list never initialized subsystem, cannot log!");
 		}
+		return this;
 	}
 
 	public RequestList(Request request) {

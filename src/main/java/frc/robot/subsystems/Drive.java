@@ -442,13 +442,20 @@ public class Drive extends GZSubsystem {
 			public boolean isFinished() {
 				boolean done = false;
 
-				if ((Timer.getFPGATimestamp() - startTime) > waitTime)
+				if ((Timer.getFPGATimestamp() - startTime) > waitTime) {
+					System.out.println("Open loop request timed out");
 					done = true;
+				}
 
-				done |= wantsToTeleDrive();
+				boolean tele = wantsToTeleDrive();
+				if (tele) {
+					System.out.println("Wants to drive, cancelling open loop");
+				}
+
+				done |= tele;
 
 				if (done) {
-					velocityStop();
+					// velocityStop();
 				}
 				return done;
 			}
@@ -1017,6 +1024,7 @@ public class Drive extends GZSubsystem {
 		case CLIMB:
 			brake(true);
 			mNavX.zeroRoll();
+			Superstructure.getInstance().stow();
 			// Superstructure.getInstance().runAction(Actions.STOW_LOW);
 			break;
 		case PATH_FOLLOWING:
@@ -1132,6 +1140,9 @@ public class Drive extends GZSubsystem {
 			SmartDashboard.putNumber("Target", mIO.left_output);
 			SmartDashboard.putNumber("Actual", mIO.left_encoder_vel);
 		}
+
+		// RocketIdentifcation r = getRocket();
+		// System.out.println(r.rocket +"\t" + r.how);
 
 		SmartDashboard.putBoolean("Fast", !mIsSlow);
 
@@ -1344,6 +1355,10 @@ public class Drive extends GZSubsystem {
 			if (mState == DriveState.MOTION_MAGIC && !wantsToTeleDrive()) {
 				shouldDrive = false;
 			}
+
+			if (mState == DriveState.OPEN_LOOP && !wantsToTeleDrive()) {
+				shouldDrive = false;
+			} 
 
 			wantsToTeleDrive();
 			// stateIsnt(DriveState.TURN_TO_HEADING)

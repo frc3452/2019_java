@@ -62,7 +62,6 @@ public class GZOI extends GZSubsystem {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 
 		cameraSettings();
-
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 	}
 
@@ -133,17 +132,17 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl() {
 		if (op.xButton.isBeingPressed()) {
 			supe.zeroElevator();
-		} else if (op.hatchPanel1.wasActivated()) {
+		} else if (op.aButton.shortReleased()) {
 			supe.setHeight(Heights.HP_1);
-		} else if (op.hatchPanel2.wasActivated()) {
+		} else if (op.bButton.shortReleased()) {
 			supe.setHeight(Heights.HP_2);
-		} else if (op.hatchPanel3.wasActivated()) {
+		} else if (op.yButton.shortReleased()) {
 			supe.setHeight(Heights.HP_3);
-		} else if (op.cargo1.wasActivated()) {
+		} else if (op.aButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_1);
-		} else if (op.cargo2.wasActivated()) {
+		} else if (op.bButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_2);
-		} else if (op.cargo3.wasActivated()) {
+		} else if (op.yButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_3);
 		} else if (op.startButton.wasActivated()) {
 			supe.setHeight(Heights.Cargo_Ship);
@@ -242,6 +241,8 @@ public class GZOI extends GZSubsystem {
 
 		if (driverJoy.POV180.wasActivated()) {
 			supe.rocketHeight(RocketHeight.LOW);
+		} else if (driverJoy.bButton.wasActivated()) {
+			supe.rocketHeight(RocketHeight.CARGO_SHIP);
 		} else if (driverJoy.POV270.wasActivated()) {
 			supe.rocketHeight(RocketHeight.MIDDLE);
 		} else if (driverJoy.POV0.wasActivated()) {
@@ -253,9 +254,11 @@ public class GZOI extends GZSubsystem {
 				supe.handOffCargo();
 			}
 		} else if (driverJoy.rightBumper.wasActivated()) {
-			supe.score();
-		} else if (driverJoy.leftCenterClick.wasActivated()) {
+			supe.score(true);
+		} else if (driverJoy.leftCenterClick.shortReleased()) {
 			supe.intake();
+		} else if (driverJoy.leftCenterClick.longPressed()) {
+			supe.intakeEject();
 		}
 
 		if (driverJoy.backButton.longPressed())
@@ -267,7 +270,7 @@ public class GZOI extends GZSubsystem {
 		drive.handleDriving(driverJoy);
 
 		if (driverJoy.POV90.wasActivated()) {
-			drive.turnRelative(Rotation2d.fromDegrees(90));
+			supe.stow();
 		}
 	}
 

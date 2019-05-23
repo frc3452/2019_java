@@ -1,5 +1,6 @@
 package frc.robot.util.requests;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -17,11 +18,23 @@ public abstract class Request {
 	}
 
 	public static Request log(GZSubsystem subsystem, String message) {
+		return log(subsystem, message, false);
+	}
+
+	DecimalFormat df = new DecimalFormat("#0.00");
+
+	public static Request log(GZSubsystem subsystem, String message, boolean insertTimestamp) {
 		return new Request() {
 
 			@Override
 			public void act() {
-				GZFiles.getInstance().addLog(subsystem, message);
+				String out = message;
+
+				if (insertTimestamp) {
+					out = "[" + df.format(Timer.getFPGATimestamp()) + "]\t" + message;
+				}
+
+				GZFiles.getInstance().addLog(subsystem, out);
 			}
 		};
 	}

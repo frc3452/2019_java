@@ -113,7 +113,7 @@ public class Constants {
 		public static final double SLIDES_TOLERANCE = 3.5;
 
 		public static enum RocketHeight {
-			LOW, MIDDLE, HIGH
+			LOW, MIDDLE, HIGH, CARGO_SHIP
 		}
 
 		public static enum Heights {
@@ -162,6 +162,12 @@ public class Constants {
 						return Heights.HP_3;
 					} else {
 						return Heights.Cargo_3;
+					}
+				case CARGO_SHIP:
+					if (hatch) {
+						return HP_1;
+					} else {
+						return Cargo_Ship;
 					}
 				default:
 					return Heights.Cargo_2;
