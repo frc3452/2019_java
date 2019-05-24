@@ -37,8 +37,8 @@ public class Elevator extends GZSubsystem {
 
     private GZSolenoid mCarriageSlide, mClaw;
 
-    private boolean mPrevMovingHP = true;
-    private boolean mMovingHP = false;
+    private boolean mPrevMovingHP = false;
+    private boolean mMovingHP = true;
 
     private Intake intake = Intake.getInstance();
 

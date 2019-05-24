@@ -19,6 +19,7 @@ import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.ArcadeSignal;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
+import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 import frc.robot.util.requests.QuickCompleteRequest;
 import frc.robot.util.requests.Request;
@@ -532,6 +533,14 @@ public class Superstructure extends GZSubsystem {
     public void scoreCargo(boolean driver) {
 
         ArrayList<RequestList> list = new ArrayList<>();
+
+        if (driver) {
+            if (!(GZUtil.epsilonEquals(elev_.getHeightInches(), Heights.Cargo_1.inches, 3)
+                    || elev_.getHeightInches() > Heights.Cargo_1.inches)) {
+                System.out.println("Cannot throw cargo, at bad height");
+                return;
+            }
+        }
 
         // Prep for throw
         {

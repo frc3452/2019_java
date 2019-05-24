@@ -247,7 +247,7 @@ public class GZOI extends GZSubsystem {
 			supe.rocketHeight(RocketHeight.MIDDLE);
 		} else if (driverJoy.POV0.wasActivated()) {
 			supe.rocketHeight(RocketHeight.HIGH);
-		} else if (driverJoy.startButton.wasActivated()) {
+		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			if (Intake.getInstance().isRetracted()) {
 				supe.advanceFeederStage();
 			} else if (Intake.getInstance().isExtended()) {
@@ -259,19 +259,16 @@ public class GZOI extends GZSubsystem {
 			supe.intake();
 		} else if (driverJoy.leftCenterClick.longPressed()) {
 			supe.intakeEject();
+		} else if (driverJoy.startButton.wasActivated()) {
+			supe.stow();
 		}
 
-		if (driverJoy.backButton.longPressed())
+		if (driverJoy.backButton.longPressed()) {
 			elev.toggleSpeedOverride();
-		else if (driverJoy.backButton.shortReleased()) {
-			supe.intakeEject();
 		}
 
 		drive.handleDriving(driverJoy);
 
-		if (driverJoy.POV90.wasActivated()) {
-			supe.stow();
-		}
 	}
 
 	public String getSmallString() {
