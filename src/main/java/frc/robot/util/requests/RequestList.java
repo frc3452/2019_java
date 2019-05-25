@@ -27,7 +27,7 @@ public class RequestList {
 	}
 
 	public RequestList extraLog(String message) {
-		if (subsystem.equals(Superstructure.getInstance())) {
+		if (subsystem.toString().equals(Superstructure.getInstance().toString())) {
 			if (kSuperstructure.EXTRA_LOGS) {
 				log(message);
 			}

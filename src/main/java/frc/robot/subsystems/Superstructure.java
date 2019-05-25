@@ -455,11 +455,9 @@ public class Superstructure extends GZSubsystem {
     }
 
     public boolean preppedForFeeder() {
-        return intake_.isRetracted() && elev_.near(Heights.HP_1.inches) && elev_.isClawClosed();
-    }
-
-    public boolean readyToGrabFromFeeder() {
-        return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, false, false));
+        return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, true, false));
+        // return intake_.isRetracted() && elev_.near(Heights.HP_1.inches) &&
+        // elev_.isClawClosed();
     }
 
     private void grabCargoFromFeeder() {
@@ -487,7 +485,7 @@ public class Superstructure extends GZSubsystem {
 
     public void cancel() {
         manager.clear();
-        manager.request(Request.log(this, "Cleared"));
+        manager.request(new RequestList(this).extraLog("Superstructure cleared"));
     }
 
     public void toggleClaw() {
