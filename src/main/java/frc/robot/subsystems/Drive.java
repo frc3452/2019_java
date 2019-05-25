@@ -397,7 +397,7 @@ public class Drive extends GZSubsystem {
 		if (mState == DriveState.TURN_TO_HEADING) {
 			if (encoderAngleIsDone()) {
 				mTurnToHeadingComplete = true;
-				velocityStop();
+				// velocityStop();
 			}
 		}
 	}

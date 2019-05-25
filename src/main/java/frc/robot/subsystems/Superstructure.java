@@ -298,7 +298,7 @@ public class Superstructure extends GZSubsystem {
             Translation2d bot_center = r.rocket.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
                     angleAwayFromRocket);
 
-            // Should we twist our new point accodring to the gyro
+            // Should we twist our new point according to the gyro
             if (r.recalibrateWithGyro) {
                 // How much we were off by
                 Rotation2d difference = r.rocket.position.getRotation().rotateBy(r.here.getRotation().inverse());
