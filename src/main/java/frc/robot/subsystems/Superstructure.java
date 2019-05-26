@@ -17,6 +17,7 @@ import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.RocketIdentifcation;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.ArcadeSignal;
+import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
 import frc.robot.util.GZUtil;
@@ -38,6 +39,39 @@ public class Superstructure extends GZSubsystem {
     private final Heights mDefaultHeight = Heights.HP_1;
 
     private static Superstructure mInstance = null;
+
+    private RocketHeight mQueuedRocketHeight = null;
+
+    public void queueRocketHeight(RocketHeight h) {
+        if (h == RocketHeight.CARGO_SHIP) {
+            System.out.println("ERROR Cannot queue cargo ship height!");
+            return;
+        }
+
+        this.mQueuedRocketHeight = h;
+        double numberOfSeconds;
+        double rumblesPerSecond;
+
+        switch (mQueuedRocketHeight) {
+        case LOW:
+            numberOfSeconds = 1.0 / 3.0;
+            rumblesPerSecond = 3.0;
+            break;
+        case MIDDLE:
+            numberOfSeconds = 0.5;
+            rumblesPerSecond = 4.0;
+            break;
+        case HIGH:
+            numberOfSeconds = 0.5;
+            rumblesPerSecond = 6.0;
+            break;
+        default:
+            numberOfSeconds = 0.0;
+            rumblesPerSecond = 0.0;
+            break;
+        }
+        GZOI.driverJoy.rumble(rumblesPerSecond, numberOfSeconds);
+    }
 
     public static Superstructure getInstance() {
         if (mInstance == null)
@@ -220,7 +254,7 @@ public class Superstructure extends GZSubsystem {
 
     public void grabHatchFromFeeder() {
         RequestList list = new RequestList(this);
-        list.log("Grabbing hatch from feeder station");
+        list.extraLog("Grabbing hatch from feeder station");
         Pose2d here = new Pose2d(Drive.getInstance().getFixedPose());
 
         Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
@@ -229,7 +263,7 @@ public class Superstructure extends GZSubsystem {
 
         // Feeder identified
         if (feeder != null) {
-            list.log(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
+            list.extraLog(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
                     + " feeder station identified, zeroing odometry");
 
             // Where the robot would be if perfectly lined up with feeder station
@@ -247,7 +281,7 @@ public class Superstructure extends GZSubsystem {
 
             list.add(Drive.getInstance().setOdometryRequest(zeroPosition));
         } else {
-            list.log(("Too far away from feeder station to identify Rocket"));
+            list.extraLog(("Too far away from feeder station to identify Rocket"));
         }
 
         list.add(clawRequest(true, true));
@@ -256,21 +290,21 @@ public class Superstructure extends GZSubsystem {
             list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
             list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
         }
-        list.log("Finished grabbing hatch");
+        list.extraLog("Finished grabbing hatch");
         manager.request(list);
     }
 
     public void scoreHatch() {
         RequestList list = new RequestList(this);
 
-        list.log("Scoring hatch");
+        list.extraLog("Scoring hatch");
 
         RocketIdentifcation r = Drive.getInstance().getRocket();
-        list.log(r.how);
+        list.extraLog(r.how);
 
         double rotation = 0;
         double jog = 0.0;
-        ArcadeSignal after = new ArcadeSignal();
+        // ArcadeSignal after = new ArcadeSignal();
         if (r.rocket.identified()) {
             list.add(GZOI.driverJoy.rumbleRequest(6, .5));
             if (r.rocket.near) {
@@ -309,7 +343,7 @@ public class Superstructure extends GZSubsystem {
                 endpoint = bot_center;
             }
 
-            list.log("Placing on rocket " + r.rocket + ". Backing up " + jog + " and turning to " + rotation);
+            list.extraLog("Placing on rocket " + r.rocket + ". Backing up " + jog + " and turning to " + rotation);
             list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }
 
@@ -324,10 +358,10 @@ public class Superstructure extends GZSubsystem {
         if (r.rocket.identified()) {
             finalMove.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
             finalMove.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
-            finalMove.add(Drive.getInstance().openLoopRequest(after));
+            // finalMove.add(Drive.getInstance().openLoopRequest(after));
         }
 
-        finalMove.log("Hatch scoring completed");
+        finalMove.extraLog("Hatch scoring completed");
 
         manager.request(list, finalMove);
     }
@@ -521,6 +555,26 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void score(boolean driver) {
+        if (driver) {
+            if (mQueuedRocketHeight != null) {
+                Request request = heightRequest(Heights.getHeight(mQueuedRocketHeight, elev_.isMovingHP()));
+                Request queue = new Request() {
+
+                    @Override
+                    public void act() {
+                        mQueuedRocketHeight = null;
+                    }
+                };
+                manager.request(request, queue);
+            } else {
+                runScore(true);
+            }
+        } else {
+            runScore(false);
+        }
+    }
+
+    public void runScore(boolean driver) {
         if (elev_.isMovingHP())
             scoreHatch();
         else {
@@ -535,7 +589,7 @@ public class Superstructure extends GZSubsystem {
         if (driver) {
             if (!(GZUtil.epsilonEquals(elev_.getHeightInches(), Heights.Cargo_1.inches, 3)
                     || elev_.getHeightInches() > Heights.Cargo_1.inches)) {
-                System.out.println("Cannot throw cargo, at bad height");
+                GZFiles.getInstance().addLog(this, "ERROR Cannot throw cargo, at bad height", true);
                 return;
             }
         }
@@ -580,7 +634,7 @@ public class Superstructure extends GZSubsystem {
         }
 
         if (driver) {
-            list.add(new RequestList().add(new Request() {
+            list.add(new RequestList(this).add(new Request() {
 
                 @Override
                 public void act() {
@@ -592,7 +646,6 @@ public class Superstructure extends GZSubsystem {
         // // Pull back
         manager.clear();
         manager.replaceQueue(list);
-        // manager.setQueued(list);
     }
 
     public static class SuperstructureState {

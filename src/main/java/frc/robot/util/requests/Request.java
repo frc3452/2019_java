@@ -18,23 +18,19 @@ public abstract class Request {
 	}
 
 	public static Request log(GZSubsystem subsystem, String message) {
-		return log(subsystem, message, false);
+		return log(subsystem, message, true);
 	}
 
 	DecimalFormat df = new DecimalFormat("#0.00");
 
-	public static Request log(GZSubsystem subsystem, String message, boolean insertTimestamp) {
+	public static Request log(GZSubsystem subsystem, String message, boolean print) {
 		return new Request() {
 
 			@Override
 			public void act() {
 				String out = message;
 
-				if (insertTimestamp) {
-					out = "[" + df.format(Timer.getFPGATimestamp()) + "]\t" + message;
-				}
-
-				GZFiles.getInstance().addLog(subsystem, out);
+				GZFiles.getInstance().addLog(subsystem, out, print);
 			}
 		};
 	}

@@ -1358,7 +1358,7 @@ public class Drive extends GZSubsystem {
 
 			if (mState == DriveState.OPEN_LOOP && !wantsToTeleDrive()) {
 				shouldDrive = false;
-			} 
+			}
 
 			wantsToTeleDrive();
 			// stateIsnt(DriveState.TURN_TO_HEADING)
@@ -1762,7 +1762,7 @@ public class Drive extends GZSubsystem {
 			} else {
 				GZOI.driverJoy.rumble(8, .25);
 			}
-			GZFiles.getInstance().addLog(this, "Drive speed set to " + speed);
+			GZFiles.getInstance().addLog(this, "Drive speed set to " + speed, true);
 		}
 
 	}

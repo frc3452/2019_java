@@ -108,11 +108,13 @@ public class GZLog {
 		private final GZSubsystem subsystem;
 		private final String message;
 
-		public InstantLogItem(GZSubsystem subsystem, String message) {
+		public InstantLogItem(GZSubsystem subsystem, String message, boolean print) {
 			this.subsystem = subsystem;
 			this.message = message;
 
-			System.out.println(message);
+			if (print) {
+				System.out.println(message);
+			}
 		}
 
 		public String subsystem() {

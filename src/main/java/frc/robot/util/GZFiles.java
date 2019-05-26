@@ -754,8 +754,8 @@ public class GZFiles {
 	// LatchedBoolean>();
 	private ArrayList<InstantLogItem> mInstantLogs = new ArrayList<InstantLogItem>();
 
-	public void addLog(GZSubsystem subsystem, String message) {
-		addLog(new InstantLogItem(subsystem, message));
+	public void addLog(GZSubsystem subsystem, String message, boolean print) {
+		addLog(new InstantLogItem(subsystem, message, print));
 	}
 
 	public void addLog(InstantLogItem log) {

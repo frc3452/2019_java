@@ -203,13 +203,6 @@ public class GZOI extends GZSubsystem {
 
 		rumble(0.0);
 		// handleRumble();
-
-		// if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK, Buttons.RIGHT_CLICK,
-		// Buttons.X))
-		// op.setButtonBoard();
-		// else if (driverJoy.getButtons(Buttons.LB, Buttons.LEFT_CLICK,
-		// Buttons.RIGHT_CLICK, Buttons.Y))
-		// op.setXboxController();
 	}
 
 	private void rumble(double d) {
@@ -239,14 +232,22 @@ public class GZOI extends GZSubsystem {
 			}
 		}
 
-		if (driverJoy.POV180.wasActivated()) {
+		if (driverJoy.POV180.shortReleased()) {
+			supe.queueRocketHeight(RocketHeight.LOW);
+		} else if (driverJoy.POV180.longPressed()) {
 			supe.rocketHeight(RocketHeight.LOW);
-		} else if (driverJoy.bButton.wasActivated()) {
-			supe.rocketHeight(RocketHeight.CARGO_SHIP);
-		} else if (driverJoy.POV270.wasActivated()) {
-			supe.rocketHeight(RocketHeight.MIDDLE);
-		} else if (driverJoy.POV0.wasActivated()) {
+
+		} else if (driverJoy.POV270.shortReleased()) {
+			supe.queueRocketHeight(RocketHeight.MIDDLE);
+		} else if (driverJoy.POV0.shortReleased()) {
+			supe.queueRocketHeight(RocketHeight.HIGH);
+		} else if (driverJoy.POV0.longPressed()) {
 			supe.rocketHeight(RocketHeight.HIGH);
+
+
+		} else if (driverJoy.POV270.longPressed()) {
+			supe.setHeight(Heights.Cargo_Ship);
+			
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			if (Intake.getInstance().isRetracted()) {
 				supe.advanceFeederStage();
