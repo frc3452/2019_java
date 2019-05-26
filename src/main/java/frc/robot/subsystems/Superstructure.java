@@ -308,20 +308,16 @@ public class Superstructure extends GZSubsystem {
         if (r.rocket.identified()) {
             list.add(GZOI.driverJoy.rumbleRequest(6, .5));
             if (r.rocket.near) {
-                jog = 10;
                 rotation = 180;
             } else {
-                jog = 10;
-
                 if (r.rocket.left) {
                     rotation = 90 + 45;
                 } else {
                     rotation = 270 - 45;
                 }
             }
+            jog = 20;
             // after = new ArcadeSignal(.5, 0, 1);
-
-            jog *= -1;
 
             Translation2d endpoint;
 
@@ -561,15 +557,9 @@ public class Superstructure extends GZSubsystem {
     public void score(boolean driver) {
         if (driver) {
             if (mQueuedRocketHeight != null) {
+                mQueuedRocketHeight = null;
                 Request request = heightRequest(Heights.getHeight(mQueuedRocketHeight, elev_.isMovingHP()));
-                Request queue = new Request() {
-
-                    @Override
-                    public void act() {
-                        mQueuedRocketHeight = null;
-                    }
-                };
-                manager.request(request, queue);
+                manager.request(request);
             } else {
                 runScore(true);
             }

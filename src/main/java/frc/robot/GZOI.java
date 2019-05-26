@@ -239,21 +239,22 @@ public class GZOI extends GZSubsystem {
 
 		} else if (driverJoy.POV270.shortReleased()) {
 			supe.queueRocketHeight(RocketHeight.MIDDLE);
+		} else if (driverJoy.POV270.longPressed()) {
+			supe.rocketHeight(RocketHeight.MIDDLE);
+			
 		} else if (driverJoy.POV0.shortReleased()) {
 			supe.queueRocketHeight(RocketHeight.HIGH);
 		} else if (driverJoy.POV0.longPressed()) {
 			supe.rocketHeight(RocketHeight.HIGH);
 
-
-		} else if (driverJoy.POV270.longPressed()) {
-			supe.setHeight(Heights.Cargo_Ship);
-			
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			if (Intake.getInstance().isRetracted()) {
 				supe.advanceFeederStage();
 			} else if (Intake.getInstance().isExtended()) {
 				supe.handOffCargo();
 			}
+		} else if (driverJoy.bButton.wasActivated()) {
+			supe.setHeight(Heights.Cargo_Ship);
 		} else if (driverJoy.rightBumper.wasActivated()) {
 			supe.score(true);
 		} else if (driverJoy.leftCenterClick.shortReleased()) {
