@@ -441,19 +441,23 @@ public class Superstructure extends GZSubsystem {
     public void handOffCargo() {
         RequestList list = new RequestList(this);
         list.extraLog("Handing off cargo");
-        list.add(new Request() {
-
-            @Override
-            public void act() {
-                elev_.setHasHatchPanel(false);
-            }
-        });
+        list.add(changeGamePieceRequest(false));
         list.add(intakeRequest(false, true));
         list.add(clawRequest(false, true));
         list.add(heightRequest(Heights.HP_1.inches, true));
 
         list.extraLog("Cargo handed off");
         manager.request(list);
+    }
+
+    private Request changeGamePieceRequest(boolean hatchPanel) {
+        return new Request() {
+
+            @Override
+            public void act() {
+                elev_.setHasHatchPanel(hatchPanel);
+            }
+        };
     }
 
     public void stow() {
