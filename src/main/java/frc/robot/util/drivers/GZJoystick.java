@@ -1,5 +1,9 @@
 package frc.robot.util.drivers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -75,6 +79,9 @@ public class GZJoystick extends Joystick {
 
 	public ButtonCheck aButton, bButton, xButton, yButton, startButton, backButton, leftBumper, rightBumper,
 			leftCenterClick, rightCenterClick, leftTrigger, rightTrigger, POV0, POV90, POV180, POV270;
+	public List<ButtonCheck> allButtons = Arrays.asList(aButton, bButton, xButton, yButton, startButton, backButton,
+			leftBumper, rightBumper, leftCenterClick, rightCenterClick, leftTrigger, rightTrigger, POV0, POV90, POV180,
+			POV270);
 	public static final int A_BUTTON = 1;
 	public static final int B_BUTTON = 2;
 	public static final int X_BUTTON = 3;
@@ -108,6 +115,10 @@ public class GZJoystick extends Joystick {
 			RumbleThread r = new RumbleThread(rumblesPerSecond, numberOfSeconds);
 			r.start();
 		}
+	}
+
+	public void setLongPressDuration(double seconds) {
+		allButtons.forEach((b) -> b.setLongPressDuration(seconds));
 	}
 
 	public boolean isRumbling() {
@@ -316,21 +327,6 @@ public class GZJoystick extends Joystick {
 	}
 
 	public void update() {
-		aButton.update();
-		bButton.update();
-		xButton.update();
-		yButton.update();
-		startButton.update();
-		backButton.update();
-		leftBumper.update();
-		rightBumper.update();
-		leftCenterClick.update();
-		rightCenterClick.update();
-		leftTrigger.update();
-		rightTrigger.update();
-		POV0.update();
-		POV90.update();
-		POV180.update();
-		POV270.update();
+		allButtons.forEach((button) -> button.update());
 	}
 }
