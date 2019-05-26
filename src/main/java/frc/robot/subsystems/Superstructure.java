@@ -508,12 +508,20 @@ public class Superstructure extends GZSubsystem {
     public void retrieve() {
         if (intake_.isExtended()) {
             handOffCargo();
-        } else {
+        } else if (intake_.isRetracted()) {
             if (elev_.isMovingHP()) {
                 grabHatchFromFeeder();
             } else {
                 grabCargoFromFeeder();
             }
+        }
+    }
+
+    public void driverRetrieve() {
+        if (Intake.getInstance().isRetracted()) {
+            advanceFeederStage();
+        } else if (Intake.getInstance().isExtended()) {
+            handOffCargo();
         }
     }
 

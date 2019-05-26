@@ -241,18 +241,14 @@ public class GZOI extends GZSubsystem {
 			supe.queueRocketHeight(RocketHeight.MIDDLE);
 		} else if (driverJoy.POV270.longPressed()) {
 			supe.rocketHeight(RocketHeight.MIDDLE);
-			
+
 		} else if (driverJoy.POV0.shortReleased()) {
 			supe.queueRocketHeight(RocketHeight.HIGH);
 		} else if (driverJoy.POV0.longPressed()) {
 			supe.rocketHeight(RocketHeight.HIGH);
 
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
-			if (Intake.getInstance().isRetracted()) {
-				supe.advanceFeederStage();
-			} else if (Intake.getInstance().isExtended()) {
-				supe.handOffCargo();
-			}
+			supe.driverRetrieve();
 		} else if (driverJoy.bButton.wasActivated()) {
 			supe.setHeight(Heights.Cargo_Ship);
 		} else if (driverJoy.rightBumper.wasActivated()) {
