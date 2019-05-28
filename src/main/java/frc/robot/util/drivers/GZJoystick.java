@@ -39,6 +39,8 @@ public class GZJoystick extends Joystick {
 		POV90 = new ButtonCheck(POV_90);
 		POV180 = new ButtonCheck(POV_180);
 		POV270 = new ButtonCheck(POV_270);
+		allButtons = Arrays.asList(aButton, bButton, xButton, yButton, startButton, backButton, leftBumper, rightBumper,
+				leftCenterClick, rightCenterClick, leftTrigger, rightTrigger, POV0, POV90, POV180, POV270);
 	}
 
 	public GZJoystick(int port) {
@@ -79,9 +81,7 @@ public class GZJoystick extends Joystick {
 
 	public ButtonCheck aButton, bButton, xButton, yButton, startButton, backButton, leftBumper, rightBumper,
 			leftCenterClick, rightCenterClick, leftTrigger, rightTrigger, POV0, POV90, POV180, POV270;
-	public List<ButtonCheck> allButtons = Arrays.asList(aButton, bButton, xButton, yButton, startButton, backButton,
-			leftBumper, rightBumper, leftCenterClick, rightCenterClick, leftTrigger, rightTrigger, POV0, POV90, POV180,
-			POV270);
+	public List<ButtonCheck> allButtons;
 	public static final int A_BUTTON = 1;
 	public static final int B_BUTTON = 2;
 	public static final int X_BUTTON = 3;

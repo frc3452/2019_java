@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
@@ -16,7 +15,6 @@ import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Drive.RocketIdentifcation;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.util.ArcadeSignal;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
@@ -317,6 +315,7 @@ public class Superstructure extends GZSubsystem {
                 }
             }
             jog = 20;
+            jog *= -1;
             // after = new ArcadeSignal(.5, 0, 1);
 
             Translation2d endpoint;
@@ -461,9 +460,10 @@ public class Superstructure extends GZSubsystem {
         firstMove.add(slidesRequest(false, true));
         firstMove.add(clawRequest(true, true));
 
-        if (elev_.getHeightInches() > 30) {
+        if (elev_.getHeightInches() > Heights.Cargo_1.inches) {
             firstMove.setParallel();
         }
+
         RequestList secondMove = new RequestList(this);
         secondMove.add(intakeRequest(false, true));
         secondMove.add(heightRequest(Heights.Home));
@@ -489,7 +489,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     public boolean preppedForFeeder() {
-        return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, true, false));
+        return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, false, false));
         // return intake_.isRetracted() && elev_.near(Heights.HP_1.inches) &&
         // elev_.isClawClosed();
     }
@@ -565,9 +565,9 @@ public class Superstructure extends GZSubsystem {
     public void score(boolean driver) {
         if (driver) {
             if (mQueuedRocketHeight != null) {
-                mQueuedRocketHeight = null;
                 Request request = heightRequest(Heights.getHeight(mQueuedRocketHeight, elev_.isMovingHP()));
                 manager.request(request);
+                mQueuedRocketHeight = null;
             } else {
                 runScore(true);
             }
@@ -589,8 +589,7 @@ public class Superstructure extends GZSubsystem {
         ArrayList<RequestList> list = new ArrayList<>();
 
         if (driver) {
-            if (!(GZUtil.epsilonEquals(elev_.getHeightInches(), Heights.Cargo_1.inches, 3)
-                    || elev_.getHeightInches() > Heights.Cargo_1.inches)) {
+            if (elev_.getHeightInches() < (Heights.Cargo_1.inches - 2)) {
                 GZFiles.getInstance().addLog(this, "ERROR Cannot throw cargo, at bad height", true);
                 return;
             }
