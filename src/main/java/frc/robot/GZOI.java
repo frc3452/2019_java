@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
-import frc.robot.Constants.kElevator.RocketHeight;
+import frc.robot.Constants.kElevator.QueueHeights;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
@@ -135,11 +135,11 @@ public class GZOI extends GZSubsystem {
 		if (op.xButton.isBeingPressed()) {
 			supe.zeroElevator();
 		} else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
-			supe.queueRocketHeight(RocketHeight.LOW);
+			supe.queueHeight(QueueHeights.LOW);
 		} else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {
-			supe.queueRocketHeight(RocketHeight.MIDDLE);
+			supe.queueHeight(QueueHeights.MIDDLE);
 		} else if (op.leftCenterClick.isBeingPressed() && op.yButton.wasActivatedReset()) {
-			supe.queueRocketHeight(RocketHeight.HIGH);
+			supe.queueHeight(QueueHeights.HIGH);
 		} else if (!op.leftCenterClick.isBeingPressed() && op.aButton.shortReleased()) {
 			supe.setHeight(Heights.HP_1);
 		} else if (!op.leftCenterClick.isBeingPressed() && op.bButton.shortReleased()) {
@@ -152,8 +152,10 @@ public class GZOI extends GZSubsystem {
 			supe.setHeight(Heights.Cargo_2);
 		} else if (!op.leftCenterClick.isBeingPressed() && op.yButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_3);
-		} else if (op.startButton.wasActivated()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.startButton.wasActivated()) {
 			supe.setHeight(Heights.Cargo_Ship);
+		} else if (op.leftCenterClick.isBeingPressed() && op.startButton.wasActivated()) {
+			supe.queueHeight(QueueHeights.CARGO_SHIP);
 		} else if (op.rightBumper.wasActivated()) {
 			supe.toggleClaw();
 		} else if (op.leftBumper.wasActivated()) {
@@ -241,19 +243,19 @@ public class GZOI extends GZSubsystem {
 		}
 
 		if (driverJoy.POV180.shortReleased()) {
-			supe.rocketHeight(RocketHeight.LOW);
+			supe.rocketHeight(QueueHeights.LOW);
 		} else if (driverJoy.POV180.longPressed()) {
-			supe.queueRocketHeight(RocketHeight.LOW);
+			supe.queueHeight(QueueHeights.LOW);
 		} else if (driverJoy.POV270.shortReleased()) {
-			supe.rocketHeight(RocketHeight.MIDDLE);
+			supe.rocketHeight(QueueHeights.MIDDLE);
 		} else if (driverJoy.POV270.longPressed()) {
 
-			supe.queueRocketHeight(RocketHeight.MIDDLE);
+			supe.queueHeight(QueueHeights.MIDDLE);
 		} else if (driverJoy.POV0.shortReleased()) {
-			supe.rocketHeight(RocketHeight.HIGH);
+			supe.rocketHeight(QueueHeights.HIGH);
 		} else if (driverJoy.POV0.longPressed()) {
 
-			supe.queueRocketHeight(RocketHeight.HIGH);
+			supe.queueHeight(QueueHeights.HIGH);
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			supe.driverRetrieve();
 		} else if (driverJoy.bButton.wasActivated()) {

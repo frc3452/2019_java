@@ -112,7 +112,7 @@ public class Constants {
 
 		public static final double SLIDES_TOLERANCE = 3.5;
 
-		public static enum RocketHeight {
+		public static enum QueueHeights {
 			LOW, MIDDLE, HIGH, CARGO_SHIP
 		}
 
@@ -143,7 +143,7 @@ public class Constants {
 				return "IN: [" + this.inches + "]" + " HP: [" + this.moving_hp + "]";
 			}
 
-			public static Heights getHeight(RocketHeight rocketLevel, boolean hatch) {
+			public static Heights getHeight(QueueHeights rocketLevel, boolean hatch) {
 				switch (rocketLevel) {
 				case LOW:
 					if (hatch) {
@@ -164,11 +164,11 @@ public class Constants {
 						return Heights.Cargo_3;
 					}
 				case CARGO_SHIP:
-					if (hatch) {
-						return HP_1;
-					} else {
-						return Cargo_Ship;
-					}
+					// if (hatch) {
+					// return HP_1;
+					// } else {
+					return Cargo_Ship;
+				// }
 				default:
 					return Heights.Cargo_2;
 				}

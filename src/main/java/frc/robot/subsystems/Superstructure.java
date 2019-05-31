@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
-import frc.robot.Constants.kElevator.RocketHeight;
+import frc.robot.Constants.kElevator.QueueHeights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.poofs.util.math.Pose2d;
@@ -38,19 +38,14 @@ public class Superstructure extends GZSubsystem {
 
     private static Superstructure mInstance = null;
 
-    private RocketHeight mQueuedRocketHeight = null;
+    private QueueHeights mQueuedHeight = null;
 
-    public void queueRocketHeight(RocketHeight h) {
-        if (h == RocketHeight.CARGO_SHIP) {
-            System.out.println("ERROR Cannot queue cargo ship height!");
-            return;
-        }
-
-        this.mQueuedRocketHeight = h;
+    public void queueHeight(QueueHeights h) {
+        this.mQueuedHeight = h;
         double numberOfSeconds;
         double rumblesPerSecond;
 
-        switch (mQueuedRocketHeight) {
+        switch (mQueuedHeight) {
         case LOW:
             numberOfSeconds = 1.0 / 3.0;
             rumblesPerSecond = 3.0;
@@ -62,6 +57,10 @@ public class Superstructure extends GZSubsystem {
         case HIGH:
             numberOfSeconds = 0.5;
             rumblesPerSecond = 6.0;
+            break;
+        case CARGO_SHIP:
+            numberOfSeconds = 0.45;
+            rumblesPerSecond = 1;
             break;
         default:
             numberOfSeconds = 0.0;
@@ -470,7 +469,7 @@ public class Superstructure extends GZSubsystem {
         manager.request(firstMove, secondMove);
     }
 
-    public void rocketHeight(RocketHeight height) {
+    public void rocketHeight(QueueHeights height) {
         setHeight(Heights.getHeight(height, elev_.isMovingHP()));
     }
 
@@ -564,10 +563,10 @@ public class Superstructure extends GZSubsystem {
 
     public void score(boolean driver) {
         if (driver) {
-            if (mQueuedRocketHeight != null) {
-                Request request = heightRequest(Heights.getHeight(mQueuedRocketHeight, elev_.isMovingHP()));
+            if (mQueuedHeight != null) {
+                Request request = heightRequest(Heights.getHeight(mQueuedHeight, elev_.isMovingHP()));
                 manager.request(request);
-                mQueuedRocketHeight = null;
+                mQueuedHeight = null;
             } else {
                 runScore(true);
             }
