@@ -272,6 +272,15 @@ public class GZJoystick extends Joystick {
 			return false;
 		}
 
+		public boolean wasActivatedReset() {
+			boolean ret = wasActivated();
+
+			shortReleased();
+			longReleased();
+
+			return ret;
+		}
+
 		/**
 		 * Returns true once the button is released after being held for 0.25 seconds or
 		 * less. Only returns true one time per button press.

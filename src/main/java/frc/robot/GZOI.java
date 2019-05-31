@@ -27,7 +27,7 @@ import frc.robot.util.drivers.controllers.OperatorController;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0, .09);
-	public static OperatorController op = new OperatorController();
+	public static GZJoystick op = new GZJoystick(1);
 
 	// private GZSolenoid mLeds;
 
@@ -64,7 +64,7 @@ public class GZOI extends GZSubsystem {
 		cameraSettings();
 		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 
-		driverJoy.setLongPressDuration(0.125);
+		driverJoy.setLongPressDuration(0.20);
 	}
 
 	private void cameraSettings() {
@@ -134,17 +134,23 @@ public class GZOI extends GZSubsystem {
 	private void handleSuperStructureControl() {
 		if (op.xButton.isBeingPressed()) {
 			supe.zeroElevator();
-		} else if (op.aButton.shortReleased()) {
+		} else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
+			supe.queueRocketHeight(RocketHeight.LOW);
+		} else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {
+			supe.queueRocketHeight(RocketHeight.MIDDLE);
+		} else if (op.leftCenterClick.isBeingPressed() && op.yButton.wasActivatedReset()) {
+			supe.queueRocketHeight(RocketHeight.HIGH);
+		} else if (!op.leftCenterClick.isBeingPressed() && op.aButton.shortReleased()) {
 			supe.setHeight(Heights.HP_1);
-		} else if (op.bButton.shortReleased()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.bButton.shortReleased()) {
 			supe.setHeight(Heights.HP_2);
-		} else if (op.yButton.shortReleased()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.yButton.shortReleased()) {
 			supe.setHeight(Heights.HP_3);
-		} else if (op.aButton.longPressed()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.aButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_1);
-		} else if (op.bButton.longPressed()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.bButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_2);
-		} else if (op.yButton.longPressed()) {
+		} else if (!op.leftCenterClick.isBeingPressed() && op.yButton.longPressed()) {
 			supe.setHeight(Heights.Cargo_3);
 		} else if (op.startButton.wasActivated()) {
 			supe.setHeight(Heights.Cargo_Ship);

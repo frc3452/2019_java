@@ -201,7 +201,7 @@ public class Intake extends GZSubsystem {
         }
 
         if (mIntakeLeft != null && mIntakeRight != null) {
-            mIntakeLeft.set(mIO.output);
+            // mIntakeLeft.set(mIO.output);
             mIntakeRight.set(mIO.output);
         } else {
             System.out
