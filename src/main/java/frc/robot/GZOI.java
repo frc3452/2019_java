@@ -8,22 +8,19 @@ import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.QueueHeights;
-import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.subsystems.Auton;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.util.BooleanStateChange;
 import frc.robot.util.GZLog;
 import frc.robot.util.GZLog.LogItem;
+import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.GZPDP;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZUtil;
 import frc.robot.util.LatchedBoolean;
-import frc.robot.util.drivers.GZJoystick;
-import frc.robot.util.drivers.controllers.OperatorController;
 
 public class GZOI extends GZSubsystem {
 	public static GZJoystick driverJoy = new GZJoystick(0, .09);

@@ -1,9 +1,7 @@
 package frc.robot.util.drivers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Joystick;
