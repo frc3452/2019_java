@@ -27,6 +27,7 @@ import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
+import frc.robot.poofs.util.DriveSignal;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
@@ -658,7 +659,13 @@ public class Drive extends GZSubsystem {
 		};
 	}
 
+	public boolean configDriveDisabled() {
+		return mConfigurableDrive.isDisabled();
+	}
+
 	private synchronized void out() {
+		DriveSignal mConfigOutput = mConfigurableDrive.update();
+
 		switch (mState) {
 		case PATH_FOLLOWING:
 			if (mPathFollower != null) {
@@ -677,7 +684,12 @@ public class Drive extends GZSubsystem {
 			handleClimbing(GZOI.driverJoy);
 			break;
 		case OPEN_LOOP_DRIVER:
-			arcade(GZOI.driverJoy);
+			if (mConfigurableDrive.isDisabled()) {
+				arcade(GZOI.driverJoy);
+			} else {
+				mIO.left_desired_output = mConfigOutput.getLeft();
+				mIO.right_desired_output = -mConfigOutput.getRight();
+			}
 			break;
 		case CLOSED_LOOP_DRIVER:
 			arcadeClosedLoop(GZOI.driverJoy);

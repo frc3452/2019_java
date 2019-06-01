@@ -126,6 +126,9 @@ public class GZOI extends GZSubsystem {
 		handleRumble();
 		handleSuperStructureControl();
 		handleDriverController();
+		if (!Drive.getInstance().configDriveDisabled()){
+			handleSuperStructureControl();
+		}
 	}
 
 	private void handleSuperStructureControl() {
@@ -239,6 +242,16 @@ public class GZOI extends GZSubsystem {
 			}
 		}
 
+		
+		if (driverJoy.backButton.longPressed()) {
+			elev.toggleSpeedOverride();
+		}
+
+		drive.handleDriving(driverJoy);
+
+	}
+
+	private void handleDriverSupe() {
 		if (driverJoy.POV180.shortReleased()) {
 			supe.rocketHeight(QueueHeights.LOW);
 		} else if (driverJoy.POV180.longPressed()) {
@@ -266,12 +279,6 @@ public class GZOI extends GZSubsystem {
 		} else if (driverJoy.startButton.wasActivated()) {
 			supe.stow();
 		}
-
-		if (driverJoy.backButton.longPressed()) {
-			elev.toggleSpeedOverride();
-		}
-
-		drive.handleDriving(driverJoy);
 
 	}
 
