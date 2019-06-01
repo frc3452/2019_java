@@ -99,8 +99,10 @@ public class Elevator extends GZSubsystem {
                 GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
-        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
-                LimitSwitchDirections.REV);
+        // UNCOMMENTED
+        // mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2,
+        // LimitSwitchNormal.NormallyClosed,
+        // LimitSwitchDirections.REV);
 
         GZSRX.logError(
                 () -> mElevator1.configForwardSoftLimitThreshold(
@@ -111,12 +113,16 @@ public class Elevator extends GZSubsystem {
         GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
                 "Could not enable top limit!");
 
-        GZSRX.logError(
-                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                        LimitSwitchNormal.NormallyClosed),
-                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!");
+        // UNCOMMENTED
+        // GZSRX.logError(
+        // () ->
+        // mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+        // LimitSwitchNormal.NormallyClosed),
+        // this, AlertLevel.ERROR, "Could not configure reverse switch on follower
+        // controller!");
 
-        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+        // UNCOMMENTED
+        // mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
 
         // mElevator1.configAllowableClosedloopError(0, (int)
         // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);

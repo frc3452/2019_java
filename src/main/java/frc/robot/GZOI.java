@@ -127,13 +127,13 @@ public class GZOI extends GZSubsystem {
 		handleSuperStructureControl();
 		handleDriverController();
 		if (Drive.getInstance().configDriveDisabled()){
-			handleSuperStructureControl();
+			handleDriverSupe();
 		}
 	}
 
 	private void handleSuperStructureControl() {
 		if (op.xButton.isBeingPressed()) {
-			supe.zeroElevator();
+			// supe.zeroElevator();
 		} else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
 			supe.queueHeight(QueueHeights.LOW);
 		} else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {
