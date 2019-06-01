@@ -46,17 +46,17 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 28.5;
+            return 28.5 + 1.0;
         }
 
         @Override
         public double cargo2() {
-            return 56.5;
+            return 56.5 + 1.0;
         }
 
         @Override
         public double cargo3() {
-            return 83.5;
+            return 83.5 + 1.0;
         }
 
         @Override

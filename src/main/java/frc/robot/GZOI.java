@@ -259,12 +259,10 @@ public class GZOI extends GZSubsystem {
 		} else if (driverJoy.POV270.shortReleased()) {
 			supe.rocketHeight(QueueHeights.MIDDLE);
 		} else if (driverJoy.POV270.longPressed()) {
-
 			supe.queueHeight(QueueHeights.MIDDLE);
 		} else if (driverJoy.POV0.shortReleased()) {
 			supe.rocketHeight(QueueHeights.HIGH);
 		} else if (driverJoy.POV0.longPressed()) {
-
 			supe.queueHeight(QueueHeights.HIGH);
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			supe.driverRetrieve();
