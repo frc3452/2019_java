@@ -1,10 +1,13 @@
 package frc.robot.poofs.util;
 
+import frc.robot.ConfigurableDrive.DriveSignal;
+
 /**
- * Helper class to implement "Cheesy Drive". "Cheesy Drive" simply means that the "turning" stick controls the curvature
- * of the robot's path rather than its rate of heading change. This helps make the robot more controllable at high
- * speeds. Also handles the robot's quick turn functionality - "quick turn" overrides constant-curvature turning for
- * turn-in-place maneuvers.
+ * Helper class to implement "Cheesy Drive". "Cheesy Drive" simply means that
+ * the "turning" stick controls the curvature of the robot's path rather than
+ * its rate of heading change. This helps make the robot more controllable at
+ * high speeds. Also handles the robot's quick turn functionality - "quick turn"
+ * overrides constant-curvature turning for turn-in-place maneuvers.
  */
 public class CheesyDriveHelper {
 

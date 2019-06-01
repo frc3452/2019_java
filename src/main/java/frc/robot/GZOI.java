@@ -126,7 +126,7 @@ public class GZOI extends GZSubsystem {
 		handleRumble();
 		handleSuperStructureControl();
 		handleDriverController();
-		if (!Drive.getInstance().configDriveDisabled()){
+		if (Drive.getInstance().configDriveDisabled()){
 			handleSuperStructureControl();
 		}
 	}

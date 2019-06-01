@@ -13,21 +13,21 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kDrivetrain;
+import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.ConfigurableDrive.ConfigurableDrive;
-import frc.robot.GZOI.Level;
+import frc.robot.ConfigurableDrive.DriveSignal;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Far_Same_Backwards;
 import frc.robot.poofs.Kinematics;
 import frc.robot.poofs.RobotState;
-import frc.robot.poofs.util.DriveSignal;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
@@ -59,7 +59,6 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.requests.Request;
-import frc.robot.Constants.kAuton;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -138,7 +137,7 @@ public class Drive extends GZSubsystem {
 
 	private Drive() {
 
-		mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(0.1),
+		mConfigurableDrive = new ConfigurableDrive(() -> GZOI.getInstance().isDisabled(),
 				() -> GZOI.driverJoy.POV0.isBeingPressed(), () -> GZOI.driverJoy.POV180.isBeingPressed(), .25, false) {
 			public double getModifier() {
 				return .5;
