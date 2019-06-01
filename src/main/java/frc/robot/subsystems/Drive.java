@@ -130,7 +130,7 @@ public class Drive extends GZSubsystem {
 	}
 
 	public synchronized void printOdometry() {
-		System.out.println("Odometry: " + getOdometry().toString() + "\t" + mNavX.getFusedHeading());
+		System.out.println("Odomet2ry: " + getOdometry().toString() + "\t" + mNavX.getFusedHeading());
 	}
 
 	private Drive() {
