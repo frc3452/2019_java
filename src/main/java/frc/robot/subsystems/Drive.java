@@ -19,6 +19,7 @@ import frc.robot.Constants.kPathFollowing;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
+import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.GZOI.Level;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
@@ -101,6 +102,8 @@ public class Drive extends GZSubsystem {
 
 	private ClimbingState mClimbState = null;
 
+	private ConfigurableDrive mConfigurableDrive = new ConfigurableDrive(moveUpList, moveDownList, shouldLoopAroundList)
+
 	private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
 
 	DecimalFormat df = new DecimalFormat("#0.00");
@@ -134,6 +137,21 @@ public class Drive extends GZSubsystem {
 	}
 
 	private Drive() {
+
+		mConfigurableDrive = new ConfigurableDrive(() -> driveOutputLessThan(0.1), () -> GZOI.driverJoy.getDUp(),
+				() -> GZOI.driverJoy.getDDown(), .25, false) {
+			public double getModifier() {
+				return .5;
+			}
+		};
+
+		mConfigurableDrive.addDisabled();
+		mConfigurableDrive.addFieldCentric(() -> GZOI.driverJoy.getLeftAnalogX(), () -> GZOI.driverJoy.getLeftAnalogY(),
+				() -> GZOI.driverJoy.getRightAnalogX(), () -> GZOI.driverJoy.getRightAnalogY(),
+				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .45, .185);
+		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
+
+		
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
 		L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
 		L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
