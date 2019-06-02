@@ -12,8 +12,6 @@ import frc.robot.util.requests.Request;
 
 public class GZJoystick extends Joystick {
 
-	private double mTriggerPress = 0.3;
-
 	private double mDeadband;
 
 	public boolean rumbling;
@@ -165,6 +163,10 @@ public class GZJoystick extends Joystick {
 		}
 	}
 
+	public void resetButtons() {
+		allButtons.forEach((b) -> b.reset());
+	}
+
 	public void setRumble(double intensity) {
 		this.setRumble(RumbleType.kLeftRumble, intensity);
 		this.setRumble(RumbleType.kRightRumble, intensity);
@@ -255,6 +257,10 @@ public class GZJoystick extends Joystick {
 					}
 				}
 			}
+		}
+
+		public void reset() {
+			wasActivatedReset();
 		}
 
 		/**

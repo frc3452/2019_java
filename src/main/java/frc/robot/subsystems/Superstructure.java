@@ -41,6 +41,10 @@ public class Superstructure extends GZSubsystem {
     private QueueHeights mQueuedHeight = null;
 
     public void queueHeight(QueueHeights h) {
+        queueHeight(h, false);
+    }
+
+    public void queueHeight(QueueHeights h, boolean driver) {
         this.mQueuedHeight = h;
         double numberOfSeconds;
         double rumblesPerSecond;
@@ -67,7 +71,11 @@ public class Superstructure extends GZSubsystem {
             rumblesPerSecond = 0.0;
             break;
         }
+
         GZOI.driverJoy.rumble(rumblesPerSecond, numberOfSeconds);
+        if (!driver) {
+            GZOI.op.rumble(rumblesPerSecond, numberOfSeconds);
+        }
     }
 
     public static Superstructure getInstance() {

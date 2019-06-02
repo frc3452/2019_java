@@ -27,7 +27,8 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 20;        }
+            return 20;
+        }
 
         @Override
         public double hp2() {
@@ -46,17 +47,17 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 28.5 + 1.0;
+            return 28.5 + 2.5;
         }
 
         @Override
         public double cargo2() {
-            return 56.5 + 1.0;
+            return 56.5 + 2.5;
         }
 
         @Override
         public double cargo3() {
-            return 83.5 + 1.0;
+            return 83.5 + 2.5;
         }
 
         @Override
@@ -99,7 +100,6 @@ public class PracticeField extends FieldProfile {
         }
     }
 
-    
     private HeightsContainer mPracticeHeights = new HeightsContainer() {
         @Override
         public double hp_floor_Grab() {

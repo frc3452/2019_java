@@ -104,6 +104,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousInit() {
+		GZOI.getInstance().resetButtons();
 		enabledInits();
 
 		// timer start
@@ -122,6 +123,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		GZOI.getInstance().resetButtons();
 		drive.slowSpeed(true);
 		auton.cancelAuton();
 		enabledInits();
@@ -133,6 +135,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void testInit() {
+		GZOI.getInstance().resetButtons();
 		enabledInits();
 	}
 

@@ -25,8 +25,7 @@ public class DriveSignal {
         return mRightMotor;
     }
 
-    public void applyModifier(double mod)
-    {
+    public void applyModifier(double mod) {
         mLeftMotor *= mod;
         mRightMotor *= mod;
     }
@@ -36,10 +35,9 @@ public class DriveSignal {
         return "L: " + df.format(mLeftMotor) + ", R: " + df.format(mRightMotor);
     }
 
-    public void print()
-    {
+    public void print() {
         System.out.println(toString());
     }
 
-    private DecimalFormat df = new DecimalFormat("#0.00");
+    private DecimalFormat df = new DecimalFormat("#0.000");
 }

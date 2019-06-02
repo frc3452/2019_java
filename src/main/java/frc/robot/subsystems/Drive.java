@@ -663,18 +663,22 @@ public class Drive extends GZSubsystem {
 	}
 
 	private synchronized void out() {
-		DriveSignal mConfigOutput = mConfigurableDrive.update();
+		DriveSignal mConfigOutput = DriveSignal.NEUTRAL;
+		final boolean useConfig = GZOI.getInstance().shouldUseConfigurableDrive();
+		if (useConfig) {
+			mConfigOutput = mConfigurableDrive.update();
+		}
 
 		switch (mState) {
 		case PATH_FOLLOWING:
 			if (mPathFollower != null) {
-
 				updatePathFollower();
 				if (isDoneWithPath()) {
-					if (mTurnAfterPath == ShouldTurnAfterPath.LEFT)
+					if (mTurnAfterPath == ShouldTurnAfterPath.LEFT) {
 						turnFarRocketLeft();
-					else if (mTurnAfterPath == ShouldTurnAfterPath.RIGHT)
+					} else if (mTurnAfterPath == ShouldTurnAfterPath.RIGHT) {
 						turnFarRocketRight();
+					}
 				}
 
 			}
@@ -683,7 +687,7 @@ public class Drive extends GZSubsystem {
 			handleClimbing(GZOI.driverJoy);
 			break;
 		case OPEN_LOOP_DRIVER:
-			if (mConfigurableDrive.isDisabled()) {
+			if (!useConfig || mConfigurableDrive.isDisabled()) {
 				arcade(GZOI.driverJoy);
 			} else {
 				mIO.left_desired_output = mConfigOutput.getLeft();

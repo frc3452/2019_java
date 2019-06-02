@@ -524,22 +524,4 @@ public class ConfigurableDrive {
         }
     }
 
-    public static class Previous<T> {
-        private T prev;
-
-        public Previous(T start) {
-            prev = start;
-        }
-
-        public boolean update(T newValue) {
-            T temp = prev;
-            prev = newValue;
-            return !temp.equals(newValue);
-        }
-
-        public T getPrev() {
-            return prev;
-        }
-    }
-
 }

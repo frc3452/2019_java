@@ -55,11 +55,21 @@ public class GZOI extends GZSubsystem {
 		return mInstance;
 	}
 
+	private boolean mShouldUseConfigurableDrive = false;
+
+	public boolean shouldUseConfigurableDrive() {
+		return mShouldUseConfigurableDrive;
+	}
+
+	public void resetButtons() {
+		driverJoy.resetButtons();
+		op.resetButtons();
+	}
+
 	private GZOI() {
 		mCamera = CameraServer.getInstance().startAutomaticCapture(0);
 
 		cameraSettings();
-		// mLeds = new GZSolenoid(kLights.PCM_LED, this, "LEDs");
 
 		driverJoy.setLongPressDuration(0.20);
 	}
@@ -86,29 +96,33 @@ public class GZOI extends GZSubsystem {
 		else if (isTest())
 			mWasTest = true;
 
-		// mLeds.set(true);
-		// cameraSettings();
-
 		// SAFTEY DISABLED
-		boolean safteyDisable = false;
-		if (isFMS())
-			safteyDisable = false;
-		else if (getSafteyKey())
-			safteyDisable = true;
-		else if (mUserButton.update(RobotController.getUserButton()))
-			safteyDisable = !mSafetyDisable;
+		// boolean safteyDisable = false;
+		// if (isFMS())
+		// safteyDisable = false;
+		// else if (getSafteyKey())
+		// safteyDisable = true;
+		// else if (mUserButton.update(RobotController.getUserButton()))
+		// safteyDisable = !mSafetyDisable;
 
-		if (mSafetyDisable != safteyDisable) {
-			mSafetyDisable = safteyDisable;
-			Robot.allSubsystems.disable(mSafetyDisable);
-			System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" : "enabled") + "!");
-		}
+		// if (mSafetyDisable != safteyDisable) {
+		// mSafetyDisable = safteyDisable;
+		// Robot.allSubsystems.disable(mSafetyDisable);
+		// System.out.println("WARNING All subsystems " + (mSafetyDisable ? "disabled" :
+		// "enabled") + "!");
+		// }
 
-		if (mSafetyDisable) {
-			if (++mDisabledPrintOutLoops > 300) {
-				System.err.println("ERROR All subsystems disabled, check Saftey Key or toggle UserButton");
-				mDisabledPrintOutLoops = 0;
-			}
+		// if (mSafetyDisable) {
+		// if (++mDisabledPrintOutLoops > 300) {
+		// System.err.println("ERROR All subsystems disabled, check Saftey Key or toggle
+		// UserButton");
+		// mDisabledPrintOutLoops = 0;
+		// }
+		// }
+
+		if (mUserButton.update(RobotController.getUserButton())) {
+			mShouldUseConfigurableDrive = !mShouldUseConfigurableDrive;
+			System.out.println("[ConfigurableDrive] " + (mShouldUseConfigurableDrive ? "enabled" : "disabled"));
 		}
 
 		// Disabled
@@ -126,7 +140,7 @@ public class GZOI extends GZSubsystem {
 		handleRumble();
 		handleSuperStructureControl();
 		handleDriverController();
-		if (Drive.getInstance().configDriveDisabled()){
+		if (Drive.getInstance().configDriveDisabled()) {
 			handleDriverSupe();
 		}
 	}
@@ -242,31 +256,29 @@ public class GZOI extends GZSubsystem {
 			}
 		}
 
-		
 		if (driverJoy.backButton.longPressed()) {
 			elev.toggleSpeedOverride();
 		}
 
 		drive.handleDriving(driverJoy);
-
 	}
 
 	private void handleDriverSupe() {
 		if (driverJoy.POV180.shortReleased()) {
 			supe.rocketHeight(QueueHeights.LOW);
 		} else if (driverJoy.POV180.longPressed()) {
-			supe.queueHeight(QueueHeights.LOW);
+			supe.queueHeight(QueueHeights.LOW, true);
 		} else if (driverJoy.POV270.shortReleased()) {
 			supe.rocketHeight(QueueHeights.MIDDLE);
 		} else if (driverJoy.POV270.longPressed()) {
-			supe.queueHeight(QueueHeights.MIDDLE);
+			supe.queueHeight(QueueHeights.MIDDLE, true);
 		} else if (driverJoy.POV0.shortReleased()) {
 			supe.rocketHeight(QueueHeights.HIGH);
 		} else if (driverJoy.POV0.longPressed()) {
-			supe.queueHeight(QueueHeights.HIGH);
+			supe.queueHeight(QueueHeights.HIGH, true);
 		} else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			supe.driverRetrieve();
-		} else if (driverJoy.bButton.wasActivated()) {
+		} else if (driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
 			supe.setHeight(Heights.Cargo_Ship);
 		} else if (driverJoy.rightBumper.wasActivated()) {
 			supe.score(true);
@@ -277,7 +289,6 @@ public class GZOI extends GZSubsystem {
 		} else if (driverJoy.startButton.wasActivated()) {
 			supe.stow();
 		}
-
 	}
 
 	public String getSmallString() {
