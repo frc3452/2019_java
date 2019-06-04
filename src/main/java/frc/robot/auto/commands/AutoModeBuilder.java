@@ -3,17 +3,10 @@ package frc.robot.auto.commands;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.ConditionalCommand;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations;
 import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition.ScoringPosLimitations.AutoDirection;
-import frc.robot.auto.commands.functions.NoCommand;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
-import frc.robot.auto.commands.functions.superstructure.ExtendSlides;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
-import frc.robot.auto.commands.functions.superstructure.RunAction;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_1_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_2_Left;
 import frc.robot.auto.commands.paths.center.Center_CS_Bay_3_Left;
@@ -56,9 +49,8 @@ import frc.robot.auto.commands.paths.to_feeder_station.CS_Face_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Close_Turn_Around_Same;
 import frc.robot.auto.commands.paths.to_feeder_station.Rocket_Far_Turn_Around_Same;
 import frc.robot.auto.pathadapter.PathAdapter;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.subsystems.Auton;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZUtil;
@@ -95,7 +87,16 @@ public class AutoModeBuilder {
     }
 
     public static enum ZeroPositions {
-        CENTER, LEFT, RIGHT, LEFT_2, RIGHT_2
+        CENTER(new Center_CS_Face_Left().getStartPose().getTranslation()),
+        LEFT(new Left_Rocket_Close_Same().getStartPose().getTranslation()),
+        RIGHT(new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation()),
+        LEFT_2(new Translation2d(27, 205)), RIGHT_2(new Translation2d(27, 117));
+
+        public final Translation2d position;
+
+        private ZeroPositions(Translation2d translation) {
+            this.position = translation;
+        }
     }
 
     public static enum StartingPosition {
@@ -460,36 +461,37 @@ public class AutoModeBuilder {
         // if not scored do everything below
 
         GZCommandGroup score = new GZCommandGroup();
-        switch (gamepiece) {
-        case CARGO:
-            if (location.isOnCargoShip()) {
-                score.add(new GoToHeight(Heights.Cargo_Ship));
-            } else {
-                score.add(new GoToHeight(Heights.Cargo_1));
-            }
-            score.add(new RunAction(Actions.THROW_CARGO));
-            break;
-        case HATCH_PANEL:
-            // ret.add(new GoToHeight(Heights.Cargo_1));
-            if (location.isOnCargoShip()) {
-                score.add(new ExtendSlides());
-                score.add(new GoToHeight(Heights.HP_1));
-            } else { // rocket
-                score.add(new GoToHeight(Heights.HP_2));
-            }
-            score.add(new RunAction(Actions.SCORE_HATCH));
-            break;
-        }
+        // switch (gamepiece) {
+        // case CARGO:
+        // if (location.isOnCargoShip()) {
+        // score.add(new GoToHeight(Heights.Cargo_Ship));
+        // } else {
+        // score.add(new GoToHeight(Heights.Cargo_1));
+        // }
+        // score.add(new RunAction(Actions.THROW_CARGO));
+        // break;
+        // case HATCH_PANEL:
+        // // ret.add(new GoToHeight(Heights.Cargo_1));
+        // if (location.isOnCargoShip()) {
+        // score.add(new ExtendSlides());
+        // score.add(new GoToHeight(Heights.HP_1));
+        // } else { // rocket
+        // score.add(new GoToHeight(Heights.HP_2));
+        // }
+        // score.add(new RunAction(Actions.SCORE_HATCH));
+        // break;
+        // }
         score.tele();
 
-        ConditionalCommand scoreCommand = new ConditionalCommand(new NoCommand(), score) {
-            @Override
-            protected boolean condition() {
-                return Superstructure.getInstance().hasAutoScored();
-            }
-        };
+        // ConditionalCommand scoreCommand = new ConditionalCommand(new NoCommand(),
+        // score) {
+        // @Override
+        // protected boolean condition() {
+        // return Superstructure.getInstance().hasAutoScored();
+        // }
+        // };
 
-        ret.add(scoreCommand);
+        // ret.add(scoreCommand);
 
         return ret;
     }
@@ -656,7 +658,7 @@ public class AutoModeBuilder {
     public static Command retrieveFromFeederStation() {
         GZCommandGroup ret = new GZCommandGroup();
         ret.tele();
-        ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
+        // ret.add(new RunAction(Actions.GRAB_HP_FROM_FEED));
         return ret;
     }
 

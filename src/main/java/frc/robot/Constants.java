@@ -6,6 +6,9 @@ import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.poofs.util.control.Lookahead;
 import frc.robot.poofs.util.control.PathFollower;
+import frc.robot.poofs.util.math.Pose2d;
+import frc.robot.poofs.util.math.Rotation2d;
+import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.GZFile;
 import frc.robot.util.GZFileMaker;
 import frc.robot.util.GZFileMaker.FileExtensions;
@@ -109,6 +112,10 @@ public class Constants {
 
 		public static final double SLIDES_TOLERANCE = 3.5;
 
+		public static enum QueueHeights {
+			LOW, MIDDLE, HIGH, CARGO_SHIP
+		}
+
 		public static enum Heights {
 
 			Zero(h.zero()), Home(h.home()), Cargo_Intake(Home), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()),
@@ -135,10 +142,62 @@ public class Constants {
 			public String toString() {
 				return "IN: [" + this.inches + "]" + " HP: [" + this.moving_hp + "]";
 			}
+
+			public static Heights getHeight(QueueHeights rocketLevel, boolean hatch) {
+				switch (rocketLevel) {
+				case LOW:
+					if (hatch) {
+						return Heights.HP_1;
+					} else {
+						return Heights.Cargo_1;
+					}
+				case MIDDLE:
+					if (hatch) {
+						return Heights.HP_2;
+					} else {
+						return Heights.Cargo_2;
+					}
+				case HIGH:
+					if (hatch) {
+						return Heights.HP_3;
+					} else {
+						return Heights.Cargo_3;
+					}
+				case CARGO_SHIP:
+					// if (hatch) {
+					// return HP_1;
+					// } else {
+					return Cargo_Ship;
+				// }
+				default:
+					return Heights.Cargo_2;
+				}
+			}
 		}
 	}
 
 	public static class kAuton {
+		public final static double ROBOT_WIDTH = (27 + (3.5 * 2));
+		public final static double ROBOT_LENGTH = (32 + (3.5 * 2));
+
+		public final static Pose2d Left_Feeder_Station = new Pose2d(new Translation2d(0, 298.28), new Rotation2d(180));
+		public final static Pose2d Right_Feeder_Station = new Pose2d(new Translation2d(0, 25.72), new Rotation2d(180));
+
+		public final static Pose2d Right_Rocket_Near = new Pose2d(
+				new Translation2d(166.57 + 48, ((27.44 - 7.875) / 2.0) + 7.875), new Rotation2d(90 - 61.25));
+		public final static Pose2d Right_Rocket_Far = new Pose2d(
+				new Translation2d((229.13 - (166.57 + 48)) + 229.13, ((27.44 - 7.875) / 2.0) + 7.875),
+				new Rotation2d(90 + 61.25));
+
+		public final static Pose2d Left_Rocket_Near = new Pose2d(
+				new Translation2d(Right_Rocket_Near.getTranslation().x(),
+						(27 * 12) - Right_Rocket_Near.getTranslation().y()),
+				new Rotation2d(270 + 61.25));
+		public final static Pose2d Left_Rocket_Far = new Pose2d(
+				new Translation2d(Right_Rocket_Near.getTranslation().x(),
+						(27 * 12) - Right_Rocket_Far.getTranslation().y()),
+				new Rotation2d(270 - 61.25));
+
 		public final static int SAFTEY_SWITCH = 96;
 
 		public final static DigitalSelectorConstants SELECTOR_ONES;
@@ -153,6 +212,10 @@ public class Constants {
 				SELECTOR_ONES = new DigitalSelectorConstants("Ones selector", true, 3, 2, 1, 0);
 			}
 		}
+	}
+
+	public static class kSuperstructure {
+		public final static boolean EXTRA_LOGS = true;
 	}
 
 	public static class kPathFollowing {
@@ -237,19 +300,19 @@ public class Constants {
 		public static final double AUTO_CLIMB_SPEED = 1.0; // .25
 		// public static final double CLIMB_PITCH_TOLERANCE = 9; // 3
 		// public static final double AUTO_CLIMB_SPEED = 0.75; // .25
-		
+
 		public static final int CRAWLER_DROP_NECCESARY_TICKS = 5;
 
 		public static final double L_ROTATIONS_PER_DEGREE = 0.0088055555555556;
 		public static final double R_ROTATIONS_PER_DEGREE = 0.0077527777777778;
-		
+
 		public static final double TURN_TO_HEADING_ACCURACY_DEG = 5;
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_ACCEL = 5 * 6 * 3;
 		public static final double TURN_TO_HEADING_MOTION_MAGIC_VEL = 5 * 6 * 5;
-		
-		public static final double JOG_MOTION_MAGIC_ACCEL = 5 * 6;
-		public static final double JOG_MOTION_MAGIC_VEL = 5 * 6;
-		public static final double JOG_ACCURACY_INCHES = 3;
+
+		public static final double JOG_MOTION_MAGIC_ACCEL = 10 * 6;
+		public static final double JOG_MOTION_MAGIC_VEL = 20 * 6;
+		public static final double JOG_ACCURACY_INCHES = 6;
 
 		// 2019 Robot
 
@@ -270,7 +333,7 @@ public class Constants {
 
 		public static final double CLOSED_LOOP_JOYSTICK_DEADBAND = 0.01;
 		public static final double CLOSED_LOOP_TOP_TICKS = 2250 * 1;
-		
+
 	}
 
 	public static class kPDP {

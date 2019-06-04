@@ -1,23 +1,20 @@
 package frc.robot.poofs.util.math;
 
+import frc.robot.util.GZUtil;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-import frc.robot.poofs.util.Interpolable;
+import java.util.List;
 
 /**
  * A translation in a 2d coordinate frame. Translations are simply shifts in an
  * (x, y) plane.
  */
-public class Translation2d implements Interpolable<Translation2d> {
+public class Translation2d extends GZGeometry<Translation2d> implements ITranslation2d<Translation2d> {
     protected static final Translation2d kIdentity = new Translation2d();
 
     public static final Translation2d identity() {
         return kIdentity;
-    }
-
-    public static final ArrayList<Translation2d> getArray() {
-        return new ArrayList<Translation2d>();
     }
 
     protected double x_;
@@ -33,20 +30,59 @@ public class Translation2d implements Interpolable<Translation2d> {
         y_ = y;
     }
 
-    public Translation2d(Translation2d other) {
+    public Translation2d(final Translation2d other) {
         x_ = other.x_;
         y_ = other.y_;
     }
 
-    public Translation2d(Translation2d start, Translation2d end) {
+    public Translation2d(double x1, double y1, double x2, double y2) {
+        this(x1 + ((x2 - x1) / 2.0), y1 + ((y2 - y1) / 2.0));
+    }
+
+    public Translation2d(final Translation2d start, final Translation2d end) {
         x_ = end.x_ - start.x_;
         y_ = end.y_ - start.y_;
     }
 
+    public static Translation2d fromPolar(Rotation2d direction, double magnitude) {
+        return new Translation2d(direction.cos() * magnitude, direction.sin() * magnitude);
+    }
+
+    public Translation2d nearest(List<Translation2d> translations, double maxDistance) {
+        int index = nearestIndex(translations, maxDistance);
+        if (index == -1)
+            return null;
+        return translations.get(index);
+    }
+
+    public int nearestIndex(List<Translation2d> translations, double maxDistance) {
+        double minDistance = Double.POSITIVE_INFINITY;
+        int minDistanceIndex = -1;
+        for (int i = 0; i < translations.size(); i++) {
+            Translation2d t = translations.get(i);
+            double distance = t.distance(this);
+
+            if (distance > maxDistance) {
+                distance = Double.POSITIVE_INFINITY;
+            }
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceIndex = i;
+            }
+        }
+
+        return minDistanceIndex;
+    }
+
+    public Translation2d nearest(List<Translation2d> translations) {
+        return nearest(translations, Double.POSITIVE_INFINITY);
+    }
+
     /**
      * The "norm" of a transform is the Euclidean distance in x and y.
-     * 
-     * @return sqrt(x^2 + y^2)
+     *
+     * @return sqrt(x ^ 2 + y ^ 2)
      */
     public double norm() {
         return Math.hypot(x_, y_);
@@ -54,6 +90,18 @@ public class Translation2d implements Interpolable<Translation2d> {
 
     public double norm2() {
         return x_ * x_ + y_ * y_;
+    }
+
+    /**
+     * Normalizing a vector scales it so that its norm is 1 while maintaining its
+     * direction. If input is a zero vector, return a zero vector.
+     * 
+     * @return r / norm(r) or (0,0)
+     */
+    public Translation2d normalize() {
+        if (epsilonEquals(identity(), GZUtil.kEpsilon))
+            return this;
+        return scale(1.0 / norm());
     }
 
     public double x() {
@@ -72,50 +120,79 @@ public class Translation2d implements Interpolable<Translation2d> {
         y_ = y;
     }
 
-    public void flipX() {
-        x_ = -x_;
-    }
-
-    public void flipY() {
-        y_ = -y_;
-    }
-
-    public Translation2d getFlippedY() {
-        Translation2d ret = new Translation2d(this);
-        ret.flipY();
-        return ret;
-    }
-
-    public void translateBy(double distance, Rotation2d angle) {
-        double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
-        double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
-
-        double xDelta = Math.copySign(yTemp, xTemp);
-        double yDelta = Math.copySign(xTemp, yTemp);
-
-        x_ += xDelta;
-        y_ += yDelta;
-    }
-
     /**
      * We can compose Translation2d's by adding together the x and y shifts.
-     * 
+     *
      * @param other The other translation to add.
      * @return The combined effect of translating by this object and the other.
      */
-    public Translation2d translateBy(Translation2d other) {
+    public Translation2d translateBy(final Translation2d other) {
         return new Translation2d(x_ + other.x_, y_ + other.y_);
+    }
+
+    public Translation2d translateBy(double distance, Rotation2d angle) {
+        double xTemp = Math.cos(Math.toRadians(angle.getDegrees())) * distance;
+        double yTemp = Math.sin(Math.toRadians(angle.getDegrees())) * distance;
+
+        double xDelta = xTemp;
+        double yDelta = yTemp;
+
+        yDelta *= -1;
+        // double xDelta = Math.copySign(yTemp, xTemp);
+        // double yDelta = Math.copySign(xTemp, yTemp);
+
+        return new Translation2d(x_ + xDelta, y_ + yDelta);
+    }
+
+    public boolean atOrigin() {
+        return distance(kIdentity) < GZUtil.kEpsilon;
+    }
+
+    public Translation2d setNorm(double newNorm) {
+        Translation2d t = new Translation2d(this);
+        t = t.scale(1 / t.norm());
+        t = t.scale(newNorm);
+        return t;
     }
 
     /**
      * We can also rotate Translation2d's. See:
      * https://en.wikipedia.org/wiki/Rotation_matrix
-     * 
+     *
      * @param rotation The rotation to apply.
      * @return This translation rotated by rotation.
      */
-    public Translation2d rotateBy(Rotation2d rotation) {
+    public Translation2d rotateBy(final Rotation2d rotation) {
         return new Translation2d(x_ * rotation.cos() - y_ * rotation.sin(), x_ * rotation.sin() + y_ * rotation.cos());
+    }
+
+    public boolean insideRange(Translation2d bottomLeft, Translation2d topRight) {
+        return insideRange(this, bottomLeft, topRight);
+    }
+
+    public static boolean insideRange(Translation2d point, Translation2d bottomLeft, Translation2d topRight) {
+        boolean inside = true;
+
+        inside &= point.x() < topRight.x() && point.x() > bottomLeft.x();
+        inside &= point.y() < topRight.y() && point.y() > bottomLeft.y();
+
+        return inside;
+    }
+
+    public Translation2d rotateAround(final Pose2d pose) {
+        return rotateAround(pose.getTranslation(), pose.getRotation());
+    }
+
+    public Translation2d rotateAround(final Translation2d rotateAround, final Rotation2d rotation) {
+        return rotateAround(this, rotateAround, rotation);
+    }
+
+    public static Translation2d rotateAround(final Translation2d point, final Translation2d rotateAround,
+            final Rotation2d rotation) {
+        Translation2d temp = point.translateBy(rotateAround.inverse());
+        temp = temp.rotateBy(rotation.inverse());
+        temp = temp.translateBy(rotateAround);
+        return temp;
     }
 
     public Rotation2d direction() {
@@ -124,15 +201,25 @@ public class Translation2d implements Interpolable<Translation2d> {
 
     /**
      * The inverse simply means a Translation2d that "undoes" this object.
-     * 
+     *
      * @return Translation by -x and -y.
      */
     public Translation2d inverse() {
         return new Translation2d(-x_, -y_);
     }
 
+    public Translation2d flip() {
+        return new Translation2d(y_, x_);
+    }
+
+    public void flipSelf() {
+        Translation2d flip = flip();
+        setX(flip.x());
+        setY(flip.y());
+    }
+
     @Override
-    public Translation2d interpolate(Translation2d other, double x) {
+    public Translation2d interpolate(final Translation2d other, double x) {
         if (x <= 0) {
             return new Translation2d(this);
         } else if (x >= 1) {
@@ -141,7 +228,7 @@ public class Translation2d implements Interpolable<Translation2d> {
         return extrapolate(other, x);
     }
 
-    public Translation2d extrapolate(Translation2d other, double x) {
+    public Translation2d extrapolate(final Translation2d other, double x) {
         return new Translation2d(x * (other.x_ - x_) + x_, x * (other.y_ - y_) + y_);
     }
 
@@ -149,17 +236,112 @@ public class Translation2d implements Interpolable<Translation2d> {
         return new Translation2d(x_ * s, y_ * s);
     }
 
-    @Override
-    public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "(" + fmt.format(x_) + "," + fmt.format(y_) + ")";
+    public boolean epsilonEquals(final Translation2d other, double epsilon) {
+        return GZUtil.epsilonEquals(x(), other.x(), epsilon) && GZUtil.epsilonEquals(y(), other.y(), epsilon);
     }
 
-    public static double dot(Translation2d a, Translation2d b) {
+    @Override
+    public String toString() {
+        return toString(false);
+    }
+
+    public String toString(boolean angle) {
+        final DecimalFormat fmt = new DecimalFormat("#0.000");
+        String out = "(" + fmt.format(x_) + "," + fmt.format(y_) + ")";
+        if (angle)
+            out += this.direction().toString();
+        return out;
+    }
+
+    @Override
+    public String toCSV() {
+        final DecimalFormat fmt = new DecimalFormat("#0.000");
+        return fmt.format(x_) + "," + fmt.format(y_);
+    }
+
+    public static double dot(final Translation2d a, final Translation2d b) {
         return a.x_ * b.x_ + a.y_ * b.y_;
     }
 
-    public static Rotation2d getAngle(Translation2d a, Translation2d b) {
+    /**
+     * The scalar projection of a vector u onto a vector v is the length of the
+     * "shadow" cast by u onto v under a "light" that is placed on a line normal to
+     * v and containing the endpoint of u, given that u and v share a starting
+     * point. tl;dr: _* u /| / | / | v *---+---------------->* \___/ | scal_v(u)
+     * u.scal(v)
+     * 
+     * @return (u . v) / norm(v)
+     */
+    public double scal(Translation2d v) {
+        return dot(this, v) / v.norm();
+    }
+
+    /**
+     * The projection of a vector u onto a vector v is the vector in the direction
+     * of v with the magnitude u.scal(v).
+     * 
+     * @return u.scal(v) * v / norm(v)
+     */
+    public Translation2d proj(Translation2d v) {
+        return v.normalize().scale(scal(v));
+    }
+
+    public int quadrant() {
+        if (x() > 0 && y() > 0)
+            return 1;
+        else if (x() < 0 && y() > 0)
+            return 2;
+        else if (x() < 0 && y() < 0)
+            return 3;
+        else if (x() > 0 && y() < 0)
+            return 4;
+
+        return 0;
+    }
+
+    /**
+     * https://stackoverflow.com/a/1167047/6627273 A point D is considered "within"
+     * an angle ABC when cos(DBM) > cos(ABM) where M is the midpoint of AC, so ABM
+     * is half the angle ABC. The cosine of an angle can be computed as the dot
+     * product of two normalized vectors in the directions of its sides. Note that
+     * this definition of "within" does not include points that lie on the sides of
+     * the given angle. If `vertical` is true, then check not within the given
+     * angle, but within the image of that angle rotated by pi about its vertex.
+     * 
+     * @param Translation2d A A point on one side of the angle.
+     * @param Translation2d B The vertex of the angle.
+     * @param Translation2d C A point on the other side of the angle.
+     * @param               boolean vertical Whether to check in the angle vertical
+     *                      to the one given
+     * @return Whether this translation is within the given angle.
+     * @author Joseph Reed
+     */
+    public boolean isWithinAngle(Translation2d A, Translation2d B, Translation2d C, boolean vertical) {
+        Translation2d M = A.interpolate(C, 0.5); // midpoint
+        Translation2d m = (new Translation2d(B, M)).normalize(); // mid-vector
+        Translation2d a = (new Translation2d(B, A)).normalize(); // side vector
+        Translation2d d = (new Translation2d(B, this)).normalize(); // vector to here
+        if (vertical) {
+            m = m.inverse();
+            a = a.inverse();
+        }
+        return Translation2d.dot(d, m) > Translation2d.dot(a, m);
+    }
+
+    public boolean isWithinAngle(Translation2d A, Translation2d B, Translation2d C) {
+        return isWithinAngle(A, B, C, false);
+    }
+
+    /** Assumes an angle centered at the origin. */
+    public boolean isWithinAngle(Translation2d A, Translation2d C, boolean vertical) {
+        return isWithinAngle(A, identity(), C, vertical);
+    }
+
+    public boolean isWithinAngle(Translation2d A, Translation2d C) {
+        return isWithinAngle(A, C, false);
+    }
+
+    public static Rotation2d getAngle(final Translation2d a, final Translation2d b) {
         double cos_angle = dot(a, b) / (a.norm() * b.norm());
         if (Double.isNaN(cos_angle)) {
             return new Rotation2d();
@@ -167,7 +349,45 @@ public class Translation2d implements Interpolable<Translation2d> {
         return Rotation2d.fromRadians(Math.acos(Math.min(1.0, Math.max(cos_angle, -1.0))));
     }
 
-    public static double cross(Translation2d a, Translation2d b) {
+    public static double cross(final Translation2d a, final Translation2d b) {
         return a.x_ * b.y_ - a.y_ * b.x_;
+    }
+
+    /**
+     * The distance between a point and a line can be computed as a scalar
+     * projection.
+     * 
+     * @param Translation2d a One point on the line.
+     * @param Translation2d b Another point on the line.
+     */
+    public double distanceToLine(Translation2d a, Translation2d b) {
+        Translation2d point = new Translation2d(a, this);
+        Translation2d line = new Translation2d(a, b);
+        Translation2d perpLine = line.rotateBy(new Rotation2d(90));
+        return Math.abs(point.scal(perpLine));
+        // let's use readable code from now on, not golfed one-liners, shall we?
+        // return Math.abs((new Translation2d(a,this))scal((new
+        // Translation2d(a,b)).rotateBy(new Rotation2d(90))));
+    }
+
+    @Override
+    public double distance(final Translation2d other) {
+        return inverse().translateBy(other).norm();
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (other == null || !(other instanceof Translation2d))
+            return false;
+        return distance((Translation2d) other) < GZUtil.kEpsilon;
+    }
+
+    @Override
+    public Translation2d getTranslation() {
+        return this;
+    }
+
+    public Translation2d getFlippedY() {
+        return new Translation2d(this.x(), -this.y());
     }
 }

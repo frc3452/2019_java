@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 public class TeleDrive extends Command {
 
@@ -22,7 +21,7 @@ public class TeleDrive extends Command {
     }
 
     public TeleDrive(boolean shouldDrive) {
-        this(() -> GZOI.driverJoy.getButton(Buttons.B), true);
+        this(() -> GZOI.driverJoy.bButton.isBeingPressed(), true);
     }
 
     public TeleDrive() {

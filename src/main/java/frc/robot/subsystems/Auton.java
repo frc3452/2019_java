@@ -4,34 +4,20 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder;
-import frc.robot.auto.commands.AutoModeBuilder.FeederStation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringLocation;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringPosition;
-import frc.robot.auto.commands.AutoModeBuilder.ScoringSide;
-import frc.robot.auto.commands.AutoModeBuilder.StartingPosition;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.NoCommand;
-import frc.robot.auto.commands.functions.superstructure.GoToHeight;
-import frc.robot.auto.commands.functions.superstructure.OpenClaw;
-import frc.robot.auto.commands.functions.superstructure.RetractSlides;
-import frc.robot.auto.commands.functions.superstructure.RunAction;
-import frc.robot.auto.commands.paths.Curve_test_path;
 import frc.robot.auto.commands.paths.center.Center_CS_Face_Left;
 import frc.robot.auto.commands.paths.left.Left_Rocket_Close_Same;
 import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.subsystems.Superstructure.Actions;
 import frc.robot.util.GZCommand;
 import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
-import frc.robot.util.drivers.GZJoystick.AnalogAngle;
-import frc.robot.util.drivers.GZJoystick.Buttons;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -135,16 +121,16 @@ public class Auton {
 			{
 				// add(new GoToHeight(Heights.HP_2));
 				tele();
-				add(new RunAction(Actions.SCORE_HATCH));
+				// add(new RunAction(Actions.SCORE_HATCH));
 			}
 		}));
 
 		commandArray.add(new GZCommand("Place High (Level 2)", () -> new GZCommandGroup() {
 			{
 				tele();
-				add(new GoToHeight(Heights.HP_2));
+				// add(new GoToHeight(Heights.HP_2));
 				tele();
-				add(new RunAction(Actions.SCORE_HATCH));
+				// add(new RunAction(Actions.SCORE_HATCH));
 				tele();
 				// angleR(Rotation2d.fromDegrees(180));
 				tele();
@@ -206,8 +192,8 @@ public class Auton {
 	}
 
 	public boolean isAutoControl() {
-		if (autonomousCommand == null)
-			return Superstructure.getInstance().fakeAutoScore();
+		// if (autonomousCommand == null)
+		// return Superstructure.getInstance().fakeAutoScore();
 
 		return !autonomousCommand.hasBeenCancelled() && (autonomousCommand.isRunning() || !autonomousCommand.hasRun())
 				&& GZOI.getInstance().isAuto();
@@ -253,21 +239,17 @@ public class Auton {
 		}
 	}
 
-	/**
-	 * Sets the names for the override and the value of the array in which to
-	 * override
-	 */
 	private void controllerChooser() {
 		customAuto();
 
-		if (GZOI.driverJoy.getButtons(Buttons.LB, Buttons.RB)) {
-			if (GZOI.driverJoy.getButtonLatched(Buttons.A)) {
+		if (GZOI.driverJoy.leftBumper.isBeingPressed() && GZOI.driverJoy.rightBumper.isBeingPressed()) {
+			if (GZOI.driverJoy.aButton.wasActivated()) {
 				m_controllerOverrideValue++;
 				sanityCheckControllerValue();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.B)) {
+			} else if (GZOI.driverJoy.bButton.wasActivated()) {
 				m_controllerOverrideValue--;
 				sanityCheckControllerValue();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
+			} else if (GZOI.driverJoy.rightCenterClick.wasActivated()) {
 				m_controllerOverrideValue = -1;
 				printSelectors();
 				return;
@@ -287,27 +269,7 @@ public class Auton {
 		}
 
 		Translation2d position;
-
-		switch (mCustomAutoStartPos) {
-		case CENTER:
-			position = new Center_CS_Face_Left().getStartPose().getTranslation();
-			break;
-		case LEFT:
-			position = new Left_Rocket_Close_Same().getStartPose().getTranslation();
-			break;
-		case RIGHT:
-			position = new Left_Rocket_Close_Same().getRight().getStartPose().getTranslation();
-			break;
-		case LEFT_2:
-			position = new Translation2d(27, 205);
-			break;
-		case RIGHT_2:
-			position = new Translation2d(27, 117);
-			break;
-		default:
-			System.out.println("UNHANDLED STARTING POSITION " + mCustomAutoStartPos + " IN updateCustomAuto()");
-			return;
-		}
+		position = mCustomAutoStartPos.position;
 
 		System.out.println("Zeroing odometry to " + mCustomAutoStartPos);
 		Drive.getInstance().zeroOdometry(new RigidTransform2d(position, mCustomAutoStartingAngle.inverse()));
@@ -318,18 +280,20 @@ public class Auton {
 	}
 
 	private void customAuto() {
-		if (GZOI.driverJoy.getButton(Buttons.BACK)) {
-			if (GZOI.driverJoy.getButtonLatched(Buttons.LEFT_CLICK)) {
+		if (GZOI.driverJoy.backButton.isBeingPressed()) {
+			if (GZOI.driverJoy.leftCenterClick.longPressed()) {
 				updateCustomAuto();
-			} else if (GZOI.driverJoy.getButtonLatched(Buttons.RIGHT_CLICK)) {
+			} else if (GZOI.driverJoy.rightCenterClick.wasActivated()) {
 				System.out.println("WARNING Custom auto deselected!");
 				mCustomAutoStartPos = null;
 				mCustomAutoStartingAngle = null;
 			} else {
-				AnalogAngle newAngle = GZOI.driverJoy.getRightAnalogAngle();
-				Rotation2d mappedAngle = Rotation2d.closestCoordinatePlus(newAngle.angle);
+				Translation2d newAngle = GZOI.driverJoy.getRightAnalogAngle();
+				Rotation2d mappedAngle = newAngle.direction().nearestCardinalPlus();
 
-				if (Math.abs(newAngle.magnitude) > .2) {
+				// System.out.println(mappedAngle + "\t" + newAngle + "\t" + newAngle.norm());
+
+				if (Math.abs(newAngle.norm()) > .2) {
 					if (mCustomAutoStartingAngle == null || !mCustomAutoStartingAngle.equals(mappedAngle)) {
 						System.out.println("WARNING Custom auto angle set to " + mappedAngle.getNormalDegrees());
 						mCustomAutoStartingAngle = mappedAngle;
@@ -353,26 +317,26 @@ public class Auton {
 					else if (mCustomAutoStartPos == ZeroPositions.LEFT)
 						mCustomAutoStartPos = ZeroPositions.CENTER;
 					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
+						mCustomAutoStartPos = ZeroPositions.LEFT;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT;
+					}
+					customAutoStartPosUpdate();
+				} else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
+					if (mCustomAutoStartPos == null) {
+					} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
+						mCustomAutoStartPos = ZeroPositions.LEFT_2;
+					} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
+						mCustomAutoStartPos = ZeroPositions.RIGHT_2;
+					}
+					customAutoStartPosUpdate();
 				}
-				// } else if (mCustomAutoMoveStartPosDown.update(GZOI.driverJoy.getLeftAnalogY() < -.5)) {
-				// 	if (mCustomAutoStartPos == null) {
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT_2) {
-				// 		mCustomAutoStartPos = ZeroPositions.LEFT;
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT_2) {
-				// 		mCustomAutoStartPos = ZeroPositions.RIGHT;
-				// 	}
-				// 	customAutoStartPosUpdate();
-				// } else if (mCustomAutoMoveStartPosUp.update(GZOI.driverJoy.getLeftAnalogY() > .5)) {
-				// 	if (mCustomAutoStartPos == null) {
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.LEFT) {
-				// 		mCustomAutoStartPos = ZeroPositions.LEFT_2;
-				// 	} else if (mCustomAutoStartPos == ZeroPositions.RIGHT) {
-				// 		mCustomAutoStartPos = ZeroPositions.RIGHT_2;
-				// 	}
-				// 	customAutoStartPosUpdate();
-				// }
 			}
 		}
+
 	}
 
 	private void customAutoStartPosUpdate() {

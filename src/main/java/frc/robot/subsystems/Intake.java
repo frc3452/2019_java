@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kIntake;
 import frc.robot.Constants.kPDP;
 import frc.robot.Constants.kSolenoids;
@@ -10,7 +11,7 @@ import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
 public class Intake extends GZSubsystem {
 
-    private IntakeState mState = IntakeState.MANUAL;
+    private IntakeState mState = IntakeState.INTAKING;
     private IntakeState mWantedState = IntakeState.NEUTRAL;
 
     private GZVictorSPX mIntakeLeft, mIntakeRight;
@@ -42,12 +43,8 @@ public class Intake extends GZSubsystem {
         stop();
     }
 
-    public void pauseIntake() {
-        if (mIO.left_desired_output != 0) {
-            mIO.left_desired_output = 0.0;
-        } else {
-            mIO.left_desired_output = kIntake.INTAKE_SPEED;
-        }
+    public IntakeState getWantedState() {
+        return mWantedState;
     }
 
     private void handleMovement() {
@@ -69,7 +66,7 @@ public class Intake extends GZSubsystem {
     }
 
     public enum IntakeState {
-        NEUTRAL, MANUAL
+        NEUTRAL, INTAKING, EJECTING
     }
 
     public boolean setWantedState(IntakeState wantedState) {
@@ -111,15 +108,6 @@ public class Intake extends GZSubsystem {
         return mIntakeExtend.isOn();
     }
 
-    protected void runIntake(double left, double right) {
-        setWantedState(IntakeState.MANUAL);
-        mIO.left_desired_output = left;
-    }
-
-    protected void runIntake(double speed) {
-        runIntake(speed, speed);
-    }
-
     @Override
     public String getSmallString() {
         return "INTK";
@@ -131,9 +119,6 @@ public class Intake extends GZSubsystem {
 
     @Override
     public void loop() {
-        if (!isExtended())
-            stop();
-
         handleMovement();
         handleStates();
         in();
@@ -161,7 +146,6 @@ public class Intake extends GZSubsystem {
     public class IO {
         // out
         private double output = 0;
-        public Double left_desired_output = 0.0;
     }
 
     private void switchToState(IntakeState s) {
@@ -174,10 +158,7 @@ public class Intake extends GZSubsystem {
 
     private void onStateStart(IntakeState s) {
         switch (s) {
-        case MANUAL:
-            break;
         case NEUTRAL:
-            mIO.left_desired_output = 0.0;
             break;
         default:
             break;
@@ -186,8 +167,6 @@ public class Intake extends GZSubsystem {
 
     private void onStateExit(IntakeState s) {
         switch (s) {
-        case MANUAL:
-            break;
         case NEUTRAL:
             break;
         default:
@@ -199,10 +178,22 @@ public class Intake extends GZSubsystem {
     }
 
     private void out() {
-        if (mState != IntakeState.NEUTRAL) {
-            mIO.output = mIO.left_desired_output;
-        } else {
-            mIO.output = 0;
+        // if (mState != IntakeState.NEUTRAL) {
+        // mIO.output = mIO.desired_output;
+        // } else {
+        // mIO.output = 0;
+        // }
+
+        switch (mState) {
+        case NEUTRAL:
+            mIO.output = 0.0;
+            break;
+        case EJECTING:
+            mIO.output = kIntake.SHOOTING_SPEED;
+            break;
+        case INTAKING:
+            mIO.output = kIntake.INTAKE_SPEED;
+            break;
         }
 
         if (!this.isSafetyDisabled()) {
@@ -210,7 +201,7 @@ public class Intake extends GZSubsystem {
         }
 
         if (mIntakeLeft != null && mIntakeRight != null) {
-            mIntakeLeft.set(mIO.output);
+            // mIntakeLeft.set(mIO.output);
             mIntakeRight.set(mIO.output);
         } else {
             System.out

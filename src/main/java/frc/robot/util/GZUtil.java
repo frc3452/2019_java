@@ -19,6 +19,8 @@ import frc.robot.util.GZFiles.Folder;
 
 public class GZUtil {
 
+	public static final double kEpsilon = 1e-12;
+
 	private GZUtil() {
 	}
 
@@ -81,11 +83,9 @@ public class GZUtil {
 		return x;
 	}
 
-	public static boolean getRandBoolean()
-	{
+	public static boolean getRandBoolean() {
 		return getRandInt(0, 1) == 0;
 	}
-
 
 	public static void bigPrint(String f, int num) {
 		for (int i = 0; i < num; i++) {
@@ -93,9 +93,8 @@ public class GZUtil {
 		}
 	}
 
-	public static void bigPrint(String f)
-	{
-		bigPrint(f,40);
+	public static void bigPrint(String f) {
+		bigPrint(f, 40);
 	}
 
 	// public static double autoScale(double inputVal, double outputRange1, double
@@ -109,6 +108,11 @@ public class GZUtil {
 	public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
 			double max) {
 		return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+	}
+
+	public static double interpolate(double a, double b, double x) {
+		x = limit(x, 0.0, 1.0);
+		return a + (b - a) * x;
 	}
 
 	public static StackTraceElement[] currentThread() {
@@ -148,6 +152,13 @@ public class GZUtil {
 		return value;
 	}
 
+	/**
+	 * Limits the given input to the given magnitude.
+	 */
+	public static double limit(double v, double maxMagnitude) {
+		return limit(v, -maxMagnitude, maxMagnitude);
+	}
+
 	public static double limit(double value, double low, double high) {
 		if (value > high)
 			value = high;
@@ -155,6 +166,76 @@ public class GZUtil {
 			value = low;
 
 		return value;
+	}
+
+	public static Object deepClone(Object object) {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(object);
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			return ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Double nativeTalonUnitsToRPM(double nativeUnits) {
+		return nativeUnits * (1.0 / 4096.0) * (600.0);
+	}
+
+	public static boolean between(double value, double low, double high) {
+		if (value >= low && value <= high)
+			return true;
+
+		return false;
+	}
+
+	public static boolean epsilonEquals(double value, double point, double areaAroundPoint) {
+		return (value - areaAroundPoint <= point) && (value + areaAroundPoint >= point);
+	}
+
+	public static boolean epsilonEquals(double a, double b) {
+		return epsilonEquals(a, b, kEpsilon);
+	}
+
+	public static boolean allCloseTo(final ArrayList<Double> list, double point, double areaAroundPoint) {
+		boolean result = true;
+		for (Double value_in : list) {
+			result &= epsilonEquals(value_in, point, areaAroundPoint);
+		}
+		return result;
+	}
+
+	public static double hardDeadband(double value, double deadband) {
+		return (Math.abs(value) > Math.abs(deadband)) ? value : 0.0;
+	}
+
+	public static double applyDeadband(double value, double deadband) {
+		if (Math.abs(value) > deadband) {
+			if (value > 0.0) {
+				return (value - deadband) / (1.0 - deadband);
+			} else {
+				return (value + deadband) / (1.0 - deadband);
+			}
+		} else {
+			return 0.0;
+		}
+	}
+
+	/**
+	 * toRound = 2.342, wanting to round to nearest .05 1/<b>20</b> is .05
+	 * roundToFraction(2.342,20)
+	 *
+	 * @author max
+	 * @param value
+	 * @param denominator double
+	 * @return double
+	 */
+	public static double roundToFraction(double value, double denominator) {
+		return Math.round(value * denominator) / denominator;
 	}
 
 	public static Rotation2d angleOfPathSegment(PathSegment segment) {
@@ -201,74 +282,6 @@ public class GZUtil {
 		return ret;
 	}
 
-	public static double distanceBetween(Translation2d point1, Translation2d point2) {
-		double a = point1.x() - point2.x();
-		double b = point1.y() - point2.y();
-
-		return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-	}
-
-	public static Object deepClone(Object object) {
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(object);
-			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			return ois.readObject();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static Double nativeTalonUnitsToRPM(double nativeUnits) {
-		return nativeUnits * (1.0 / 4096.0) * (600.0);
-	}
-
-	public static boolean between(double value, double low, double high) {
-		if (value >= low && value <= high)
-			return true;
-
-		return false;
-	}
-
-	public static boolean epsilonEquals(double value, double point, double areaAroundPoint) {
-		return (value - areaAroundPoint <= point) && (value + areaAroundPoint >= point);
-	}
-
-	public static boolean allCloseTo(final ArrayList<Double> list, double point, double areaAroundPoint) {
-		boolean result = true;
-		for (Double value_in : list) {
-			result &= epsilonEquals(value_in, point, areaAroundPoint);
-		}
-		return result;
-	}
-
-	public static double applyDeadband(double value, double deadband) {
-		if (Math.abs(value) > deadband) {
-			if (value > 0.0) {
-				return (value - deadband) / (1.0 - deadband);
-			} else {
-				return (value + deadband) / (1.0 - deadband);
-			}
-		} else {
-			return 0.0;
-		}
-	}
-
-	/**
-	 * toRound = 2.342, wanting to round to nearest .05 1/<b>20</b> is .05
-	 * roundToFraction(2.342,20)
-	 *
-	 * @author max
-	 * @param value
-	 * @param denominator double
-	 * @return double
-	 */
-	public static double roundToFraction(double value, double denominator) {
-		return Math.round(value * denominator) / denominator;
-	}
 
 	/**
 	 * <p>

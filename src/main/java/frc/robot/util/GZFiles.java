@@ -26,6 +26,7 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.SmartContr
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController;
 import frc.robot.util.drivers.pneumatics.GZDoubleSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+import frc.robot.util.requests.Request;
 
 /**
  * <b>Playback subsystem</b> Also used for file writing, logging, etc.
@@ -753,8 +754,8 @@ public class GZFiles {
 	// LatchedBoolean>();
 	private ArrayList<InstantLogItem> mInstantLogs = new ArrayList<InstantLogItem>();
 
-	public void addLog(GZSubsystem subsystem, String message) {
-		addLog(new InstantLogItem(subsystem, message));
+	public void addLog(GZSubsystem subsystem, String message, boolean print) {
+		addLog(new InstantLogItem(subsystem, message, print));
 	}
 
 	public void addLog(InstantLogItem log) {

@@ -161,17 +161,6 @@ public class PersistentInfoManager {
         }
     };
 
-    private PersistentInfo mIsButtonBoard = new PersistentInfo(0.0) {
-        public void update() {
-            this.setValue(GZOI.op.isButtonBoard() ? 0.0 : 1.0);
-        }
-
-        @Override
-        public void readSetting() {
-            // GZOI.op.setButtonBoard(this.getValue() == 0);
-        }
-    };
-
     private PersistentInfo mIntakeDrops = new PersistentInfo(0.0) {
         public void update() {
             this.addDifference(Intake.getInstance().getIntakeTotalFlips());
@@ -197,7 +186,6 @@ public class PersistentInfoManager {
         mSettingsMap.put("DriveShiftsBack", mDriveTotalShiftsBack);
         mSettingsMap.put("ClawChanges", mClawTotalChanges);
         mSettingsMap.put("IntakeDrops", mIntakeDrops);
-        mSettingsMap.put("IsButtonBoard", mIsButtonBoard);
     }
 
     private static PersistentInfoManager mInstance = null;

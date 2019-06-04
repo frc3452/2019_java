@@ -37,8 +37,8 @@ public class Elevator extends GZSubsystem {
 
     private GZSolenoid mCarriageSlide, mClaw;
 
-    private boolean mPrevMovingHP = true;
-    private boolean mMovingHP = false;
+    private boolean mPrevMovingHP = false;
+    private boolean mMovingHP = true;
 
     private Intake intake = Intake.getInstance();
 
@@ -99,8 +99,10 @@ public class Elevator extends GZSubsystem {
                 GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
-        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
-                LimitSwitchDirections.REV);
+        // UNCOMMENTED
+        // mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2,
+        // LimitSwitchNormal.NormallyClosed,
+        // LimitSwitchDirections.REV);
 
         GZSRX.logError(
                 () -> mElevator1.configForwardSoftLimitThreshold(
@@ -111,12 +113,16 @@ public class Elevator extends GZSubsystem {
         GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
                 "Could not enable top limit!");
 
-        GZSRX.logError(
-                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                        LimitSwitchNormal.NormallyClosed),
-                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!");
+        // UNCOMMENTED
+        // GZSRX.logError(
+        // () ->
+        // mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+        // LimitSwitchNormal.NormallyClosed),
+        // this, AlertLevel.ERROR, "Could not configure reverse switch on follower
+        // controller!");
 
-        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+        // UNCOMMENTED
+        // mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
 
         // mElevator1.configAllowableClosedloopError(0, (int)
         // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
@@ -321,6 +327,10 @@ public class Elevator extends GZSubsystem {
         return mIO.mCargoSensorLoopCounter > kElevator.CARGO_SENSOR_LOOPS_FOR_VALID;
     }
 
+    public void setHasHatchPanel(boolean hp) {
+        this.mMovingHP = hp;
+    }
+
     /**
      * if we want to do something with multiple pid tuning slots
      */
@@ -353,8 +363,16 @@ public class Elevator extends GZSubsystem {
         return mDesiredHeight > getHeightInches();
     }
 
+    public double getTarget() {
+        return mDesiredHeight;
+    }
+
     public boolean nearTarget(double with_Inches_Tolerance) {
         return GZUtil.epsilonEquals(getHeightInches(), mDesiredHeight, with_Inches_Tolerance);
+    }
+
+    public boolean near(double height) {
+        return GZUtil.epsilonEquals(getHeightInches(), height, kElevator.TARGET_TOLERANCE);
     }
 
     protected void openClaw() {
@@ -369,12 +387,24 @@ public class Elevator extends GZSubsystem {
         return !mCarriageSlide.wantsStateChange();
     }
 
+    public boolean doSlidesWantOut() {
+        return mCarriageSlide.getWantOff();
+    }
+
+    public boolean clawWantsOpen() {
+        return mClaw.getWantOff();
+    }
+
     protected void extendSlides() {
         mCarriageSlide.wantOn();
     }
 
     protected void retractSlides() {
         mCarriageSlide.wantOff();
+    }
+
+    public SolenoidState getClawState() {
+        return mClaw.getSolenoidState();
     }
 
     public boolean isClawClosed() {

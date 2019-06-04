@@ -44,8 +44,12 @@ public class Robot extends TimedRobot {
 
 	private final Folder loggingLocation = new Folder("Logging/ " + kFiles.ROBOT_NAME + "/WORLDS/" + date);
 
+	public static double enabledTime = 0.0;
+
 	@Override
 	public void robotInit() {
+		Drive.getInstance().setDefaultStartingPosition();
+
 		auton.fillAutonArray();
 
 		health.assignSubsystems(allSubsystems.getSubsystems());
@@ -100,6 +104,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousInit() {
+		GZOI.getInstance().resetButtons();
 		enabledInits();
 
 		// timer start
@@ -118,6 +123,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		GZOI.getInstance().resetButtons();
 		drive.slowSpeed(true);
 		auton.cancelAuton();
 		enabledInits();
@@ -129,6 +135,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void testInit() {
+		GZOI.getInstance().resetButtons();
 		enabledInits();
 	}
 

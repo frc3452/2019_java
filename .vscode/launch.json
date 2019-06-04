@@ -6,6 +6,34 @@
   "configurations": [
     {
       "type": "java",
+      "name": "CodeLens (Launch) - Test",
+      "request": "launch",
+      "mainClass": "frc.robot.Test",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - RequestManagerTest",
+      "request": "launch",
+      "mainClass": "RequestManagerTest",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - Superstructure",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.Superstructure",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - Translation2d",
+      "request": "launch",
+      "mainClass": "frc.robot.poofs.util.math.Translation2d",
+      "projectName": "2019_java"
+    },
+    {
+      "type": "java",
       "name": "CodeLens (Launch) - GZOI",
       "request": "launch",
       "mainClass": "frc.robot.GZOI",
