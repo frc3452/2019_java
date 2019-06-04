@@ -572,6 +572,8 @@ public class Superstructure extends GZSubsystem {
     public void score(boolean driver) {
         if (driver) {
             if (mQueuedHeight != null) {
+                elev_.setHasHatchPanel(elev_.isClawOpen());
+                
                 Request request = heightRequest(Heights.getHeight(mQueuedHeight, elev_.isMovingHP()));
                 manager.request(request);
                 mQueuedHeight = null;

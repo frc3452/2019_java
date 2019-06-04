@@ -143,8 +143,8 @@ public class Constants {
 				return "IN: [" + this.inches + "]" + " HP: [" + this.moving_hp + "]";
 			}
 
-			public static Heights getHeight(QueueHeights rocketLevel, boolean hatch) {
-				switch (rocketLevel) {
+			public static Heights getHeight(QueueHeights queuedHeight, boolean hatch) {
+				switch (queuedHeight) {
 				case LOW:
 					if (hatch) {
 						return Heights.HP_1;
@@ -167,9 +167,10 @@ public class Constants {
 					// if (hatch) {
 					// return HP_1;
 					// } else {
-					return Cargo_Ship;
+					return Heights.Cargo_Ship;
 				// }
 				default:
+					System.out.println("ERROR Return Height from queued height: " + queuedHeight);
 					return Heights.Cargo_2;
 				}
 			}
