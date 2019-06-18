@@ -184,15 +184,15 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void zeroElevator() {
-        RequestList list = new RequestList(this);
-        list.add(new Request() {
+        // RequestList list = new RequestList(this);
+        // list.add(new Request() {
 
-            @Override
-            public void act() {
+            // @Override
+            // public void act() {
                 elev_.zero();
-            }
-        });
-        manager.request(list);
+            // }
+        // });
+        // manager.request(list);
     }
 
     // public static void main(String[] args) {
