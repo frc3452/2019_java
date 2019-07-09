@@ -47,7 +47,7 @@ public class GZOI extends GZSubsystem {
 		return mInstance;
 	}
 
-	private boolean mShouldUseConfigurableDrive = false;
+	private boolean mShouldUseConfigurableDrive = true;
 
 	public boolean shouldUseConfigurableDrive() {
 		return mShouldUseConfigurableDrive;

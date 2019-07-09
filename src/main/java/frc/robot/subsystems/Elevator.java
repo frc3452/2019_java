@@ -1,13 +1,8 @@
 package frc.robot.subsystems;
 
-import java.text.DecimalFormat;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
@@ -25,6 +20,8 @@ import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
+
+import java.text.DecimalFormat;
 
 public class Elevator extends GZSubsystem {
 
@@ -87,20 +84,15 @@ public class Elevator extends GZSubsystem {
 
         // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
 
-        // ABS
-        // GZSRX.logError(() ->
-        // mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,
-        // 0,
-        // GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
-        // mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
         // REL
         GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
                 GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
         mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
 
-        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
-                LimitSwitchDirections.REV);
+        //COMMENTED
+//        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
+//                LimitSwitchDirections.REV);
 
         GZSRX.logError(
                 () -> mElevator1.configForwardSoftLimitThreshold(
@@ -111,24 +103,19 @@ public class Elevator extends GZSubsystem {
         GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
                 "Could not enable top limit!");
 
-        GZSRX.logError(
-                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-                        LimitSwitchNormal.NormallyClosed),
-                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!");
+        //COMMENTED
+//        GZSRX.logError(
+//                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+//                        LimitSwitchNormal.NormallyClosed),
+//                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!")
+
 
         mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
-
-        // mElevator1.configAllowableClosedloopError(0, (int)
-        // kElevator.ALLOWABLE_CLOED_LOOP_ERROR);
 
         mElevator1.setSensorPhase(kElevator.ENC_INVERT);
 
         configPID(kElevator.PID);
-        // configPID(kElevator.PID2);
         selectProfileSlot(0);
-
-        // configAccelInchesPerSec(7 * 12);
-        // configCruiseInchesPerSec(11 * 12);
 
         configAccelInchesPerSec(kElevator.ACCEL_INCHES_PER_SECOND);
         configCruiseInchesPerSec(kElevator.VEL_INCHES_PER_SECOND);
