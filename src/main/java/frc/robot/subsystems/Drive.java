@@ -1,27 +1,15 @@
 package frc.robot.subsystems;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-
+import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.kAuton;
-import frc.robot.Constants.kDrivetrain;
-import frc.robot.Constants.kElevator.Heights;
-import frc.robot.Constants.kPDP;
-import frc.robot.Constants.kPathFollowing;
-import frc.robot.Constants.kSolenoids;
-import frc.robot.GZOI;
 import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.ConfigurableDrive.DriveSignal;
+import frc.robot.Constants.*;
+import frc.robot.Constants.kElevator.Heights;
+import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
@@ -31,25 +19,13 @@ import frc.robot.poofs.RobotState;
 import frc.robot.poofs.util.control.Path;
 import frc.robot.poofs.util.control.PathFollower;
 import frc.robot.poofs.util.drivers.NavX;
-import frc.robot.poofs.util.math.Pose2d;
-import frc.robot.poofs.util.math.RigidTransform2d;
-import frc.robot.poofs.util.math.Rotation2d;
-import frc.robot.poofs.util.math.Translation2d;
-import frc.robot.poofs.util.math.Twist2d;
+import frc.robot.poofs.util.math.*;
 import frc.robot.subsystems.Health.AlertLevel;
-import frc.robot.util.ArcadeSignal;
-import frc.robot.util.GZFile;
-import frc.robot.util.GZFileMaker;
+import frc.robot.util.*;
 import frc.robot.util.GZFileMaker.FileExtensions;
-import frc.robot.util.GZFiles;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZLog.LogItem;
-import frc.robot.util.GZPID;
 import frc.robot.util.GZPID.GZPIDPair;
-import frc.robot.util.GZSubsystem;
-import frc.robot.util.GZUtil;
-import frc.robot.util.RobotPose;
-import frc.robot.util.Units;
 import frc.robot.util.drivers.GZJoystick;
 import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
@@ -59,6 +35,9 @@ import frc.robot.util.drivers.motorcontrollers.GZSmartSpeedController.Side;
 import frc.robot.util.drivers.motorcontrollers.GZSpeedController.Breaker;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.requests.Request;
+
+import java.text.DecimalFormat;
+import java.util.Arrays;
 
 public class Drive extends GZSubsystem {
 	private GZSolenoid mShifterFront, mShifterRear;
@@ -147,7 +126,7 @@ public class Drive extends GZSubsystem {
 		mConfigurableDrive.addDisabled();
 		mConfigurableDrive.addFieldCentric(() -> GZOI.driverJoy.getLeftAnalogX(), () -> GZOI.driverJoy.getLeftAnalogY(),
 				() -> GZOI.driverJoy.getRightAnalogX(), () -> GZOI.driverJoy.getRightAnalogY(),
-				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .45, .185);
+				() -> getGyroAngle().inverse().getNormalDegrees(), 45, .15, .55, .23);
 		mConfigurableDrive.addStandardDriveStyles(GZOI.driverJoy);
 
 		L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();

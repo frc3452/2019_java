@@ -1,12 +1,12 @@
 package frc.robot.ConfigurableDrive;
 
-import java.util.ArrayList;
-import java.util.function.Supplier;
-
 import frc.robot.ConfigurableDrive.ConfigurableDrive.ArrayLoopAround.ArrayResult;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 import frc.robot.util.drivers.GZJoystick;
+
+import java.util.ArrayList;
+import java.util.function.Supplier;
 
 /**
  * This configurable drive controller was written as a senior project by Max
@@ -44,7 +44,7 @@ public class ConfigurableDrive {
         this.shouldLoopAroundList = shouldLoopAroundList;
 
         configDriveMessage("Constructed!");
-        // update();
+//         update();
     }
 
     public double getModifier() {
@@ -219,8 +219,6 @@ public class ConfigurableDrive {
      * Gyro needs to be mapped with 0 degrees forward, then growing to 360 Clockwise
      * Use the GyroMapper function of this class to aid with conversions
      * 
-     * @param joy
-     * @param gyro
      */
     public void addFieldCentric(Supplier<Double> fwdX, Supplier<Double> fwdY, Supplier<Double> revX,
             Supplier<Double> revY, Supplier<Double> gyro, double turnToleranceDeg, double startingMagnitude,
@@ -238,12 +236,13 @@ public class ConfigurableDrive {
                 Translation2d joyInput = new Translation2d(getAxis(1), getAxis(2));
 
                 final double magnitude = joyInput.norm();
-                Rotation2d targetAngle = joyInput.direction().rotateBy(new Rotation2d(90));
+                Rotation2d targetAngle = joyInput.direction().rotateBy(new Rotation2d(-90));
 
                 if (magnitude > startingMagnitude) {
-                    boolean turnRight = Rotation2d.shouldTurnClockwise(currentAngle, targetAngle);
+                    boolean turnRight = !Rotation2d.shouldTurnClockwise(currentAngle, targetAngle);
 
                     double degAway = Rotation2d.difference(currentAngle, targetAngle);
+//                    System.out.println(currentAngle + "\t" + targetAngle + degAway + "\t" + turnToleranceDeg);
 
                     double desiredMove, move, rotate;
                     if (degAway < turnToleranceDeg) {
@@ -265,7 +264,6 @@ public class ConfigurableDrive {
                     }
 
                     DriveSignal output = arcade(move, rotate, false);
-                    // System.out.println(output + "\t" + targetAngle.angle + "\t" + currentAngle);
                     return output;
                 }
 

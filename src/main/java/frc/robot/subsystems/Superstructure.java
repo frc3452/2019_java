@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
@@ -18,12 +15,14 @@ import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.util.GZFiles;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.GZSubsystemManager;
-import frc.robot.util.GZUtil;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 import frc.robot.util.requests.QuickCompleteRequest;
 import frc.robot.util.requests.Request;
 import frc.robot.util.requests.RequestList;
 import frc.robot.util.requests.RequestManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Superstructure extends GZSubsystem {
 
@@ -260,6 +259,7 @@ public class Superstructure extends GZSubsystem {
     public void grabHatchFromFeeder() {
         RequestList list = new RequestList(this);
         list.extraLog("Grabbing hatch from feeder station");
+
         Pose2d here = new Pose2d(Drive.getInstance().getFixedPose());
 
         Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station, kAuton.Right_Feeder_Station), 100);
@@ -271,7 +271,7 @@ public class Superstructure extends GZSubsystem {
             list.extraLog(((feeder.getTranslation().y() > 27 * 6) ? "Left" : "Right")
                     + " feeder station identified, zeroing odometry");
 
-            // Where the robot would be if perfectly lined up with feeder station
+//             Where the robot would be if perfectly lined up with feeder station
             Translation2d feeder_center = feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
                     feeder.getRotation().rotateBy(new Rotation2d(180)));
 
@@ -291,10 +291,10 @@ public class Superstructure extends GZSubsystem {
 
         list.add(clawRequest(true, true));
         list.add(slidesRequest(false, true));
-        if (feeder != null) {
-            list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
-            list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
-        }
+//        if (feeder != null) {
+//            list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
+//            list.add(Drive.getInstance().headingRequest(Rotation2d.fromDegrees(0), true));
+//        }
         list.extraLog("Finished grabbing hatch");
         manager.request(list);
     }
@@ -306,31 +306,31 @@ public class Superstructure extends GZSubsystem {
 
         RocketIdentifcation r = Drive.getInstance().getRocket();
         list.extraLog(r.how);
-
-        double rotation = 0;
-        double jog = 0.0;
-        // ArcadeSignal after = new ArcadeSignal();
+//
+//        double rotation = 0;
+//        double jog = 0.0;
+//        // ArcadeSignal after = new ArcadeSignal();
         if (r.rocket.identified()) {
-            list.add(GZOI.driverJoy.rumbleRequest(6, .5));
-            if (r.rocket.near) {
-                rotation = 180;
-            } else {
-                if (r.rocket.left) {
-                    rotation = 90 + 45;
-                } else {
-                    rotation = 270 - 45;
-                }
-            }
-            jog = 20;
-            jog *= -1;
-            // after = new ArcadeSignal(.5, 0, 1);
-
+//            list.add(GZOI.driverJoy.rumbleRequest(6, .5));
+//            if (r.rocket.near) {
+//                rotation = 180;
+//            } else {
+//                if (r.rocket.left) {
+//                    rotation = 90 + 45;
+//                } else {
+//                    rotation = 270 - 45;
+//                }
+//            }
+//            jog = 20;
+//            jog *= -1;
+//            // after = new ArcadeSignal(.5, 0, 1);
+//
             Translation2d endpoint;
-
-            // Angle to translate away from exact point
+//
+//            // Angle to translate away from exact point
             Rotation2d angleAwayFromRocket = r.rocket.position.getRotation().rotateBy(new Rotation2d(180));
-
-            // Scoot absolute point away by half a robot to find new center
+//
+//            // Scoot absolute point away by half a robot to find new center
             Translation2d bot_center = r.rocket.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
                     angleAwayFromRocket);
 
@@ -344,8 +344,9 @@ public class Superstructure extends GZSubsystem {
                 // Can't use gyro adjustment, use absolute point
                 endpoint = bot_center;
             }
-
-            list.extraLog("Placing on rocket " + r.rocket + ". Backing up " + jog + " and turning to " + rotation);
+//
+            list.extraLog("Placing on rocket " + r.rocket);
+//            list.extraLog("Placing on rocket " + r.rocket + ". Backing up " + jog + " and turning to " + rotation);
             list.add(Drive.getInstance().setOdometryRequest(endpoint));
         }
 
@@ -355,13 +356,14 @@ public class Superstructure extends GZSubsystem {
 
         RequestList finalMove = new RequestList(this);
 
-        finalMove.add(heightRequest(mDefaultHeight, !r.rocket.identified()));
+        finalMove.add(heightRequest(mDefaultHeight, false));
+//        finalMove.add(heightRequest(mDefaultHeight, !r.rocket.identified()));
 
-        if (r.rocket.identified()) {
-            finalMove.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
-            finalMove.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
-            // finalMove.add(Drive.getInstance().openLoopRequest(after));
-        }
+//        if (r.rocket.identified()) {
+//            finalMove.add(Drive.getInstance().jogRequest(new EncoderMovement(jog), true));
+//            finalMove.add(Drive.getInstance().turnToHeadingRequest(Rotation2d.fromDegrees(rotation), false));
+//             finalMove.add(Drive.getInstance().openLoopRequest(after));
+//        }
 
         finalMove.extraLog("Hatch scoring completed");
 
@@ -643,7 +645,8 @@ public class Superstructure extends GZSubsystem {
             list.add(wait);
         }
 
-        if (driver) {
+        if (driver && !GZOI.getInstance().hasOperatorEverInteracted()) {
+
             list.add(new RequestList(this).add(new Request() {
 
                 @Override
