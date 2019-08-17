@@ -77,6 +77,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledInit() {
+		GZOI.getInstance().stopRumble();
 		// Lights.getInstance().setFade(1, Colors.BLUE, Colors.OFF);
 		infoManager.robotDisabled();
 		allSubsystems.stop();

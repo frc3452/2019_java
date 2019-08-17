@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.Scanner;
-
 import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.auto.pathadapter.fieldprofiles.HeightsContainer;
 import frc.robot.poofs.util.control.Lookahead;
@@ -18,6 +16,8 @@ import frc.robot.util.GZPID.GZPIDPair;
 import frc.robot.util.drivers.DigitalSelector.DigitalSelectorConstants;
 import frc.robot.util.drivers.GZAnalogInput.AnalogInputConstants;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidConstants;
+
+import java.util.Scanner;
 
 /**
  * Robot subsystem constants
@@ -282,7 +282,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-		public static final boolean NO_SHIFTER = false;
+        public static final boolean NO_SHIFTER = true;
 		public static final boolean TUNING = false;
 
 		static final double p = 0.9;

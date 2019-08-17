@@ -21,8 +21,6 @@ import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
 
-import java.text.DecimalFormat;
-
 public class Elevator extends GZSubsystem {
 
     private ElevatorState mState = ElevatorState.MANUAL;
@@ -312,6 +310,11 @@ public class Elevator extends GZSubsystem {
         this.mMovingHP = hp;
     }
 
+    public boolean toggleGamePiece() {
+        setHasHatchPanel(!mMovingHP);
+        return mMovingHP;
+    }
+
     /**
      * if we want to do something with multiple pid tuning slots
      */
@@ -321,8 +324,6 @@ public class Elevator extends GZSubsystem {
 
         mPrevMovingHP = mMovingHP;
     }
-
-    private static final DecimalFormat df = new DecimalFormat("#0.00");
 
     @Override
     public void loop() {
@@ -598,7 +599,6 @@ public class Elevator extends GZSubsystem {
         if (height > kElevator.SLIDES_MIN_HEIGHT_INTAKE_MOVING + (kElevator.SLIDES_TOLERANCE / 2.0))
             return true;
         return false;
-
     }
 
     private boolean slidesNotIn() {

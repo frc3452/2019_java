@@ -49,26 +49,26 @@ public class Superstructure extends GZSubsystem {
         double rumblesPerSecond;
 
         switch (mQueuedHeight) {
-        case LOW:
-            numberOfSeconds = 1.0 / 3.0;
-            rumblesPerSecond = 3.0;
-            break;
-        case MIDDLE:
-            numberOfSeconds = 0.5;
-            rumblesPerSecond = 4.0;
-            break;
-        case HIGH:
-            numberOfSeconds = 0.5;
-            rumblesPerSecond = 6.0;
-            break;
-        case CARGO_SHIP:
-            numberOfSeconds = 0.45;
-            rumblesPerSecond = 1;
-            break;
-        default:
-            numberOfSeconds = 0.0;
-            rumblesPerSecond = 0.0;
-            break;
+            case LOW:
+                numberOfSeconds = 1.0 / 3.0;
+                rumblesPerSecond = 3.0;
+                break;
+            case MIDDLE:
+                numberOfSeconds = 0.5;
+                rumblesPerSecond = 4.0;
+                break;
+            case HIGH:
+                numberOfSeconds = 0.5;
+                rumblesPerSecond = 6.0;
+                break;
+            case CARGO_SHIP:
+                numberOfSeconds = 0.45;
+                rumblesPerSecond = 1;
+                break;
+            default:
+                numberOfSeconds = 0.0;
+                rumblesPerSecond = 0.0;
+                break;
         }
 
         GZOI.driverJoy.rumble(rumblesPerSecond, numberOfSeconds);
@@ -186,75 +186,30 @@ public class Superstructure extends GZSubsystem {
         // RequestList list = new RequestList(this);
         // list.add(new Request() {
 
-            // @Override
-            // public void act() {
-                elev_.zero();
-            // }
+        // @Override
+        // public void act() {
+        elev_.zero();
+        // }
         // });
         // manager.request(list);
     }
 
-    // public static void main(String[] args) {
-    // Pose2d here = new Pose2d(new Translation2d(49, 280), new Rotation2d(180+10));
-    // Pose2d feeder = here.nearest(Arrays.asList(kAuton.Left_Feeder_Station,
-    // kAuton.Right_Feeder_Station), 100);
-    // if (feeder != null) {
+    public void basicRetrieve() {
+        if (elev_.isMovingHP()) {
+            if (!preppedToGrabHatch()) {
+                prepToGrabHatch();
+            } else {
+                grabHatchFromFeeder();
+            }
+        } else {
+            if (intake_.isExtended()) {
+                handOffCargo();
+            } else if (intake_.isRetracted()) {
+                intake();
+            }
+        }
+    }
 
-    // System.out.println(((feeder.getTranslation().y() > 27 * 6) ? "Left" :
-    // "Right")
-    // + " feeder station identified, zeroing odometry");
-
-    // Translation2d feeder_center =
-    // feeder.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
-    // feeder.getRotation().rotateBy(new Rotation2d(180)));
-
-    // Rotation2d difference =
-    // feeder.getRotation().inverse().rotateBy(here.getRotation());
-
-    // Translation2d endpoint = feeder_center.rotateAround(feeder.getTranslation(),
-    // difference);
-    // System.out.println(endpoint);
-
-    // } else {
-    // System.out.println("Too far away from feeder station to identify Rocket");
-    // }
-    // }
-
-    // public static void main(String[] args) {
-    // Rocket r = Rocket.LEFT_NEAR;
-    // double rotation = 0;
-    // double jog = 0.0;
-    // if (!r.equals(Rocket.NONE)) {
-    // if (r.near) {
-    // jog = 10;
-    // rotation = 180;
-    // } else {
-    // jog = 10;
-    // if (r.left) {
-    // rotation = 90 + 45;
-    // } else {
-    // rotation = 270 - 45;
-    // }
-    // }
-    // jog *= -1;
-
-    // Pose2d here = new Pose2d(178.94, 286.79,
-    // new Rotation2d(r.position.getRotation().rotateBy(new Rotation2d(-10))));
-
-    // Rotation2d angleAwayFromRocket = r.position.getRotation().rotateBy(new
-    // Rotation2d(180));
-
-    // Translation2d bot_center =
-    // r.position.getTranslation().translateBy(kAuton.ROBOT_LENGTH / 2.0,
-    // angleAwayFromRocket);
-
-    // Rotation2d difference =
-    // r.position.getRotation().rotateBy(here.getRotation().inverse());
-
-    // Translation2d endpoint = bot_center.rotateAround(r.position.getTranslation(),
-    // difference.inverse());
-    // }
-    // }
 
     public void grabHatchFromFeeder() {
         RequestList list = new RequestList(this);
@@ -422,7 +377,7 @@ public class Superstructure extends GZSubsystem {
         else
             newState = IntakeState.INTAKING;
 
-        list.extraLog("Turning on " + ((newState == IntakeState.NEUTRAL) ? "off" : "on"));
+        list.extraLog("Turning intake " + ((newState == IntakeState.NEUTRAL) ? "off" : "on"));
         list.add(runIntakeRequest(newState));
         manager.request(list);
     }
@@ -497,7 +452,7 @@ public class Superstructure extends GZSubsystem {
         };
     }
 
-    public boolean preppedForFeeder() {
+    public boolean preppedToGrabHatch() {
         return SuperstructureState.isAt(new SuperstructureState(Heights.HP_1.inches, true, false, false));
         // return intake_.isRetracted() && elev_.near(Heights.HP_1.inches) &&
         // elev_.isClawClosed();
@@ -559,12 +514,40 @@ public class Superstructure extends GZSubsystem {
         });
     }
 
+    public void setHeight(QueueHeights height) {
+        setHeight(Heights.getHeight(mQueuedHeight, elev_.isMovingHP()));
+    }
+
     public void setHeight(Heights h) {
         RequestList list = new RequestList(this);
         list.extraLog("Moving to height " + h);
         list.add(heightRequest(h));
         list.extraLog("At desired height");
         manager.request(list);
+    }
+
+    public void setHasHatchPanel(boolean hasHatchPanel) {
+        elev_.setHasHatchPanel(hasHatchPanel);
+    }
+
+
+    public void driverToggleGamePiece() {
+        boolean isNowHatch = toggleGamePiece();
+
+        int amountOfRumbles;
+        double numberOfSeconds = 0.20;
+
+        if (isNowHatch) {
+            amountOfRumbles = 3;
+        } else {
+            amountOfRumbles = 2;
+        }
+
+        GZOI.driverJoy.altRumble(amountOfRumbles, numberOfSeconds);
+    }
+
+    public boolean toggleGamePiece() {
+        return elev_.toggleGamePiece();
     }
 
     public void score() {
@@ -575,7 +558,6 @@ public class Superstructure extends GZSubsystem {
         if (driver) {
             if (mQueuedHeight != null) {
                 elev_.setHasHatchPanel(elev_.isClawOpen());
-                
                 Request request = heightRequest(Heights.getHeight(mQueuedHeight, elev_.isMovingHP()));
                 manager.request(request);
                 mQueuedHeight = null;
@@ -646,9 +628,7 @@ public class Superstructure extends GZSubsystem {
         }
 
         if (driver && !GZOI.getInstance().hasOperatorEverInteracted()) {
-
             list.add(new RequestList(this).add(new Request() {
-
                 @Override
                 public void act() {
                     stow();
@@ -656,7 +636,6 @@ public class Superstructure extends GZSubsystem {
             }));
         }
 
-        // // Pull back
         manager.clear();
         manager.replaceQueue(list);
     }
@@ -825,7 +804,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void advanceFeederStage() {
-        if (!preppedForFeeder()) {
+        if (!preppedToGrabHatch()) {
             prepToGrabHatch();
         } else {
             grabHatchFromFeeder();

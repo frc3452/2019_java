@@ -5,7 +5,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kElevator.Heights;
 import frc.robot.Constants.kElevator.QueueHeights;
 import frc.robot.subsystems.*;
@@ -13,6 +12,8 @@ import frc.robot.subsystems.Drive.ClimbingState;
 import frc.robot.util.*;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.drivers.GZJoystick;
+
+import static frc.robot.Constants.kDrivetrain.NO_SHIFTER;
 
 public class GZOI extends GZSubsystem {
     public static GZJoystick driverJoy = new GZJoystick(0, .09);
@@ -35,6 +36,7 @@ public class GZOI extends GZSubsystem {
     private Superstructure supe = Superstructure.getInstance();
     private boolean mShouldUseConfigurableDrive = true;
     private boolean hasOperatorEverInteracted = false;
+    private boolean mComplexOperatorControlsEnabled = true;
 
     private GZOI() {
         mCamera = CameraServer.getInstance().startAutomaticCapture(0);
@@ -42,6 +44,8 @@ public class GZOI extends GZSubsystem {
         cameraSettings();
 
         driverJoy.setLongPressDuration(0.20);
+
+        driverJoy.startButton.setLongPressDuration(0.5);
     }
 
     public static GZOI getInstance() {
@@ -62,11 +66,7 @@ public class GZOI extends GZSubsystem {
 
     private void cameraSettings() {
         mCamera.setResolution(160, 120);
-        // mCamera.setExposureAuto();
-        // mCamera.setFPS(10);
-        // mCamera.setExposureManual(50);
         mCamera.setBrightness(30);
-        // mCamera.setExposureManual(40);
     }
 
     @Override
@@ -106,9 +106,15 @@ public class GZOI extends GZSubsystem {
         // }
         // }
 
+        //nah, we use configurable drive
+//        if (mUserButton.update(RobotController.getUserButton())) {
+//            mShouldUseConfigurableDrive = !mShouldUseConfigurableDrive;
+//            System.out.println("[ConfigurableDrive] " + (mShouldUseConfigurableDrive ? "enabled" : "disabled"));
+//        }
+
         if (mUserButton.update(RobotController.getUserButton())) {
-            mShouldUseConfigurableDrive = !mShouldUseConfigurableDrive;
-            System.out.println("[ConfigurableDrive] " + (mShouldUseConfigurableDrive ? "enabled" : "disabled"));
+            mComplexOperatorControlsEnabled = !mComplexOperatorControlsEnabled;
+            System.out.println("Operator controls set to [" + (mComplexOperatorControlsEnabled ? "COMPLEX" : "SIMPLE") + "]");
         }
 
         // Disabled
@@ -136,10 +142,42 @@ public class GZOI extends GZSubsystem {
     }
 
     private void handleSuperStructureControl() {
+
+        if (mComplexOperatorControlsEnabled) {
+            handleSuperStructureControlComplex();
+        } else {
+            handleSuperStructureControlBasic();
+        }
+    }
+
+    private void handleSuperStructureControlBasic() {
+        boolean nothingHasHappened = false;
+
+        if (op.aButton.shortReleased()) {
+            supe.setHeight(QueueHeights.LOW);
+        } else if (op.bButton.shortReleased()) {
+            supe.setHeight(QueueHeights.MIDDLE);
+        } else if (op.yButton.shortReleased()) {
+            supe.setHeight(QueueHeights.HIGH);
+        } else if (op.xButton.wasActivatedReset()) {
+            supe.setHeight(Heights.Cargo_Ship);
+        } else if (op.leftTrigger.wasActivated()) {
+            supe.basicRetrieve();
+        } else if (op.rightTrigger.wasActivated()) {
+            supe.score();
+        } else {
+            nothingHasHappened = true;
+        }
+
+        if (!nothingHasHappened) {
+            hasOperatorEverInteracted = true;
+        }
+    }
+
+    private void handleSuperStructureControlComplex() {
         boolean nothingHasHappened = false;
 
         if (op.xButton.isBeingPressed()) {
-//			supe.zeroElevator();
         } else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
             supe.queueHeight(QueueHeights.LOW);
         } else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {
@@ -191,6 +229,7 @@ public class GZOI extends GZSubsystem {
         if (!nothingHasHappened) {
             hasOperatorEverInteracted = true;
         }
+
     }
 
     private void handleRumble() {
@@ -200,6 +239,7 @@ public class GZOI extends GZSubsystem {
         if (elev.isSpeedOverriden()) {
             driverRumble = Math.max(0.45, driverRumble);
         }
+
         if (!drive.isSlow()) {
             driverRumble = Math.max(0.1, driverRumble);
         }
@@ -219,27 +259,30 @@ public class GZOI extends GZSubsystem {
 
     private void disabled() {
         Auton.getInstance().autonChooser();
-        // auton.print();
 
         Auton.getInstance().toggleAutoWait(driverJoy.aButton.isBeingPressed() && driverJoy.yButton.isBeingPressed());
         Auton.getInstance()
                 .toggleAutoGamePiece(driverJoy.aButton.isBeingPressed() && driverJoy.xButton.isBeingPressed());
 
-        rumble(0.0);
+
         // handleRumble();
     }
 
-    private void rumble(double d) {
-        driverJoy.setRumble(0);
-        op.setRumble(0);
+    public void stopRumble() {
+        rumble(0.0);
     }
 
-    // Driver variables
+    private void rumble(double rumble) {
+        driverJoy.setRumble(rumble);
+        op.setRumble(rumble);
+    }
 
+
+    // Driver variables
     private void handleDriverController() {
         if (driverJoy.leftBumper.isBeingPressed()) {
 
-            if (!kDrivetrain.NO_SHIFTER) {
+            if (!NO_SHIFTER) {
                 if (driverJoy.aButton.isBeingPressed())
                     drive.wantShift(ClimbingState.NONE);
                 else if (driverJoy.bButton.isBeingPressed())
@@ -280,14 +323,20 @@ public class GZOI extends GZSubsystem {
             supe.driverRetrieve();
         } else if (driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.setHeight(Heights.Cargo_Ship);
+        } else if (driverJoy.yButton.shortReleased() && !driverJoy.leftBumper.isBeingPressed()) {
+            supe.toggleClaw();
+        } else if (driverJoy.yButton.longReleased() && !driverJoy.leftBumper.isBeingPressed()) {
+            supe.toggleSlides();
         } else if (driverJoy.rightBumper.wasActivated()) {
             supe.score(true);
         } else if (driverJoy.leftCenterClick.shortReleased()) {
             supe.intake();
         } else if (driverJoy.leftCenterClick.longPressed()) {
             supe.intakeEject();
-        } else if (driverJoy.startButton.wasActivated()) {
+        } else if (driverJoy.startButton.shortReleased()) {
             supe.stow();
+        } else if (driverJoy.startButton.longPressed()) {
+            supe.driverToggleGamePiece();
         }
     }
 
