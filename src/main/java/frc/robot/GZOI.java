@@ -325,7 +325,7 @@ public class GZOI extends GZSubsystem {
             supe.setHeight(Heights.Cargo_Ship);
         } else if (driverJoy.yButton.shortReleased() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.toggleClaw();
-        } else if (driverJoy.yButton.longReleased() && !driverJoy.leftBumper.isBeingPressed()) {
+        } else if (driverJoy.yButton.longPressed() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.toggleSlides();
         } else if (driverJoy.rightBumper.wasActivated()) {
             supe.score(true);

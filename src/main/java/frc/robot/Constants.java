@@ -217,6 +217,7 @@ public class Constants {
 
 	public static class kSuperstructure {
 		public final static boolean EXTRA_LOGS = true;
+		public static final boolean SHOULD_BACK_UP_AFTER_GRAB = false;
 	}
 
 	public static class kPathFollowing {

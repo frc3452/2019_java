@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Constants.kAuton;
 import frc.robot.Constants.kElevator;
 import frc.robot.Constants.kElevator.Heights;
@@ -463,7 +464,8 @@ public class Superstructure extends GZSubsystem {
         list.extraLog("Grabbing cargo from feeder station");
         list.add(clawRequest(false, true));
         list.add(slidesRequest(false, true));
-        list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
+        if (Constants.kSuperstructure.SHOULD_BACK_UP_AFTER_GRAB)
+            list.add(Drive.getInstance().jogRequest(new EncoderMovement(-10)));
         list.add(heightRequest(Heights.Cargo_1));
         list.extraLog("Cargo grabbed");
         manager.request(list);
@@ -515,7 +517,7 @@ public class Superstructure extends GZSubsystem {
     }
 
     public void setHeight(QueueHeights height) {
-        setHeight(Heights.getHeight(mQueuedHeight, elev_.isMovingHP()));
+        setHeight(Heights.getHeight(height, elev_.isMovingHP()));
     }
 
     public void setHeight(Heights h) {

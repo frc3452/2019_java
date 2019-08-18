@@ -11,7 +11,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp1() {
-            return 20 + 3;
+            return 20 + 3 - 1.5;
         }
 
         @Override
@@ -21,7 +21,7 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double hp3() {
-            return 75 + 3;
+            return 75 + 3 - 2.0;
         }
 
         @Override
@@ -31,12 +31,12 @@ public class PracticeField extends FieldProfile {
 
         @Override
         public double cargo1() {
-            return 28.5 + 2.5;
+            return 28.5 + 2.5 - 2.0;
         }
 
         @Override
         public double cargo2() {
-            return 56.5 + 2.5;
+            return 56.5 + 2.5 - 3.0 + 2.5;
         }
 
         @Override
