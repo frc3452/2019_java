@@ -178,6 +178,7 @@ public class GZOI extends GZSubsystem {
         boolean nothingHasHappened = false;
 
         if (op.xButton.isBeingPressed()) {
+            supe.zeroElevator();
         } else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
             supe.queueHeight(QueueHeights.LOW);
         } else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {

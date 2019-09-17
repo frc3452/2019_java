@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.kElevator;
@@ -20,6 +18,8 @@ import frc.robot.util.drivers.motorcontrollers.GZSRX;
 import frc.robot.util.drivers.motorcontrollers.GZSRX.LimitSwitchDirections;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
 import frc.robot.util.drivers.pneumatics.GZSolenoid.SolenoidState;
+
+import java.text.DecimalFormat;
 
 public class Elevator extends GZSubsystem {
 
@@ -57,71 +57,7 @@ public class Elevator extends GZSubsystem {
         return mInstance;
     }
 
-    // INIT AND LIFT
-    private Elevator() {
-        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_1_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
-                .build();
-        mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
-                .build();
-
-        mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
-        mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
-
-        mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
-        // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
-
-        talonInit();
-
-        // REMOTE LIMIT SWITCHES
-        // For applications where the Talon Tach is pointing to a non-reflective surface
-        // or open air (LED is on) when motor
-        // movement is allowed, the Talon Tach should be treated as a NC limit switch.
-        // For applications where the Talon Tach is pointing to a reflective surface
-        // when motor movement is allowed (LED is
-        // off), it should be treated as a NO limit switch.
-
-        // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
-
-
-        // REL
-        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
-        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
-
-        //COMMENTED
-//        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
-//                LimitSwitchDirections.REV);
-
-        GZSRX.logError(
-                () -> mElevator1.configForwardSoftLimitThreshold(
-                        (int) ((kElevator.TOP_LIMIT - kElevator.Heights.Zero.inches) * kElevator.TICKS_PER_INCH),
-                        GZSRX.TIMEOUT),
-                this, AlertLevel.ERROR, "Could not set top limit to " + kElevator.TOP_LIMIT + " inches from ground");
-
-        GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
-                "Could not enable top limit!");
-
-        //COMMENTED
-//        GZSRX.logError(
-//                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-//                        LimitSwitchNormal.NormallyClosed),
-//                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!")
-
-
-        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
-
-        mElevator1.setSensorPhase(kElevator.ENC_INVERT);
-
-        configPID(kElevator.PID);
-        selectProfileSlot(0);
-
-        configAccelInchesPerSec(kElevator.ACCEL_INCHES_PER_SECOND);
-        configCruiseInchesPerSec(kElevator.VEL_INCHES_PER_SECOND);
-
-        brake();
-
-        mElevator1.setSelectedSensorPosition(0);
-    }
+    private DecimalFormat df = new DecimalFormat("#0.000");
 
     private void selectProfileSlot(ElevatorPIDConfig e) {
         selectProfileSlot(e.slot);
@@ -266,28 +202,89 @@ public class Elevator extends GZSubsystem {
         configCruise(inchesPerSecondToNativeUnits(inchesPerSecond));
     }
 
-    private int inchesPerSecondToNativeUnits(double inchesPerSecond) {
-        int sensorUnitsPer100ms;
-        sensorUnitsPer100ms = (int) Math.rint((inchesPerSecond * kElevator.TICKS_PER_INCH) / 10);
-        return sensorUnitsPer100ms;
+    // INIT AND LIFT
+    private Elevator() {
+        mElevator1 = new GZSRX.Builder(kElevator.ELEVATOR_1_ID, this, "Elevator 1", kPDP.ELEVATOR_1).setMaster()
+                .build();
+        mElevator2 = new GZSRX.Builder(kElevator.ELEVATOR_2_ID, this, "Elevator 2", kPDP.ELEVATOR_2).setFollower()
+                .build();
+
+        mCarriageSlide = new GZSolenoid(kSolenoids.SLIDES, this, "Carriage slides");
+        mClaw = new GZSolenoid(kSolenoids.CLAW, this, "Carriage claw");
+
+        mCargoSensor = new GZDigitalInput(kElevator.CARGO_SENSOR_CHANNEL);
+        // https://www.adafruit.com/product/2168?gclid=Cj0KCQiAwc7jBRD8ARIsAKSUBHKNOcpO8nQJBBVObqKjU71c-izo_zdezWtJPa3hWee-fSHaXIrSUJUaAql6EALw_wcB
+
+        talonInit();
+
+        // REMOTE LIMIT SWITCHES
+        // For applications where the Talon Tach is pointing to a non-reflective surface
+        // or open air (LED is on) when motor
+        // movement is allowed, the Talon Tach should be treated as a NC limit switch.
+        // For applications where the Talon Tach is pointing to a reflective surface
+        // when motor movement is allowed (LED is
+        // off), it should be treated as a NO limit switch.
+
+        // https://www.ctr-electronics.com/downloads/pdf/Talon%20Tach%20User's%20Guide.pdf
+
+
+        // REL
+        GZSRX.logError(() -> mElevator1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+                GZSRX.LONG_TIMEOUT), this, AlertLevel.ERROR, "Could not set up encoder");
+        mElevator1.setSensorPhase(Constants.kElevator.ENC_INVERT);
+
+        //COMMENTED
+        mElevator1.setUsingRemoteLimitSwitchOnTalon(this, mElevator2, LimitSwitchNormal.NormallyClosed,
+                LimitSwitchDirections.REV);
+
+        GZSRX.logError(
+                () -> mElevator1.configForwardSoftLimitThreshold(
+                        (int) ((kElevator.TOP_LIMIT - kElevator.Heights.Zero.inches) * kElevator.TICKS_PER_INCH),
+                        GZSRX.TIMEOUT),
+                this, AlertLevel.ERROR, "Could not set top limit to " + kElevator.TOP_LIMIT + " inches from ground");
+
+        GZSRX.logError(() -> mElevator1.configForwardSoftLimitEnable(true, GZSRX.TIMEOUT), this, AlertLevel.ERROR,
+                "Could not enable top limit!");
+
+        //COMMENTED
+        GZSRX.logError(
+                () -> mElevator2.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
+                        LimitSwitchNormal.NormallyClosed),
+                this, AlertLevel.ERROR, "Could not configure reverse switch on follower controller!");
+
+        mElevator2.disabledLimitSwitch(this, LimitSwitchDirections.FWD);
+
+        mElevator1.setSensorPhase(kElevator.ENC_INVERT);
+
+        configPID(kElevator.PID);
+        selectProfileSlot(0);
+
+        configAccelInchesPerSec(kElevator.ACCEL_INCHES_PER_SECOND);
+        configCruiseInchesPerSec(kElevator.VEL_INCHES_PER_SECOND);
+
+        brake();
+
+        mElevator1.setSelectedSensorPosition(0);
     }
 
     private double getInchesPerSecond() {
         return nativeUnitsToInchesPerSecond(mIO.ticks_velocity);
     }
 
-    private double nativeUnitsToInchesPerSecond(double nativeUnits) {
+    private static int inchesPerSecondToNativeUnits(double inchesPerSecond) {
+        int sensorUnitsPer100ms;
+        sensorUnitsPer100ms = (int) Math.rint((inchesPerSecond * kElevator.TICKS_PER_INCH) / 10);
+        return sensorUnitsPer100ms;
+    }
+
+    private static double nativeUnitsToInchesPerSecond(double nativeUnits) {
         double inchesPerSecond;
         inchesPerSecond = ((double) nativeUnits / (double) kElevator.TICKS_PER_INCH) * 10;
         return inchesPerSecond;
     }
 
-    private void configAccel(int sensorUnitsPer100msPerSec) {
-        mElevator1.configMotionAcceleration(sensorUnitsPer100msPerSec);
-    }
-
-    private void configCruise(int sensorUnitsPer100msPerSec) {
-        mElevator1.configMotionCruiseVelocity(sensorUnitsPer100msPerSec);
+    private void configAccel(int sensorUnitsPer100ms) {
+        mElevator1.configMotionAcceleration(sensorUnitsPer100ms);
     }
 
     public boolean isMovingHP() {
@@ -325,9 +322,30 @@ public class Elevator extends GZSubsystem {
         mPrevMovingHP = mMovingHP;
     }
 
+//    public static void main(String[] args) {
+//        System.out.println("Default Cruise: " + inchesPerSecondToNativeUnits(kElevator.VEL_INCHES_PER_SECOND));
+//        System.out.println("Default Accel: " + inchesPerSecondToNativeUnits(kElevator.ACCEL_INCHES_PER_SECOND));
+//
+//        final double velInchesPerSecond = 3 * 12.0;
+//        final double accelInchesPerSecond = 1 * 12.0;
+//        System.out.println("Cruise: " + inchesPerSecondToNativeUnits(velInchesPerSecond));
+//        System.out.println("Accel: " + inchesPerSecondToNativeUnits(accelInchesPerSecond));
+//
+//        final double max = 40.0;
+//        System.out.println("Max: " + max * kElevator.TICKS_PER_INCH);
+//        final double min = 0.0;
+//        System.out.println("Min: " + min * kElevator.TICKS_PER_INCH);
+//    }
+
+    private void configCruise(int sensorUnitsPer100ms) {
+        mElevator1.configMotionCruiseVelocity(sensorUnitsPer100ms);
+    }
+
     @Override
     public void loop() {
         SmartDashboard.putBoolean("Limiting", !mSpeedLimitOverride);
+
+//        System.out.println(mIO.bottom_limit_switch);
 
         // handleCoast();
         // handlePID();
@@ -335,6 +353,7 @@ public class Elevator extends GZSubsystem {
         in();
         out();
     }
+//    int l = 0;
 
     // MANIPULATOR
     public boolean nearTarget() {
@@ -491,23 +510,23 @@ public class Elevator extends GZSubsystem {
 
     private void onStateStart(ElevatorState s) {
         switch (s) {
-        case MANUAL:
-            break;
-        case NEUTRAL:
-            break;
-        default:
-            break;
+            case MANUAL:
+                break;
+            case NEUTRAL:
+                break;
+            default:
+                break;
         }
     }
 
     private void onStateExit(ElevatorState s) {
         switch (s) {
-        case MANUAL:
-            break;
-        case NEUTRAL:
-            break;
-        default:
-            break;
+            case MANUAL:
+                break;
+            case NEUTRAL:
+                break;
+            default:
+                break;
         }
     }
 
@@ -548,7 +567,8 @@ public class Elevator extends GZSubsystem {
     public boolean getBottomLimit() {
         return mIO.bottom_limit_switch;
     }
-// Welevator
+
+    // Welevator
     public int getSlidesTotalCounts() {
         return mCarriageSlide.getChangeCounts();
     }
