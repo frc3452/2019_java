@@ -322,20 +322,20 @@ public class Elevator extends GZSubsystem {
         mPrevMovingHP = mMovingHP;
     }
 
-//    public static void main(String[] args) {
-//        System.out.println("Default Cruise: " + inchesPerSecondToNativeUnits(kElevator.VEL_INCHES_PER_SECOND));
-//        System.out.println("Default Accel: " + inchesPerSecondToNativeUnits(kElevator.ACCEL_INCHES_PER_SECOND));
-//
-//        final double velInchesPerSecond = 3 * 12.0;
-//        final double accelInchesPerSecond = 1 * 12.0;
-//        System.out.println("Cruise: " + inchesPerSecondToNativeUnits(velInchesPerSecond));
-//        System.out.println("Accel: " + inchesPerSecondToNativeUnits(accelInchesPerSecond));
-//
-//        final double max = 40.0;
-//        System.out.println("Max: " + max * kElevator.TICKS_PER_INCH);
-//        final double min = 0.0;
-//        System.out.println("Min: " + min * kElevator.TICKS_PER_INCH);
-//    }
+    public static void main(String[] args) {
+        System.out.println("Default Cruise: " + inchesPerSecondToNativeUnits(kElevator.VEL_INCHES_PER_SECOND));
+        System.out.println("Default Accel: " + inchesPerSecondToNativeUnits(kElevator.ACCEL_INCHES_PER_SECOND));
+
+        final double velInchesPerSecond = 3 * 12.0;
+        final double accelInchesPerSecond = 1 * 12.0;
+        System.out.println("Cruise: " + inchesPerSecondToNativeUnits(velInchesPerSecond));
+        System.out.println("Accel: " + inchesPerSecondToNativeUnits(accelInchesPerSecond));
+
+        final double max = 40.0;
+        System.out.println("Max: " + max * kElevator.TICKS_PER_INCH);
+        final double min = 0.0;
+        System.out.println("Min: " + min * kElevator.TICKS_PER_INCH);
+    }
 
     private void configCruise(int sensorUnitsPer100ms) {
         mElevator1.configMotionCruiseVelocity(sensorUnitsPer100ms);

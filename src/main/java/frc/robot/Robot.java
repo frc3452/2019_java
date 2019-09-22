@@ -39,6 +39,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		//To stop compressor while testing
+//		Pneumatics.getInstance().setMotorTesting(true);
+
 		Drive.getInstance().setDefaultStartingPosition();
 
 		auton.fillAutonArray();

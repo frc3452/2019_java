@@ -68,6 +68,8 @@ public class Constants {
 		public static final double TOP_LIMIT;
 		static {
 			if (COMP_BOT) {
+//				ACCEL_INCHES_PER_SECOND = 45 * 12;
+//				VEL_INCHES_PER_SECOND = 45 * 12;
 				ACCEL_INCHES_PER_SECOND = 16 * 12;
 				VEL_INCHES_PER_SECOND = 16 * 12;
 				TOP_LIMIT = 85;
@@ -283,7 +285,7 @@ public class Constants {
 
 	public static class kDrivetrain {
 
-        public static final boolean NO_SHIFTER = true;
+		public static final boolean NO_SHIFTER = false;
 		public static final boolean TUNING = false;
 
 		static final double p = 0.9;

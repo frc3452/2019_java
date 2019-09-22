@@ -1,10 +1,10 @@
 package frc.robot.poofs.util.math;
 
+import frc.robot.util.GZUtil;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import frc.robot.util.GZUtil;
 
 import static frc.robot.util.GZUtil.kEpsilon;
 
@@ -203,6 +203,18 @@ public class Rotation2d extends GZGeometry<Rotation2d> implements IRotation2d<Ro
 
     @Override
     public boolean equals(final Object other) {
+//        if (other == null) {
+//            return false;
+//        }
+//
+//        if (other instanceof Translation2d) {
+//            Translation2d _other = (Translation2d) other;
+//            return _other.direction().equals(this);
+//        } else if (!(other instanceof Rotation2d)) {
+//            return false;
+//        }
+//        return distance((Rotation2d) other) < kEpsilon;
+
         if (other == null || !(other instanceof Rotation2d))
             return false;
         return distance((Rotation2d) other) < GZUtil.kEpsilon;

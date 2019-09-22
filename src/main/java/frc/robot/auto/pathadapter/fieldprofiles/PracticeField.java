@@ -68,6 +68,8 @@ public class PracticeField extends FieldProfile {
         public int ticks_per_inch() {
             return 350;
         }
+        //0.2 f
+        //0.15 p
 
         @Override
         public double hatch_place_jog() {

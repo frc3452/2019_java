@@ -1774,7 +1774,6 @@ public class Drive extends GZSubsystem {
 			}
 			GZFiles.getInstance().addLog(this, "Drive speed set to " + speed, true);
 		}
-
 	}
 
 	public Boolean isSlow() {
