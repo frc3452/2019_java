@@ -282,7 +282,6 @@ public class GZOI extends GZSubsystem {
     // Driver variables
     private void handleDriverController() {
         if (driverJoy.leftBumper.isBeingPressed()) {
-
             if (!NO_SHIFTER) {
                 if (driverJoy.aButton.isBeingPressed())
                     drive.wantShift(ClimbingState.NONE);
@@ -336,9 +335,9 @@ public class GZOI extends GZSubsystem {
             supe.intakeEject();
         } else if (driverJoy.startButton.shortReleased()) {
             supe.stow();
-        } else if (driverJoy.startButton.longPressed()) {
+        }/* else if (driverJoy.startButton.longPressed()) {
             supe.driverToggleGamePiece();
-        }
+        }*/
     }
 
     public String getSmallString() {

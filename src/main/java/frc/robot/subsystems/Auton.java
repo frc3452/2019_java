@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.kAuton;
 import frc.robot.GZOI;
@@ -18,6 +16,8 @@ import frc.robot.util.GZCommandGroup;
 import frc.robot.util.GZTimer;
 import frc.robot.util.LatchedBoolean;
 import frc.robot.util.drivers.DigitalSelector;
+
+import java.util.ArrayList;
 
 /**
  * <h1>AutonSelector Subsystem</h1> Handles autonomous selector case statements
@@ -281,6 +281,7 @@ public class Auton {
 
 	private void customAuto() {
 		if (GZOI.driverJoy.backButton.isBeingPressed()) {
+//			System.out.println("Pressed!!");
 			if (GZOI.driverJoy.leftCenterClick.longPressed()) {
 				updateCustomAuto();
 			} else if (GZOI.driverJoy.rightCenterClick.wasActivated()) {
