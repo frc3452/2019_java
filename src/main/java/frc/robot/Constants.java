@@ -121,7 +121,7 @@ public class Constants {
 		public static enum Heights {
 
 			Zero(h.zero()), Home(h.home()), Cargo_Intake(Home), HP_Floor_Grab(h.hp_floor_Grab()), HP_1(h.hp1()),
-			HP_2(h.hp2()), HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1(), false),
+			HP_2(h.hp2()), HP_3(h.hp3()), Cargo_Ship(h.cargo_ship(), false), Cargo_1(h.cargo1() + 1, false),
 			Cargo_2(h.cargo2(), false), Cargo_3(h.cargo3(), false), HP_Feeder_Jog(h.hp_feed_jog());
 
 			public final double inches;

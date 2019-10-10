@@ -177,7 +177,7 @@ public class GZOI extends GZSubsystem {
     private void handleSuperStructureControlComplex() {
         boolean nothingHasHappened = false;
 
-        if (op.xButton.isBeingPressed()) {
+        if (op.startButton.isBeingPressed()) {
             supe.zeroElevator();
         } else if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
             supe.queueHeight(QueueHeights.LOW);
@@ -197,9 +197,9 @@ public class GZOI extends GZSubsystem {
             supe.setHeight(Heights.Cargo_2);
         } else if (!op.leftCenterClick.isBeingPressed() && op.yButton.longPressed()) {
             supe.setHeight(Heights.Cargo_3);
-        } else if (!op.leftCenterClick.isBeingPressed() && op.startButton.wasActivatedReset()) {
+        } else if (!op.leftCenterClick.isBeingPressed() && op.xButton.wasActivatedReset()) {
             supe.setHeight(Heights.Cargo_Ship);
-        } else if (op.leftCenterClick.isBeingPressed() && op.startButton.wasActivated()) {
+        } else if (op.leftCenterClick.isBeingPressed() && op.xButton.wasActivated()) {
             supe.queueHeight(QueueHeights.CARGO_SHIP);
         } else if (op.rightBumper.wasActivated()) {
             supe.toggleClaw();
@@ -333,7 +333,7 @@ public class GZOI extends GZSubsystem {
             supe.intake();
         } else if (driverJoy.leftCenterClick.longPressed()) {
             supe.intakeEject();
-        } else if (driverJoy.startButton.shortReleased()) {
+        } else if (driverJoy.xButton.shortReleased()) {
             supe.stow();
         }/* else if (driverJoy.startButton.longPressed()) {
             supe.driverToggleGamePiece();
