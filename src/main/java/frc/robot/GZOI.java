@@ -333,7 +333,7 @@ public class GZOI extends GZSubsystem {
             supe.intake();
         } else if (driverJoy.leftCenterClick.longPressed()) {
             supe.intakeEject();
-        } else if (driverJoy.xButton.shortReleased()) {
+        } else if (driverJoy.startButton.shortReleased()) {
             supe.stow();
         }/* else if (driverJoy.startButton.longPressed()) {
             supe.driverToggleGamePiece();
