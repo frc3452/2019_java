@@ -124,16 +124,16 @@ public class GZOI extends GZSubsystem {
             Auton.getInstance()
                     .controllerCancel(driverJoy.aButton.isBeingPressed() && driverJoy.xButton.isBeingPressed());
         } else if (isAuto() || isTele()) { // not running auto command and in sandstorm or tele
-            handleControls();
+            handleControls(isAuto());
         }
     }
 
-    public void handleControls() {
+    public void handleControls(boolean sandstorm) {
         handleRumble();
         handleSuperStructureControl();
         handleDriverController();
         if (Drive.getInstance().configDriveDisabled()) {
-            handleDriverSupe();
+            handleDriverSupe(sandstorm);
         }
     }
 
@@ -306,7 +306,7 @@ public class GZOI extends GZSubsystem {
         drive.handleDriving(driverJoy);
     }
 
-    private void handleDriverSupe() {
+    private void handleDriverSupe(boolean sandstorm) {
         if (driverJoy.POV180.shortReleased()) {
             supe.rocketHeight(QueueHeights.LOW);
         } else if (driverJoy.POV180.longPressed()) {
@@ -319,7 +319,7 @@ public class GZOI extends GZSubsystem {
             supe.rocketHeight(QueueHeights.HIGH);
         } else if (driverJoy.POV0.longPressed()) {
             supe.queueHeight(QueueHeights.HIGH, true);
-        } else if (driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
+        } else if (!sandstorm && driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.driverRetrieve();
         } else if (driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.setHeight(Heights.Cargo_Ship);

@@ -1,10 +1,10 @@
 package frc.robot.auto.commands.functions.drive;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.GZOI;
 import frc.robot.subsystems.Drive;
+
+import java.util.function.Supplier;
 
 public class TeleDrive extends Command {
 
@@ -33,7 +33,7 @@ public class TeleDrive extends Command {
 
     protected void execute() {
         if (mDrive) {
-            GZOI.getInstance().handleControls();
+            GZOI.getInstance().handleControls(true);
         }
     }
 

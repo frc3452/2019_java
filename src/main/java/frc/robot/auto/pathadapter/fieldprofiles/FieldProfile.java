@@ -67,31 +67,31 @@ public abstract class FieldProfile {
 
     private FieldValues<Double> getBayToWall(int bay) {
         switch (bay) {
-        case 1:
-            return mBay1ToWall;
-        case 2:
-            return mBay2ToWall;
-        case 3:
-            return mBay3ToWall;
-        default:
-            return null;
+            case 1:
+                return mBay1ToWall;
+            case 2:
+                return mBay2ToWall;
+            case 3:
+                return mBay3ToWall;
+            default:
+                return null;
         }
     }
 
     private FieldValues<Double> getBayToRamp(int bay) {
         switch (bay) {
-        case 1:
-            return mBay1ToRamp;
-        case 2:
-            return mBay2ToRamp;
-        case 3:
-            return mBay3ToRamp;
-        default:
-            return null;
+            case 1:
+                return mBay1ToRamp;
+            case 2:
+                return mBay2ToRamp;
+            case 3:
+                return mBay3ToRamp;
+            default:
+                return null;
         }
     }
 
-    public Translation2d getBay(Alliance a,  int bay, boolean left) {
+    public Translation2d getBay(Alliance a, int bay, boolean left) {
         final double x = mHABLevel3EdgeToDriverStation.get(a, left) + mHABLevel1EdgeToRamp.get(a, left)
                 + mHABRamp.get(a, left) + getBayToRamp(bay).get(a, left);
         final double y;
