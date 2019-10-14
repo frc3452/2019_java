@@ -34,9 +34,10 @@ public class GZOI extends GZSubsystem {
 
     // private Auton auton = Auton.getInstance();
     private Superstructure supe = Superstructure.getInstance();
-    private boolean mShouldUseConfigurableDrive = true;
+    private boolean mShouldUseConfigurableDrive = false;
+
     private boolean hasOperatorEverInteracted = false;
-    private boolean mComplexOperatorControlsEnabled = true;
+//    private boolean mComplexOperatorControlsEnabled = true;
 
     private GZOI() {
         mCamera = CameraServer.getInstance().startAutomaticCapture(0);
@@ -106,16 +107,15 @@ public class GZOI extends GZSubsystem {
         // }
         // }
 
-        //nah, we use configurable drive
-//        if (mUserButton.update(RobotController.getUserButton())) {
-//            mShouldUseConfigurableDrive = !mShouldUseConfigurableDrive;
-//            System.out.println("[ConfigurableDrive] " + (mShouldUseConfigurableDrive ? "enabled" : "disabled"));
-//        }
-
         if (mUserButton.update(RobotController.getUserButton())) {
-            mComplexOperatorControlsEnabled = !mComplexOperatorControlsEnabled;
-            System.out.println("Operator controls set to [" + (mComplexOperatorControlsEnabled ? "COMPLEX" : "SIMPLE") + "]");
+            mShouldUseConfigurableDrive = !mShouldUseConfigurableDrive;
+            System.out.println("[ConfigurableDrive] " + (mShouldUseConfigurableDrive ? "enabled" : "disabled"));
         }
+
+//        if (mUserButton.update(RobotController.getUserButton())) {
+//            mComplexOperatorControlsEnabled = !mComplexOperatorControlsEnabled;
+//            System.out.println("Operator controls set to [" + (mComplexOperatorControlsEnabled ? "COMPLEX" : "SIMPLE") + "]");
+//        }
 
         // Disabled
         if (isDisabled()) {
@@ -142,12 +142,11 @@ public class GZOI extends GZSubsystem {
     }
 
     private void handleSuperStructureControl() {
-
-        if (mComplexOperatorControlsEnabled) {
-            handleSuperStructureControlComplex();
-        } else {
-            handleSuperStructureControlBasic();
-        }
+//        if (mComplexOperatorControlsEnabled) {
+        handleSuperStructureControlComplex();
+//        } else {
+//            handleSuperStructureControlBasic();
+//        }
     }
 
     private void handleSuperStructureControlBasic() {

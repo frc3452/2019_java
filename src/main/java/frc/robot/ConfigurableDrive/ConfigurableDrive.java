@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 /**
  * This configurable drive controller was written as a senior project by Max
  * Dreher from FRC Team GreengineerZ (#3452)
- * 
+ * <p>
  * Designed to be drop in and configurable,
  */
 public class ConfigurableDrive {
@@ -33,7 +33,7 @@ public class ConfigurableDrive {
     private final double ARCADE_Z_MODIFIER;
 
     public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
-            Supplier<Boolean> moveDownList, double arcadeMod, boolean shouldLoopAroundList) {
+                             Supplier<Boolean> moveDownList, double arcadeMod, boolean shouldLoopAroundList) {
         requiredToChange = conditionsToChange;
 
         s_upTick = new Button(moveUpList);
@@ -52,7 +52,7 @@ public class ConfigurableDrive {
     }
 
     public ConfigurableDrive(Supplier<Boolean> moveUpList, Supplier<Boolean> moveDownList,
-            boolean shouldLoopAroundList) {
+                             boolean shouldLoopAroundList) {
         this(() -> true, moveUpList, moveDownList, 1, shouldLoopAroundList);
     }
 
@@ -61,7 +61,7 @@ public class ConfigurableDrive {
     }
 
     public ConfigurableDrive(Supplier<Boolean> conditionsToChange, Supplier<Boolean> moveUpList,
-            Supplier<Boolean> moveDownList) {
+                             Supplier<Boolean> moveDownList) {
         this(conditionsToChange, moveUpList, moveDownList, 1, kSHOULD_LOOP_LIST);
     }
 
@@ -215,14 +215,62 @@ public class ConfigurableDrive {
         addArcadeDrive("Racing arcade", () -> joy.getRightTrigger() - joy.getLeftTrigger(), () -> joy.getLeftAnalogX());
     }
 
+    public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
+                                      double max) {
+        return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+    }
+
+    public void addRacingArcadeWithModifier(GZJoystick joy) {
+
+        addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getRightTrigger() - joy.getLeftTrigger(),
+                () -> joy.getLeftAnalogX(), () -> (joy.bButton.isBeingPressed() ? 1.0 : 0.0)) {
+
+            final double MODIFIER = 0.45;
+            boolean shouldSlowSpeed = false;
+            LatchedBoolean lb = new LatchedBoolean();
+
+            @Override
+            public DriveSignal produceDriveSignal() {
+                if (lb.update(getAxis(3) == 1)) {
+                    shouldSlowSpeed = !shouldSlowSpeed;
+                }
+
+                double x = getAxis(1);
+                double z = getAxis(2);
+
+                if (shouldSlowSpeed) {
+                    x *= MODIFIER;
+                    z *= MODIFIER;
+                }
+
+                DriveSignal output = arcade(x, z, false);
+
+                return output;
+            }
+        });
+    }
+
+    public void addArcadeDrive(String name, Supplier<Double> xMovement, Supplier<Double> zRotation) {
+        this.addDriveStyle(new DriveStyle(name, xMovement, zRotation) {
+
+            @Override
+            public DriveSignal produceDriveSignal() {
+                double axis1 = getAxis(1);
+                double axis2 = getAxis(2);
+
+                DriveSignal output = arcade(axis1, axis2, false);
+                return output;
+            }
+        });
+    }
+
     /**
      * Gyro needs to be mapped with 0 degrees forward, then growing to 360 Clockwise
      * Use the GyroMapper function of this class to aid with conversions
-     * 
      */
     public void addFieldCentric(Supplier<Double> fwdX, Supplier<Double> fwdY, Supplier<Double> revX,
-            Supplier<Double> revY, Supplier<Double> gyro, double turnToleranceDeg, double startingMagnitude,
-            double endingPercentage, double turnSpeed) {
+                                Supplier<Double> revY, Supplier<Double> gyro, double turnToleranceDeg, double startingMagnitude,
+                                double endingPercentage, double turnSpeed) {
         DriveStyle fieldCentric = new DriveStyle("Field centric", fwdX, fwdY, revX, revY, gyro) {
 
             @Override
@@ -272,105 +320,6 @@ public class ConfigurableDrive {
         };
 
         addDriveStyle(fieldCentric);
-    }
-
-    public void addRacingArcadeWithModifier(GZJoystick joy) {
-
-        addDriveStyle(new DriveStyle("Racing arcade with modifier", () -> joy.getRightTrigger() - joy.getLeftTrigger(),
-                () -> joy.getLeftAnalogX(), () -> (joy.bButton.isBeingPressed() ? 1.0 : 0.0)) {
-
-            final double MODIFIER = 0.45;
-            boolean shouldSlowSpeed = false;
-            LatchedBoolean lb = new LatchedBoolean();
-
-            @Override
-            public DriveSignal produceDriveSignal() {
-                if (lb.update(getAxis(3) == 1)) {
-                    shouldSlowSpeed = !shouldSlowSpeed;
-                }
-
-                double x = getAxis(1);
-                double z = getAxis(2);
-
-                if (shouldSlowSpeed) {
-                    x *= MODIFIER;
-                    z *= MODIFIER;
-                }
-
-                DriveSignal output = arcade(x, z, false);
-
-                return output;
-            }
-        });
-    }
-
-    public void addArcadeDrive(String name, Supplier<Double> xMovement, Supplier<Double> zRotation) {
-        this.addDriveStyle(new DriveStyle(name, xMovement, zRotation) {
-
-            @Override
-            public DriveSignal produceDriveSignal() {
-                double axis1 = getAxis(1);
-                double axis2 = getAxis(2);
-
-                DriveSignal output = arcade(axis1, axis2, false);
-                return output;
-            }
-        });
-    }
-
-    public abstract static class DriveStyle {
-        private final String name;
-        private Supplier<Double>[] axises;
-
-        /**
-         * 
-         * @param axises
-         */
-        @SafeVarargs
-        public DriveStyle(String name, Supplier<Double>... axises) {
-            this.axises = axises;
-            this.name = name;
-        }
-
-        public boolean isDisabled() {
-            return false;
-        }
-
-        public abstract DriveSignal produceDriveSignal();
-
-        public boolean ignoresLimits() {
-            return false;
-        }
-
-        /**
-         * <b> First axis passed will be axis 1, not 0 </b>
-         * 
-         * @param axis
-         * @return
-         */
-        public double getAxis(int axis) {
-            if (axis < 1) {
-                throwError("Axis " + axis + " less than 1; first axis starts at 1!");
-                return 0;
-            }
-
-            if (axis >= axises.length + 2) {
-                throwError("Axis " + axis + " too high, this mode was only supplied " + axises.length + " axises!");
-                return 0;
-            }
-
-            return axises[axis - 1].get();
-        }
-
-        private void throwError(String message) {
-            configDriveThrowError("option [" + toString() + "] " + message);
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
     }
 
     private static void configDriveMessage(String message) {
@@ -495,9 +444,58 @@ public class ConfigurableDrive {
         return retval;
     }
 
-    public static double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min,
-            double max) {
-        return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+    public abstract static class DriveStyle {
+        private final String name;
+        private Supplier<Double>[] axises;
+
+        /**
+         * @param axises
+         */
+        @SafeVarargs
+        public DriveStyle(String name, Supplier<Double>... axises) {
+            this.axises = axises;
+            this.name = name;
+        }
+
+        public boolean isDisabled() {
+            return false;
+        }
+
+        public abstract DriveSignal produceDriveSignal();
+
+        public boolean ignoresLimits() {
+            return false;
+        }
+
+        /**
+         * <b> First axis passed will be axis 1, not 0 </b>
+         *
+         * @param axis
+         * @return
+         */
+        public double getAxis(int axis) {
+            if (axis < 1) {
+                throwError("Axis " + axis + " less than 1; first axis starts at 1!");
+                return 0;
+            }
+
+            if (axis >= axises.length + 2) {
+                throwError("Axis " + axis + " too high, this mode was only supplied " + axises.length + " axises!");
+                return 0;
+            }
+
+            return axises[axis - 1].get();
+        }
+
+        private void throwError(String message) {
+            configDriveThrowError("option [" + toString() + "] " + message);
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
     }
 
     public static double limit1to1(double value) {
