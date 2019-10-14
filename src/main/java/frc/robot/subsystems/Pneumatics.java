@@ -1,19 +1,18 @@
 package frc.robot.subsystems;
 
-import java.text.DecimalFormat;
-
 import edu.wpi.first.wpilibj.Compressor;
-import frc.robot.Constants;
-import frc.robot.Constants.kDrivetrain;
 import frc.robot.Constants.kPneumatics;
 import frc.robot.Constants.kSolenoids;
 import frc.robot.GZOI;
 import frc.robot.TestModeRunner;
+import frc.robot.poofs.util.TimeDelayedBoolean;
 import frc.robot.util.GZLog.LogItem;
 import frc.robot.util.GZNotifier;
 import frc.robot.util.GZSubsystem;
 import frc.robot.util.drivers.GZAnalogInput;
 import frc.robot.util.drivers.pneumatics.GZSolenoid;
+
+import java.text.DecimalFormat;
 
 public class Pneumatics extends GZSubsystem {
 
@@ -30,10 +29,7 @@ public class Pneumatics extends GZSubsystem {
         this.mIsMotorTesting = testing;
     }
 
-    public boolean isMotorTesting()
-    {
-        return this.mIsMotorTesting;
-    }
+    TimeDelayedBoolean crawlerDropDelay = new TimeDelayedBoolean();
 
     private int mCrawlerPresses = 0;
 
@@ -65,14 +61,18 @@ public class Pneumatics extends GZSubsystem {
         return mPressureSensor.getTranslatedValue();
     }
 
-    public void forceDropCrawler() {
+    public boolean isMotorTesting() {
+        return this.mIsMotorTesting;
+    }
+
+    private void forceDropCrawler() {
         mClimberCrawler.on();
     }
 
-    public void dropCrawler() {
-        if (++mCrawlerPresses > kDrivetrain.CRAWLER_DROP_NECCESARY_TICKS) {
-            mClimberCrawler.on();
-            System.out.println("CRAWLER PRESSED: " + mCrawlerPresses);
+    public void dropCrawler(boolean update) {
+        boolean shouldDrop = crawlerDropDelay.update(update, 0.125);
+        if (shouldDrop) {
+            forceDropCrawler();
         }
     }
 

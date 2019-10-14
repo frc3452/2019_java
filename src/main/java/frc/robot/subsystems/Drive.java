@@ -74,7 +74,7 @@ public class Drive extends GZSubsystem {
     private PathFollower mPathFollower;
     private Path mCurrentPath = null;
     private RobotState mRobotState = RobotState.getInstance();
-    private ClimbingState mClimbState = null;
+    private ClimbingState mClimbState = ClimbingState.NONE;
     private ConfigurableDrive mConfigurableDrive;
     private PathFollower.Parameters mParameters = kPathFollowing.pathFollowingConstants;
     private RobotPose mShuffleboardPose = new RobotPose();
@@ -1724,6 +1724,11 @@ public class Drive extends GZSubsystem {
 
     public enum ClimbingState {
         FRONT, BOTH, NONE, MOVING, REAR
+    }
+
+
+    public boolean isClimbing() {
+        return getState() == DriveState.CLIMB && mClimbState != ClimbingState.NONE;
     }
 
     public static class RocketIdentifcation {
