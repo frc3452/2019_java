@@ -132,7 +132,7 @@ public class GZOI extends GZSubsystem {
         handleRumble();
         handleSuperStructureControl();
         handleDriverController();
-        if (Drive.getInstance().configDriveDisabled()) {
+        if (!shouldUseConfigurableDrive()) {
             handleDriverSupe(sandstorm);
         }
     }
@@ -320,7 +320,7 @@ public class GZOI extends GZSubsystem {
             supe.queueHeight(QueueHeights.HIGH, true);
         } else if (!sandstorm && driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.driverRetrieve();
-        } else if (driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
+        } else if (!sandstorm && driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.setHeight(Heights.Cargo_Ship);
         } else if (driverJoy.yButton.shortReleased() && !driverJoy.leftBumper.isBeingPressed()) {
             supe.toggleClaw();
