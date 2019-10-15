@@ -233,7 +233,11 @@ public class GZOI extends GZSubsystem {
 
                 boolean shouldAttemptToDrop = false;
                 if (op.aButton.isBeingPressed()) {
-                    shouldAttemptToDrop = Drive.getInstance().isClimbing() && Drive.getInstance().getRearBottomLimit();
+                    //Redundant and breaks control flow
+//                    shouldAttemptToDrop = Drive.getInstance().isClimbing() && Drive.getInstance().getRearBottomLimit();
+
+                    shouldAttemptToDrop = Drive.getInstance().getRearBottomLimit();
+
                     if (op.bButton.isBeingPressed()) {
                         shouldAttemptToDrop = true;
                     }
