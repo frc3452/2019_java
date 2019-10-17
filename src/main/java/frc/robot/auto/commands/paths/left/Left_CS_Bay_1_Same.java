@@ -1,11 +1,11 @@
 package frc.robot.auto.commands.paths.left;
 
-import java.util.ArrayList;
-
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathBuilder.Waypoint;
 import frc.robot.auto.commands.functions.drive.pathfollowing.PathContainer;
 import frc.robot.auto.pathadapter.PathAdapter;
 import frc.robot.poofs.util.math.Rotation2d;
+
+import java.util.ArrayList;
 
 public class Left_CS_Bay_1_Same extends PathContainer {
     public Left_CS_Bay_1_Same() {
@@ -25,5 +25,5 @@ public class Left_CS_Bay_1_Same extends PathContainer {
         return Rotation2d.fromDegrees(90);
     }
 
-    
+
 }

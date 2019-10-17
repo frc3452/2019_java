@@ -777,8 +777,8 @@ public class Superstructure extends GZSubsystem {
         }.generate();
     }
 
-    public void dropCrawler() {
-        Pneumatics.getInstance().dropCrawler();
+    public void dropCrawler(boolean update) {
+        Pneumatics.getInstance().dropCrawler(update);
     }
 
     public String getStateString() {

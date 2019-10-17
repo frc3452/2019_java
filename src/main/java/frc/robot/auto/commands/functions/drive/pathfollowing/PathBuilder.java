@@ -1,8 +1,7 @@
 package frc.robot.auto.commands.functions.drive.pathfollowing;
 
-import java.util.List;
-
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants;
 import frc.robot.GZOI;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldProfile;
 import frc.robot.auto.pathadapter.fieldprofiles.FieldValues;
@@ -12,10 +11,12 @@ import frc.robot.poofs.util.math.RigidTransform2d;
 import frc.robot.poofs.util.math.Rotation2d;
 import frc.robot.poofs.util.math.Translation2d;
 
+import java.util.List;
+
 /**
  * Class used to convert a list of Waypoints into a Path object consisting of
  * arc and line PathSegments
- * 
+ *
  * @see Waypoint
  * @see Path
  * @see PathSegment
@@ -112,8 +113,11 @@ public class PathBuilder {
 
         public void applyFieldAdaption() {
             Alliance a = GZOI.getInstance().getAlliance();
-            if (fieldAdaption != null && a != Alliance.Invalid)
-                translateBy(fieldAdaption.get(a, this.isOnLeft()));
+            if (fieldAdaption != null && a != Alliance.Invalid) {
+                if (Constants.USE_PATH_ADAPTER) {
+                    translateBy(fieldAdaption.get(a, this.isOnLeft()));
+                }
+            }
         }
 
         public String toString() {

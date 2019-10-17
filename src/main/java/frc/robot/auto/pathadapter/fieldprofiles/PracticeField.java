@@ -3,79 +3,8 @@ package frc.robot.auto.pathadapter.fieldprofiles;
 import frc.robot.Constants;
 
 public class PracticeField extends FieldProfile {
-    private HeightsContainer mCompHeightsAtWorlds = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            return 20 + 3 - 1.5;
-        }
-
-        @Override
-        public double hp2() {
-            return 47 + 3;
-        }
-
-        @Override
-        public double hp3() {
-            return 75 + 3 - 2.0;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            return 28.5 + 2.5 - 2.0;
-        }
-
-        @Override
-        public double cargo2() {
-            return 56.5 + 2.5 - 3.0 + 2.5;
-        }
-
-        @Override
-        public double cargo3() {
-            return 83.5 + 2.5;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            return hp1() + 5;
-        }
-
-        @Override
-        public double zero() {
-            return 16.5;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            return 22.0;
-        }
-
-        @Override
-        public double home() {
-            return zero() + 0.5;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 350;
-        }
-        //0.2 f
-        //0.15 p
-
-        @Override
-        public double hatch_place_jog() {
-            return 3;
-        }
-    };
+    private HeightsContainer mCompHeightsAtWorlds;
+    private HeightsContainer mPracticeHeights;
 
     public PracticeField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
@@ -91,6 +20,50 @@ public class PracticeField extends FieldProfile {
         this.mHABLevel1EdgeToRamp = new FieldValues<Double>(40.7387);
         this.mHABLevel3EdgeToDriverStation = new FieldValues<Double>(40.0);
         this.mHABRamp = new FieldValues<Double>(10.9632);
+        initHeights();
+    }
+
+    private void initHeights() {
+        initCompHeights();
+        initPracticeHeights();
+    }
+
+    private void initPracticeHeights() {
+        var p = new HeightsContainer.HeightsBuilder();
+        p.zero = 16.5;
+        p.home = p.zero = 0.5;
+        p.hp_floor_grab = p.zero + 1;
+        p.hp1 = 19.5 + 1;
+        p.hp2 = 47 + 3 + 1;
+        p.hp3 = 75 + 3 + 1;
+        p.cargo_ship = 46;
+        p.cargo1 = 27.5 + 1.5 + 1.0;
+        p.cargo2 = 55.5 + 1 + 2;
+        p.cargo3 = 83.5 + 1 + 3;
+        p.hp_feed_jog = p.hp1 + 5;
+        p.lowest_with_slides_out = 22.0;
+        p.ticks_per_inch = 350;
+        p.hatch_place_jog = 3;
+        mPracticeHeights = p.build();
+    }
+
+    private void initCompHeights() {
+        var comp = new HeightsContainer.HeightsBuilder();
+        comp.zero = 16.5;
+        comp.hp_floor_grab = comp.zero + 1;
+        comp.hp1 = 20 + 3 - 1.5;
+        comp.hp2 = 47 + 3;
+        comp.hp3 = 75 + 3 - 2.0;
+        comp.cargo_ship = 46;
+        comp.cargo1 = 28.5 + 2.5;
+        comp.cargo2 = 56.5 + 2.5 + 2.5 - 3;
+        comp.cargo3 = 83.5 + 2.5;
+        comp.hp_feed_jog = comp.hp1 + 5;
+        comp.lowest_with_slides_out = 22.0;
+        comp.home = comp.zero + 0.5;
+        comp.ticks_per_inch = 350;
+        comp.hatch_place_jog = 3;
+        mCompHeightsAtWorlds = comp.build();
     }
 
     @Override
@@ -101,319 +74,4 @@ public class PracticeField extends FieldProfile {
             return mPracticeHeights;
         }
     }
-
-    private HeightsContainer mPracticeHeights = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            // return 19; //19
-
-            // return 22;
-            // return 21.5;
-            return 19.5 + 1;
-        }
-
-        @Override
-        public double hp2() {
-            return 47 + 3 + 1;
-        }
-
-        @Override
-        public double hp3() {
-            return 75 + 3 + 1;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            return 27.5 + 1.5 + 1;
-        }
-
-        @Override
-        public double cargo2() {
-            return 55.5 + 1 + 2;
-        }
-
-        @Override
-        public double cargo3() {
-            return 83.5 + 1 + 3;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            // return hp1() + 7;
-            return hp1() + 5; // big fat teeth
-        }
-
-        @Override
-        public double zero() {
-            return 16.5;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            // return 18.5;
-            return 22.0; // big fat teeth
-        }
-
-        @Override
-        public double home() {
-            return zero() + 0.5;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 350;
-        }
-
-        @Override
-        public double hatch_place_jog() {
-            // return 4;
-            return 3; // big fat teeth
-        }
-    };
-    private HeightsContainer mCompHeights = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            // return 19; //19
-
-            // return 22;
-            return 23; // big fat teeth
-        }
-
-        @Override
-        public double hp2() {
-            return 47 + 3;
-        }
-
-        @Override
-        public double hp3() {
-            return 75 + 3;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            return 27.5 + 2;
-        }
-
-        @Override
-        public double cargo2() {
-            return 55.5 + 2;
-        }
-
-        @Override
-        public double cargo3() {
-            return 83.5 + 2;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            // return hp1() + 7;
-            return hp1() + 5; // big fat teeth
-        }
-
-        @Override
-        public double zero() {
-            return 16.5;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            // return 18.5;
-            return 22.0; // big fat teeth
-        }
-
-        @Override
-        public double home() {
-            return zero() + 0.5;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 350;
-        }
-
-        @Override
-        public double hatch_place_jog() {
-            // return 4;
-            return 3; // big fat teeth
-        }
-    };
-    private HeightsContainer mCompHeightsAtMary = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            // return 19; //19
-
-            // return 22;
-            return 23; // big fat teeth
-        }
-
-        @Override
-        public double hp2() {
-            return 47 + 3;
-        }
-
-        @Override
-        public double hp3() {
-            return 75 + 3;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            return 27.5 + 2;
-        }
-
-        @Override
-        public double cargo2() {
-            return 55.5 + 2;
-        }
-
-        @Override
-        public double cargo3() {
-            return 83.5 + 2;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            // return hp1() + 7;
-            return hp1() + 5; // big fat teeth
-        }
-
-        @Override
-        public double zero() {
-            return 16.5;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            // return 18.5;
-            return 22.0; // big fat teeth
-        }
-
-        @Override
-        public double home() {
-            return zero() + 0.5;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 350;
-        }
-
-        @Override
-        public double hatch_place_jog() {
-            // return 4;
-            return 3; // big fat teeth
-        }
-    };
-
-    private HeightsContainer mCompHeightsAtState = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            // return 19; //19
-
-            // return 22;
-            return 20; // big fat teeth
-        }
-
-        @Override
-        public double hp2() {
-            return 47;
-        }
-
-        @Override
-        public double hp3() {
-            return 75;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            // was 2 too high
-            return 28.5;
-        }
-
-        @Override
-        public double cargo2() {
-            // was 2 too high
-            return 56.5;
-        }
-
-        @Override
-        public double cargo3() {
-            // was 2 too high
-            return 84.5;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            // return hp1() + 7;
-            return hp1() + 5; // big fat teeth
-        }
-
-        @Override
-        public double zero() {
-            return 16.5;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            // return 18.5;
-            return 22.0; // big fat teeth
-        }
-
-        @Override
-        public double home() {
-            return zero() + 0.5;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 350;
-        }
-
-        @Override
-        public double hatch_place_jog() {
-            // return 4;
-            return 3; // big fat teeth
-        }
-    };
-
 }

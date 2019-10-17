@@ -1,6 +1,8 @@
 package frc.robot.auto.pathadapter.fieldprofiles;
 
 public class ReferenceField extends FieldProfile {
+    private HeightsContainer mHeight;
+
     public ReferenceField() {
         this.mFeederStationToDriverWall = new FieldValues<Double>(0.0);
         this.mFeederStationToWall = new FieldValues<Double>(25.72);
@@ -14,80 +16,28 @@ public class ReferenceField extends FieldProfile {
         this.mCargoShipFaceToMidLine = new FieldValues<Double>(10.875);
         this.mHABLevel1EdgeToRamp = new FieldValues<Double>(40.7387);
         this.mHABLevel3EdgeToDriverStation = new FieldValues<Double>(40.0);
-        this.mHABRamp = new FieldValues<Double>(10.9632);    
+        this.mHABRamp = new FieldValues<Double>(10.9632);
+        initHeights();
     }
 
-    private HeightsContainer mHeight = new HeightsContainer() {
-        @Override
-        public double hp_floor_Grab() {
-            return zero() + 1;
-        }
-
-        @Override
-        public double hp1() {
-            return 19;
-        }
-
-        @Override
-        public double hp2() {
-            return 47;
-        }
-
-        @Override
-        public double hp3() {
-            return 75;
-        }
-
-        @Override
-        public double cargo_ship() {
-            return 46;
-        }
-
-        @Override
-        public double cargo1() {
-            return 27.5;
-        }
-
-        @Override
-        public double cargo2() {
-            return 55.5;
-        }
-
-        @Override
-        public double cargo3() {
-            return 83.5;
-        }
-
-        @Override
-        public double hp_feed_jog() {
-            return hp1() + 5;
-        }
-
-        @Override
-        public double zero() {
-            return 16;
-        }
-
-        @Override
-        public double lowest_with_slides_out() {
-            return 17.5;
-        }
-
-        @Override
-        public double home() {
-            return 16.25;
-        }
-
-        @Override
-        public int ticks_per_inch() {
-            return 353;
-        }
-
-        @Override
-        public double hatch_place_jog() {
-            return 4;
-        }
-    };
+    private void initHeights() {
+        var b = new HeightsContainer.HeightsBuilder();
+        b.zero = 16;
+        b.home = 16.25;
+        b.hp_floor_grab = b.zero + 1;
+        b.hp1 = 19;
+        b.hp2 = 47;
+        b.hp3 = 75;
+        b.cargo_ship = 46;
+        b.cargo1 = 27.5;
+        b.cargo2 = 55.5;
+        b.cargo3 = 83.5;
+        b.hp_feed_jog = b.hp1 + 5;
+        b.lowest_with_slides_out = 17.5;
+        b.ticks_per_inch = 353;
+        b.hatch_place_jog = 4;
+        mHeight = b.build();
+    }
 
     @Override
     public HeightsContainer getElevatorHeights() {
