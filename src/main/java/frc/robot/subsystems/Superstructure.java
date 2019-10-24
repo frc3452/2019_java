@@ -308,6 +308,7 @@ public class Superstructure extends GZSubsystem {
 
         list.add(slidesRequest(true, true));
         list.add(clawRequest(false, true));
+        list.add(heightJogRequest(1.5));
         list.add(slidesRequest(false, true));
 
         RequestList finalMove = new RequestList(this);
