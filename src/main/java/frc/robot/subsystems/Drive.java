@@ -84,7 +84,7 @@ public class Drive extends GZSubsystem {
         mConfigurableDrive = new ConfigurableDrive(() -> GZOI.getInstance().isDisabled(),
                 () -> GZOI.driverJoy.POV0.isBeingPressed(), () -> GZOI.driverJoy.POV180.isBeingPressed(), .25, false) {
             public double getModifier() {
-                return .5;
+                return mModifyPercent;
             }
         };
 
