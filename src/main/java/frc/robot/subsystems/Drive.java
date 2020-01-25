@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.ConfigurableDrive.ConfigurableDrive;
 import frc.robot.ConfigurableDrive.DriveSignal;
 import frc.robot.Constants.*;
-import frc.robot.Constants.kElevator.Heights;
 import frc.robot.GZOI;
 import frc.robot.auto.commands.AutoModeBuilder.EncoderMovement;
 import frc.robot.auto.commands.AutoModeBuilder.ZeroPositions;
@@ -96,14 +95,10 @@ public class Drive extends GZSubsystem {
 
         L1 = new GZSRX.Builder(kDrivetrain.L1, this, "L1", kPDP.DRIVE_L_1).setMaster().setSide(Side.LEFT).build();
         L2 = new GZSRX.Builder(kDrivetrain.L2, this, "L2", kPDP.DRIVE_L_2).setFollower().setSide(Side.LEFT).build();
-        L3 = new GZSRX.Builder(kDrivetrain.L3, this, "L3", kPDP.DRIVE_L_3).setFollower().setSide(Side.LEFT).build();
-        L4 = new GZSRX.Builder(kDrivetrain.L4, this, "L4", kPDP.DRIVE_L_4).setFollower().setSide(Side.LEFT).build();
-
+        
         R1 = new GZSRX.Builder(kDrivetrain.R1, this, "R1", kPDP.DRIVE_R_1).setMaster().setSide(Side.RIGHT).build();
         R2 = new GZSRX.Builder(kDrivetrain.R2, this, "R2", kPDP.DRIVE_R_2).setFollower().setSide(Side.RIGHT).build();
-        R3 = new GZSRX.Builder(kDrivetrain.R3, this, "R3", kPDP.DRIVE_R_3).setFollower().setSide(Side.RIGHT).build();
-        R4 = new GZSRX.Builder(kDrivetrain.R4, this, "R4", kPDP.DRIVE_R_4).setFollower().setSide(Side.RIGHT).build();
-
+       
         mNavX = new NavX(SPI.Port.kMXP);
 
         mShifterFront = new GZSolenoid(kSolenoids.SHIFTER_FRONT, this, "Shifter-Front");
@@ -498,14 +493,7 @@ public class Drive extends GZSubsystem {
         Rocket odometryRocket = odometryNearestRocket();
         Rocket gyroRocket = Rocket.NONE;
 
-        // Gyro only valid if above hatch 1
-        if (Elevator.getInstance().getHeightInches() > Heights.Cargo_1.inches) {
-            // Use gyro angle to determine which one we're placing on
-            // Pose2d editedPose = new Pose2d(here.getTranslation(),
-            // here.getRotation().inverse());
-            gyroRocket = Rocket.closestByAngle(getGyroAngle(), 10);
-        }
-
+       
         // Both forms of odometry acquired
         if (odometryRocket.identified() && gyroRocket.identified()) {
             // They agree
@@ -931,7 +919,6 @@ public class Drive extends GZSubsystem {
             case CLIMB:
                 brake(true);
                 mNavX.zeroRoll();
-                Superstructure.getInstance().stow();
                 // Superstructure.getInstance().runAction(Actions.STOW_LOW);
                 break;
             case PATH_FOLLOWING:
@@ -1022,11 +1009,6 @@ public class Drive extends GZSubsystem {
         mShuffleboardPose.SetHeading(flipped.getDegrees());
     }
 
-    private synchronized void handleCoastOnTesting() {
-        if (Pneumatics.getInstance().isMotorTesting()) {
-            brake(false);
-        }
-    }
 
     public boolean wantsToTeleDrive() {
         ArcadeSignal ds = getDriveModification(GZOI.driverJoy);
@@ -1054,7 +1036,6 @@ public class Drive extends GZSubsystem {
         SmartDashboard.putBoolean("Fast", !mIsSlow);
 
         wantsToTeleDrive();
-        handleCoastOnTesting();
         updateShuffleboard();
         handleStates();
         in();
@@ -1504,7 +1485,7 @@ public class Drive extends GZSubsystem {
     }
 
     public double getModifier() {
-        return Elevator.getInstance().getSpeedLimiting();
+        return 1.0;
     }
 
     public synchronized void tank(double left, double right) {

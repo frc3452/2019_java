@@ -30,7 +30,7 @@
 *.lib
 
 # Executables
-# *.exe
+*.exe
 *.out
 *.app
 
@@ -48,7 +48,7 @@
 .mtj.tmp/
 
 # Package Files #
-# *.jar
+*.jar
 *.war
 *.nar
 *.ear
@@ -126,7 +126,7 @@ $RECYCLE.BIN/
 
 # Windows Installer files
 *.cab
-# *.msi
+*.msi
 *.msix
 *.msm
 *.msp
@@ -155,6 +155,7 @@ gradle-app.setting
 .project
 .settings/
 bin/
+imgui.ini
 
 
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
