@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.kFiles;
 import frc.robot.Robot;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.util.GZFileMaker.FileExtensions;
 import frc.robot.util.GZFiles.Folder;
 import frc.robot.util.GZFiles.HTML;
@@ -409,6 +410,7 @@ public class MotorChecker {
         }
 
         public void checkMotors() {
+            Pneumatics.getInstance().setMotorTesting(true);
 
             boolean failure = false;
 
@@ -708,6 +710,7 @@ public class MotorChecker {
 
             Robot.allSubsystems.enableFollower();
 
+            Pneumatics.getInstance().setMotorTesting(false);
         }
 
     }

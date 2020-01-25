@@ -30,6 +30,7 @@ public class GZOI extends GZSubsystem {
     private int mDisabledPrintOutLoops = 0;
     private boolean mSafetyDisable = false;
     private Drive drive = Drive.getInstance();
+    private Elevator elev = Elevator.getInstance();
 
     // private Auton auton = Auton.getInstance();
     private Superstructure supe = Superstructure.getInstance();
@@ -144,26 +145,121 @@ public class GZOI extends GZSubsystem {
 
     private void handleSuperStructureControl(boolean climbing) {
 //        if (mComplexOperatorControlsEnabled) {
+        handleSuperStructureControlComplex(climbing);
 //        } else {
 //            handleSuperStructureControlBasic();
 //        }
     }
 
     private void handleSuperStructureControlBasic() {
-        boolean nothingHasHappened;
+        boolean nothingHasHappened = false;
+
+        if (op.aButton.shortReleased()) {
+            supe.setHeight(QueueHeights.LOW);
+        } else if (op.bButton.shortReleased()) {
+            supe.setHeight(QueueHeights.MIDDLE);
+        } else if (op.yButton.shortReleased()) {
+            supe.setHeight(QueueHeights.HIGH);
+        } else if (op.xButton.wasActivatedReset()) {
+            supe.setHeight(Heights.Cargo_Ship);
+        } else if (op.leftTrigger.wasActivated()) {
+            supe.basicRetrieve();
+        } else if (op.rightTrigger.wasActivated()) {
+            supe.score();
+        } else {
             nothingHasHappened = true;
-        
+        }
 
         if (!nothingHasHappened) {
             hasOperatorEverInteracted = true;
         }
     }
 
+    private void handleSuperStructureControlComplex(boolean climbing) {
+        boolean nothingHasHappened = false;
+
+        if (op.startButton.isBeingPressed()) {
+            supe.zeroElevator();
+        } else if (op.rightCenterClick.shortReleased()) {
+            supe.stow();
+        } else if (op.rightBumper.wasActivated()) {
+            supe.toggleClaw();
+        } else if (op.leftBumper.wasActivated()) {
+            supe.toggleSlides();
+        } else if (op.POV0.wasActivated()) {
+            supe.jogElevator(1);
+        } else if (op.POV180.wasActivated()) {
+            supe.jogElevator(-1);
+        } else {
+            if (!climbing) {
+                if (op.leftCenterClick.isBeingPressed() && op.aButton.wasActivatedReset()) {
+                    supe.queueHeight(QueueHeights.LOW);
+                } else if (op.leftCenterClick.isBeingPressed() && op.bButton.wasActivatedReset()) {
+                    supe.queueHeight(QueueHeights.MIDDLE);
+                } else if (op.leftCenterClick.isBeingPressed() && op.yButton.wasActivatedReset()) {
+                    supe.queueHeight(QueueHeights.HIGH);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.aButton.shortReleased()) {
+                    supe.setHeight(Heights.HP_1);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.bButton.shortReleased()) {
+                    supe.setHeight(Heights.HP_2);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.yButton.shortReleased()) {
+                    supe.setHeight(Heights.HP_3);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.aButton.longPressed()) {
+                    supe.setHeight(Heights.Cargo_1);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.bButton.longPressed()) {
+                    supe.setHeight(Heights.Cargo_2);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.yButton.longPressed()) {
+                    supe.setHeight(Heights.Cargo_3);
+                } else if (!op.leftCenterClick.isBeingPressed() && op.xButton.wasActivatedReset()) {
+                    supe.setHeight(Heights.Cargo_Ship);
+                } else if (op.leftCenterClick.isBeingPressed() && op.xButton.wasActivated()) {
+                    supe.queueHeight(QueueHeights.CARGO_SHIP);
+                } else if (op.leftTrigger.wasActivated()) {
+                    supe.retrieve();
+                } else if (op.rightTrigger.wasActivated()) {
+                    supe.score();
+                } else if (op.rightCenterClick.longPressed()) {
+                    supe.prepToGrabHatch();
+                } else if (op.backButton.wasActivated()) {
+                    supe.operatorIntake();
+                } else if (op.POV270.wasActivated()) {
+                    supe.toggleIntakeRoller();
+                } else if (op.POV90.wasActivated()) {
+                    supe.intakeEject();
+                } else {
+                    nothingHasHappened = true;
+                }
+            } else { //Is climbing
+
+                boolean shouldAttemptToDrop = false;
+                if (op.aButton.isBeingPressed()) {
+                    //Redundant and breaks control flow
+//                    shouldAttemptToDrop = Drive.getInstance().isClimbing() && Drive.getInstance().getRearBottomLimit();
+
+                    shouldAttemptToDrop = Drive.getInstance().getRearBottomLimit();
+
+                    if (op.bButton.isBeingPressed()) {
+                        shouldAttemptToDrop = true;
+                    }
+                }
+                supe.dropCrawler(shouldAttemptToDrop);
+            }
+        }
+
+        if (!nothingHasHappened) {
+            hasOperatorEverInteracted = true;
+        }
+
+    }
+
     private void handleRumble() {
         double driverRumble = 0;
         double opRumble = 0;
 
-        
+        if (elev.isSpeedOverriden()) {
+            driverRumble = Math.max(0.45, driverRumble);
+        }
+
         if (!drive.isSlow()) {
             driverRumble = Math.max(0.1, driverRumble);
         }
@@ -222,15 +318,48 @@ public class GZOI extends GZSubsystem {
             }
         }
 
-
+        if (driverJoy.backButton.longPressed()) {
+            elev.toggleSpeedOverride();
+        }
 
         drive.handleDriving(driverJoy);
     }
 
     private void handleDriverSupe(boolean sandstorm, boolean climbing) {
-
+        if (driverJoy.startButton.shortReleased()) {
+            supe.stow();
+        } else {
+            if (!climbing) {
+                if (driverJoy.POV180.shortReleased()) {
+                    supe.rocketHeight(QueueHeights.LOW);
+                } else if (driverJoy.POV180.longPressed()) {
+                    supe.queueHeight(QueueHeights.LOW, true);
+                } else if (driverJoy.POV270.shortReleased()) {
+                    supe.rocketHeight(QueueHeights.MIDDLE);
+                } else if (driverJoy.POV270.longPressed()) {
+                    supe.queueHeight(QueueHeights.MIDDLE, true);
+                } else if (driverJoy.POV0.shortReleased()) {
+                    supe.rocketHeight(QueueHeights.HIGH);
+                } else if (driverJoy.POV0.longPressed()) {
+                    supe.queueHeight(QueueHeights.HIGH, true);
+                } else if (!sandstorm && driverJoy.xButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
+                    supe.driverRetrieve();
+                } else if (!sandstorm && driverJoy.bButton.wasActivated() && !driverJoy.leftBumper.isBeingPressed()) {
+                    supe.setHeight(Heights.Cargo_Ship);
+                } else if (driverJoy.yButton.shortReleased() && !driverJoy.leftBumper.isBeingPressed()) {
+                    supe.toggleClaw();
+                } else if (driverJoy.yButton.longPressed() && !driverJoy.leftBumper.isBeingPressed()) {
+                    supe.toggleSlides();
+                } else if (driverJoy.rightBumper.wasActivated()) {
+                    supe.score(true);
+                } else if (driverJoy.leftCenterClick.shortReleased()) {
+                    supe.intake();
+                } else if (driverJoy.leftCenterClick.longPressed()) {
+                    supe.intakeEject();
                 }
-                
+            }
+        }
+    }
 
     public String getSmallString() {
         // no motors, so not really used but
@@ -281,6 +410,18 @@ public class GZOI extends GZSubsystem {
             @Override
             public String val() {
                 return Drive.getInstance().getStateString();
+            }
+        };
+        new LogItem("ELEV-STATE") {
+            @Override
+            public String val() {
+                return Elevator.getInstance().getStateString();
+            }
+        };
+        new LogItem("INTK-STATE") {
+            @Override
+            public String val() {
+                return Intake.getInstance().getStateString();
             }
         };
 
